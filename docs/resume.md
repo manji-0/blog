@@ -1,3 +1,7 @@
+---
+title: Resume 
+description: Work experience
+---
 # Resume
 ## Summary
 I'm an engineer who can lead activities to ensure service reliability for all layers, including team management.
@@ -20,7 +24,12 @@ I'm an engineer who can lead activities to ensure service reliability for all la
 ### LINE Corp. (Tokyo, Japan) - Reliability Engineer
 #### July 2021 ~ Present - Manager
 * Considering recruitment strategies
+    * Design technical/behavioral interviews
+    * Proactive public speaking and support for team members to speak at conferences
 * Leading the identification and resolution of cross-team issues
+    * System design and project management for storing/querying metrics/logs at a scale of TB/day
+    * Standardization of documentation policies and templates
+    * Leading data center-level compute resource migration
 
 #### Jun 2019 ~ July 2021 - Engineer
 * SRE operations in the area of network functions and virtual machines.
