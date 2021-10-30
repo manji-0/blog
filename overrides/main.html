@@ -3,6 +3,9 @@
 {% block extrahead %}
 <meta property="og:title" content="{{ page.title }} - manj.io">
 <meta name="twitter:title" content="{{ page.title }} - manj.io">
+{% if page and page.meta and page.meta.description %}
+<meta property="og:description" content="{{ page.meta.description }}">
+{% endif %}
 {% if page and page.meta and page.meta.image %}
 <meta property="og:image" content="{{ page.meta.image }}">
 <meta name="twitter:image" content="{{ page.meta.image }}">

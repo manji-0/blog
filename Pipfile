@@ -12,6 +12,7 @@ mkdocs-markdownextradata-plugin = "*"
 typer-cli = "*"
 python-markdown-math = "*"
 fontawesome-markdown = "*"
+pygments = "*"
 
 [dev-packages]
 
