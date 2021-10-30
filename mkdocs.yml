@@ -37,16 +37,6 @@ theme:
     media: "(prefers-color-scheme: light)"
     primary: "blue gray"
     accent: red
-    toggle:
-      icon: material/lightbulb-outline
-      name: Switch to dark mode
-  - scheme: slate
-    media: "(prefers-color-scheme: dark)"
-    primary: "blue gray"
-    accent: red
-    toggle:
-      icon: material/lightbulb
-      name: Switch to light mode
 plugins:
 - search
 - markdownextradata:
