@@ -28,7 +28,6 @@ theme:
   edit_uri: edit/main/docs/
   features:
   - navigation.expand
-  - navigation.instant
   - navigation.top
   - search.highlight
   language: ja
