@@ -12,7 +12,7 @@ There is also the possibility that you may need to contact your recruitment agen
 
 My argument is simple: Don't let one service provider do everything for you and you should manage aliases for email.
 
-It would be ridiculous to have all the services you depend on become unusable due to a case of your inadvertent misuse or false positive detection of malicious data by the service provider.
+It would be ridiculous to have all the services you depend on become unusable due to a case of inadvertent misuse or false positive detection of malicious data by the service provider.
 
 It's fucking ridiculous to say the least, especially when an email address, which is a kind of signature on the Internet, is involved in such an accident and becomes unusable.
 
@@ -28,6 +28,6 @@ Firefox Relay is a good service for that.
 
 <div class="blog-card" style="padding:12px;margin:15px 0;border:1px solid #ddd;word-wrap:break-word;width:auto;border-radius:5px;"><div class="blog-card-thumbnail" style="float:left;"><a href="https://relay.firefox.com/" class="blog-card-thumbnail-link" target="_blank"><img src="http://capture.heartrails.com/120x120/shorten?https://relay.firefox.com/" class="blog-card-thumb-image wp-post-image" alt="12436288584_94d6bc46d2_b.jpg" style="width:100px;height:100px;"></a></div><div class="blog-card-content" style="margin-left:110px;line-height:120%;"><div class="blog-card-title" style="margin-bottom:5px;"><a href="%url%" class="blog-card-title-link" style="font-weight:bold;text-decoration:none;color:#111;" target="_blank">Firefox Relay</a></div><div class="blog-card-excerpt" style="color:#333;font-size:90%;">Firefox Relay</div></div><div class="blog-card-footer" style="font-size:70%;color:#777;margin-top:10px;clear:both;"><span class="blog-card-hatena"><a href="http://b.hatena.ne.jp/entry/https://relay.firefox.com/" target="_blank"><img border="0" src="https://b.hatena.ne.jp/entry/image/https://relay.firefox.com/" border="0" alt="" /></a></span></div></div>
 
-In conclusion, those of you who use your Gmail address as your signature should imagine the value of your signature and how hard it would be to lose it, and take appropriate action.
+In conclusion, those of you who use your Gmail address as your signature should imagine the value of your signature and how hard it would be to lose it and take appropriate action.
 
 There are various kinds of risks involved, such as the risk of using it for personal communication or as an ID to register for services, which can be dealt with by using static aliases or relay services.

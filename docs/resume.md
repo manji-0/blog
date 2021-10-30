@@ -18,7 +18,7 @@ I'm an engineer who can lead activities to ensure service reliability for all la
 ## Key Experiences
 * Experience leading the design and implementation of application platforms integrated with monitoring and deployment systems
 * Experience in the implementation of technical systems to HR system design related to service operations.
-* Having several experiences of taught over 60 people lecturing on how to use the DevOps system.
+* Having several experiences of teaching over 60 people lecturing on how to use the DevOps system.
 
 ## Career History
 ### LINE Corp. (Tokyo, Japan) - Reliability Engineer

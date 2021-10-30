@@ -9,7 +9,7 @@ What does a typical SRE do? Unfortunately, this is my first career as an SRE, so
 * Improve the reliability of a single or few services.
     * We are responsible for selecting the DataStore and others, but we are not responsible for improving the reliability of the DataStore itself.
 * Manage reliability metrics such as SLI/SLO specific to a particular service.
-* Build the tools and culture for DevOps and evangelize it to your own team.
+* Build the tools and culture for DevOps and evangelize it to your team.
 
 In contrast, in an environment like Verda, the number of targets above becomes frighteningly large, and it becomes complicated to work well as an SRE... 
 
@@ -37,7 +37,7 @@ We need several talented engineers and project managers to achieve this, so if y
 
 Job Description: https://linecorp.com/ja/career/position/1357 (Sorry, Japanese only...)
 
-If any of your readers have the same problem as mine, please contact me to exchange ideas. Actually, I can't speak English, but I can communicate in English via chat. I am sure we will become good friends.
+If any of your readers have the same problem as mine, please contact me to exchange ideas. I can't speak English, but I can communicate in English via chat. I am sure we will become good friends.
 
 (Ah, the company will arrange an interpreter for conversations with people interested in our position to have a pleasant discussion. Please feel free to do so.)
 
