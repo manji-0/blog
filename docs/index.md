@@ -1,7 +1,7 @@
 ---
-title: manj.io
+title: home 
 description: Personal Site of Wataru Manji
-image: https://main.dp9l7xoz5l7e6.amplifyapp.com/assets/img/site.jpg
+type: website
 ---
 
 # Hi, I'm manji0.

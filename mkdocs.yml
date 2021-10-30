@@ -22,6 +22,7 @@ theme:
   name: material
   repo_url: https://github.com/manji-0/mkdoc-blog
   repo_name: manji-0/mkdoc-blog
+  custom_dir: overrides
   icon:
     logo: material/plex
   edit_uri: edit/main/docs/

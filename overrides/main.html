@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {% if page and page.meta and page.meta.image %}
+  <meta property="og:image" content="{{ page.meta.image }}"> 
+  {% else %}
+  <meta property="og:image" content="https://www.manj.io/assets/img/site.jpg">
+  {% endif %}
+  {% if page and page.meta and page.meta.type %}
+  <meta property="og:type" content="{{ page.meta.type }}">
+  {% else %}
+  <meta property="og:type" content="article">
+  {% endif %}
+{% endblock %}
+
