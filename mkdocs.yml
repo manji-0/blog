@@ -1,0 +1,95 @@
+site_name: manj.io
+site_url: https://www.manj.io
+
+#### Navigations ####
+nav:
+- Top: index.md
+- Resume: resume.md
+- Blog:
+  - '2021':
+    - blog/2021/pro-ogo.md
+    - blog/2021/favorite-songs-2021-1st.md
+    - blog/2021/designing-an-interview-for-engineering-team.md
+    - blog/2021/the-dangers-of-depending-on-gmail.md
+    - blog/2021/what-are-the-sre-activities-for-complex-and-large-services.md
+    - blog/2021/wais-4.md
+    - blog/2021/what-i-think-about-when-i-work-as-an-sre.md
+
+
+##### site config ####
+copyright: 'Copyright 2021 - 2021 Wataru Manji'
+theme:
+  name: material
+  repo_url: https://github.com/manji-0/mkdoc-blog
+  repo_name: manji-0/mkdoc-blog
+  icon:
+    logo: material/plex
+  edit_uri: edit/main/docs/
+  features:
+  - navigation.expand
+  - navigation.instant
+  - navigation.top
+  - search.highlight
+  language: ja
+  font: false
+  palette:
+  - scheme: default
+    media: "(prefers-color-scheme: light)"
+    primary: "blue gray"
+    accent: red
+    toggle:
+      icon: material/lightbulb-outline
+      name: Switch to dark mode
+  - scheme: slate
+    media: "(prefers-color-scheme: dark)"
+    primary: "blue gray"
+    accent: red
+    toggle:
+      icon: material/lightbulb
+      name: Switch to light mode
+plugins:
+- search
+- markdownextradata:
+    data: data
+markdown_extensions:
+- toc:
+    permalink: true
+- markdown.extensions.codehilite:
+    guess_lang: false
+- meta
+- mdx_include:
+    base_path: docs
+- mdx_math:
+    enable_dollar_delimiter: true
+- admonition
+- codehilite
+- def_list
+- extra
+- footnotes
+- fontawesome_markdown
+- pymdownx.critic
+- pymdownx.caret
+- pymdownx.keys
+- pymdownx.mark
+- pymdownx.tilde
+- pymdownx.smartsymbols
+- pymdownx.superfences:
+    custom_fences:
+    - name: mermaid
+      class: mermaid
+      format: !!python/name:pymdownx.superfences.fence_code_format ''
+- pymdownx.tabbed
+- pymdownx.tasklist:
+    custom_checkbox: true
+
+extra_javascript:
+- http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+- https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
+- assets/js/tablesort.js
+
+extra_css:
+- "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"
+- assets/css/nav.css
+- assets/css/custom.css
+
+
