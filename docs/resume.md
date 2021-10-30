@@ -1,6 +1,7 @@
 ---
 title: Resume 
 description: Work experience
+disqus: ""
 ---
 # Resume
 ## Summary

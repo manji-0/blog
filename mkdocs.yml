@@ -38,6 +38,8 @@ theme:
     media: "(prefers-color-scheme: light)"
     primary: "blue gray"
     accent: red
+extra:
+  disqus: manj-io
 plugins:
 - search
 - markdownextradata:
