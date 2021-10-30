@@ -50,7 +50,7 @@ Asian Hideoutは去年の年末に[Good job Codly or whatever](https://www.youtu
 
 ## ハービーキャット - Twinfield
 
-<iframe style="width: 100%; height: 120px;" src="https://bandcamp.com/EmbeddedPlayer/album=4074295265/size=large/bgcol=ffffff/linkcol=f171a2/tracklist=false/artwork=small/track=1092766322/transparent=true/" seamless><a href="https://nextlight.bandcamp.com/album/nx-future-core">NX FUTURE CORE by Twinfield</a></iframe>
+<iframe style="border: 0; width: 100%; height: 120px;" src="https://bandcamp.com/EmbeddedPlayer/album=4074295265/size=large/bgcol=ffffff/linkcol=f171a2/tracklist=false/artwork=small/track=1092766322/transparent=true/" seamless><a href="https://nextlight.bandcamp.com/album/nx-future-core">NX FUTURE CORE by Twinfield</a></iframe>
 
 音作りと構成が神。歌詞がすこしだけ不自然なのが玉に瑕なんだけど、最高のボーカルチョップとエモい展開で+10000点なので最高。
 

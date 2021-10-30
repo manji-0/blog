@@ -18,7 +18,7 @@ nav:
 
 
 ##### site config ####
-copyright: 'Copyright 2021 - 2021 Wataru Manji'
+copyright: "&copy; 2021 - 2021 Wataru Manji"
 theme:
   name: material
   repo_url: https://github.com/manji-0/mkdoc-blog
@@ -28,6 +28,7 @@ theme:
     logo: material/plex
   edit_uri: edit/main/docs/
   features:
+  - header.autohide
   - navigation.expand
   - navigation.top
   - search.highlight
@@ -40,6 +41,16 @@ theme:
     accent: red
 extra:
   disqus: manj-io
+  generator: false
+  social:
+  - icon: fontawesome/brands/twitter
+    link: https://twitter.com/_manji0
+    name: manji0 on Twitter
+  - icon: fontawesome/brands/mastodon
+    link: https://misskey.io/@manji0
+  - icon: fontawesome/brands/discord
+    link: https://discordapp.com/users/335975911478394881
+    name: manji0 on Discord
 plugins:
 - search
 - markdownextradata:
