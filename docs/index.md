@@ -1,6 +1,6 @@
 ---
 title: home 
-description: Personal Site of Wataru Manji
+description: profile/blog by Wataru Manji
 type: website
 ---
 
