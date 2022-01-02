@@ -15,6 +15,8 @@ nav:
     - blog/2021/what-are-the-sre-activities-for-complex-and-large-services.md
     - blog/2021/wais-4.md
     - blog/2021/what-i-think-about-when-i-work-as-an-sre.md
+  - 2022:
+    - blog/2022/happynewyear.md
 - Coding:
   - coding/abc188-c.md
 
