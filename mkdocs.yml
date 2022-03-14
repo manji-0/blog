@@ -3,22 +3,23 @@ site_url: https://www.manj.io
 
 #### Navigations ####
 nav:
-- Top: index.md
-- Resume: resume.md
-- Blog:
-  - '2021':
-    - blog/2021/mkdocs-as-blog.md
-    - blog/2021/pro-ogo.md
-    - blog/2021/favorite-songs-2021-1st.md
-    - blog/2021/designing-an-interview-for-engineering-team.md
-    - blog/2021/the-dangers-of-depending-on-gmail.md
-    - blog/2021/what-are-the-sre-activities-for-complex-and-large-services.md
-    - blog/2021/wais-4.md
-    - blog/2021/what-i-think-about-when-i-work-as-an-sre.md
-  - 2022:
-    - blog/2022/happynewyear.md
-- Coding:
-  - coding/abc188-c.md
+  - Top: index.md
+  - Resume: resume.md
+  - Blog:
+      - 2022:
+          - blog/2022/apex.md
+          - blog/2022/happynewyear.md
+      - "2021":
+          - blog/2021/mkdocs-as-blog.md
+          - blog/2021/pro-ogo.md
+          - blog/2021/favorite-songs-2021-1st.md
+          - blog/2021/designing-an-interview-for-engineering-team.md
+          - blog/2021/the-dangers-of-depending-on-gmail.md
+          - blog/2021/what-are-the-sre-activities-for-complex-and-large-services.md
+          - blog/2021/wais-4.md
+          - blog/2021/what-i-think-about-when-i-work-as-an-sre.md
+  - Coding:
+      - coding/abc188-c.md
 
 ##### site config ####
 copyright: "&copy; 2021 - 2021 Wataru Manji"
@@ -31,67 +32,65 @@ theme:
     logo: material/plex
   edit_uri: edit/main/docs/
   features:
-  - header.autohide
-  - navigation.expand
-  - navigation.top
-  - search.highlight
+    - header.autohide
+    - navigation.expand
+    - navigation.top
+    - search.highlight
   language: ja
   font: false
   palette:
-  - scheme: default
-    media: "(prefers-color-scheme: light)"
-    primary: "blue gray"
-    accent: red
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      primary: "blue gray"
+      accent: red
 extra:
   disqus: manj-io
   generator: false
   social:
-  - icon: fontawesome/brands/twitter
-    link: https://twitter.com/_manji0
-    name: manji0 on Twitter
-  - icon: fontawesome/brands/mastodon
-    link: https://misskey.io/@manji0
-  - icon: fontawesome/brands/discord
-    link: https://discordapp.com/users/335975911478394881
-    name: manji0 on Discord
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/_manji0
+      name: manji0 on Twitter
+    - icon: fontawesome/brands/mastodon
+      link: https://misskey.io/@manji0
+    - icon: fontawesome/brands/discord
+      link: https://discordapp.com/users/335975911478394881
+      name: manji0 on Discord
 plugins:
-- search
-- markdownextradata:
-    data: data
+  - search
+  - markdownextradata:
+      data: data
 markdown_extensions:
-- toc:
-    permalink: true
-- meta
-- mdx_include:
-    base_path: docs
-- mdx_math:
-    enable_dollar_delimiter: true
-- admonition
-- codehilite:
-    linenums: true
-- def_list
-- extra
-- footnotes
-- fontawesome_markdown
-- pymdownx.critic
-- pymdownx.caret
-- pymdownx.keys
-- pymdownx.mark
-- pymdownx.tilde
-- pymdownx.smartsymbols
-- pymdownx.superfences
-- pymdownx.tabbed
-- pymdownx.tasklist:
-    custom_checkbox: true
+  - toc:
+      permalink: true
+  - meta
+  - mdx_include:
+      base_path: docs
+  - mdx_math:
+      enable_dollar_delimiter: true
+  - admonition
+  - codehilite:
+      linenums: true
+  - def_list
+  - extra
+  - footnotes
+  - fontawesome_markdown
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 extra_javascript:
-- http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
-- https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
-- assets/js/tablesort.js
+  - http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
+  - assets/js/tablesort.js
 
 extra_css:
-- "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"
-- assets/css/nav.css
-- assets/css/custom.css
-
-
+  - "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"
+  - assets/css/nav.css
+  - assets/css/custom.css
