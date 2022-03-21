@@ -7,6 +7,7 @@ nav:
   - Resume: resume.md
   - Blog:
       - 2022:
+          - blog/2022/sre_event.md
           - blog/2022/atcoder_green.md
           - blog/2022/apex.md
           - blog/2022/happynewyear.md
