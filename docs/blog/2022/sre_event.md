@@ -47,6 +47,10 @@ beautiful.aiのいいところは「おおまかなデザイン(要素の配置�
 
 CJKフォント周りが弱いのとページを跨いだデザイン感の統一ができないのが玉に瑕ですが、十分便利です。
 
+(僕の発表資料)
+
+<script async class="speakerdeck-embed" data-id="31fd4e9918b24ff5aea69a4cd067da61" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
+
 ### 発表
 僕は基本的に原稿を用意しないスタイルで喋りの出来は当日のテンションに左右されるのですが、今回はまあうまくいった方でした。それでもあーとかえーとかめっちゃ言ってますけど。
 
