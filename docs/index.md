@@ -23,6 +23,9 @@ Free Documentation License".
 
 [license](/license.txt)
 
+## PGP Public Key
+[manji0.asc](/manji0.asc)
+
 ## Arrange Casual Interview
 <!-- Begin TimeRex Widget -->
 <div id="timerex_calendar" data-url="https://timerex.net/s/manji0/5cef05bd"></div>
