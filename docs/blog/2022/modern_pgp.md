@@ -50,7 +50,7 @@ PGP用語である主鍵、副鍵などの概念については面倒なので�
 
 ## GPGでの鍵作成とKeybaseへの公開鍵登録
 ### GPG
-GNUのpgp実装。Mac OSにはデフォルトではコマンドが叩けない。
+GNUのpgp実装。Mac OSだとデフォルトではコマンドが叩けない。
 
 今回はhomebrewで`2.3.7`を入れてそれを使う。
 
@@ -436,7 +436,7 @@ uif            ユーザインタラクションフラグの変更
 
 `factory-reset` した後、`passwd` を使ってPINを設定する。
 
-factory reset後のPINは
+factory reset後のPINはデフォルト値に設定される。
 
 * PIN: `123456`
 * Admin PIN: `12345678`
@@ -490,7 +490,7 @@ Githubにログインし、Preference → SSH and GPG keysから登録する。
 ## Gitの設定
 コミット時に自動で署名するよう、gitconfigを設定する。
 
-```$HOME/.gitconfig
+```
 [user]
 	name = Wataru Manji
 	email = <each mail address>
@@ -498,3 +498,6 @@ Githubにログインし、Preference → SSH and GPG keysから登録する。
 [commit]
 	gpgsign = true
 ```
+
+## Github上での見え方
+[こんな感じ](https://github.com/manji-0/blog/commit/e22f74fe03ee79f1d3839537c545e522930100d3)
