@@ -76,7 +76,6 @@ markdown_extensions:
   - def_list
   - extra
   - footnotes
-  - fontawesome_markdown
   - pymdownx.critic
   - pymdownx.caret
   - pymdownx.keys
