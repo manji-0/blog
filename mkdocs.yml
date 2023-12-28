@@ -6,6 +6,8 @@ nav:
   - Top: index.md
   - Resume: resume.md
   - Blog:
+      - 2023:
+          - blog/2023/matome.md
       - 2022:
           - blog/2022/modern_pgp.md
           - blog/2022/sre_event.md
