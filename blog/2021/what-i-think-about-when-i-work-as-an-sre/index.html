@@ -1,0 +1,1191 @@
+
+<!doctype html>
+<html lang="ja" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://www.manj.io/blog/2021/what-i-think-about-when-i-work-as-an-sre/">
+      
+      
+        <link rel="prev" href="../wais-4/">
+      
+      
+        <link rel="next" href="../../../coding/abc188-c/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+    
+    
+      
+        <title>SREとして仕事をするときに考えてること - manj.io</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/nav.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+<meta property="og:title" content="SREとして仕事をするときに考えてること - manj.io">
+<meta name="twitter:title" content="SREとして仕事をするときに考えてること - manj.io">
+
+
+<meta property="og:image" content="https://www.manj.io/assets/img/site.jpg">
+<meta name="twitter:image" content="https://www.manj.io/assets/img/site.jpg">
+
+
+<meta property="og:type" content="article">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@_manji0">
+<meta name="twitter:creator" content="@_manji0">
+<meta property="og:locale" content="ja_JP">
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-gray" data-md-color-accent="red">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sre" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="ヘッダー">
+    <a href="../../.." title="manj.io" class="md-header__button md-logo" aria-label="manj.io" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 2c-1.11 0-2 .89-2 2v16c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V4c0-1.11-.89-2-2-2H4m4.56 4h3.5l3.44 6-3.44 6h-3.5L12 12 8.56 6Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            manj.io
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SREとして仕事をするときに考えてること
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue-gray" data-md-color-accent="red"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="検索" placeholder="検索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="検索">
+        
+        <button type="reset" class="md-search__icon md-icon" title="クリア" aria-label="クリア" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            検索を初期化
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="ナビゲーション" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="manj.io" class="md-nav__button md-logo" aria-label="manj.io" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 2c-1.11 0-2 .89-2 2v16c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V4c0-1.11-.89-2-2-2H4m4.56 4h3.5l3.44 6-3.44 6h-3.5L12 12 8.56 6Z"/></svg>
+
+    </a>
+    manj.io
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Top
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../resume/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resume
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Blog
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Blog
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2023
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            2023
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../2023/matome/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2023 総括
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2022
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            2022
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../2022/modern_pgp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    今っぽくPGP鍵を作って管理してみる
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../2022/sre_event/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6社合同SRE勉強会
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../2022/atcoder_green/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AtCoderで入緑した
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../2022/apex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    APEXと現実世界での仕事の繋がり、新卒採用について
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../2022/happynewyear/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2022 年始
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    2021
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            2021
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mkdocs-as-blog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mkdocsでブログを作ってみる
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pro-ogo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    プロ奢に5万円渡して3時間半通話した件について
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../favorite-songs-2021-1st/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    好きな曲 2021年度上期
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../designing-an-interview-for-engineering-team/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    エンジニア組織で面接を設計するときに考えたこと
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../the-dangers-of-depending-on-gmail/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    The dangers of depending on Gmail
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what-are-the-sre-activities-for-complex-and-large-services/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    What are the SRE activities for complex and large services?
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wais-4/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    心理検査の結果と所感
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    SREとして仕事をするときに考えてること
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    SREとして仕事をするときに考えてること
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      前提
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      仕事を探す、作る
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="仕事を探す、作る">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      状況の把握と課題の発見
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      仕事の分類と優先度、対処方針とか
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      やり方を決める
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      仕事を進める
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Coding
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Coding
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../coding/abc188-c/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ABC188 C - ABC Tournament
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      前提
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      仕事を探す、作る
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="仕事を探す、作る">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      状況の把握と課題の発見
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      仕事の分類と優先度、対処方針とか
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      やり方を決める
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      仕事を進める
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="sre">SREとして仕事をするときに考えてること<a class="headerlink" href="#sre" title="Permanent link">&para;</a></h1>
+<p>最近 <a href="https://verda.fm/">verda.fm</a> というPodCastを始めた。チームメンバーと雑談したいってのが個人的なモチベーションなのだけど、それぞれのメンバーの持つスキルや考え方について話を聞くことでチーム内外にとってなにかいい感じの価値を産めるといいな〜とも思っている。まだ非公式非公認なのでテーマの選定とかにはかなり気を遣っている。大人だから分別はつけないとね。</p>
+<p>さて、つい先日に次回の収録のテーマをどうするかをその回のゲストと話してるとき、こんなことを言われた。</p>
+<p>「まんじさんにSREのことについて聞いてみたいです！」</p>
+<p>...なるほど。考えてみれば、自分がどういうモチベーションを持って仕事を作ってるか、どういう考え方をベースに仕事を進めているかみたいなことをまとめたことがなかった。</p>
+<p>PodCastでそういうことを喋るのは全然OKなんだけど、非公式非公認なので話せる内容にも限りがある。それを当日いい感じに分類しながら喋る自信はない。いい機会なので、収録までに外に出せそうなところをザッと書き下してしまおうと思う。</p>
+<p>僕はかなり感覚派なのでここに書く仕事のやり方が読者の参考にならないかもしれないけど、ご容赦。</p>
+<h2 id="_1">前提<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>まずは前提として僕がどういう感じの仕事してるかを簡単に。</p>
+<ul>
+<li>Verdaという社内向けクラウドプラットフォームの開発組織で、SREに責務を持つチームに所属している</li>
+<li>チームの中でも、プロダクト横断での仕組み作りや作った仕組みの導入なんかを担当している</li>
+<li>個別のプロダクトに対して、既存のやり方を拡張したり改善したりという形で貢献することもある</li>
+</ul>
+<h2 id="_2">仕事を探す、作る<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>「プロダクト or 単一のチームが持つ課題に対する改善の立案と実施」「Verdaの多くのコンポーネント or チームが持つ課題に対する(ry」のどちらかにおおよそ分類される。</p>
+<h3 id="_3">状況の把握と課題の発見<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>どういうプロジェクトを立てるかを考える前に、兎にも角にも現状の課題を発見しないことには始まらない。</p>
+<p>僕は「どのような課題が存在するか」ということを考えるために集めている情報を性質上大きく2種類に分類している。</p>
+<p>1つ目は受動的に集まる情報。</p>
+<p>例えば、SREチームにはVerdaのそれぞれのサービス(プロダクト)が直面したトラブルやサービスダウンなどのインシデントの情報が集まってくる。インシデント発生時のユーザ対応、解決のためのディレクションは基本的にSREチームの責務なので、ちゃんと仕事をしてればそのあたりの情報は勝手に蓄積されていく。</p>
+<p>他にも、社内のユーザサポートも(今のところ)SREチームの仕事なので、プロダクトの仕様の不便だったり分かりにくいポイントや、安定性が低いユーザリソースの種類に関する情報も勝手にチームに蓄積されていく。</p>
+<p>そういう情報を受動的に脳に流していくとなんとなく課題が浮かんでくるので、</p>
+<ul>
+<li>課題をより厳密に定義するために必要な情報を収集するための仕組みを作る取り組み</li>
+<li>課題を解決するための取り組み</li>
+</ul>
+<p>みたいな形に明確化してプロジェクトの目的とゴールを設定している。1日で終わるようなことであれば文書にはせずにサクっとやってしまうことも多い。あんまりよくないかもしれないけど。</p>
+<p>2つ目は能動的に集める情報。</p>
+<p>「プロダクトの開発ユニットの週次MTGに参加する」「Slackのチャンネルで議論されてるトピックを追う」みたいなことを日常的にやることで、SREとして貢献できそうな課題を探している。</p>
+<p>特に週次、日次のMTGに参加するのは情報のインプットに対する時間効率がいい。深い確認もサクっとできる。</p>
+<p>ただ人手が足りないので、これは全てのコンポーネントに対してできている活動ではない。目と手と耳と口があと3セットずつ欲しい。</p>
+<p>「近い将来スケーラビリティの問題にぶち当たりそう」だとか、「サービスの稼動に影響はないけどうまく動いてない要素がある」みたいな課題はこういう活動をしないと中々発見できない。</p>
+<p>目的とゴールの具体化、プロジェクト化の流れは1つ目と同じ。</p>
+<h3 id="_4">仕事の分類と優先度、対処方針とか<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>優先度は割と感覚で決めているんだけど、おおよそ以下のような順序。</p>
+<ol>
+<li>課題の原因は明確に分かってないけど、ユーザに影響が出ているもの<ul>
+<li>こういうのは大抵突発的に発生するインシデントとして表れるので、ユーザへのアナウンスや影響箇所の手動修正なんかをSRE主導で進めることが多い</li>
+<li>SREと開発チームのリードが協力して原因をなるべく早く特定するように進める。開発チームの方も手慣れたもので、体制はわりとすぐできる。</li>
+<li>解決策の実装に時間がかかる場合は、ユーザリソースに出た影響の自動修正なんかの仕組みをSREが急いで作ることもある。</li>
+</ul>
+</li>
+<li>課題の原因が明らかになっていて、発生によってユーザに影響があるもの<ul>
+<li>まあ大抵こういう課題は先に開発チームの方で拾われてるので、SREとしてプロジェクト化することは少ない</li>
+<li>SREが気付いたときには開発チームでワークアラウンドが作られてる、みたいなことも結構ある印象</li>
+<li>僕個人の知見が実装やレビューに役立ちそうなら、優先して積極的に介入している</li>
+<li>SREチームで持っている仕組みやノウハウが役立ちそうなら、協業の立て付けをサクっと作る</li>
+</ul>
+</li>
+<li>内部ツールや基盤のトラブル<ul>
+<li>複数チームが使ってる監視基盤やインシデント通知システムに関するトラブルがこれにあたる</li>
+<li>大抵SREがデザインして運用してるものなので、解決までの時間は割と早い</li>
+</ul>
+</li>
+<li>監視とかの機能の設計 or 実装漏れのフォロー<ul>
+<li>新規プロダクトのキックオフ時とかに監視回りのデザインについての議論をしたり、デザイン自体をレビューしたり</li>
+<li>後から気付いたことについてはサクっと作って渡したり、目的だけを開発者に伝えたり。この辺は割と適当なプロセスでやっている。(雑という意味ではない</li>
+<li>既にサービスインしてるプロダクトについても、基本的なプロセス監視のためのmetricが抜けてたりとか、そういう発覚に対する修正はちょくちょくある</li>
+</ul>
+</li>
+<li>現在存在しないけど、必要な仕組みの開発<ul>
+<li>API Availability Rateの記録とかロギングパイプラインとかのサービス横断で統一したい仕組みの開発、導入</li>
+<li>この辺は自分のアイデアだけではなく、もっと上の人の思惑だったり描いてもらった絵を具体化することも多い</li>
+</ul>
+</li>
+</ol>
+<p>最後の2つは現状あんまりできてない。どうしても優先度が落ちる。この辺を今後はもっとやっていきたいけど、プロジェクト化するために把握すべき情報が多かったり、複雑な検討が必要だったりして中々難しい。なんだかんだマンパワーが欲しいという結論になる。</p>
+<h2 id="_5">やり方を決める<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>「マニュアル操作で何かをしましょう」みたいなものを解決策にはしない。特定のプロダクトの文脈に閉じた解決策ではなく、同じような課題を抱えたプロダクトが他にないかを調べて可能な限り汎用的な手段で解決する。できるだけ開発者が意識するものごとを減らす。</p>
+<p>ある課題を解決しようとしたときに、その解決策によって対象チームの手間の合計が増えるような手段は取らないというのが基本的な方針。エンジニアとして、そういう手段を選んでドヤることは死んでもしたくないという謎のプライドがある。</p>
+<p>SREの仕事が多少増える、みたいなのは妥協してしまうこともある。いいことではないけど、プロダクト開発チームに手間を押し付けるよりはまだマシだと感じる。</p>
+<h2 id="_6">仕事を進める<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>SREという立場で仕事を進める以上、その成果はそれぞれの開発ユニットが管理してるプロダクトコードの変更やプロダクトのデザインへの要素の追加という形をとることになる。</p>
+<p>なので、何か仕事をするときには対象のプロダクトの開発者たちと入念に意識を合わせるようにしている。立案段階、実装段階、導入段階、すべての段階でちゃんと情報を出す。</p>
+<p>たまに誤解が発生したりもするけど、まあそれはお互い人間だからしゃーない。誤解の発生自体を根絶することはできない。</p>
+<p>そもそも誤解の発生自体は悪だと思ってない。誤解の解決の過程で生まれるアイデアもあるし、施策の根本的な問題に気付くこともあるので。</p>
+<p>とはいえ誤解の発生を最小限にするために努力することは正義だと思うし、面倒だけどちゃんとしようと頑張ってる。</p>
+<p>大体こんな感じ。収録中に違う質問がでたら、それに関するトピックを追記するかも。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  ページトップへ戻る
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2021 - 2021 Wataru Manji
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://twitter.com/_manji0" target="_blank" rel="noopener" title="manji0 on Twitter" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+      
+    
+    
+    
+      
+      
+    
+    <a href="https://misskey.io/@manji0" target="_blank" rel="noopener me" title="misskey.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://discordapp.com/users/335975911478394881" target="_blank" rel="noopener" title="manji0 on Discord" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251.047 251.047 0 0 0 9.109-7.137 1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233 234.533 234.533 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 48.815 1.864 1.864 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541ZM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241Zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241Z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["header.autohide", "navigation.expand", "navigation.top", "search.highlight"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      
+        <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
+      
+        <script src="../../../assets/js/tablesort.js"></script>
+      
+    
+  </body>
+</html>

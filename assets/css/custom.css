@@ -1,0 +1,33 @@
+:root {
+  --md-text-font-family: "Helvetica Neue", "Hiragino Sans"; 
+  --md-code-font-family: "Menlo";
+}
+
+.md-typeset h1 {
+  font-weight: 600;
+}
+
+.md-typeset h2 {
+  font-weight: 500;
+  padding: 0.2em 0em;
+  border-bottom: solid 3px rgba(0, 82, 153, 0.728);
+}
+
+.md-typeset h3 {
+  font-weight: 500;
+  position: relative;
+  padding-left: 1.3em;
+  line-height: 1.4;
+}
+
+.md-typeset h3:before {
+  font-family: "FontAwesome";
+  content: "\f00c";
+  font-weight: 900;
+  position: absolute;
+  font-size: 1em;
+  left: 0;
+  top: 0;
+  color: rgba(0, 61, 153, 0.776);
+  font-weight: 900;
+}
