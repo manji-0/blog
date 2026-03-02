@@ -20,6 +20,10 @@ export default defineConfig({
 					label: 'Blog',
 					items: [
 						{
+							label: '2026',
+							autogenerate: { directory: 'blog/2026' },
+						},
+						{
 							label: '2023',
 							autogenerate: { directory: 'blog/2023' },
 						},
