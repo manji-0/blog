@@ -43,7 +43,7 @@ export default defineConfig({
 				},
 			],
 			customCss: [
-				// './src/styles/custom.css', // Will add this later
+				'./src/styles/custom.css',
 			],
 		}),
 	],
