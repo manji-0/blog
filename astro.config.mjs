@@ -1,9 +1,13 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 
 // https://astro.build/config
 export default defineConfig({
+	markdown: {
+		remarkPlugins: [remarkBeautifulMermaid],
+	},
 	integrations: [
 		starlight({
 			title: 'manj.io',

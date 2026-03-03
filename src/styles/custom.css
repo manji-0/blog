@@ -2,3 +2,18 @@
 	--sl-font-system: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
 		'Yu Gothic', Meiryo, 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
+
+.beautiful-mermaid {
+	margin-block: 1.25rem;
+	overflow-x: auto;
+	border: 1px solid var(--sl-color-hairline);
+	border-radius: 0.75rem;
+	padding: 0.75rem;
+	background: var(--sl-color-bg-nav);
+}
+
+.beautiful-mermaid svg {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
