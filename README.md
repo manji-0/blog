@@ -1,49 +1,48 @@
-# Starlight Starter Kit: Basics
+# manj.io blog
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+Astro + Starlight で構築した個人サイトです。  
+ブログ、コーディングメモ、履歴書ページを `docs` コンテンツとして公開しています。
 
+## Stack
+
+- Astro 5
+- @astrojs/starlight
+- beautiful-mermaid (Mermaid コードブロックをビルド時に SVG 化)
+
+## Site structure
+
+- `src/content/docs/index.md`: トップページ
+- `src/content/docs/resume.md`: 履歴書ページ
+- `src/content/docs/blog/<year>/`: ブログ記事
+- `src/content/docs/coding/`: コーディングメモ
+- `src/content/docs/assets/`: 記事内で使う静的アセット
+- `src/plugins/remark-beautiful-mermaid.mjs`: Mermaid レンダリング用 remark plugin
+- `src/styles/custom.css`: サイト共通の追加スタイル
+
+## Code block rendering
+
+`astro.config.mjs` の `starlight({ expressiveCode: ... })` でコードブロック表示を調整しています。
+
+- dark/light テーマ自動切替
+- コントラスト最適化
+- デフォルト折り返し (シェル系は折り返し無効)
+- 文字サイズ・行間・余白の調整
+- コピー操作 UI の調整
+
+## Development
+
+```bash
+npm install
+npm run dev
 ```
-npm create astro@latest -- --template starlight
+
+ローカル起動先: `http://localhost:4321`
+
+## Build
+
+```bash
+npm run build
+npm run preview
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
-```
-
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
-
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
-
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+ビルド成果物は `dist/` に出力されます。
