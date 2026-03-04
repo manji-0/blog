@@ -9,6 +9,11 @@ const TITLE_MAX_LINES = 3;
 const DESCRIPTION_MAX_LINES = 3;
 const TITLE_LINE_CHARS = 25;
 const DESCRIPTION_LINE_CHARS = 40;
+const TITLE_LINE_GAP = 78;
+const DESCRIPTION_LINE_GAP = 48;
+const FONT_DOWNLOAD_URL =
+	'https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/Japanese/NotoSansCJKjp-Regular.otf';
+const FONT_CACHE_PATH = path.join(process.cwd(), '.astro', 'og-fonts', 'NotoSansCJKjp-Regular.otf');
 
 /**
  * Generate OGP PNG files for blog articles at build time.
@@ -23,6 +28,7 @@ export default function ogImageBuildIntegration() {
 				const outDir = fileURLToPath(dir);
 				const blogRoot = path.join(outDir, 'blog');
 				const articlePages = await collectArticlePages(blogRoot);
+				const japaneseFontFile = await ensureJapaneseFontFile(logger);
 				let generated = 0;
 
 				for (const pagePath of articlePages) {
@@ -30,7 +36,7 @@ export default function ogImageBuildIntegration() {
 					const slug = toSlugFromPagePath(pagePath, outDir);
 					const title = extractMetaContent(html, 'property', 'og:title') || 'manj.io';
 					const description = extractMetaContent(html, 'property', 'og:description') || '';
-					const png = await renderPng({ title, description, slug });
+					const png = await renderPng({ title, description, slug, japaneseFontFile });
 					const outputPath = path.join(outDir, 'og', `${slug}.png`);
 
 					await fs.mkdir(path.dirname(outputPath), { recursive: true });
@@ -42,6 +48,40 @@ export default function ogImageBuildIntegration() {
 			},
 		},
 	};
+}
+
+/**
+ * @param {import('astro').AstroIntegrationLogger} logger
+ * @returns {Promise<string>}
+ */
+async function ensureJapaneseFontFile(logger) {
+	try {
+		await fs.access(FONT_CACHE_PATH);
+		return FONT_CACHE_PATH;
+	} catch {
+		// Download below.
+	}
+
+	try {
+		const response = await fetch(FONT_DOWNLOAD_URL, {
+			headers: {
+				'User-Agent': 'manj.io-og-image-builder/1.0',
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`status ${response.status}`);
+		}
+
+		const bytes = Buffer.from(await response.arrayBuffer());
+		await fs.mkdir(path.dirname(FONT_CACHE_PATH), { recursive: true });
+		await fs.writeFile(FONT_CACHE_PATH, bytes);
+		logger.info('Downloaded Japanese OGP font.');
+		return FONT_CACHE_PATH;
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.warn(`Could not download Japanese OGP font (${message}). Falling back to system fonts.`);
+		return '';
+	}
 }
 
 /**
@@ -125,24 +165,11 @@ function parseAttributes(tag) {
 }
 
 /**
- * @param {{ title: string; description: string; slug: string }} metadata
+ * @param {{ title: string; description: string; slug: string; japaneseFontFile: string }} metadata
  * @returns {Promise<Buffer>}
  */
 async function renderPng(metadata) {
-	const svg = renderSvg(metadata);
-	return sharp(Buffer.from(svg))
-		.png({
-			compressionLevel: 9,
-			quality: 90,
-		})
-		.toBuffer();
-}
-
-/**
- * @param {{ title: string; description: string; slug: string }} metadata
- * @returns {string}
- */
-function renderSvg({ title, description, slug }) {
+	const { title, description, slug, japaneseFontFile } = metadata;
 	const safeTitle = normalizeText(title);
 	const safeDescription = normalizeText(description);
 	const safeSlug = normalizeText(slug);
@@ -152,18 +179,115 @@ function renderSvg({ title, description, slug }) {
 		? wrapLines(safeDescription, DESCRIPTION_LINE_CHARS, DESCRIPTION_MAX_LINES)
 		: [];
 
-	const titleTspans = titleLines
-		.map((line, index) => `<tspan x="88" dy="${index === 0 ? 0 : 78}">${escapeXml(line)}</tspan>`)
-		.join('');
+	/** @type {import('sharp').OverlayOptions[]} */
+	const overlays = [];
 
-	const descriptionTspans = descriptionLines
-		.map((line, index) => `<tspan x="88" dy="${index === 0 ? 0 : 48}">${escapeXml(line)}</tspan>`)
-		.join('');
+	overlays.push(
+		createTextOverlay({
+			text: 'manj.io / blog',
+			left: 88,
+			baseline: 130,
+			fontSize: 28,
+			color: '#9ab6f2',
+			weight: 700,
+			fontFamily: 'OGPJP',
+			fontfile: japaneseFontFile,
+		}),
+	);
 
-	const descriptionBlock = descriptionLines.length
-		? `<text x="88" y="430" fill="#a9c2f6" font-family="Noto Sans JP, 'Yu Gothic UI', 'Hiragino Sans', sans-serif" font-size="36" font-weight="500">${descriptionTspans}</text>`
-		: '';
+	for (const [index, line] of titleLines.entries()) {
+		overlays.push(
+			createTextOverlay({
+				text: line,
+				left: 88,
+				baseline: 250 + index * TITLE_LINE_GAP,
+				fontSize: 62,
+				color: '#ffffff',
+				weight: 700,
+				fontFamily: 'OGPJP',
+				fontfile: japaneseFontFile,
+			}),
+		);
+	}
 
+	for (const [index, line] of descriptionLines.entries()) {
+		overlays.push(
+			createTextOverlay({
+				text: line,
+				left: 88,
+				baseline: 430 + index * DESCRIPTION_LINE_GAP,
+				fontSize: 36,
+				color: '#a9c2f6',
+				weight: 500,
+				fontFamily: 'OGPJP',
+				fontfile: japaneseFontFile,
+			}),
+		);
+	}
+
+	overlays.push(
+		createTextOverlay({
+			text: safeSlug,
+			left: 88,
+			baseline: 575,
+			fontSize: 24,
+			color: '#c7dafb',
+			weight: 500,
+			fontFamily: 'monospace',
+			fontfile: '',
+		}),
+	);
+
+	return sharp(Buffer.from(renderBackgroundSvg()))
+		.png()
+		.composite(overlays)
+		.png({
+			compressionLevel: 9,
+			quality: 90,
+		})
+		.toBuffer();
+}
+
+/**
+ * @param {{
+ *   text: string;
+ *   left: number;
+ *   baseline: number;
+ *   fontSize: number;
+ *   color: string;
+ *   weight: number;
+ *   fontFamily: string;
+ *   fontfile: string;
+ * }} opts
+ * @returns {import('sharp').OverlayOptions}
+ */
+function createTextOverlay(opts) {
+	const { text, left, baseline, fontSize, color, weight, fontFamily, fontfile } = opts;
+	const markup = `<span foreground="${color}" weight="${weight}">${escapePango(text)}</span>`;
+
+	/** @type {import('sharp').CreateText} */
+	const textInput = {
+		text: markup,
+		font: `${fontFamily} ${fontSize}`,
+		rgba: true,
+		width: Math.max(1, WIDTH - left - 60),
+		height: Math.max(1, Math.ceil(fontSize * 1.4)),
+		align: 'left',
+		wrap: 'none',
+	};
+	if (fontfile) textInput.fontfile = fontfile;
+
+	return {
+		input: { text: textInput },
+		left,
+		top: Math.max(0, Math.round(baseline - fontSize)),
+	};
+}
+
+/**
+ * @returns {string}
+ */
+function renderBackgroundSvg() {
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Open Graph image">
   <defs>
@@ -179,10 +303,6 @@ function renderSvg({ title, description, slug }) {
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)" />
   <rect x="88" y="76" width="220" height="10" rx="5" fill="url(#line)" />
-  <text x="88" y="130" fill="#9ab6f2" font-family="Noto Sans JP, 'Yu Gothic UI', 'Hiragino Sans', sans-serif" font-size="28" font-weight="700">manj.io / blog</text>
-  <text x="88" y="250" fill="#ffffff" font-family="Noto Sans JP, 'Yu Gothic UI', 'Hiragino Sans', sans-serif" font-size="62" font-weight="700">${titleTspans}</text>
-  ${descriptionBlock}
-  <text x="88" y="575" fill="#c7dafb" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace" font-size="24">${escapeXml(safeSlug)}</text>
 </svg>`;
 }
 
@@ -238,7 +358,7 @@ function trimWithEllipsis(value, maxChars) {
  * @param {string} value
  * @returns {string}
  */
-function escapeXml(value) {
+function escapePango(value) {
 	return value
 		.replaceAll('&', '&amp;')
 		.replaceAll('<', '&lt;')
