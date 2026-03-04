@@ -3,13 +3,16 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
+import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://www.manj.io',
 	markdown: {
 		remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],
 	},
 	integrations: [
+		ogImageBuildIntegration(),
 		starlight({
 			title: 'manj.io',
 			social: [
@@ -95,6 +98,7 @@ export default defineConfig({
 			customCss: [
 				'./src/styles/custom.css',
 			],
+			routeMiddleware: ['./src/starlight/og-image-middleware.mjs'],
 		}),
 	],
 });
