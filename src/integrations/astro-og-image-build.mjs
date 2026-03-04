@@ -6,6 +6,7 @@ import sharp from 'sharp';
 const WIDTH = 1200;
 const HEIGHT = 840;
 const CONTENT_HEIGHT = 630;
+const CONTENT_TOP = Math.floor((HEIGHT - CONTENT_HEIGHT) / 2);
 const TITLE_MAX_LINES = 3;
 const DESCRIPTION_MAX_LINES = 3;
 const TITLE_LINE_CHARS = 25;
@@ -187,7 +188,7 @@ async function renderPng(metadata) {
 		createTextOverlay({
 			text: 'manj.io / blog',
 			left: 88,
-			baseline: 130,
+			baseline: yInContent(130),
 			fontSize: 28,
 			color: '#9ab6f2',
 			weight: 700,
@@ -198,14 +199,14 @@ async function renderPng(metadata) {
 
 	for (const [index, line] of titleLines.entries()) {
 		overlays.push(
-			createTextOverlay({
-				text: line,
-				left: 88,
-				baseline: 250 + index * TITLE_LINE_GAP,
-				fontSize: 62,
-				color: '#ffffff',
-				weight: 700,
-				fontFamily: 'OGPJP',
+				createTextOverlay({
+					text: line,
+					left: 88,
+					baseline: yInContent(250 + index * TITLE_LINE_GAP),
+					fontSize: 62,
+					color: '#ffffff',
+					weight: 700,
+					fontFamily: 'OGPJP',
 				fontfile: japaneseFontFile,
 			}),
 		);
@@ -213,14 +214,14 @@ async function renderPng(metadata) {
 
 	for (const [index, line] of descriptionLines.entries()) {
 		overlays.push(
-			createTextOverlay({
-				text: line,
-				left: 88,
-				baseline: 430 + index * DESCRIPTION_LINE_GAP,
-				fontSize: 36,
-				color: '#a9c2f6',
-				weight: 500,
-				fontFamily: 'OGPJP',
+				createTextOverlay({
+					text: line,
+					left: 88,
+					baseline: yInContent(430 + index * DESCRIPTION_LINE_GAP),
+					fontSize: 36,
+					color: '#a9c2f6',
+					weight: 500,
+					fontFamily: 'OGPJP',
 				fontfile: japaneseFontFile,
 			}),
 		);
@@ -230,7 +231,7 @@ async function renderPng(metadata) {
 		createTextOverlay({
 			text: safeSlug,
 			left: 88,
-			baseline: 575,
+			baseline: yInContent(575),
 			fontSize: 24,
 			color: '#c7dafb',
 			weight: 500,
@@ -303,9 +304,16 @@ function renderBackgroundSvg() {
     </linearGradient>
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)" />
-  <rect width="${WIDTH}" height="${CONTENT_HEIGHT}" fill="url(#bg)" />
-  <rect x="88" y="76" width="220" height="10" rx="5" fill="url(#line)" />
+  <rect x="88" y="${yInContent(76)}" width="220" height="10" rx="5" fill="url(#line)" />
 </svg>`;
+}
+
+/**
+ * @param {number} y
+ * @returns {number}
+ */
+function yInContent(y) {
+	return CONTENT_TOP + y;
 }
 
 /**
