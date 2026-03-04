@@ -1,6 +1,64 @@
 :root {
 	--sl-font-system: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
 		'Yu Gothic', Meiryo, 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+	/* Dark theme: Zenn-like foundation with reduced blue emphasis */
+	--sl-color-white: hsl(0, 0%, 100%);
+	--sl-color-gray-1: hsl(220, 21%, 92%);
+	--sl-color-gray-2: hsl(220, 14%, 79%);
+	--sl-color-gray-3: hsl(220, 10%, 57%);
+	--sl-color-gray-4: hsl(221, 11%, 37%);
+	--sl-color-gray-5: hsl(222, 11%, 23%);
+	--sl-color-gray-6: hsl(222, 12%, 15%);
+	--sl-color-black: hsl(222, 14%, 9%);
+
+	--sl-color-accent-low: hsl(212, 42%, 22%);
+	--sl-color-accent: hsl(210, 72%, 62%);
+	--sl-color-accent-high: hsl(208, 78%, 82%);
+
+	--sl-color-text: hsl(220, 16%, 82%);
+	--sl-color-text-accent: var(--sl-color-accent-high);
+	--sl-color-text-invert: var(--sl-color-accent-low);
+	--sl-color-bg: var(--sl-color-black);
+	--sl-color-bg-nav: hsl(222, 13%, 13%);
+	--sl-color-bg-sidebar: hsl(222, 13%, 13%);
+	--sl-color-bg-inline-code: hsl(222, 11%, 20%);
+	--sl-color-bg-accent: var(--sl-color-accent-high);
+	--sl-color-hairline-light: hsl(222, 11%, 23%);
+	--sl-color-hairline: hsl(222, 13%, 15%);
+	--sl-color-hairline-shade: hsl(222, 14%, 9%);
+	--sl-color-backdrop-overlay: hsla(222, 15%, 8%, 0.72);
+}
+
+:root[data-theme='light'],
+[data-theme='light'] ::backdrop {
+	/* Light theme: atom-like paper tone + One Light style accents */
+	--sl-color-white: hsl(218, 24%, 17%);
+	--sl-color-gray-1: hsl(218, 20%, 24%);
+	--sl-color-gray-2: hsl(220, 16%, 30%);
+	--sl-color-gray-3: hsl(220, 10%, 44%);
+	--sl-color-gray-4: hsl(219, 9%, 58%);
+	--sl-color-gray-5: hsl(36, 18%, 79%);
+	--sl-color-gray-6: hsl(42, 24%, 90%);
+	--sl-color-gray-7: hsl(45, 40%, 95%);
+	--sl-color-black: hsl(42, 45%, 98%);
+
+	--sl-color-accent-high: hsl(218, 70%, 38%);
+	--sl-color-accent: hsl(217, 67%, 53%);
+	--sl-color-accent-low: hsl(217, 80%, 90%);
+
+	--sl-color-text: hsl(218, 17%, 29%);
+	--sl-color-text-accent: var(--sl-color-accent-high);
+	--sl-color-text-invert: var(--sl-color-black);
+	--sl-color-bg: var(--sl-color-black);
+	--sl-color-bg-nav: hsl(45, 42%, 95%);
+	--sl-color-bg-sidebar: hsl(46, 38%, 96%);
+	--sl-color-bg-inline-code: hsl(42, 23%, 91%);
+	--sl-color-bg-accent: var(--sl-color-accent);
+	--sl-color-hairline-light: hsl(42, 23%, 88%);
+	--sl-color-hairline: hsl(42, 22%, 90%);
+	--sl-color-hairline-shade: hsl(42, 21%, 86%);
+	--sl-color-backdrop-overlay: hsla(220, 12%, 32%, 0.5);
 }
 
 .beautiful-mermaid {
