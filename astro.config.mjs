@@ -2,11 +2,12 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
+import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
-		remarkPlugins: [remarkBeautifulMermaid],
+		remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],
 	},
 	integrations: [
 		starlight({
