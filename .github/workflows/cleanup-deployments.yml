@@ -1,0 +1,128 @@
+name: Cleanup Old Deployments
+
+on:
+  schedule:
+    - cron: "23 3 * * 0"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment to clean up"
+        required: false
+        default: "github-pages"
+        type: string
+      keep:
+        description: "How many newest deployments to keep (minimum: 1)"
+        required: false
+        default: "20"
+        type: string
+      dry_run:
+        description: "If true, only log actions and do not modify deployments"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup old deployments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const environment = core.getInput("environment") || "github-pages";
+            const keepInput = Number.parseInt(core.getInput("keep") || "20", 10);
+            const keep = Number.isFinite(keepInput) && keepInput > 0 ? keepInput : 20;
+            const dryRun = (core.getInput("dry_run") || "false").toLowerCase() === "true";
+
+            core.info(`Target environment: ${environment}`);
+            core.info(`Keep newest deployments: ${keep}`);
+            core.info(`Dry run: ${dryRun}`);
+
+            const deployments = await github.paginate(github.rest.repos.listDeployments, {
+              owner,
+              repo,
+              environment,
+              per_page: 100,
+            });
+
+            deployments.sort((a, b) => {
+              return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            });
+
+            core.info(`Found ${deployments.length} deployments in "${environment}"`);
+
+            if (deployments.length <= keep) {
+              core.info("No cleanup needed.");
+              return;
+            }
+
+            const candidates = deployments.slice(keep);
+            let deleted = 0;
+            let skipped = 0;
+
+            for (const deployment of candidates) {
+              const deploymentId = deployment.id;
+              const createdAt = deployment.created_at;
+
+              core.info(`Processing deployment ${deploymentId} (created: ${createdAt})`);
+
+              if (dryRun) {
+                core.info(`[dry-run] Would mark deployment ${deploymentId} as inactive and delete it.`);
+                skipped += 1;
+                continue;
+              }
+
+              let latestState = "unknown";
+              try {
+                const { data: statuses } = await github.rest.repos.listDeploymentStatuses({
+                  owner,
+                  repo,
+                  deployment_id: deploymentId,
+                  per_page: 1,
+                });
+                latestState = statuses[0]?.state ?? "none";
+              } catch (error) {
+                core.warning(`Could not read statuses for deployment ${deploymentId}: ${error.message}`);
+              }
+
+              if (latestState !== "inactive") {
+                try {
+                  await github.rest.repos.createDeploymentStatus({
+                    owner,
+                    repo,
+                    deployment_id: deploymentId,
+                    state: "inactive",
+                    auto_inactive: false,
+                    description: "Marked inactive by cleanup workflow",
+                  });
+                  core.info(`Marked deployment ${deploymentId} as inactive.`);
+                } catch (error) {
+                  core.warning(`Could not mark deployment ${deploymentId} inactive: ${error.message}`);
+                }
+              }
+
+              try {
+                await github.rest.repos.deleteDeployment({
+                  owner,
+                  repo,
+                  deployment_id: deploymentId,
+                });
+                deleted += 1;
+                core.info(`Deleted deployment ${deploymentId}.`);
+              } catch (error) {
+                skipped += 1;
+                core.warning(`Could not delete deployment ${deploymentId}: ${error.message}`);
+              }
+            }
+
+            core.info(`Cleanup finished. Deleted: ${deleted}, Skipped: ${skipped}`);
