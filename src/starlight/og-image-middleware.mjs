@@ -1,7 +1,8 @@
 import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
 
 const OGP_IMAGE_WIDTH = '1200';
-const OGP_IMAGE_HEIGHT = '630';
+const OGP_IMAGE_HEIGHT = '840';
+const TWITTER_CARD_VALUE = 'summary_large_image';
 
 export const onRequest = defineRouteMiddleware(async (context, next) => {
 	await next();
@@ -14,7 +15,6 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
 
 	const hasOgImage = hasMeta(route.head, 'property', 'og:image');
 	const hasTwitterImage = hasMeta(route.head, 'name', 'twitter:image');
-	if (hasOgImage && hasTwitterImage) return;
 
 	const ogImagePath = `/og/${slug}.png`;
 	const ogImageUrl = context.site ? new URL(ogImagePath, context.site).href : ogImagePath;
@@ -32,6 +32,8 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
 		tags.push({ tag: 'meta', attrs: { name: 'twitter:image', content: ogImageUrl } });
 	}
 
+	removeMeta(route.head, 'name', 'twitter:card');
+	tags.push({ tag: 'meta', attrs: { name: 'twitter:card', content: TWITTER_CARD_VALUE } });
 	route.head.push(...tags);
 });
 
@@ -43,4 +45,16 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
  */
 function hasMeta(head, key, value) {
 	return head.some((tag) => tag.tag === 'meta' && tag.attrs?.[key] === value);
+}
+
+/**
+ * @param {import('@astrojs/starlight/route-data').StarlightRouteData['head']} head
+ * @param {'name' | 'property'} key
+ * @param {string} value
+ */
+function removeMeta(head, key, value) {
+	for (let index = head.length - 1; index >= 0; index -= 1) {
+		const tag = head[index];
+		if (tag.tag === 'meta' && tag.attrs?.[key] === value) head.splice(index, 1);
+	}
 }

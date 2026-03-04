@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const WIDTH = 1200;
-const HEIGHT = 630;
+const HEIGHT = 840;
+const CONTENT_HEIGHT = 630;
 const TITLE_MAX_LINES = 3;
 const DESCRIPTION_MAX_LINES = 3;
 const TITLE_LINE_CHARS = 25;
@@ -302,6 +303,7 @@ function renderBackgroundSvg() {
     </linearGradient>
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)" />
+  <rect width="${WIDTH}" height="${CONTENT_HEIGHT}" fill="url(#bg)" />
   <rect x="88" y="76" width="220" height="10" rx="5" fill="url(#line)" />
 </svg>`;
 }
