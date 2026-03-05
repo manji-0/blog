@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
 
 :root {
 	--sl-font-system: 'LINE Seed JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
 		'Yu Gothic', Meiryo, 'Segoe UI', system-ui, -apple-system, sans-serif;
+	--sl-font-code-block: 'Fira Code', var(--__sl-font-mono);
 
 	/* Dark theme: Zenn-like foundation with reduced blue emphasis */
 	--sl-color-white: hsl(0, 0%, 100%);
@@ -61,6 +63,16 @@
 	--sl-color-hairline: hsl(42, 22%, 90%);
 	--sl-color-hairline-shade: hsl(42, 21%, 86%);
 	--sl-color-backdrop-overlay: hsla(220, 12%, 32%, 0.5);
+}
+
+.sl-markdown-content .expressive-code {
+	--ec-codeFontFml: var(--sl-font-code-block);
+}
+
+.sl-markdown-content .expressive-code pre > code,
+.sl-markdown-content .expressive-code .ec-line .code {
+	font-variant-ligatures: common-ligatures contextual;
+	font-feature-settings: 'liga' 1, 'clig' 1, 'calt' 1;
 }
 
 .beautiful-mermaid {
