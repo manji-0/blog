@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;500;700;800&display=swap');
+
 :root {
-	--sl-font-system: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
+	--sl-font-system: 'LINE Seed JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
 		'Yu Gothic', Meiryo, 'Segoe UI', system-ui, -apple-system, sans-serif;
 
 	/* Dark theme: Zenn-like foundation with reduced blue emphasis */
