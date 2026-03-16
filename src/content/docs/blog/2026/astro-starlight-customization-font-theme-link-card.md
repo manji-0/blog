@@ -1,6 +1,8 @@
 ---
 title: Astro/Starlightでフォント・配色テーマ・リンクカードをカスタムする
 description: LINE Seed JPとFira Code、Light/Dark配色、URL単独行のリンクカード化をAstro/Starlightでまとめてやってみた。
+sidebar:
+  order: 3
 ---
 
 以下はAIに自分の文体を学習させて一発生成した記事であり、まともにレビューされていません。
