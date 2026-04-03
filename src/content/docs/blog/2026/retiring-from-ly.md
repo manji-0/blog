@@ -2,7 +2,7 @@
 title: LINEヤフーを退職します
 description: 7年弱勤めたLYを退職します。家庭の事情。
 sidebar:
-  order: 2
+  order: 3
 ---
 
 本日社内発令とのことで、退職エントリを書きます。

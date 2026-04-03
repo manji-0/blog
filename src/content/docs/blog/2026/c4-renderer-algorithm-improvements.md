@@ -2,7 +2,7 @@
 title: C4レンダラ改善録 — 初版からの6つのアルゴリズム改善
 description: 自作 C4 レンダラの初版実装から現行版への改善点を整理する
 sidebar:
-  order: 4
+  order: 1
 ---
 
 [前回の記事](/blog/2026/c4-diagram-render-algo/)では、Docattice に組み込んだ自作 C4 レンダラの設計と実装について、Sugiyama framework から VLSI 配線技術の転用まで一通り書いた。あの記事を公開してからもレンダラには手を入れ続けており、いくつかのアルゴリズム改善が積み重なったので、ここで整理しておく。
