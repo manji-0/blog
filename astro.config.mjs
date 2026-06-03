@@ -4,6 +4,8 @@ import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
+import githubPagesUptimeIntegration from './src/integrations/github-pages-uptime.mjs';
+import fediverseStatusesIntegration from './src/integrations/fediverse-statuses.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,12 +15,28 @@ export default defineConfig({
 	},
 	integrations: [
 		ogImageBuildIntegration(),
+		githubPagesUptimeIntegration(),
+		fediverseStatusesIntegration(),
 		starlight({
 			title: 'manj.io',
+			head: [
+				{
+					tag: 'script',
+					content: `try{if(!localStorage.getItem('starlight-theme'))localStorage.setItem('starlight-theme','dark')}catch{}`,
+				},
+				{
+					tag: 'script',
+					attrs: { src: '/manj-github-pages-uptime.js', defer: true },
+				},
+				{
+					tag: 'script',
+					attrs: { src: '/manj-fediverse-statuses.js', defer: true },
+				},
+			],
 			social: [
-				{ label: 'Twitter', href: 'https://twitter.com/manj10', icon: 'twitter' },
-				{ label: 'Mastodon', href: 'https://fed.manji.dev/@manji0', icon: 'mastodon' },
-				{ label: 'Discord', href: 'https://discordapp.com/users/335975911478394881', icon: 'discord' },
+				{ label: 'Twitter', href: 'https://twitter.com/_manji0', icon: 'twitter' },
+				{ label: 'Mastodon', href: 'https://fedi.manji.app/users/manji0', icon: 'mastodon' },
+				{ label: 'Bluesky', href: 'https://bsky.app/profile/manj.io', icon: 'blueSky' },
 				{ label: 'GitHub', href: 'https://github.com/manji-0', icon: 'github' },
 			],
 			sidebar: [
@@ -98,7 +116,15 @@ export default defineConfig({
 			customCss: [
 				'./src/styles/custom.css',
 			],
-			routeMiddleware: ['./src/starlight/og-image-middleware.mjs'],
+			components: {
+				Footer: './src/components/starlight/BlogFooter.astro',
+				Pagination: './src/components/starlight/BlogPagination.astro',
+				TwoColumnContent: './src/starlight/TwoColumnContent.astro',
+			},
+			routeMiddleware: [
+				'./src/starlight/og-image-middleware.mjs',
+				'./src/starlight/blog-pagination-middleware.mjs',
+			],
 		}),
 	],
 });
