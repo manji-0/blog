@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
@@ -11,7 +12,9 @@ import fediverseStatusesIntegration from './src/integrations/fediverse-statuses.
 export default defineConfig({
 	site: 'https://www.manj.io',
 	markdown: {
-		remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],
+		processor: unified({
+			remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],
+		}),
 	},
 	integrations: [
 		ogImageBuildIntegration(),
@@ -47,25 +50,25 @@ export default defineConfig({
 					items: [
 						{
 							label: '2026',
-							autogenerate: { directory: 'blog/2026' },
+							items: [{ autogenerate: { directory: 'blog/2026' } }],
 						},
 						{
 							label: '2023',
-							autogenerate: { directory: 'blog/2023' },
+							items: [{ autogenerate: { directory: 'blog/2023' } }],
 						},
 						{
 							label: '2022',
-							autogenerate: { directory: 'blog/2022' },
+							items: [{ autogenerate: { directory: 'blog/2022' } }],
 						},
 						{
 							label: '2021',
-							autogenerate: { directory: 'blog/2021' },
+							items: [{ autogenerate: { directory: 'blog/2021' } }],
 						},
 					],
 				},
 				{
 					label: 'Coding',
-					autogenerate: { directory: 'coding' },
+					items: [{ autogenerate: { directory: 'coding' } }],
 				},
 			],
 			expressiveCode: {
