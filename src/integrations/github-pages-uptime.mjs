@@ -1,6 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fetchGithubPagesUptime } from '../lib/github-pages-uptime.mjs';
+import {
+	createFallbackGithubPagesUptime,
+	fetchGithubPagesUptime,
+} from '../lib/github-pages-uptime.mjs';
 
 const OUTPUT_PATH = path.join(process.cwd(), 'public', 'github-pages-uptime.json');
 
@@ -37,5 +40,13 @@ async function writeUptimeSnapshot(logger) {
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
 		logger.warn(`Could not fetch GitHub Pages uptime (${message}). Keeping previous snapshot if any.`);
+		try {
+			await fs.access(OUTPUT_PATH);
+		} catch {
+			const data = createFallbackGithubPagesUptime();
+			await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
+			await fs.writeFile(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+			logger.warn('Wrote fallback GitHub Pages uptime snapshot.');
+		}
 	}
 }
