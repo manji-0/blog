@@ -1,52 +1,6 @@
 (function () {
 	const SNAPSHOT_URL = '/github-pages-uptime.json';
-	const STATUS_HOME_URL = 'https://www.githubstatus.com/';
-	const PAGES_COMPONENT_ID = 'vg70hn9s2tyj';
 	const DAY_COUNT = 30;
-
-	const FILL_TO_STATE = {
-		'#28a745': 'ok',
-		'#bdae13': 'warn',
-		'#e3600b': 'warn',
-		'#d73a49': 'bad',
-		'#dc3545': 'bad',
-		'#6c757d': 'maint',
-	};
-
-	function parseUptime(html) {
-		const statusMatch = html.match(
-			new RegExp(
-				'data-component-id="' + PAGES_COMPONENT_ID + '"[\\s\\S]*?data-component-status="([^"]+)"',
-			),
-		);
-		const svgMatch = html.match(
-			new RegExp('id="uptime-component-' + PAGES_COMPONENT_ID + '"[^>]*>([\\s\\S]*?)</svg>'),
-		);
-		if (!svgMatch) throw new Error('uptime graph missing');
-
-		const days = [];
-		const fillPattern = /fill="([^"]+)"/g;
-		let match = fillPattern.exec(svgMatch[1]);
-		while (match) {
-			const fill = match[1].toLowerCase();
-			days.push({ fill, state: FILL_TO_STATE[fill] || 'unknown' });
-			match = fillPattern.exec(svgMatch[1]);
-		}
-
-		const percentMatch = html.match(
-			new RegExp(
-				'id="uptime-percent-' +
-					PAGES_COMPONENT_ID +
-					'"[\\s\\S]*?<var[^>]*>([\\d.]+)</var>',
-			),
-		);
-
-		return {
-			percent: percentMatch ? percentMatch[1] : '',
-			days,
-			status: statusMatch ? statusMatch[1] : 'unknown',
-		};
-	}
 
 	function formatPercent(percent) {
 		if (!percent) return '—';
@@ -193,14 +147,6 @@
 		return response.json();
 	}
 
-	async function loadLive() {
-		const response = await fetch(STATUS_HOME_URL, {
-			headers: { 'User-Agent': 'manj.io-github-pages-uptime/1.0' },
-		});
-		if (!response.ok) throw new Error('live ' + response.status);
-		return parseUptime(await response.text());
-	}
-
 	function mount() {
 		const sidebar = document.querySelector('.right-sidebar');
 		if (!sidebar) return;
@@ -210,22 +156,9 @@
 		loadSnapshot()
 			.then(function (data) {
 				renderFooter(sidebar, mountPoint, data);
-				return loadLive()
-					.then(function (live) {
-						renderFooter(sidebar, mountPoint, live);
-					})
-					.catch(function () {
-						/* snapshot is enough */
-					});
 			})
 			.catch(function () {
-				return loadLive()
-					.then(function (live) {
-						renderFooter(sidebar, mountPoint, live);
-					})
-					.catch(function () {
-						/* keep CSS fallback */
-					});
+				/* keep CSS fallback */
 			});
 	}
 
