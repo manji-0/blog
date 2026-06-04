@@ -440,6 +440,12 @@ h1#_top {
 	font-size: inherit;
 }
 
+.sl-markdown-content > h2:first-child,
+.sl-markdown-content > .sl-heading-wrapper:first-child h2 {
+	border-top: 0;
+	padding-top: 0;
+}
+
 .sl-markdown-content h2::before {
 	content: '## ';
 	color: var(--sl-color-accent);
