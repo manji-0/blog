@@ -5,9 +5,16 @@ const GITHUB_STATUS_ENDPOINTS = {
   "/incidents": "https://www.githubstatus.com/api/v2/incidents.json",
 } as const;
 const CACHE_TTL_SECONDS = 60 * 60 * 24;
+const STALE_WHILE_REVALIDATE_SECONDS = 60 * 5;
+const CACHE_STORAGE_TTL_SECONDS = CACHE_TTL_SECONDS + STALE_WHILE_REVALIDATE_SECONDS;
+const CACHE_CREATED_AT_HEADER = "X-Proxy-Cache-Created-At";
 
 const cacheHeaders = {
-  "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}`,
+  "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}`,
+} as const;
+
+const cacheStorageHeaders = {
+  "Cache-Control": `public, max-age=${CACHE_STORAGE_TTL_SECONDS}`,
 } as const;
 
 function corsHeaders(): HeadersInit {
@@ -41,6 +48,23 @@ function withResponseHeaders(request: Request, response: Response): Response {
   });
 }
 
+function cacheableResponse(response: Response): Response {
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: {
+      ...Object.fromEntries(response.headers),
+      ...cacheStorageHeaders,
+      [CACHE_CREATED_AT_HEADER]: String(Date.now()),
+    },
+  });
+}
+
+function isStale(response: Response): boolean {
+  const createdAt = Number(response.headers.get(CACHE_CREATED_AT_HEADER));
+  return !Number.isFinite(createdAt) || Date.now() - createdAt >= CACHE_TTL_SECONDS * 1000;
+}
+
 async function fetchGithubStatus(request: Request, upstreamUrl: string): Promise<Response> {
   const upstreamResponse = await fetch(upstreamUrl, {
     headers: {
@@ -67,6 +91,18 @@ async function fetchGithubStatus(request: Request, upstreamUrl: string): Promise
       "Content-Type": "application/json; charset=utf-8",
     },
   });
+}
+
+async function refreshGithubStatusCache(
+  request: Request,
+  cache: Cache,
+  cacheKey: Request,
+  upstreamUrl: string,
+): Promise<void> {
+  const response = await fetchGithubStatus(request, upstreamUrl);
+  if (!response.ok) return;
+
+  await cache.put(cacheKey, cacheableResponse(response));
 }
 
 async function handleRequest(request: Request, ctx: ExecutionContext): Promise<Response> {
@@ -99,12 +135,16 @@ async function handleRequest(request: Request, ctx: ExecutionContext): Promise<R
   const cachedResponse = await cache.match(cacheKey);
 
   if (cachedResponse) {
+    if (isStale(cachedResponse)) {
+      ctx.waitUntil(refreshGithubStatusCache(request, cache, cacheKey, upstreamUrl).catch(() => undefined));
+    }
+
     return withResponseHeaders(request, cachedResponse);
   }
 
   const response = await fetchGithubStatus(request, upstreamUrl);
   if (response.ok) {
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    ctx.waitUntil(cache.put(cacheKey, cacheableResponse(response.clone())));
   }
 
   return withResponseHeaders(request, response);
