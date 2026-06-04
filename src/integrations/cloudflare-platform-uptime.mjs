@@ -1,20 +1,20 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
-	createFallbackGithubPagesUptime,
-	fetchGithubPagesUptime,
-} from '../lib/github-pages-uptime.mjs';
+	createFallbackCloudflarePlatformUptime,
+	fetchCloudflarePlatformUptime,
+} from '../lib/cloudflare-platform-uptime.mjs';
 
-const OUTPUT_PATH = path.join(process.cwd(), 'public', 'github-pages-uptime.json');
+const OUTPUT_PATH = path.join(process.cwd(), 'public', 'cloudflare-platform-uptime.json');
 
 /**
- * Fetch GitHub Pages uptime from githubstatus.com at build/dev start.
+ * Fetch Cloudflare Pages/Workers uptime from Cloudflare Status at build/dev start.
  *
  * @returns {import('astro').AstroIntegration}
  */
-export default function githubPagesUptimeIntegration() {
+export default function cloudflarePlatformUptimeIntegration() {
 	return {
-		name: 'github-pages-uptime',
+		name: 'cloudflare-platform-uptime',
 		hooks: {
 			'astro:build:start': async ({ logger }) => {
 				await writeUptimeSnapshot(logger);
@@ -31,22 +31,22 @@ export default function githubPagesUptimeIntegration() {
  */
 async function writeUptimeSnapshot(logger) {
 	try {
-		const data = await fetchGithubPagesUptime();
+		const data = await fetchCloudflarePlatformUptime();
 		await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
 		await fs.writeFile(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 		logger.info(
-			`GitHub Pages uptime: ${data.percent}% over ${data.days.length} days (${data.status}).`,
+			`Cloudflare platform uptime: ${data.percent}% over ${data.days.length} days (${data.status}).`,
 		);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		logger.warn(`Could not fetch GitHub Pages uptime (${message}). Keeping previous snapshot if any.`);
+		logger.warn(`Could not fetch Cloudflare platform uptime (${message}). Keeping previous snapshot if any.`);
 		try {
 			await fs.access(OUTPUT_PATH);
 		} catch {
-			const data = createFallbackGithubPagesUptime();
+			const data = createFallbackCloudflarePlatformUptime();
 			await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
 			await fs.writeFile(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
-			logger.warn('Wrote fallback GitHub Pages uptime snapshot.');
+			logger.warn('Wrote fallback Cloudflare platform uptime snapshot.');
 		}
 	}
 }

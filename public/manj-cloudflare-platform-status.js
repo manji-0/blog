@@ -1,5 +1,5 @@
 (function () {
-	const SNAPSHOT_URL = '/github-pages-uptime.json';
+	const SNAPSHOT_URL = '/cloudflare-platform-uptime.json';
 	const CLOUDFLARE_STATUS_URL = '/cloudflare-status.json';
 	const DAY_COUNT = 30;
 
@@ -13,6 +13,8 @@
 			case 'operational':
 			case 'none':
 				return 'operational';
+			case 'under_maintenance':
+				return 'maintenance';
 			case 'degraded_performance':
 				return 'degraded';
 			case 'minor':
@@ -107,7 +109,7 @@
 
 			const uptime = document.createElement('section');
 			uptime.className = 'manj-uptime-window';
-			uptime.setAttribute('aria-label', 'GitHub Pages uptime from GitHub Status');
+			uptime.setAttribute('aria-label', 'Cloudflare Pages and Workers uptime from Cloudflare Status');
 
 			const heading = document.createElement('div');
 			heading.className = 'manj-uptime-window__title';
@@ -119,7 +121,7 @@
 			bars.setAttribute('role', 'img');
 			bars.setAttribute(
 				'aria-label',
-				'GitHub Pages daily status for the past ' + DAY_COUNT + ' days',
+				'Cloudflare Pages and Workers daily status for the past ' + DAY_COUNT + ' days',
 			);
 			uptime.appendChild(bars);
 
@@ -139,13 +141,14 @@
 			'manj.io       ' + recentPercent,
 			'Cloudflare    ' + statusLabel(cloudflareStatus.status),
 			'Astro static  ok',
+			'Pages         ' + statusLabel(data.pagesStatus || data.status),
+			'Workers       ' + statusLabel(data.workersStatus || data.status),
 			'Pagefind      indexed',
-			'GitHub Pages  ' + statusLabel(data.status),
 		].join('\n');
 
 		renderBars(footer.querySelector('.manj-uptime-bars'), data);
 		footer.querySelector('.manj-uptime-legend').textContent =
-			'GitHub Pages  ' +
+			'Pages/Workers  ' +
 			statusLabel(data.status) +
 			'       ' +
 			DAY_COUNT +

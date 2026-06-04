@@ -7,7 +7,7 @@ import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
 import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
-import githubPagesUptimeIntegration from './src/integrations/github-pages-uptime.mjs';
+import cloudflarePlatformUptimeIntegration from './src/integrations/cloudflare-platform-uptime.mjs';
 
 const fontFaceCss = readFileSync(new URL('./public/fonts/fonts.css', import.meta.url), 'utf8');
 
@@ -29,7 +29,7 @@ export default defineConfig({
 	integrations: [
 		ogImageBuildIntegration(),
 		cloudflareStatusIntegration(),
-		githubPagesUptimeIntegration(),
+		cloudflarePlatformUptimeIntegration(),
 		starlight({
 			title: 'manj.io',
 			locales: {
@@ -49,7 +49,7 @@ export default defineConfig({
 				},
 				{
 					tag: 'script',
-					attrs: { src: '/manj-github-pages-uptime.js', defer: true },
+					attrs: { src: '/manj-cloudflare-platform-status.js', defer: true },
 				},
 				{
 					tag: 'script',
