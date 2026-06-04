@@ -253,7 +253,6 @@ a {
 	margin-inline: var(--manj-grid-size) var(--sl-sidebar-pad-x);
 }
 
-/* Right rail: half a grid cell narrower than Starlight defaults. */
 @media (min-width: 72rem) {
 	.right-sidebar-container {
 		width: calc(
@@ -264,22 +263,19 @@ a {
 	}
 
 	[data-has-sidebar] .right-sidebar-container {
-		width: calc(var(--sl-sidebar-width) - var(--manj-right-rail-trim));
+		width: var(--sl-sidebar-width);
 	}
 
 	.right-sidebar > .manj-system-map-footer,
 	.right-sidebar-panel .sl-container,
 	.right-sidebar-panel .manj-system-map-footer {
-		width: calc(
-			var(--sl-sidebar-width) - 2 * var(--sl-sidebar-pad-x) - var(--manj-right-rail-trim)
-		);
+		width: calc(var(--sl-sidebar-width) - 2 * var(--sl-sidebar-pad-x));
 		max-width: calc(
 			(
 					100vw - var(--sl-sidebar-width) - 2 * var(--sl-content-pad-x) -
 						2 * var(--sl-sidebar-pad-x)
 				) *
-				0.25 -
-				var(--manj-right-rail-trim)
+				0.25
 		);
 	}
 }
