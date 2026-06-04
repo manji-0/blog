@@ -8,10 +8,15 @@ disqus: ""
 2026-06-01 Current
 
 ## Summary
-SRE with over 6 years of experience leading observability establishment for large-scale internal IaaS/PaaS. Led the design, construction, and operation of scalable monitoring infrastructure for over 10,000 physical servers and 100,000+ VMs. Proven track record in improving service reliability from alert notification to automatic recovery. Experienced in team management, recruitment, and leading cross-team technical standardization.
+SRE with over 6 years of experience leading observability establishment for large-scale internal IaaS/PaaS. 
+
+Led the design, construction, and operation of scalable monitoring infrastructure for over 10,000 physical servers and 100,000+ VMs. Proven track record in improving service reliability from alert notification to automatic recovery. 
+
+Experienced in team management, recruitment, and leading cross-team technical standardization.
 
 ## Key Skills
-*   **Cloud & DevOps**: Proficient at designing DevOps systems and using tools (Ansible, Jenkins, StackStorm). Expertise in networking and virtualization related to OpenStack.
+*   **System Design**: Rapidly delivers high-precision designs for performance, availability, observability, and cost grounded in analysis of system characteristics.
+*   **Private Cloud & DevOps**: Proficient at designing DevOps systems and using tools (Ansible, Jenkins, StackStorm). Expertise in networking and virtualization related to OpenStack.
 *   **Technical Stack**: Kubernetes, OpenTelemetry, Grafana Loki, Prometheus, Terraform, Go, Python.
 *   **Leadership**: Great leadership in system development and Incident Handling as TechLead. Experience in team management and recruitment.
 *   **Communication**: Excellent communication skills to clarify customer problems and propose solutions. English (Business), Japanese (Native).
@@ -26,12 +31,18 @@ SRE with over 6 years of experience leading observability establishment for larg
 
 ### KAKEHASHI inc. (Tokyo, Japan)
 **Tech Lead, AuthN/Z Platform**
+*Apr 2026 ~ Present*
 
-TBD
+Develop and operate a high-throughput AuthN/Z platform for medical-grade systems. Lead infrastructure design and IaC validation tooling; contribute to company-wide infrastructure and AI research initiatives.
+
+*   **AuthN/Z Platform**: Development and operation of a high-load authentication and authorization platform for medical-grade systems.
+*   **Infrastructure**: Infrastructure design for the platform and its dependencies.
+*   **IaC**: Led development of validation tooling for infrastructure-as-code.
+*   **Research**: Member of company-wide task forces on infrastructure and AI.
 
 ### LINE Yahoo Corporation (Tokyo, Japan)
 **Senior Engineer, IaaS Dev Department**
-*Oct 2023 ~ Present*
+*Oct 2023 ~ Apr 2026*
 
 Lead the monitoring design for a new internal cloud platform. Directed technical selection, architecture design, and implementation for the company's first joint product following the merger.
 
