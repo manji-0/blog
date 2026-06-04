@@ -269,7 +269,7 @@ a {
 	.right-sidebar > .manj-system-map-footer,
 	.right-sidebar-panel .sl-container,
 	.right-sidebar-panel .manj-system-map-footer {
-		width: calc(var(--sl-sidebar-width) - 2 * var(--sl-sidebar-pad-x));
+		width: calc(var(--sl-sidebar-width) - var(--manj-grid-size) - var(--sl-sidebar-pad-x));
 		max-width: calc(
 			(
 					100vw - var(--sl-sidebar-width) - 2 * var(--sl-content-pad-x) -
