@@ -1,8 +1,8 @@
 /** GitHub Status Pages component (https://www.githubstatus.com/). */
 export const GITHUB_PAGES_COMPONENT_ID = 'vg70hn9s2tyj';
 
-export const GITHUB_STATUS_SUMMARY_URL = 'https://www.githubstatus.com/api/v2/summary.json';
-export const GITHUB_STATUS_INCIDENTS_URL = 'https://www.githubstatus.com/api/v2/incidents.json';
+export const GITHUB_STATUS_SUMMARY_URL = 'https://github-status-proxy.manji.app/summary';
+export const GITHUB_STATUS_INCIDENTS_URL = 'https://github-status-proxy.manji.app/incidents';
 
 const STATE_TO_FILL = {
 	ok: '#28a745',

@@ -1,4 +1,9 @@
-const GITHUB_STATUS_URL = "https://www.githubstatus.com/api/v2/status.json";
+const GITHUB_STATUS_ENDPOINTS = {
+  "/": "https://www.githubstatus.com/api/v2/status.json",
+  "/status": "https://www.githubstatus.com/api/v2/status.json",
+  "/summary": "https://www.githubstatus.com/api/v2/summary.json",
+  "/incidents": "https://www.githubstatus.com/api/v2/incidents.json",
+} as const;
 const CACHE_TTL_SECONDS = 60 * 60 * 24;
 
 const cacheHeaders = {
@@ -39,8 +44,8 @@ function withResponseHeaders(request: Request, response: Response): Response {
   });
 }
 
-async function fetchGithubStatus(request: Request): Promise<Response> {
-  const upstreamResponse = await fetch(GITHUB_STATUS_URL, {
+async function fetchGithubStatus(request: Request, upstreamUrl: string): Promise<Response> {
+  const upstreamResponse = await fetch(upstreamUrl, {
     headers: {
       Accept: "application/json",
       "User-Agent": "github-status-proxy",
@@ -84,11 +89,13 @@ async function handleRequest(request: Request, ctx: ExecutionContext): Promise<R
   }
 
   const url = new URL(request.url);
-  if (url.pathname !== "/" && url.pathname !== "/status") {
+  const upstreamUrl = GITHUB_STATUS_ENDPOINTS[url.pathname as keyof typeof GITHUB_STATUS_ENDPOINTS];
+  if (!upstreamUrl) {
     return jsonResponse(request, { error: "not_found" }, { status: 404 });
   }
 
-  const cacheKey = new Request(new URL("/status", url.origin), {
+  const cachePath = url.pathname === "/" ? "/status" : url.pathname;
+  const cacheKey = new Request(new URL(cachePath, url.origin), {
     method: "GET",
   });
   const cache = caches.default;
@@ -98,7 +105,7 @@ async function handleRequest(request: Request, ctx: ExecutionContext): Promise<R
     return withResponseHeaders(request, cachedResponse);
   }
 
-  const response = await fetchGithubStatus(request);
+  const response = await fetchGithubStatus(request, upstreamUrl);
   if (response.ok) {
     ctx.waitUntil(cache.put(cacheKey, response.clone()));
   }

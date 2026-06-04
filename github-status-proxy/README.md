@@ -6,8 +6,11 @@ Cloudflare Workers proxy for the GitHub Status API.
 
 - `GET /`
 - `GET /status`
+- `GET /summary`
+- `GET /incidents`
 
-Both endpoints return `https://www.githubstatus.com/api/v2/status.json`.
+`/` and `/status` return `https://www.githubstatus.com/api/v2/status.json`.
+`/summary` and `/incidents` return their matching GitHub Status API payloads.
 Successful responses are cached at the edge for one day.
 
 ## Local Development
