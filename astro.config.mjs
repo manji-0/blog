@@ -5,6 +5,7 @@ import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
+import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
 import githubPagesUptimeIntegration from './src/integrations/github-pages-uptime.mjs';
 import fediverseStatusesIntegration from './src/integrations/fediverse-statuses.mjs';
 
@@ -18,6 +19,7 @@ export default defineConfig({
 	},
 	integrations: [
 		ogImageBuildIntegration(),
+		cloudflareStatusIntegration(),
 		githubPagesUptimeIntegration(),
 		fediverseStatusesIntegration(),
 		starlight({

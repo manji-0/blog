@@ -1,5 +1,6 @@
 (function () {
 	const SNAPSHOT_URL = '/github-pages-uptime.json';
+	const CLOUDFLARE_STATUS_URL = '/cloudflare-status.json';
 	const DAY_COUNT = 30;
 
 	function formatPercent(percent) {
@@ -10,11 +11,17 @@
 	function statusLabel(status) {
 		switch (status) {
 			case 'operational':
+			case 'none':
 				return 'operational';
 			case 'degraded_performance':
 				return 'degraded';
+			case 'minor':
+				return 'minor outage';
+			case 'critical':
+				return 'critical outage';
 			case 'partial_outage':
 				return 'partial outage';
+			case 'major':
 			case 'major_outage':
 				return 'major outage';
 			default:
@@ -88,7 +95,7 @@
 		updateUptimeGridColumns(bars);
 	}
 
-	function renderFooter(sidebar, mountPoint, data) {
+	function renderFooter(sidebar, mountPoint, data, cloudflareStatus) {
 		let footer = mountPoint.querySelector('.manj-system-map-footer');
 		if (!footer) {
 			footer = document.createElement('div');
@@ -125,19 +132,25 @@
 			sidebar.classList.add('manj-uptime-loaded');
 		}
 
+		const recentDays = data.days.slice(-DAY_COUNT);
+		const recentPercent = formatPercent(percentFromDays(recentDays) || data.percent);
 		footer.querySelector('.manj-system-map').textContent = [
 			'SYSTEM MAP',
-			'manj.io       100%',
-			'Cloudflare    ready',
+			'manj.io       ' + recentPercent,
+			'Cloudflare    ' + statusLabel(cloudflareStatus.status),
 			'Astro static  ok',
 			'Pagefind      indexed',
 			'GitHub Pages  ' + statusLabel(data.status),
 		].join('\n');
 
-		const recentDays = data.days.slice(-DAY_COUNT);
 		renderBars(footer.querySelector('.manj-uptime-bars'), data);
 		footer.querySelector('.manj-uptime-legend').textContent =
-			DAY_COUNT + ' days       ' + formatPercent(percentFromDays(recentDays) || data.percent);
+			'GitHub Pages  ' +
+			statusLabel(data.status) +
+			'       ' +
+			DAY_COUNT +
+			' days       ' +
+			recentPercent;
 		bindResponsiveUptimeGrid(footer);
 	}
 
@@ -147,15 +160,26 @@
 		return response.json();
 	}
 
+	async function loadCloudflareStatus() {
+		const response = await fetch(CLOUDFLARE_STATUS_URL, { cache: 'no-cache' });
+		if (!response.ok) throw new Error('cloudflare status ' + response.status);
+		return response.json();
+	}
+
 	function mount() {
 		const sidebar = document.querySelector('.right-sidebar');
 		if (!sidebar) return;
 		const mountPoint =
 			sidebar.querySelector('.right-sidebar-panel') ?? sidebar;
 
-		loadSnapshot()
-			.then(function (data) {
-				renderFooter(sidebar, mountPoint, data);
+		Promise.all([
+			loadSnapshot(),
+			loadCloudflareStatus().catch(function () {
+				return { status: 'unknown' };
+			}),
+		])
+			.then(function ([data, cloudflareStatus]) {
+				renderFooter(sidebar, mountPoint, data, cloudflareStatus);
 			})
 			.catch(function () {
 				/* keep CSS fallback */

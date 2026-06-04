@@ -211,8 +211,8 @@ a {
 .right-sidebar::after {
 	content:
 		'SYSTEM MAP\A'
-		'manj.io       100%\A'
-		'Cloudflare    ready\A'
+		'manj.io       loading\A'
+		'Cloudflare    loading\A'
 		'Astro static  ok\A'
 		'Pagefind      indexed\A\A'
 		'UPTIME WINDOW\A'
