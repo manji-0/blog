@@ -1,10 +1,13 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
-/assets/r2/*
+/fonts/fonts.css
+  Cache-Control: public, max-age=3600
+
+/fonts/fira-code/*
   Cache-Control: public, max-age=31536000, immutable
 
-/fonts/*
+/fonts/line-seed-jp/*
   Cache-Control: public, max-age=31536000, immutable
 
 /pagefind/*

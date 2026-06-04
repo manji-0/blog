@@ -9,9 +9,22 @@ const DEFAULT_THEME = {
 	muted: 'var(--sl-color-gray-4)',
 	surface: 'var(--sl-color-bg-nav)',
 	border: 'var(--sl-color-hairline)',
-	font: "'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Segoe UI', system-ui, sans-serif",
+	font: 'LINE Seed JP',
 	transparent: true,
 };
+
+function useLocalFonts(svg) {
+	return svg
+		.replaceAll(/^.*fonts\.googleapis\.com.*\n/gm, '')
+		.replaceAll(
+			/text \{ font-family: 'LINE Seed JP', system-ui, sans-serif; \}/g,
+			"text { font-family: 'LINE Seed JP', system-ui, sans-serif; }",
+		)
+		.replaceAll(
+			/\.mono \{ font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', ui-monospace, monospace; \}/g,
+			".mono { font-family: 'Fira Code', ui-monospace, monospace; }",
+		);
+}
 
 /**
  * Render ```mermaid``` code fences as inline SVG using beautiful-mermaid.
@@ -28,7 +41,7 @@ export default function remarkBeautifulMermaid(options = {}) {
 			if (typeof node.lang !== 'string' || node.lang.toLowerCase() !== 'mermaid') return;
 
 			try {
-				const svg = renderMermaidSVG(node.value, renderOptions);
+				const svg = useLocalFonts(renderMermaidSVG(node.value, renderOptions));
 				parent.children[index] = {
 					type: 'html',
 					value: `<div class="beautiful-mermaid">${svg}</div>`,

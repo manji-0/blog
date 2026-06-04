@@ -83,6 +83,13 @@ function rewriteHtml(assetMappings) {
 			html = html.split(localPath).join(routePath);
 		}
 
+		html = html
+			.replaceAll(/^\s*@import url\('https:\/\/fonts\.googleapis\.com.*\n/gm, '')
+			.replaceAll(
+				/^\s*text \{ font-family: .*Hiragino Sans.*\}\n/gm,
+				"  text { font-family: 'LINE Seed JP', system-ui, sans-serif; }\n",
+			);
+
 		if (html !== originalHtml) {
 			writeFileSync(file, html);
 			rewriteCount += 1;
