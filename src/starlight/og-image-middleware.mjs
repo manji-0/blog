@@ -8,7 +8,7 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
 	await next();
 
 	const route = context.locals.starlightRoute;
-	const slug = route?.entry?.slug;
+	const slug = route?.id;
 	if (typeof slug !== 'string' || slug.length === 0) return;
 	if (!slug.startsWith('blog/')) return;
 	if (slug === '404' || slug.endsWith('/404')) return;
