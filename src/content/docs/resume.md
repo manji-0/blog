@@ -16,7 +16,7 @@ Experienced in team management, recruitment, and leading cross-team technical st
 
 ## Key Skills
 *   **System Design**: Rapidly delivers high-precision designs for performance, availability, observability, and cost grounded in analysis of system characteristics.
-*   **Private Cloud & DevOps**: Proficient at designing DevOps systems and using tools (Ansible, Jenkins, StackStorm). Expertise in networking and virtualization related to OpenStack.
+*   **Private Cloud & DevOps**: Proficient at designing DevOps systems and using tools (Ansible, Terraform, Github Action). Expertise in networking and virtualization related to OpenStack.
 *   **Technical Stack**: Kubernetes, OpenTelemetry, Grafana Loki, Prometheus, Terraform, Go, Python.
 *   **Leadership**: Great leadership in system development and Incident Handling as TechLead. Experience in team management and recruitment.
 *   **Communication**: Excellent communication skills to clarify customer problems and propose solutions. English (Business), Japanese (Native).
