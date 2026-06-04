@@ -35,17 +35,9 @@ export default defineConfig({
 			head: [
 				{
 					tag: 'link',
-					attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-				},
-				{
-					tag: 'link',
-					attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
-				},
-				{
-					tag: 'link',
 					attrs: {
 						rel: 'stylesheet',
-						href: 'https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&family=Fira+Code:wght@400&display=swap',
+						href: '/fonts/fonts.css',
 					},
 				},
 				{

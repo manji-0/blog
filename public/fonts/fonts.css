@@ -1,0 +1,23 @@
+@font-face {
+  font-family: 'Fira Code';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/fira-code/fira-code-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'LINE Seed JP';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/line-seed-jp/line-seed-jp-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'LINE Seed JP';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/line-seed-jp/line-seed-jp-700.ttf') format('truetype');
+}
