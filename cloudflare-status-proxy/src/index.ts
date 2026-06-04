@@ -10,14 +10,11 @@ const cacheHeaders = {
   "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}`,
 } as const;
 
-function corsHeadersFor(request: Request): HeadersInit {
-  const origin = request.headers.get("Origin");
-
+function corsHeaders(): HeadersInit {
   return {
-    "Access-Control-Allow-Origin": origin ?? "*",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     "Access-Control-Allow-Headers": "Accept",
-    Vary: "Origin",
   };
 }
 
@@ -25,7 +22,7 @@ function jsonResponse(request: Request, body: unknown, init: ResponseInit = {}):
   return new Response(JSON.stringify(body), {
     ...init,
     headers: {
-      ...corsHeadersFor(request),
+      ...corsHeaders(),
       "Content-Type": "application/json; charset=utf-8",
       ...init.headers,
     },
@@ -37,7 +34,7 @@ function withResponseHeaders(request: Request, response: Response): Response {
     status: response.status,
     statusText: response.statusText,
     headers: {
-      ...corsHeadersFor(request),
+      ...corsHeaders(),
       ...cacheHeaders,
       "Content-Type": "application/json; charset=utf-8",
     },
@@ -76,7 +73,7 @@ async function handleRequest(request: Request, ctx: ExecutionContext): Promise<R
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: corsHeadersFor(request),
+      headers: corsHeaders(),
     });
   }
 
