@@ -5,7 +5,7 @@ disqus: ""
 ---
 # Resume
 
-2025-12-10 Current
+2026-06-01 Current
 
 ## Summary
 SRE with over 6 years of experience leading observability establishment for large-scale internal IaaS/PaaS. Led the design, construction, and operation of scalable monitoring infrastructure for over 10,000 physical servers and 100,000+ VMs. Proven track record in improving service reliability from alert notification to automatic recovery. Experienced in team management, recruitment, and leading cross-team technical standardization.
@@ -23,6 +23,11 @@ SRE with over 6 years of experience leading observability establishment for larg
     *   Applied Information Technology Engineer (2017)
 
 ## Career History
+
+### KAKEHASHI inc. (Tokyo, Japan)
+**Tech Lead, AuthN/Z Platform**
+
+TBD
 
 ### LINE Yahoo Corporation (Tokyo, Japan)
 **Senior Engineer, IaaS Dev Department**
