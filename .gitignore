@@ -2,6 +2,7 @@
 dist/
 public/github-pages-uptime.json
 public/fediverse-statuses.json
+public/cloudflare-status.json
 # generated types
 .astro/
 .wrangler/
