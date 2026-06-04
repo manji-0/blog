@@ -32,9 +32,9 @@ async function writeStatusesSnapshot(logger) {
 		const data = await fetchFediverseStatuses();
 		await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
 		await fs.writeFile(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
-		logger.info(`Fediverse statuses: wrote ${data.statuses.length} statuses.`);
+		logger.info(`Latest statuses: wrote ${data.statuses.length} statuses.`);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		logger.warn(`Could not fetch Fediverse statuses (${message}). Keeping previous snapshot if any.`);
+		logger.warn(`Could not fetch latest statuses (${message}). Keeping previous snapshot if any.`);
 	}
 }

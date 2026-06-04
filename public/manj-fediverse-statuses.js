@@ -1,6 +1,6 @@
 (function () {
 	const SNAPSHOT_URL = '/fediverse-statuses.json';
-	const LIVE_URL = 'https://fedi.manji.app/users/manji0/statuses';
+	const LIVE_URL = 'https://latest-statuses.manji.app/statuses';
 
 	const formatter = new Intl.DateTimeFormat('ja-JP', {
 		dateStyle: 'medium',
@@ -17,6 +17,7 @@
 			.slice(0, 5)
 			.map((status) => ({
 				id: status.id,
+				source: status.source || 'fediverse',
 				url: status.url || status.uri || LIVE_URL,
 				created_at: status.created_at,
 				text: status.text || '',
@@ -32,7 +33,7 @@
 		meta.href = status.url || LIVE_URL;
 		meta.rel = 'noopener noreferrer';
 		meta.target = '_blank';
-		meta.textContent = formatter.format(new Date(status.created_at));
+		meta.textContent = sourceLabel(status.source) + ' · ' + formatter.format(new Date(status.created_at));
 
 		const text = document.createElement('p');
 		text.className = 'fediverse-status__text';
@@ -45,6 +46,17 @@
 	function render(container, statuses) {
 		if (!statuses.length) throw new Error('statuses are empty');
 		container.replaceChildren(...statuses.map(renderStatus));
+	}
+
+	function sourceLabel(source) {
+		switch (source) {
+			case 'bluesky':
+				return 'Bluesky';
+			case 'fediverse':
+				return 'Fediverse';
+			default:
+				return 'Status';
+		}
 	}
 
 	async function loadSnapshot() {

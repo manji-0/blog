@@ -18,5 +18,5 @@ coding agents. DAG is All You Need.
 ## Latest Statuses
 
 <div class="fediverse-statuses" data-fediverse-statuses>
-  <p class="fediverse-statuses__loading">Loading statuses from fedi.manji.app...</p>
+  <p class="fediverse-statuses__loading">Loading statuses...</p>
 </div>

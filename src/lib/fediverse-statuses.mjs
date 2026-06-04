@@ -1,11 +1,12 @@
-export const FEDIVERSE_STATUSES_ENDPOINT = 'https://fedi.manji.app/users/manji0/statuses';
+export const LATEST_STATUSES_ENDPOINT = 'https://latest-statuses.manji.app/statuses';
 
 const STATUS_LIMIT = 5;
 
 function normalizeStatus(status) {
 	return {
 		id: status.id,
-		url: status.url || status.uri || FEDIVERSE_STATUSES_ENDPOINT,
+		source: status.source || 'fediverse',
+		url: status.url || status.uri || LATEST_STATUSES_ENDPOINT,
 		created_at: status.created_at,
 		text: status.text || '',
 	};
@@ -17,18 +18,18 @@ export function normalizeFediverseStatuses(statuses) {
 	}
 
 	return statuses
-		.filter((status) => !status.reblog && status.visibility === 'public')
+		.filter((status) => !status.reblog && (status.visibility ? status.visibility === 'public' : true))
 		.slice(0, STATUS_LIMIT)
 		.map(normalizeStatus);
 }
 
 export async function fetchFediverseStatuses() {
-	const response = await fetch(FEDIVERSE_STATUSES_ENDPOINT, {
+	const response = await fetch(LATEST_STATUSES_ENDPOINT, {
 		headers: { Accept: 'application/json' },
 	});
 
 	if (!response.ok) {
-		throw new Error(`Fediverse statuses fetch failed with status ${response.status}`);
+		throw new Error(`Latest statuses fetch failed with status ${response.status}`);
 	}
 
 	return {
