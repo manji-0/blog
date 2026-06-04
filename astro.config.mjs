@@ -1,4 +1,5 @@
 // @ts-check
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
@@ -8,9 +9,14 @@ import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs
 import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
 import githubPagesUptimeIntegration from './src/integrations/github-pages-uptime.mjs';
 
+const fontFaceCss = readFileSync(new URL('./public/fonts/fonts.css', import.meta.url), 'utf8');
+
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://www.manj.io',
+	build: {
+		inlineStylesheets: 'always',
+	},
 	prefetch: {
 		prefetchAll: true,
 		defaultStrategy: 'viewport',
@@ -34,11 +40,8 @@ export default defineConfig({
 			},
 			head: [
 				{
-					tag: 'link',
-					attrs: {
-						rel: 'stylesheet',
-						href: '/fonts/fonts.css',
-					},
+					tag: 'style',
+					content: fontFaceCss,
 				},
 				{
 					tag: 'script',
