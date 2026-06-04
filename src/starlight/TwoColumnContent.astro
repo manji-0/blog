@@ -23,14 +23,6 @@ const showRightRail = starlightRoute.toc || starlightRoute.hasSidebar;
 		}
 
 		@media (min-width: 72rem) {
-			:global([data-has-sidebar]) {
-				--manj-layout-extra-width: max(
-					0px,
-					calc(100% - var(--sl-content-width) - var(--sl-sidebar-width))
-				);
-				--manj-edge-follow-width: min(calc(var(--manj-layout-extra-width) / 2), 12rem);
-			}
-
 			.right-sidebar-container {
 				order: 2;
 				position: relative;
@@ -64,11 +56,11 @@ const showRightRail = starlightRoute.toc || starlightRoute.hasSidebar;
 			}
 
 			:global([data-has-sidebar]) .right-sidebar-container {
-				width: calc(var(--sl-sidebar-width) + var(--manj-edge-follow-width));
+				width: calc(var(--sl-sidebar-width) - var(--manj-right-rail-trim, 0px));
 			}
 
 			:global([data-has-sidebar]) .main-pane {
-				width: calc(100% - var(--sl-sidebar-width) - var(--manj-edge-follow-width));
+				width: calc(100% - var(--sl-sidebar-width) + var(--manj-right-rail-trim, 0px));
 			}
 		}
 	}
