@@ -24,6 +24,12 @@ export default defineConfig({
 		fediverseStatusesIntegration(),
 		starlight({
 			title: 'manj.io',
+			locales: {
+				root: {
+					label: '日本語',
+					lang: 'ja',
+				},
+			},
 			head: [
 				{
 					tag: 'script',
