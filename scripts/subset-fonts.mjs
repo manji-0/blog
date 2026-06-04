@@ -228,6 +228,13 @@ function findSubsetCommand() {
 		return { command: 'pyftsubset', prefixArgs: [] };
 	}
 
+	for (const pythonCommand of ['python3', 'python']) {
+		const fontToolsModule = spawnSync(pythonCommand, ['-c', 'import fontTools.subset'], { stdio: 'ignore' });
+		if (fontToolsModule.status === 0) {
+			return { command: pythonCommand, prefixArgs: ['-m', 'fontTools.subset'] };
+		}
+	}
+
 	const uvx = spawnSync('uvx', ['--version'], { stdio: 'ignore' });
 	if (uvx.status === 0) {
 		return { command: 'uvx', prefixArgs: ['--from', 'fonttools[woff]', 'pyftsubset'] };
