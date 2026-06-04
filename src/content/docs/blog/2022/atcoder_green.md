@@ -5,17 +5,17 @@ title: AtCoderで入緑した
 
 昨日のABC244で緑コーダーになれました。
 
-![midori](https://dl.dropboxusercontent.com/s/4d5mtli8khyivbi/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202022-03-21%2016.59.30.png)
+![midori](../../assets/img/atcoder_green/midori.png)
 
 ## 精進の記録
 
 参加し始めてからおおよそ5ヶ月くらい。精進はあんまりできてなかったです。
 
-![pie](https://dl.dropboxusercontent.com/s/t1aj9w8hate9s0w/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202022-03-21%2017.06.39.png)
+![pie](../../assets/img/atcoder_green/pie.png)
 
 芝もあんまり生えてない。
 
-![grass](https:///dl.dropboxusercontent.com/s/0r1dhk0lq6uwznd/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202022-03-21%206.13.32.png)
+![grass](../../assets/img/atcoder_green/grass.png)
 
 ただ「やったこと」自体は実力向上に繋がっていたと思います。
 
@@ -41,7 +41,7 @@ title: AtCoderで入緑した
 
 多分[AtCoder ProblemsのTraining](https://kenkoooo.com/atcoder/#/training)のEasy&Mediumを全部(計200問)解いたら余裕です。僕は解けてないですが。
 
-![training](https://dl.dropboxusercontent.com/s/tgdtb13dxflc2wv/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202022-03-21%2017.40.26.png?dl=0)
+![training](../../assets/img/atcoder_green/training.png)
 
 ## コンテストへの臨み方
 

@@ -1,0 +1,14 @@
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/r2/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pagefind/*
+  Cache-Control: public, max-age=86400
+
+/og/*
+  Cache-Control: public, max-age=86400
+
+/*
+  Cache-Control: public, max-age=0, must-revalidate

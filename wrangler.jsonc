@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "manjio",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-06-04",
+  "r2_buckets": [
+    {
+      "binding": "R2_ASSETS",
+      "bucket_name": "manjio-assets"
+    }
+  ],
+  "env": {
+    "production": {
+      "r2_buckets": [
+        {
+          "binding": "R2_ASSETS",
+          "bucket_name": "manjio-assets"
+        }
+      ]
+    }
+  }
+}
