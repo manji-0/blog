@@ -50,12 +50,29 @@ export default defineConfig({
 
 ## 1. フォント: 本文はLINE Seed JP、コードはFira Code
 
-フォントは `src/styles/custom.css` で管理しています。
+フォントの読み込みは `astro.config.mjs` の `head` で行い、フォント指定は `src/styles/custom.css` で管理しています。
+
+```js
+head: [
+  {
+    tag: 'link',
+    attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  },
+  {
+    tag: 'link',
+    attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+  },
+  {
+    tag: 'link',
+    attrs: {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&family=Fira+Code:wght@400&display=swap',
+    },
+  },
+],
+```
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
-
 :root {
   --sl-font-system: 'LINE Seed JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
     'Yu Gothic', Meiryo, 'Segoe UI', system-ui, -apple-system, sans-serif;
