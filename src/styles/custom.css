@@ -263,6 +263,12 @@ a {
 		);
 	}
 
+	[data-has-sidebar] .right-sidebar-container {
+		width: calc(
+			var(--sl-sidebar-width) + var(--manj-edge-follow-width) - var(--manj-right-rail-trim)
+		);
+	}
+
 	.right-sidebar > .manj-system-map-footer,
 	.right-sidebar-panel .sl-container,
 	.right-sidebar-panel .manj-system-map-footer {
