@@ -7,7 +7,6 @@ import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
 import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
 import githubPagesUptimeIntegration from './src/integrations/github-pages-uptime.mjs';
-import fediverseStatusesIntegration from './src/integrations/fediverse-statuses.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,7 +24,6 @@ export default defineConfig({
 		ogImageBuildIntegration(),
 		cloudflareStatusIntegration(),
 		githubPagesUptimeIntegration(),
-		fediverseStatusesIntegration(),
 		starlight({
 			title: 'manj.io',
 			locales: {

@@ -1,5 +1,4 @@
 (function () {
-	const SNAPSHOT_URL = '/fediverse-statuses.json';
 	const LIVE_URL = 'https://latest-statuses.manji.app/statuses';
 
 	const formatter = new Intl.DateTimeFormat('ja-JP', {
@@ -59,12 +58,6 @@
 		}
 	}
 
-	async function loadSnapshot() {
-		const response = await fetch(SNAPSHOT_URL, { cache: 'no-cache' });
-		if (!response.ok) throw new Error('snapshot ' + response.status);
-		return normalizeStatuses(await response.json());
-	}
-
 	async function loadLive() {
 		const response = await fetch(LIVE_URL, {
 			headers: { Accept: 'application/json' },
@@ -84,20 +77,9 @@
 		const container = document.querySelector('[data-fediverse-statuses]');
 		if (!container) return;
 
-		loadSnapshot()
-			.then((statuses) => {
-				render(container, statuses);
-				return loadLive()
-					.then((liveStatuses) => render(container, liveStatuses))
-					.catch(() => {
-						/* snapshot is enough */
-					});
-			})
-			.catch(() => {
-				return loadLive()
-					.then((liveStatuses) => render(container, liveStatuses))
-					.catch(() => showError(container));
-			});
+		loadLive()
+			.then((liveStatuses) => render(container, liveStatuses))
+			.catch(() => showError(container));
 	}
 
 	if (document.readyState === 'loading') {
