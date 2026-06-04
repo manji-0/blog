@@ -10,7 +10,7 @@ function corsHeadersFor(request: Request): HeadersInit {
 
   return {
     "Access-Control-Allow-Origin": origin ?? "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     "Access-Control-Allow-Headers": "Accept",
     Vary: "Origin",
   };
@@ -75,7 +75,7 @@ async function handleRequest(request: Request, ctx: ExecutionContext): Promise<R
     });
   }
 
-  if (request.method !== "GET") {
+  if (request.method !== "GET" && request.method !== "HEAD") {
     return jsonResponse(
       request,
       { error: "method_not_allowed" },
