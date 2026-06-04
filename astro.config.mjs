@@ -12,6 +12,10 @@ import fediverseStatusesIntegration from './src/integrations/fediverse-statuses.
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://www.manj.io',
+	prefetch: {
+		prefetchAll: true,
+		defaultStrategy: 'viewport',
+	},
 	markdown: {
 		processor: unified({
 			remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],

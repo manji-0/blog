@@ -53,7 +53,7 @@ export default defineConfig({
 フォントは `src/styles/custom.css` で管理しています。
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
 
 :root {
