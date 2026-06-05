@@ -56,10 +56,10 @@ jobs:
 
           const searchDir = 'public/search';
           const manifest = JSON.parse(readFileSync(join(searchDir, 'manifest.json'), 'utf8'));
-          if (!/^search\\.[a-f0-9]{16}\\.db$/.test(manifest.db)) {
+          if (!/^search\.[a-f0-9]{16}\.db$/.test(manifest.db)) {
             throw new Error(`Unexpected db asset name: ${manifest.db}`);
           }
-          if (!/^vocab\\.[a-f0-9]{16}\\.json$/.test(manifest.vocab)) {
+          if (!/^vocab\.[a-f0-9]{16}\.json$/.test(manifest.vocab)) {
             throw new Error(`Unexpected vocab asset name: ${manifest.vocab}`);
           }
           if (!existsSync(join(searchDir, manifest.db))) {
