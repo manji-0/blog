@@ -1,0 +1,343 @@
+---
+const translations = {
+	label: Astro.locals.t('search.label'),
+	cancel: Astro.locals.t('search.cancelLabel'),
+	ctrl: Astro.locals.t('search.ctrlKey'),
+};
+---
+
+<site-search class={Astro.props.class} data-translations={JSON.stringify(translations)}>
+	<button data-open-modal aria-label={translations.label} aria-keyshortcuts="Control+K Meta+K">
+		<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
+			<path
+				fill="currentColor"
+				d="M9.5 3a6.5 6.5 0 0 1 5.18 10.43l4.23 4.23a1 1 0 0 1-1.42 1.42l-4.23-4.23A6.5 6.5 0 1 1 9.5 3Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"
+			></path>
+		</svg>
+		<span class="sl-hidden md:sl-block" aria-hidden="true">{translations.label}</span>
+		<span class="keys sl-hidden md:sl-flex" aria-hidden="true">
+			<kbd>{translations.ctrl}</kbd><kbd>K</kbd>
+		</span>
+	</button>
+	<dialog aria-label={translations.label}>
+		<div class="search-dialog">
+			<form class="search-form" role="search">
+				<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+					<path
+						fill="currentColor"
+						d="M9.5 3a6.5 6.5 0 0 1 5.18 10.43l4.23 4.23a1 1 0 0 1-1.42 1.42l-4.23-4.23A6.5 6.5 0 1 1 9.5 3Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"
+					></path>
+				</svg>
+				<input type="search" autocomplete="off" spellcheck="false" placeholder={translations.label} />
+				<button type="button" data-close-modal>{translations.cancel}</button>
+			</form>
+			<div class="search-status" role="status" aria-live="polite">検索語を入力してください</div>
+			<ol class="search-results"></ol>
+		</div>
+	</dialog>
+</site-search>
+
+<script>
+	import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+
+	class SiteSearch extends HTMLElement {
+		constructor() {
+			super();
+			this.db = undefined;
+			this.vocab = [];
+			this.loading = undefined;
+			this.searchTimer = undefined;
+			this.abortController = undefined;
+		}
+
+		connectedCallback() {
+			this.dialog = this.querySelector('dialog');
+			this.input = this.querySelector('input');
+			this.status = this.querySelector('.search-status');
+			this.results = this.querySelector('.search-results');
+			this.querySelector('[data-open-modal]')?.addEventListener('click', () => this.open());
+			this.querySelector('[data-close-modal]')?.addEventListener('click', () => this.close());
+			this.dialog?.addEventListener('close', () => document.body.toggleAttribute('data-search-modal-open', false));
+			this.input?.addEventListener('input', () => this.queueSearch());
+			document.addEventListener('keydown', (event) => {
+				if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+					event.preventDefault();
+					this.open();
+				}
+			});
+		}
+
+		async open() {
+			if (!this.dialog?.open) {
+				this.dialog?.showModal();
+				document.body.toggleAttribute('data-search-modal-open', true);
+			}
+			this.input?.focus();
+			try {
+				await this.load();
+			} catch (error) {
+				console.error(error);
+				this.setStatus('検索インデックスを読み込めませんでした');
+			}
+		}
+
+		close() {
+			this.dialog?.close();
+		}
+
+		async load() {
+			if (this.db) return;
+			this.loading ||= this.loadDatabase();
+			await this.loading;
+		}
+
+		async loadDatabase() {
+			this.setStatus('検索インデックスを読み込んでいます...');
+			const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+			const manifestResponse = await fetch(`${baseUrl}/search/manifest.json`);
+			if (!manifestResponse.ok) {
+				throw new Error(`Failed to fetch search manifest: ${manifestResponse.status}`);
+			}
+			const manifest = await manifestResponse.json();
+			const [sqlite3, dbResponse, vocabResponse] = await Promise.all([
+				sqlite3InitModule({ print() {}, printErr() {} }),
+				fetch(`${baseUrl}/search/${manifest.db}`),
+				fetch(`${baseUrl}/search/${manifest.vocab}`),
+			]);
+			if (!dbResponse.ok) throw new Error(`Failed to fetch search.db: ${dbResponse.status}`);
+			if (!vocabResponse.ok) throw new Error(`Failed to fetch vocab.json: ${vocabResponse.status}`);
+			const bytes = new Uint8Array(await dbResponse.arrayBuffer());
+			sqlite3.capi.sqlite3_js_posix_create_file('/search.db', bytes, bytes.byteLength);
+			this.db = new sqlite3.oo1.DB('/search.db', 'r');
+			this.vocab = await vocabResponse.json();
+			this.setStatus('検索語を入力してください');
+			this.queueSearch();
+		}
+
+		queueSearch() {
+			clearTimeout(this.searchTimer);
+			this.searchTimer = setTimeout(() => this.search(), 120);
+		}
+
+		search() {
+			const query = this.input?.value.trim() || '';
+			if (!query) {
+				this.results.innerHTML = '';
+				this.setStatus('検索語を入力してください');
+				return;
+			}
+			if (!this.db) {
+				this.setStatus('検索インデックスを読み込んでいます...');
+				return;
+			}
+			const terms = this.termsFor(query);
+			if (terms.length === 0) {
+				this.results.innerHTML = '';
+				this.setStatus('検索できる語が見つかりませんでした');
+				return;
+			}
+			const matchQuery = terms.map((term) => `${term}*`).join(' AND ');
+			const rows = this.db.exec({
+				sql: `SELECT title, url, excerpt, section, year, bm25(search_docs, 8.0, 4.0, 1.0) AS rank
+					FROM search_docs
+					WHERE search_docs MATCH ?
+					ORDER BY rank
+					LIMIT 20`,
+				bind: [matchQuery],
+				rowMode: 'object',
+				returnValue: 'resultRows',
+			});
+			this.renderResults(rows, query);
+		}
+
+		termsFor(query) {
+			const normalized = query.normalize('NFKC').toLowerCase();
+			const ascii = normalized.match(/[a-z0-9][a-z0-9_]{1,}/g) || [];
+			const compact = normalized.replace(/[^\p{Letter}\p{Number}_]/gu, '');
+			const terms = new Set(ascii);
+			let index = 0;
+			while (index < compact.length) {
+				const hit = this.vocab.find((token) => compact.startsWith(token, index));
+				if (hit) {
+					terms.add(hit);
+					index += hit.length;
+				} else {
+					index += 1;
+				}
+			}
+			return [...terms].slice(0, 8);
+		}
+
+		renderResults(rows, query) {
+			this.results.innerHTML = '';
+			if (rows.length === 0) {
+				this.setStatus(`「${query}」の検索結果はありません`);
+				return;
+			}
+			this.setStatus(`${rows.length} 件の結果`);
+			for (const row of rows) {
+				const item = document.createElement('li');
+				const link = document.createElement('a');
+				const title = document.createElement('span');
+				const meta = document.createElement('span');
+				const excerpt = document.createElement('p');
+				link.href = row.url;
+				title.className = 'search-result-title';
+				meta.className = 'search-result-meta';
+				excerpt.className = 'search-result-excerpt';
+				title.textContent = row.title;
+				meta.textContent = [row.section, row.year].filter(Boolean).join(' / ');
+				excerpt.textContent = row.excerpt;
+				link.append(title, meta, excerpt);
+				item.append(link);
+				this.results.append(item);
+			}
+		}
+
+		setStatus(message) {
+			if (this.status) this.status.textContent = message;
+		}
+	}
+
+	customElements.define('site-search', SiteSearch);
+</script>
+
+<style>
+	@layer starlight.core {
+		site-search {
+			display: contents;
+		}
+
+		site-search button[data-open-modal] {
+			align-items: center;
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.35rem;
+			background: var(--sl-color-black);
+			color: var(--sl-color-gray-2);
+			cursor: pointer;
+			display: flex;
+			font: inherit;
+			gap: 0.45rem;
+			height: 2.25rem;
+			padding-inline: 0.75rem;
+		}
+
+		site-search button[data-open-modal]:hover {
+			border-color: var(--sl-color-accent);
+			color: var(--sl-color-white);
+		}
+
+		site-search .keys {
+			gap: 0.2rem;
+			margin-inline-start: 0.25rem;
+		}
+
+		site-search kbd {
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.25rem;
+			color: var(--sl-color-gray-3);
+			font-family: var(--sl-font-code);
+			font-size: 0.72rem;
+			line-height: 1;
+			padding: 0.18rem 0.28rem;
+		}
+
+		site-search dialog {
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.5rem;
+			background: var(--sl-color-black);
+			color: var(--sl-color-white);
+			inline-size: min(44rem, calc(100vw - 2rem));
+			max-block-size: min(44rem, calc(100vh - 2rem));
+			padding: 0;
+		}
+
+		site-search dialog::backdrop {
+			background: rgb(0 0 0 / 0.68);
+		}
+
+		.search-dialog {
+			display: flex;
+			flex-direction: column;
+			max-block-size: inherit;
+		}
+
+		.search-form {
+			align-items: center;
+			border-bottom: 1px solid var(--sl-color-gray-5);
+			display: flex;
+			gap: 0.75rem;
+			padding: 0.8rem;
+		}
+
+		.search-form input {
+			background: transparent;
+			border: 0;
+			color: var(--sl-color-white);
+			flex: 1;
+			font: inherit;
+			font-size: 1.05rem;
+			min-inline-size: 0;
+			outline: 0;
+		}
+
+		.search-form button {
+			background: transparent;
+			border: 0;
+			color: var(--sl-color-gray-3);
+			cursor: pointer;
+			font: inherit;
+			padding: 0.35rem;
+		}
+
+		.search-status {
+			color: var(--sl-color-gray-3);
+			font-size: 0.85rem;
+			padding: 0.8rem 1rem 0.35rem;
+		}
+
+		.search-results {
+			list-style: none;
+			margin: 0;
+			overflow: auto;
+			padding: 0.5rem 0.8rem 0.9rem;
+		}
+
+		.search-results li + li {
+			margin-top: 0.45rem;
+		}
+
+		.search-results a {
+			border-radius: 0.35rem;
+			color: inherit;
+			display: grid;
+			gap: 0.3rem;
+			padding: 0.75rem;
+			text-decoration: none;
+		}
+
+		.search-results a:hover,
+		.search-results a:focus {
+			background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+			outline: 1px solid var(--sl-color-accent);
+		}
+
+		.search-result-title {
+			color: var(--sl-color-white);
+			font-weight: 700;
+		}
+
+		.search-result-meta {
+			color: var(--sl-color-accent-high);
+			font-family: var(--sl-font-code);
+			font-size: 0.76rem;
+		}
+
+		.search-result-excerpt {
+			color: var(--sl-color-gray-2);
+			font-size: 0.9rem;
+			line-height: 1.55;
+			margin: 0;
+		}
+	}
+</style>

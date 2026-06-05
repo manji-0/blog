@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/build-search-index.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "search:index": "node scripts/build-search-index.mjs",
     "fonts:subset": "node scripts/subset-fonts.mjs",
     "r2:upload-assets": "node scripts/upload-r2-assets.mjs",
     "deploy:pages": "wrangler pages deploy dist --project-name=manjio",
@@ -15,8 +16,11 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.39.3",
+    "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
     "astro": "^6.4.3",
     "beautiful-mermaid": "^1.1.3",
+    "gray-matter": "^4.0.3",
+    "kuromoji": "^0.1.2",
     "sharp": "^0.34.2"
   },
   "devDependencies": {

@@ -1,0 +1,87 @@
+name: Build Search Index
+
+on:
+  pull_request:
+    paths:
+      - "src/content/docs/**"
+      - "scripts/build-search-index.mjs"
+      - "src/components/starlight/Search.astro"
+      - "public/_headers"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/search-index.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/content/docs/**"
+      - "scripts/build-search-index.mjs"
+      - "src/components/starlight/Search.astro"
+      - "public/_headers"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/search-index.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-search-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install SQLite
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build search index
+        run: npm run search:index
+
+      - name: Verify search index assets
+        run: |
+          node <<'NODE'
+          const { existsSync, readFileSync } = require('node:fs');
+          const { join } = require('node:path');
+          const { execFileSync } = require('node:child_process');
+
+          const searchDir = 'public/search';
+          const manifest = JSON.parse(readFileSync(join(searchDir, 'manifest.json'), 'utf8'));
+          if (!/^search\\.[a-f0-9]{16}\\.db$/.test(manifest.db)) {
+            throw new Error(`Unexpected db asset name: ${manifest.db}`);
+          }
+          if (!/^vocab\\.[a-f0-9]{16}\\.json$/.test(manifest.vocab)) {
+            throw new Error(`Unexpected vocab asset name: ${manifest.vocab}`);
+          }
+          if (!existsSync(join(searchDir, manifest.db))) {
+            throw new Error(`Missing db asset: ${manifest.db}`);
+          }
+          if (!existsSync(join(searchDir, manifest.vocab))) {
+            throw new Error(`Missing vocab asset: ${manifest.vocab}`);
+          }
+
+          const count = Number(execFileSync('sqlite3', [
+            join(searchDir, manifest.db),
+            'SELECT value FROM search_metadata WHERE key = "document_count";',
+          ], { encoding: 'utf8' }).trim());
+          if (count !== manifest.documentCount) {
+            throw new Error(`Manifest count ${manifest.documentCount} does not match SQLite count ${count}`);
+          }
+          console.log(`Verified ${manifest.db} with ${count} documents.`);
+          NODE
+
+      - name: Upload search index artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-index
+          path: public/search
+          retention-days: 7

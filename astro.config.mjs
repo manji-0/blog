@@ -21,6 +21,11 @@ export default defineConfig({
 		prefetchAll: true,
 		defaultStrategy: 'viewport',
 	},
+	vite: {
+		optimizeDeps: {
+			exclude: ['@sqlite.org/sqlite-wasm'],
+		},
+	},
 	markdown: {
 		processor: unified({
 			remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],
@@ -32,6 +37,7 @@ export default defineConfig({
 		cloudflarePlatformUptimeIntegration(),
 		starlight({
 			title: 'manj.io',
+			pagefind: false,
 			locales: {
 				root: {
 					label: '日本語',
@@ -142,6 +148,7 @@ export default defineConfig({
 			components: {
 				Footer: './src/components/starlight/BlogFooter.astro',
 				Pagination: './src/components/starlight/BlogPagination.astro',
+				Search: './src/components/starlight/Search.astro',
 				TwoColumnContent: './src/starlight/TwoColumnContent.astro',
 			},
 			routeMiddleware: [

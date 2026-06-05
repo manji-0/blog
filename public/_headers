@@ -10,8 +10,14 @@
 /fonts/line-seed-jp/*
   Cache-Control: public, max-age=31536000, immutable
 
-/pagefind/*
-  Cache-Control: public, max-age=86400
+/search/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/search/search.*.db
+  Cache-Control: public, max-age=31536000, immutable
+
+/search/vocab.*.json
+  Cache-Control: public, max-age=31536000, immutable
 
 /og/*
   Cache-Control: public, max-age=86400

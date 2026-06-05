@@ -143,7 +143,7 @@
 			'Astro static  ok',
 			'Pages         ' + statusLabel(data.pagesStatus || data.status),
 			'Workers       ' + statusLabel(data.workersStatus || data.status),
-			'Pagefind      indexed',
+			'SQLite FTS5   indexed',
 		].join('\n');
 
 		renderBars(footer.querySelector('.manj-uptime-bars'), data);

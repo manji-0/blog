@@ -213,7 +213,7 @@ a {
 		'Astro static  ok\A'
 		'Pages         loading\A'
 		'Workers       loading\A'
-		'Pagefind      indexed\A\A'
+		'SQLite FTS5   indexed\A\A'
 		'UPTIME WINDOW\A'
 		'loading Cloudflare Status…';
 	display: block;
