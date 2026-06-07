@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
+import remarkHatenaFootnotes from './src/plugins/remark-hatena-footnotes.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
 import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
@@ -28,7 +29,7 @@ export default defineConfig({
 	},
 	markdown: {
 		processor: unified({
-			remarkPlugins: [remarkBeautifulMermaid, remarkLinkCard],
+			remarkPlugins: [remarkBeautifulMermaid, remarkHatenaFootnotes, remarkLinkCard],
 		}),
 	},
 	integrations: [

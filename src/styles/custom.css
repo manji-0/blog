@@ -496,6 +496,58 @@ h1#_top {
 	color: var(--sl-color-accent);
 }
 
+.manj-footnote-ref {
+	margin-inline: 0.12em;
+	font-family: var(--sl-font-code-block);
+	font-size: 0.72em;
+	line-height: 1;
+	vertical-align: super;
+}
+
+.manj-footnote-ref a {
+	color: var(--sl-color-accent-high);
+	text-decoration: none;
+}
+
+.manj-footnote-ref a:hover,
+.manj-footnote-ref a:focus-visible {
+	color: var(--sl-color-accent);
+	text-decoration: underline;
+}
+
+.manj-footnotes {
+	margin-block-start: 2.4rem;
+	border-top: 1px solid var(--sl-color-hairline);
+	padding-block-start: 0.9rem;
+	color: var(--sl-color-gray-2);
+	font-size: 0.82rem;
+	line-height: 1.65;
+}
+
+.manj-footnotes ol {
+	display: grid;
+	gap: 0.35rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.manj-footnote-number {
+	color: var(--sl-color-accent-high);
+	font-family: var(--sl-font-code-block);
+}
+
+.manj-footnote-backref {
+	margin-inline-start: 0.25rem;
+	color: var(--sl-color-gray-3);
+	text-decoration: none;
+}
+
+.manj-footnote-backref:hover,
+.manj-footnote-backref:focus-visible {
+	color: var(--sl-color-accent-high);
+}
+
 .fediverse-statuses {
 	display: grid;
 	gap: 0.55rem;
