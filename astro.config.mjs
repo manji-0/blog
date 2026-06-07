@@ -1,8 +1,10 @@
 // @ts-check
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
+import matter from 'gray-matter';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkHatenaFootnotes from './src/plugins/remark-hatena-footnotes.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
@@ -11,6 +13,51 @@ import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mj
 import cloudflarePlatformUptimeIntegration from './src/integrations/cloudflare-platform-uptime.mjs';
 
 const fontFaceCss = readFileSync(new URL('./public/fonts/fonts.css', import.meta.url), 'utf8');
+const blogContentDir = new URL('./src/content/docs/blog/', import.meta.url);
+
+function getGitCreatedTimestamp(pathname) {
+	try {
+		const output = execFileSync(
+			'git',
+			['log', '--follow', '--diff-filter=A', '--format=%ct', '--', pathname],
+			{ cwd: new URL('.', import.meta.url), encoding: 'utf8' },
+		).trim();
+		const timestamp = Number(output.split('\n').filter(Boolean).at(-1));
+		return Number.isFinite(timestamp) ? timestamp : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+function getFileCreatedTimestamp(fileUrl, pathname) {
+	const stats = statSync(fileUrl);
+	const createdAt = Math.trunc(stats.birthtimeMs / 1000);
+	return getGitCreatedTimestamp(pathname) ?? (Number.isFinite(createdAt) ? createdAt : 0);
+}
+
+function getBlogSidebarItem(year, filename) {
+	const fileUrl = new URL(`./${year}/${filename}`, blogContentDir);
+	const pathname = new URL(fileUrl).pathname;
+	const { data } = matter(readFileSync(fileUrl, 'utf8'));
+	const slug = filename.replace(/\.mdx?$/, '');
+
+	return {
+		label: data.sidebar?.label ?? data.title ?? slug,
+		link: `/blog/${year}/${slug}`,
+		_createdTimestamp: getFileCreatedTimestamp(fileUrl, pathname),
+	};
+}
+
+function getBlogYearSidebar(year) {
+	const items = readdirSync(new URL(`./${year}/`, blogContentDir))
+		.filter((filename) => /\.mdx?$/.test(filename))
+		.map((filename) => getBlogSidebarItem(year, filename))
+		.filter((item) => item.label)
+		.sort((a, b) => b._createdTimestamp - a._createdTimestamp || b.link.localeCompare(a.link))
+		.map(({ _createdTimestamp, ...item }) => item);
+
+	return { label: year, items };
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -75,22 +122,10 @@ export default defineConfig({
 				{
 					label: 'Blog',
 					items: [
-						{
-							label: '2026',
-							items: [{ autogenerate: { directory: 'blog/2026' } }],
-						},
-						{
-							label: '2023',
-							items: [{ autogenerate: { directory: 'blog/2023' } }],
-						},
-						{
-							label: '2022',
-							items: [{ autogenerate: { directory: 'blog/2022' } }],
-						},
-						{
-							label: '2021',
-							items: [{ autogenerate: { directory: 'blog/2021' } }],
-						},
+						getBlogYearSidebar('2026'),
+						getBlogYearSidebar('2023'),
+						getBlogYearSidebar('2022'),
+						getBlogYearSidebar('2021'),
 					],
 				},
 				{
