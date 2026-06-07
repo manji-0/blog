@@ -2,7 +2,7 @@
 title: すべてを有向グラフにする、俺とAI以外のやつが
 description: すべてを有向グラフに表現して解析できるツールを作った
 sidebar:
-  order: 1
+  order: 2
 ---
 
 `dagayn` というツールについて書く。

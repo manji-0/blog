@@ -2,7 +2,7 @@
 title: もっと綺麗な図を書きます、俺以外のやつが
 description: C4レンダラのアルゴリズムアップデート
 sidebar:
-  order: 2
+  order: 3
 ---
 
 [前回の記事](/blog/2026/c4-diagram-render-algo/)では、Docattice に組み込んだ自作 C4 レンダラの設計と実装について、Sugiyama framework から VLSI 配線技術の転用まで一通り書いた。あの記事を公開してからもレンダラには手を入れ続けており、いくつかのアルゴリズム改善が積み重なったので、ここで整理しておく。

@@ -2,7 +2,7 @@
 title: dagaynがコードグラフをSQLiteで取り扱うためのテクニック
 description: SQLiteで有向コードグラフを表現し、Python実装のまま探索と更新を高速化するための実装技術について
 sidebar:
-  order: 0
+  order: 1
 ---
 
 SQLite でコードグラフを扱う話を書く。
