@@ -44,8 +44,13 @@ function getBlogSidebarItem(year, filename) {
 	return {
 		label: data.sidebar?.label ?? data.title ?? slug,
 		link: `/blog/${year}/${slug}`,
+		_sidebarOrder: data.sidebar?.order,
 		_createdTimestamp: getFileCreatedTimestamp(fileUrl, pathname),
 	};
+}
+
+function getBlogSidebarSortKey(item) {
+	return item._sidebarOrder ?? -item._createdTimestamp;
 }
 
 function getBlogYearSidebar(year) {
@@ -53,8 +58,11 @@ function getBlogYearSidebar(year) {
 		.filter((filename) => /\.mdx?$/.test(filename))
 		.map((filename) => getBlogSidebarItem(year, filename))
 		.filter((item) => item.label)
-		.sort((a, b) => b._createdTimestamp - a._createdTimestamp || b.link.localeCompare(a.link))
-		.map(({ _createdTimestamp, ...item }) => item);
+		.sort(
+			(a, b) =>
+				getBlogSidebarSortKey(a) - getBlogSidebarSortKey(b) || a.link.localeCompare(b.link),
+		)
+		.map(({ _sidebarOrder, _createdTimestamp, ...item }) => item);
 
 	return { label: year, items };
 }
