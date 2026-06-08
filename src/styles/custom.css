@@ -142,8 +142,15 @@ a {
 }
 
 @media (min-width: 50rem) {
+	.header > div:nth-child(2) {
+		justify-content: center;
+		min-width: 0;
+	}
+
 	site-search button[data-open-modal] {
 		height: 2.35rem;
+		inline-size: 100%;
+		justify-content: space-between;
 		transform: translateY(-2px);
 	}
 }

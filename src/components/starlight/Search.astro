@@ -208,6 +208,14 @@ const translations = {
 			display: contents;
 		}
 
+		@media (min-width: 50rem) {
+			site-search {
+				display: block;
+				inline-size: min(22rem, 100%);
+				margin-inline: auto;
+			}
+		}
+
 		site-search button[data-open-modal] {
 			align-items: center;
 			border: 1px solid var(--sl-color-gray-5);
