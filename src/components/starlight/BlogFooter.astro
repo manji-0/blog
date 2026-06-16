@@ -4,12 +4,16 @@ import LastUpdated from 'virtual:starlight/components/LastUpdated';
 import Pagination from 'virtual:starlight/components/Pagination';
 import config from 'virtual:starlight/user-config';
 import { Icon } from '@astrojs/starlight/components';
+import HatenaBookmark from './HatenaBookmark.astro';
 
 const { id } = Astro.locals.starlightRoute;
 const showPagination = id === 'blog' || id.startsWith('blog/');
+const showHatenaBookmark = /^blog\/\d{4}\/[^/]+$/.test(id);
 ---
 
 <footer class="sl-flex">
+	{showHatenaBookmark && <HatenaBookmark />}
+
 	<div class="meta sl-flex">
 		<EditLink />
 		<LastUpdated />

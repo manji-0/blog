@@ -1,0 +1,203 @@
+---
+import {
+	getHatenaBookmarkEntry,
+	getHatenaBookmarkEntryUrl,
+	getHatenaTagUrl,
+	getHatenaUserUrl,
+} from '../../lib/hatena-bookmark.mjs';
+
+const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.href;
+const entry = await getHatenaBookmarkEntry(pageUrl);
+const entryUrl = entry?.entryUrl ?? getHatenaBookmarkEntryUrl(pageUrl);
+const bookmarkCount = entry?.count ?? 0;
+const comments = entry?.comments ?? [];
+---
+
+<section class="hatena-bookmark" aria-labelledby="hatena-bookmark-title">
+	<div class="hatena-bookmark-header">
+		<div>
+			<h2 id="hatena-bookmark-title">はてなブックマーク</h2>
+			<p>{bookmarkCount.toLocaleString('ja-JP')} users</p>
+		</div>
+		<a
+			class="hatena-bookmark-button"
+			href={entryUrl}
+			rel="noopener noreferrer"
+			target="_blank"
+			title="このエントリーをはてなブックマークで見る"
+		>
+			<span aria-hidden="true">B!</span>
+			<span>ブックマーク</span>
+		</a>
+	</div>
+
+	{
+		comments.length > 0 && (
+			<ol class="hatena-bookmark-comments" aria-label="はてなブックマークコメント">
+				{comments.map((bookmark) => (
+					<li>
+						<div class="hatena-bookmark-comment-meta">
+							<a href={getHatenaUserUrl(bookmark.user)} rel="noopener noreferrer" target="_blank">
+								{bookmark.user}
+							</a>
+							{bookmark.timestamp && <time>{bookmark.timestamp}</time>}
+						</div>
+						<p>{bookmark.comment}</p>
+						{bookmark.tags.length > 0 && (
+							<ul class="hatena-bookmark-tags" aria-label={`${bookmark.user} のタグ`}>
+								{bookmark.tags.map((tag) => (
+									<li>
+										<a href={getHatenaTagUrl(tag)} rel="noopener noreferrer" target="_blank">
+											{tag}
+										</a>
+									</li>
+								))}
+							</ul>
+						)}
+					</li>
+				))}
+			</ol>
+		)
+	}
+
+	<a class="hatena-bookmark-entry-link" href={entryUrl} rel="noopener noreferrer" target="_blank">
+		はてなブックマークで見る
+	</a>
+</section>
+
+<style>
+	@layer starlight.components {
+		.hatena-bookmark {
+			margin-block-start: 3rem;
+			border-block: 1px solid var(--sl-color-hairline);
+			padding-block: 1.25rem;
+			color: var(--sl-color-gray-2);
+		}
+
+		.hatena-bookmark-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+			flex-wrap: wrap;
+		}
+
+		.hatena-bookmark h2 {
+			margin: 0;
+			color: var(--sl-color-white);
+			font-size: var(--sl-text-lg);
+			line-height: 1.3;
+		}
+
+		.hatena-bookmark-header p {
+			margin: 0.15rem 0 0;
+			color: var(--sl-color-gray-3);
+			font-family: var(--sl-font-code-block);
+			font-size: var(--sl-text-xs);
+		}
+
+		.hatena-bookmark-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			border: 1px solid color-mix(in srgb, #00a4de 70%, var(--sl-color-hairline));
+			border-radius: 0.45rem;
+			padding: 0.5rem 0.75rem;
+			background: color-mix(in srgb, #00a4de 16%, transparent);
+			color: var(--sl-color-white);
+			font-weight: 700;
+			line-height: 1;
+			text-decoration: none;
+		}
+
+		.hatena-bookmark-button:hover {
+			border-color: #00a4de;
+			background: color-mix(in srgb, #00a4de 26%, transparent);
+		}
+
+		.hatena-bookmark-button span[aria-hidden='true'] {
+			display: inline-grid;
+			place-items: center;
+			inline-size: 1.65rem;
+			block-size: 1.65rem;
+			border-radius: 0.3rem;
+			background: #00a4de;
+			color: white;
+			font-family: var(--sl-font-code-block);
+			font-size: 0.9rem;
+		}
+
+		.hatena-bookmark-comments {
+			display: grid;
+			gap: 0.85rem;
+			margin: 1rem 0 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.hatena-bookmark-comments > li {
+			border-inline-start: 3px solid color-mix(in srgb, #00a4de 60%, var(--sl-color-hairline));
+			padding-inline-start: 0.85rem;
+		}
+
+		.hatena-bookmark-comment-meta {
+			display: flex;
+			align-items: baseline;
+			gap: 0.65rem;
+			flex-wrap: wrap;
+			font-size: var(--sl-text-xs);
+		}
+
+		.hatena-bookmark-comment-meta a {
+			color: var(--sl-color-accent-high);
+			font-weight: 700;
+			text-decoration: none;
+		}
+
+		.hatena-bookmark-comment-meta a:hover,
+		.hatena-bookmark-tags a:hover,
+		.hatena-bookmark-entry-link:hover {
+			text-decoration: underline;
+		}
+
+		.hatena-bookmark-comment-meta time {
+			color: var(--sl-color-gray-3);
+			font-family: var(--sl-font-code-block);
+		}
+
+		.hatena-bookmark-comments p {
+			margin: 0.25rem 0 0;
+			color: var(--sl-color-gray-1);
+			font-size: var(--sl-text-sm);
+			line-height: 1.7;
+			overflow-wrap: anywhere;
+		}
+
+		.hatena-bookmark-tags {
+			display: flex;
+			gap: 0.35rem;
+			flex-wrap: wrap;
+			margin: 0.45rem 0 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.hatena-bookmark-tags a {
+			color: var(--sl-color-gray-3);
+			font-size: var(--sl-text-xs);
+			text-decoration: none;
+		}
+
+		.hatena-bookmark-tags a::before {
+			content: '#';
+		}
+
+		.hatena-bookmark-entry-link {
+			display: inline-flex;
+			margin-block-start: 1rem;
+			color: var(--sl-color-accent-high);
+			font-size: var(--sl-text-sm);
+			text-decoration: none;
+		}
+	}
+</style>
