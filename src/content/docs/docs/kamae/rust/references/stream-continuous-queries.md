@@ -119,3 +119,29 @@ write 側のトランザクションスコープ、楽観的 versioning、outbox
 ## 検出ヒント
 
 `Cargo.toml` に `futures`、`tokio-stream`、`async-stream`、event-store client があるとき、手動 `loop { sleep; poll }` worker より型付き `Stream` port を優先。subscription、projection、outbox processor に触れる diff では persistence と service-boundary ガイドと併せて読み込む。
+
+## レビュー観点
+
+### 13.1 変更フィードは Stream ポートとしてモデル化されているか — Medium
+
+バックプレッシャ、キャンセル、テストダブルを明確にする型付き `Stream<Item = Result<_, _>>` ポートで足りるのに、手書きの `loop { sleep; query }` ワーカーをフラグする。
+
+### 13.2 購読は永続カーソルから開始されるか — High
+
+再起動後にイベントを再処理またはスキップせず再開できない、メモリのみのブロードキャストや購読をフラグする。
+
+### 13.3 プロジェクションハンドラは冪等か — High
+
+イベント ID、`(aggregate_id, sequence)`、または同等の冪等キーで重複排除せず副作用を適用する継続クエリやイベントハンドラをフラグする。
+
+### 13.4 バックプレッシャは処理されているか — Medium
+
+ポーラとハンドラ間の無制限バッファ、またはコンシューマがドロップした後も読み続けるストリームをフラグする。
+
+### 13.5 リード側ストリームは書き込みモデル集約を変更しないか — High
+
+コマンド経路外で集約遷移メソッドを呼ぶ、または権威ある状態を永続化するプロジェクションをフラグする。
+
+### 13.6 未知のイベントバージョンは明示的に扱われるか — Medium
+
+[`service-boundaries.md`](/docs/kamae/rust/references/service-boundaries/) も照合する。イベントを非同期保存するとき、未対応イベント型でパニックする、または黙って無視するハンドラをフラグする。

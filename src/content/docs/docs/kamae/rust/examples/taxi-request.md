@@ -5,7 +5,7 @@ sidebar:
   label: "タクシー配車例"
 ---
 
-Kamae Rust スキルパッケージのエンドツーエンド例です。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示します。
+Kamae Rust のエンドツーエンド例です。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示します。[ドメインモデリング](/docs/kamae/rust/references/domain-modeling/) と [状態遷移](/docs/kamae/rust/references/state-transitions/) の原則を、ひと続きのコードで追えます。
 
 ```rust
 use std::fmt;

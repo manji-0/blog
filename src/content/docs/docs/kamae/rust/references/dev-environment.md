@@ -242,7 +242,7 @@ probe 出力は review lead。自動失敗ではない。初回 bootstrap は [`
 **Kamae skill**
 
 - domain 実装/refactor 時 Claude/Codex で `kamae-rs` skill を load
-- crate 嗜好は `.claude/rules/` または `.codex/rules/`（[`rules/README.md`](/docs/kamae/rust/../../../rules/README/)）
+- crate 嗜好は [kamae-rs リポジトリ](https://github.com/manji-0/kamae-rs) の `rules/` を参照
 - エージェントを最初 `Cargo.toml` へ。crate guide と topic が正しく load される
 
 **Watch mode**（optional）:
@@ -275,3 +275,29 @@ README または `CONTRIBUTING.md` に差分を明示:
 - advisory Miri/fuzz job
 
 どの失敗が merge を block し、どれが scheduled advisory か開発者が知ること（[`ci-setup.md`](/docs/kamae/rust/references/ci-setup/)）。
+
+## レビュー観点
+
+### 11.1 ドメインコードは I/O 依存がないか — High
+
+チームが Kamae 型の分割を掲げているのに、`domain` クレートやモジュールが `sqlx`、`axum`、`tonic` などのインフラクレートに依存している場合はフラグする。
+
+### 11.2 ドメインとユースケースのテストは Docker なしで走るか — Medium
+
+基本的な遷移やユースケーステストにフェイクポートで足りるのに、ライブ DB や外部サービスを要求するワークフローをフラグする。
+
+### 11.3 フィクスチャはコンストラクタ経由で構築されているか — Medium
+
+[`tests.md`](/docs/kamae/rust/references/test-data/) も照合する。ドメイン / ユースケーステストで public フィールドリテラルや生 ORM 行により不変条件を迂回するテストヘルパをフラグする。
+
+### 11.4 文書化されたローカルチェックループがあるか — Low
+
+Kamae 慣習を採用しているのに、[`ci-setup.md`](/docs/kamae/rust/references/ci-setup/) と揃った高速パスとフル pre-push コマンド一覧がないプロジェクトをフラグする。
+
+### 11.5 シークレットと PII はコミット済み env ファイルから除外されているか — High
+
+[`pii-protection.md`](/docs/kamae/rust/references/pii-protection/) も照合する。コミットされた `.env`、例の実認証情報、デバッグのため生 PII をログするよう促すローカルセットアップドキュメントをフラグする。
+
+### 11.6 テスト構成はクレート境界と一致しているか — Medium
+
+ユースケース層のフェイクやインフラ層のアダプタではなく、ドメインテストが HTTP サーバや DB プールを直接引き込む場合はフラグする。

@@ -1,67 +1,121 @@
 ---
-title: "kamae-rs"
+title: "Kamae Rust"
 sidebar:
   order: 0
-  label: "概要"
+  label: "はじめに"
 ---
 
-> ソース: [https://github.com/manji-0/kamae-rs](https://github.com/manji-0/kamae-rs)
+> ソースリポジトリ: [kamae-rs](https://github.com/manji-0/kamae-rs)
 
 _Kamae（構え）— 備えの姿勢。_
 
-堅牢なサーバーサイドドメインコードを設計・レビューするための Rust スキル集です。[`kamae-ts`](https://github.com/iwasa-kosui/kamae-ts) の Rust 向け兄弟プロジェクトで、薄いスキル・トピックガイド・レビューチェックリストという構成は同じまま、原則を Rust のイディオムに落とし込んでいます。
+Kamae Rust は、サーバーサイドのドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集です。[kamae-ts](https://github.com/iwasa-kosui/kamae-ts) の Rust 向け兄弟プロジェクトで、同じ思想を Rust のイディオムに落とし込んでいます。
 
-## 提供スキル
+すべてのリファレンスを通読する必要はありません。今のタスクに関係するトピックだけを開いてください。各リファレンス末尾の **レビュー観点** に、そのトピックのコードレビューで確認すべき項目があります。
 
-### `kamae-rs`
+## 何を目指すか
 
-Rust のドメインモデル、ユースケース、リポジトリ、状態遷移、境界 DTO のパース、型付きエラー、PII（個人識別情報）の扱い、検証・レビュー周辺のコードを実装・変更・リファクタリング・修正するときに使います。
+Kamae が守りたいのは、次のような失敗です。
 
-中核となる原則:
+- 文字列や数値のまま混在するドメイン概念
+- `status` フィールドとオプショナル列で表せてしまう無効な状態
+- `unwrap` や `panic!` に頼る想定内の失敗処理
+- API JSON や DB 行をそのままドメイン型として使う境界の曖昧さ
+- ログ・メトリクス・エラーへの PII 漏洩
+- 状態変更とドメインイベントの非アトミックな永続化
 
-- 列挙型、構造体、プライベートフィールドの newtype、検証付きコンストラクタでドメインの意味をモデル化する。
-- 実用的な範囲で、無効な状態遷移をコンパイル時に失敗させる。
-- ドメイン固有のエラー列挙型とともに `Result<T, E>` を使う。
-- 外部データは DTO / 行 / 設定用構造体に変換してからドメイン型を構築する。
-- ユースケースは小さなポート経由で配線し、アダプタはコンポジションルートで注入する。
-- 実用的な範囲で、ユースケースごとに集約の変更を 1 つのトランザクション境界内に収める。
-- PII とシークレットはマスキング用ラッパーの内側に置く。
-- デフォルトではドメインロジックから `unsafe` を排除する。避けられない場合は、文書化された安全性不変条件を持つ小さな安全 API の背後に隠す。
-- 触った Rust コードのフォーマットと lint ゲートをクリーンに保つ。lint 抑制は狭い範囲で正当化された設計判断として扱う。
-- rustdoc で公開ドメイン契約を文書化する: 不変条件、エラー、遷移ルール、例、および該当する場合は Safety セクション。
-- CI をレビュー前提と揃える: パッケージ検証、フォーマット、lint、テスト、rustdoc、リスクに応じた unsafe / セキュリティジョブ。
+Rust では、列挙型・newtype・プライベートフィールド・`TryFrom` といった型機能で、実用的な範囲でこれらをコンパイル時または構築時に弾きます。
 
-### `kamae-rs-review`
+## コア原則
 
-Rust コードレビュー時に使います。ドメインモデリング、遷移、エラーハンドリング、アプリケーション配線、集約トランザクション、境界検証、PII 保護、unsafe 境界、フォーマット / lint、rustdoc、CI 設定、永続化 / イベント、ストリームと継続クエリ、ドメインマクロ、サービス境界、テストについて、重要度タグ付きのチェックリストファイルを順にたどります。
+- **意味を型で表す** — 列挙型、構造体、newtype、検証付きコンストラクタでドメイン概念をモデル化する。
+- **無効な遷移を型で封じる** — ソース状態ごとに遷移メソッドや型を分け、網羅的な `match` で分岐を閉じる。
+- **`Result` で失敗を明示する** — ドメイン固有のエラー列挙型とともに `Result<T, E>` を使い、ドメインコードでは `panic!`・`unwrap()`・`expect()` を避ける。
+- **境界で一度パースする** — 外部データは DTO / 行 / 設定構造体に入れてから `TryFrom` でドメイン型へ変換する。
+- **ユースケースは小さく配線する** — ポート（トレイト）経由で依存を受け取り、アダプタはコンポジションルートで注入する。
+- **集約の変更はトランザクション内に** — 実用的な範囲で、ユースケースごとに集約の変更を 1 つのトランザクション境界に収める。
+- **PII とシークレットは内側に** — マスキング用ラッパーの内側に置き、観測経路ではデフォルトでマスクする。
+- **`unsafe` は境界に閉じる** — ドメインロジックからは排除し、必要なら文書化された安全性不変条件を持つ小さな安全 API の背後に隠す。
+- **品質ゲートを揃える** — `rustfmt`・`clippy`・テスト・rustdoc をクリーンに保ち、CI をレビュー前提と一致させる。
 
-## パッケージ構成
+これらは強い既定であり、絶対ではありません。既存のプロジェクト慣習と矛盾する場合は慣習に従い、ドメイン安全性に影響する逸脱は短い説明を残してください。
 
-Claude と Codex 向けのマニフェストの両方を含みます:
+## 状況別の読み方
 
-- `.claude-plugin/plugin.json` と `.claude-plugin/marketplace.json` は Claude プラグインパッケージを記述します。
-- `.codex-plugin/plugin.json` と `.agents/plugins/marketplace.json` は Codex プラグインパッケージを記述し、Codex を `./skills/` に向けます。
+### 新規ドメインを設計するとき
 
-公開やパッケージアーカイブの共有前に `python3 scripts/validate_package.py` を実行してください。スモークテストは JSON マニフェスト、スキルの frontmatter、相対 Markdown リンク、マニフェストのスキルパス、クレートガイド参照を検証します。
+1. [ドメインモデリング](/docs/kamae/rust/references/domain-modeling/)
+2. [状態遷移](/docs/kamae/rust/references/state-transitions/)
+3. [境界防御](/docs/kamae/rust/references/boundary-defense/) と [エラーハンドリング](/docs/kamae/rust/references/error-handling/)
+4. [集約とトランザクション](/docs/kamae/rust/references/aggregate-transactions/) と [永続化とイベント](/docs/kamae/rust/references/persistence-events/)
+5. [タクシー配車例](/docs/kamae/rust/examples/taxi-request/)
+6. 仕上げ前に [品質ゲート](/docs/kamae/rust/references/quality-gates/)
 
-## レビューツール
+### 既存コードベースへ段階的に導入するとき
 
-`cargo run -p kamae-review-probe -- <path>` を実行すると、チェックリストをたどる前に Rust ファイルからレビューの手がかりを収集できます。プローブは `syn` でソースをパースし、意図的に保守的です。人間やエージェントの検査向けにパターンを強調表示するだけで、それ自体は所見を生成しません。
+1. [段階的導入](/docs/kamae/rust/references/adoption/)
+2. [境界防御](/docs/kamae/rust/references/boundary-defense/)
+3. 移行したワークフローごとに、上記「新規ドメイン」のパスを続ける
 
-アプリケーションクレートでのドメインコードの実装とテストについては、[`references/dev-environment.md`](/docs/kamae/rust/references/dev-environment/) を参照してください。
+### オブザーバビリティと PII だけ見るとき
 
-## カスタマイズ
+1. [PII 保護](/docs/kamae/rust/references/pii-protection/)
+2. [ログとメトリクス](/docs/kamae/rust/references/logging-metrics/)
 
-プロジェクトごとの上書きルールは、リポジトリ内の `.claude/rules/`、`.codex/rules/`、または `rules/defaults/` に Markdown ファイルとして置けます。詳細は [`rules.md`](/docs/kamae/rust/rules/) を参照してください。
+### インフラ・開発環境の整備
 
-## リポジトリ構成
+| 関心 | リファレンス |
+| --- | --- |
+| ユースケース配線、DI | [アプリケーション配線](/docs/kamae/rust/references/application-wiring/) |
+| サービス間契約、gRPC | [サービス境界](/docs/kamae/rust/references/service-boundaries/) |
+| ストリーム、継続クエリ | [ストリームと継続クエリ](/docs/kamae/rust/references/stream-continuous-queries/) |
+| マクロ、derive | [ドメインマクロ](/docs/kamae/rust/references/domain-macros/) |
+| `unsafe`、FFI | [unsafe 境界](/docs/kamae/rust/references/unsafe-boundaries/) |
+| テスト、フィクスチャ | [テストデータ](/docs/kamae/rust/references/test-data/) |
+| プロパティベーステスト | [プロパティベーステスト](/docs/kamae/rust/references/property-based-tests/) |
+| フォーマット、lint | [フォーマットと lint](/docs/kamae/rust/references/fmt-lint/) |
+| rustdoc | [rustdoc 契約](/docs/kamae/rust/references/rustdoc/) |
+| ローカル開発 | [開発環境](/docs/kamae/rust/references/dev-environment/) |
+| CI | [CI 設定](/docs/kamae/rust/references/ci-setup/) |
 
-```text
-skills/kamae-rs/          実装ガイダンス
-skills/kamae-rs-review/   レビュー手順とチェックリスト
-rules/                    プロジェクト / ユーザー上書き形式
-```
+## 依存クレート
 
-## ライセンス
+プロジェクトの `Cargo.toml` に応じて、必要なときだけ [クレートガイド](/docs/kamae/rust/references/crate-guides/thiserror/) を参照してください。
 
-MIT
+| 用途 | ガイド付きクレート | 検出のみ（ローカル慣習の参考） |
+| --- | --- | --- |
+| エラー | `thiserror`、`anyhow`、`eyre` | `snafu` |
+| シリアライズ | `serde` | `serde_json`、`toml`、`config` |
+| 検証 / newtype | `validator`、`garde`、`nutype` | `derive_more` |
+| PII / シークレット | `secrecy` | `zeroize` |
+| ログ / トレース | `tracing`、`log`、`metrics` | `opentelemetry`、`prometheus` |
+| テスト | `proptest` | `quickcheck`、`trybuild` |
+
+## リファレンス一覧
+
+- [アプリケーション配線](/docs/kamae/rust/references/application-wiring/)
+- [集約とトランザクション](/docs/kamae/rust/references/aggregate-transactions/)
+- [段階的導入](/docs/kamae/rust/references/adoption/)
+- [ドメインモデリング](/docs/kamae/rust/references/domain-modeling/)
+- [状態遷移](/docs/kamae/rust/references/state-transitions/)
+- [エラーハンドリング](/docs/kamae/rust/references/error-handling/)
+- [境界防御](/docs/kamae/rust/references/boundary-defense/)
+- [PII 保護](/docs/kamae/rust/references/pii-protection/)
+- [ログとメトリクス](/docs/kamae/rust/references/logging-metrics/)
+- [unsafe 境界](/docs/kamae/rust/references/unsafe-boundaries/)
+- [フォーマットと lint](/docs/kamae/rust/references/fmt-lint/)
+- [品質ゲート](/docs/kamae/rust/references/quality-gates/)
+- [rustdoc 契約](/docs/kamae/rust/references/rustdoc/)
+- [CI 設定](/docs/kamae/rust/references/ci-setup/)
+- [ローカル検証設定](/docs/kamae/rust/references/local-validation/)
+- [開発環境](/docs/kamae/rust/references/dev-environment/)
+- [永続化とイベント](/docs/kamae/rust/references/persistence-events/)
+- [ストリームと継続クエリ](/docs/kamae/rust/references/stream-continuous-queries/)
+- [ドメインマクロ](/docs/kamae/rust/references/domain-macros/)
+- [サービス境界](/docs/kamae/rust/references/service-boundaries/)
+- [テストデータ](/docs/kamae/rust/references/test-data/)
+- [プロパティベーステスト](/docs/kamae/rust/references/property-based-tests/)
+
+## 実践例
+
+[タクシー配車例](/docs/kamae/rust/examples/taxi-request/) で、状態遷移とドメインイベントの流れを一通り追えます。

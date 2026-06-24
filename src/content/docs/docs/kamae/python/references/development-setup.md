@@ -57,7 +57,7 @@ uv run ruff format --check .
 
 新しいリファレンス文書を追加したら、`SKILL.md` からリンクし、スキルディスパッチャーが表面化できるようにする。`scripts/validate_package.py` がチェックできるよう相対リンクを優先する。
 
-依存関係の好みとレビュートグル用に `.claude/rules/` または `.codex/rules/` にプロジェクトルールを追加する（[`rules/README.md`](/docs/kamae/python/../../../rules/README/) を参照）。依存関係検出とトピックファイルの読み込みが正しく行われるよう、エージェントを最初に `pyproject.toml` へ向ける。
+プロジェクト固有のルール形式は [kamae-py リポジトリ](https://github.com/manji-0/kamae-py) の `rules/` を参照。
 
 `check_kamae_policy.py` を変更したら、`tests/test_check_kamae_policy.py` にテストを追加または更新する。
 
@@ -96,3 +96,29 @@ CI は `uv sync --locked` を実行するため、古いロックファイルで
 - **Mypy が `pydantic.mypy` プラグイン欠如を報告**: `[tool.mypy] plugins = ["pydantic.mypy"]` が設定され、仮想環境が `uv run` 経由で有効であることを確認する。
 - **ロックファイルのドリフト**: `uv lock` を実行し、更新された `uv.lock` をコミットする。
 - **新リファレンスでポリシーチェッカー失敗**: チェッカーはデフォルトで `src/` と `tests/` のみ検査する。スキルリポジトリは `--include-tests` でチェックされる。別の場所にコードを追加したら、`[tool.mypy].files` にパスを追加するか、適切なスコープでチェッカーを実行する。
+
+## レビュー観点
+
+### 11.1 ドメインコードはフレームワークと ORM の import がないか — High
+
+チームが Kamae スタイルの分離を主張しているのに、`domain` モジュールが FastAPI、Django モデル、SQLAlchemy セッション、boto3、その他インフラクレートを import する箇所を指摘する。
+
+### 11.2 ドメインとユースケースのテストは Docker なしで動くか — Medium
+
+基本的な遷移やユースケーステストにフェイクポートで足りるのに、ライブ DB や外部サービスを要求するワークフローを指摘する。
+
+### 11.3 フィクスチャはコンストラクタ経由で組み立てられているか — Medium
+
+[`tests.md`](/docs/kamae/python/references/test-data/) と突き合わせる。ドメイン/ユースケーステストで生 dict、`model_construct`、ORM 行により不変条件を迂回するテストヘルパーを指摘する。
+
+### 11.4 文書化されたローカルチェックループがあるか — Low
+
+[`ci-setup.md`](/docs/kamae/python/references/ci-setup/) と整合するファストパスとフル pre-push コマンド一覧なしに Kamae 規約を採用するプロジェクトを指摘する。
+
+### 11.5 コミットされた env ファイルにシークレットと PII がないか — High
+
+[`pii-protection.md`](/docs/kamae/python/references/pii-protection/) と突き合わせる。コミットされた `.env`、例の実認証情報、デバッグ用生 PII ログを促すローカルセットアップ文書を指摘する。
+
+### 11.6 テスト配置はレイヤー境界に合っているか — Medium
+
+ユースケース層のフェイクやインフラ層のアダプターではなく、ドメインテストが HTTP サーバーや DB プールを直接引く配置を指摘する。

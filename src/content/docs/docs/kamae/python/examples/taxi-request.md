@@ -5,7 +5,7 @@ sidebar:
   label: "タクシー配車の例"
 ---
 
-Kamae Python スキルパッケージのエンドツーエンド例です。
+Kamae Python のエンドツーエンド例です。Pydantic v2 の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで追えます。[ドメインモデリング](/docs/kamae/python/references/domain-modeling/) と [状態遷移](/docs/kamae/python/references/state-transitions/) の原則の実例として読んでください。
 
 ```python
 """Compact Kamae Python example for a taxi request aggregate."""
