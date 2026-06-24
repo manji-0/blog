@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** `proptest` で不変条件・往復・遷移法則を広い入力空間で検証するとき。
-> **関連:** [`test-data.md`](/docs/kamae-rs/test-data/)、[`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`state-transitions.md`](/docs/kamae-rs/state-transitions/)、[`crate-guides/proptest.md`](/docs/kamae-rs/crate-guides/proptest/)。
+> **関連:** [`test-data.md`](/docs/kamae-rs/test-data/)、[`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`state-transitions.md`](/docs/kamae-rs/state-transitions/)、[`crate-guides.md#proptest`](/docs/kamae-rs/crate-guides/#proptest)。
 
 <!-- constrained-by ./test-data.md -->
 <!-- constrained-by ./domain-modeling.md -->

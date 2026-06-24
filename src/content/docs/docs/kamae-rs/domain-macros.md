@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** derive や内部 proc-macro で繰り返しパターンを符号化するか判断するとき。
-> **関連:** [`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`crate-guides/nutype.md`](/docs/kamae-rs/crate-guides/nutype/)。
+> **関連:** [`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`crate-guides.md#nutype`](/docs/kamae-rs/crate-guides/#nutype)。
 
 <!-- constrained-by ./domain-modeling.md -->
 <!-- constrained-by ./boundary-defense.md -->
@@ -30,7 +30,7 @@ sidebar:
 
 | ニーズ | 推奨 | 備考 |
 | --- | --- | --- |
-| 検証付き newtype | [`nutype`](/docs/kamae-rs/crate-guides/nutype/)、`garde`、`validator` | 不変条件をソースで可視に保つ |
+| 検証付き newtype | [`nutype`](/docs/kamae-rs/crate-guides/#nutype)、`garde`、`validator` | 不変条件をソースで可視に保つ |
 | 単純 derive | `derive_more`、標準 `derive` | 透明 newtype、display ヘルパー |
 | 繰り返し event メタデータ | 内部 `#[derive(DomainEvent)]` | event が同一形状を共有するときのみ |
 

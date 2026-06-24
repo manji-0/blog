@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** PII・シークレットのラップ、`Debug` / ログ / シリアライズの redaction を設計するとき。
-> **関連:** [`logging-metrics.md`](/docs/kamae-rs/logging-metrics/)、[`crate-guides/secrecy.md`](/docs/kamae-rs/crate-guides/secrecy/)、[`test-data.md`](/docs/kamae-rs/test-data/)。
+> **関連:** [`logging-metrics.md`](/docs/kamae-rs/logging-metrics/)、[`crate-guides.md#secrecy`](/docs/kamae-rs/crate-guides/#secrecy)、[`test-data.md`](/docs/kamae-rs/test-data/)。
 
 ## ログに載せにくい sensitive データにする
 

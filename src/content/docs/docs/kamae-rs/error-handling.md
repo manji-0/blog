@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** ドメインエラー列挙型、`Result` の層分け、インフラエラーの変換、非同期ユースケースのエラー契約を設計・レビューするとき。
-> **関連:** [`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`application-wiring.md`](/docs/kamae-rs/application-wiring/)、[`logging-metrics.md`](/docs/kamae-rs/logging-metrics/)、[`crate-guides/thiserror.md`](/docs/kamae-rs/crate-guides/thiserror/)。
+> **関連:** [`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`application-wiring.md`](/docs/kamae-rs/application-wiring/)、[`logging-metrics.md`](/docs/kamae-rs/logging-metrics/)、[`crate-guides.md#thiserror`](/docs/kamae-rs/crate-guides/#thiserror)。
 
 ## ドメイン固有のエラー enum を使う
 

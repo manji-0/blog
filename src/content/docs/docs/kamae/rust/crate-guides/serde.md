@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/crate-guides/serde/
+redirect: /docs/kamae-rs/crate-guides/#serde
 sidebar:
   hidden: true
 ---
 
-このページは移動しました。
+このページは [クレートガイド](/docs/kamae-rs/crate-guides/) に統合しました。

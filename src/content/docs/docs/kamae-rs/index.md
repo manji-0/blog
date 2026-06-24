@@ -81,7 +81,7 @@ Rust では、列挙型・newtype・プライベートフィールド・`TryFrom
 
 ## 依存クレート
 
-プロジェクトの `Cargo.toml` に応じて、必要なときだけ [クレートガイド](/docs/kamae-rs/crate-guides/thiserror/) を参照する。
+プロジェクトの `Cargo.toml` に応じて、必要なときだけ [クレートガイド](/docs/kamae-rs/crate-guides/) を参照する。
 
 | 用途 | ガイド付きクレート | 検出のみ（ローカル慣習の参考） |
 | --- | --- | --- |

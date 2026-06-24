@@ -300,7 +300,7 @@ builder はテストとフィクスチャ専用とする。テスト簡略化の
 
 | スタック | モデリングパターン |
 | --- | --- |
-| `nutype` + `thiserror` | 生成 guard 付き検証 newtype（[`crate-guides/nutype.md`](/docs/kamae-rs/crate-guides/nutype/)） |
+| `nutype` + `thiserror` | 生成 guard 付き検証 newtype（[`crate-guides.md#nutype`](/docs/kamae-rs/crate-guides/#nutype)） |
 | `rust_decimal` + newtypes | checked 算術の `Money`、`TaxRate` |
 | `serde(try_from)` + newtypes | JSON 境界のリーフ value object（[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)） |
 | `proptest` + builders | primitive に `Arbitrary` のあと `try_new`（[`property-based-tests.md`](/docs/kamae-rs/property-based-tests/)） |

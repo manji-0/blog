@@ -95,16 +95,7 @@ export function getKamaeRustSidebar() {
 				'ci-setup',
 			]),
 			group('kamae-rs', '実践例', ['examples/taxi-request'], false),
-			group('kamae-rs', 'クレートガイド', [
-				'crate-guides/thiserror',
-				'crate-guides/anyhow',
-				'crate-guides/serde',
-				'crate-guides/validator',
-				'crate-guides/garde',
-				'crate-guides/nutype',
-				'crate-guides/secrecy',
-				'crate-guides/proptest',
-			]),
+			slug('kamae-rs', 'crate-guides'),
 		],
 	};
 }
