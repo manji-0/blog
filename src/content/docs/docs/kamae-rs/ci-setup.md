@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **対象読者:** スキルを自リポジトリにインストールするプロジェクト。`kamae-rs` スキルリポジトリ本体は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を参照。
-> **いつ読むか:** GitHub Actions、branch protection、リポジトリ検証 job の作成・更新。
-> **関連:** [品質ゲート](/docs/kamae-rs/quality-gates/)（CI が走らせるチェック）、[開発環境](/docs/kamae-rs/dev-environment/)。
+CI はローカルで再現できる品質ゲートをマージ前に強制する層である。`cargo fmt` / `clippy` / テストが PR で抜けると、ドメイン安全性のレビュー前提が崩れる。
+
+正規コマンドは [品質ゲート](/docs/kamae-rs/quality-gates/)。`kamae-rs` スキルリポジトリ自体の開発は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/)、アプリケーション crate の日常開発は [開発環境](/docs/kamae-rs/dev-environment/) を読む。
 
 ## 基本方針
 

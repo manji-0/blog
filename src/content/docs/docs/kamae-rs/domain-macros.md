@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** derive や内部 proc-macro で繰り返しパターンを符号化するか判断するとき。
-> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[境界防御](/docs/kamae-rs/boundary-defense/)、[クレートガイド（nutype）](/docs/kamae-rs/crate-guides/#nutype)。
+derive や proc-macro は繰り返しパターンの**符号化**に使う道具であり、欠けているドメインモデリングを隠すためのものではない。同型が 3 つ以上あり、手書きが drift しうるときだけ導入を検討する。
+
+不変条件の本体は [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、境界での検証は [境界防御](/docs/kamae-rs/boundary-defense/)、newtype 生成は [クレートガイド（nutype）](/docs/kamae-rs/crate-guides/#nutype) と整合させる。
 
 <!-- constrained-by ./domain-modeling.md -->
 <!-- constrained-by ./boundary-defense.md -->

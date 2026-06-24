@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** `unsafe`、FFI、`MaybeUninit`、`Pin` をドメイン外の adapter に閉じ込めるとき。
-> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[PII 保護](/docs/kamae-rs/pii-protection/)、[品質ゲート](/docs/kamae-rs/quality-gates/)。
+`unsafe` ブロックはコンパイラの保証を外す。ドメイン型の中に置くのではなくアダプターに閉じ、安全 API の内側で前提・ライフタイム・エイリアシングを検証してから値を返す。
+
+通常の境界は [境界防御](/docs/kamae-rs/boundary-defense/)、doc 契約は [公開 API のドキュメント](/docs/kamae-rs/rustdoc/)、lint 方針は [品質ゲート](/docs/kamae-rs/quality-gates/) と揃える。
 
 ## 基本方針
 

@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** gRPC / Protobuf、サービス間イベント、スキーマ進化を設計するとき。
-> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[ストリームと継続クエリ](/docs/kamae-rs/stream-continuous-queries/)。
+サービス間の Protobuf やイベントは、プロセス内の `TryFrom` よりスキーマ進化と冪等性の問題が前面に出る。破壊的変更や未知バージョンでパニックするコンシューマは、本番で連鎖障害になる。
+
+境界パースの基本は [境界防御](/docs/kamae-rs/boundary-defense/)、イベントの保存と重複排除は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、ストリーム側の処理は [ストリームと継続クエリ](/docs/kamae-rs/stream-continuous-queries/) を参照する。
 
 <!-- constrained-by ./boundary-defense.md -->
 <!-- constrained-by ./persistence-events.md -->

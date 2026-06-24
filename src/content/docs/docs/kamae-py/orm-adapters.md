@@ -4,10 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** リポジトリアダプターで SQLAlchemy 2.0 または Django ORM エンティティを Pydantic ドメインモデルにマップするときに読む。
-> **関連:** [境界防御](/docs/kamae-py/boundary-defense/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)、[マイグレーション戦略](/docs/kamae-py/migration-strategy/)。
+ORM エンティティはインフラに置き、ユースケースと遷移が見るのは Pydantic ドメイン状態だけにする。アダプターが行とドメインの間を往復検証しないと、DB の NULL や型のゆらぎが不変条件を迂回する。
 
-Kamae Python は ORM エンティティクラスを**インフラ**に置く。ユースケースと遷移が見るのは Pydantic ドメイン状態のみである。アダプターが永続化行/エンティティとドメインモデル間の変換を所有する。
+集約の保存契約（バージョン、アウトボックス、冪等キー）は [永続化、集約、イベント](/docs/kamae-py/persistence-events/)、受信 DTO の形は [境界防御](/docs/kamae-py/boundary-defense/) と揃える。段階的導入は [マイグレーション戦略](/docs/kamae-py/migration-strategy/) を参照する。
 
 ## レイヤリング
 
@@ -204,7 +203,9 @@ def save_en_route_django(
 
 ## リポジトリポート形状
 
-ポートは ORM インスタンスではなくドメイン状態を返す。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポート定義を使う。狭いメソッド（`find_waiting`、`save_en_route`）は各永続化操作で有効なライフサイクル状態を文書化する。
+ポートは ORM インスタンスや生の行オブジェクトではなく、検証済みのドメイン状態を返す。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポート定義に合わせる。
+
+`save(request: TaxiRequest)` のような広いメソッドは、たとえば `Waiting` のまま保存する非法操作を型では防げない。`find_waiting` と `save_en_route` のように、操作ごとに有効なライフサイクル状態をメソッド名と引数型で表す。
 
 ## マイグレーション共存
 

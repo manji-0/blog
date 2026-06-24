@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** イベントフィード、継続クエリ、projection、backpressure を `Stream` でモデル化するとき。
-> **関連:** [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[サービス境界](/docs/kamae-rs/service-boundaries/)。
+イベントを購読する側は、少なくとも一度の配信と再起動を前提にする。メモリ上の broadcast だけに頼ると再接続でイベントを落とし、チェックポイントなしでは重複処理とスキップの両方が起きうる。
+
+権威ある状態変更はコマンド経路（[状態遷移](/docs/kamae-rs/state-transitions/)）に留め、投影は読み取りモデルとして扱う。保存形式は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、スキーマ進化は [サービス境界](/docs/kamae-rs/service-boundaries/) と整合させる。
 
 <!-- constrained-by ./persistence-events.md -->
 <!-- constrained-by ./persistence-events.md -->
@@ -115,9 +116,9 @@ async fn apply_event(
 
 ## CQRS 境界を明示
 
-read model はクエリ向けに非正規化してよいが、第二の write model になってはならない。projection 内の集約横断更新は event に反応し、他集約を直接 mutate しない。
+read model（投影）はクエリを速くするための非正規化ビューであり、第二の write model ではない。投影ハンドラ内で他集約を直接 mutate すると、コマンド経路を迂回した状態変更が増え、リトライや並行更新の reasoning が崩れる。集約横断の変更が必要なら、ドメインイベントを発行し、別のユースケースまたはコマンドが反応する形にする。
 
-write 側のトランザクションスコープ、楽観的 versioning、outbox 原子性は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) と [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照。
+write 側のトランザクションスコープ、楽観的 versioning、outbox の原子性は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
 
 ## 検出ヒント
 

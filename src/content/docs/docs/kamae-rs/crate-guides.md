@@ -4,10 +4,9 @@ sidebar:
   order: 50
 ---
 
-> **いつ読むか:** `Cargo.toml` に既にあるクレートの Kamae 向けデフォルトを確認するとき。トピック別リファレンスと矛盾する場合は、そちらを優先する。
-> **関連:** [エラーハンドリング](/docs/kamae-rs/error-handling/)、[境界防御](/docs/kamae-rs/boundary-defense/)、[ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[PII 保護](/docs/kamae-rs/pii-protection/)、[プロパティベーステスト](/docs/kamae-rs/property-based-tests/)。
+`thiserror`、`serde`、`nutype` などは Kamae のドメイン規約を**補助**するクレートである。トピック別リファレンス（エラーハンドリング、境界防御など）と矛盾する場合は、そちらを優先する。
 
-プロジェクトがすでに依存しているクレート、または小さく慣習的に導入してよいクレートについて、crate 固有のデフォルトだけをまとめた。各トピックの詳細パターンは対応するリファレンスを先に読む。
+ここでは「よくある組み合わせ」とデフォルトの置き場所をまとめる。個別の設計判断は [エラーハンドリング](/docs/kamae-rs/error-handling/)、[境界防御](/docs/kamae-rs/boundary-defense/)、[ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[PII 保護](/docs/kamae-rs/pii-protection/) を参照する。
 
 | 用途 | ガイド付きクレート | 検出のみ（ローカル慣習の参考） |
 | --- | --- | --- |
@@ -40,9 +39,9 @@ pub enum DomainError {
 
 ## anyhow / eyre
 
-アプリケーション境界（`main`、handler、移行ツール）で `anyhow` または `eyre` を使う。対象はコマンド handler、`main`、移行ツール、接着コードである。
+`anyhow` / `eyre` は**報告境界**向けである。`main`、HTTP ハンドラ、移行スクリプト、接着コードでは、多様な失敗を 1 本のチェーンにまとめてよい。
 
-ドメインエンティティ、値オブジェクトコンストラクタ、呼び出し側が網羅的に扱う必要があるユースケースの戻り型として `anyhow::Result<T>` を使わない。ドメイン固有エラーは報告境界でのみ `anyhow` に変換する。
+ドメインのコンストラクタやユースケースの戻り値に `anyhow::Result` を使うと、呼び出し元が網羅的に分岐できなくなる。ドメイン層は具体的な `enum` と `Result` を返し、ハンドラで HTTP ステータスやログ用メッセージに変換する。
 
 ## serde
 

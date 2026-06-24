@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **対象読者:** **kamae-rs** スキルリポジトリで作業するコントリビュータ（汎用インストール先ではない）。
-> **いつ読むか:** このスキルパッケージを開発・テストするローカルワークスペースをセットアップするとき。
-> **関連:** [品質ゲート](/docs/kamae-rs/quality-gates/)（正規チェックコマンド）、[開発環境](/docs/kamae-rs/dev-environment/)、[CI セットアップ](/docs/kamae-rs/ci-setup/)。
+**kamae-rs** スキルリポジトリで作業するコントリビューター向けである（スキルをインストールした先のプロジェクト向けではない）。検証スクリプトや例 crate のワークスペースが揃っていないと、スキル自体の変更が再現できない。
+
+アプリケーション開発の手順は [開発環境](/docs/kamae-rs/dev-environment/)、チェックコマンドは [品質ゲート](/docs/kamae-rs/quality-gates/)、Actions 配線は [CI セットアップ](/docs/kamae-rs/ci-setup/) を参照する。
 
 ## 前提条件
 

@@ -5,9 +5,6 @@ sidebar:
   label: "タクシー配車の例"
 ---
 
-> **いつ読むか:** Kamae Python の原則をエンドツーエンドのコードで追いたいときに読む。
-> **関連:** [ドメインモデリング](/docs/kamae-py/domain-modeling/)、[状態遷移](/docs/kamae-py/state-transitions/)。
-
 この例は、タクシー配車リクエストを題材に、Pydantic v2 の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで示す。[ドメインモデリング](/docs/kamae-py/domain-modeling/) と [状態遷移](/docs/kamae-py/state-transitions/) の原則を、実装に落とし込んだ読み物として使える。
 
 ## 凍結状態と判別共用体

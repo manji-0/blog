@@ -4,10 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 識別子・値オブジェクト・状態型・集約境界・newtype を定義するとき。
-> **関連:** [状態遷移](/docs/kamae-rs/state-transitions/)、[境界防御](/docs/kamae-rs/boundary-defense/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[プロパティベーステスト](/docs/kamae-rs/property-based-tests/)。
+意味の異なる値を同じ `String` や `i64` のまま置くと、コンパイラは区別できず、境界をすり抜けた値がドメイン深部まで届く。Kamae では newtype・enum・明示的なコンストラクタで意図を型に刻む。
+
+ライフサイクル上の変化は [状態遷移](/docs/kamae-rs/state-transitions/)、外部データの取り込みは [境界防御](/docs/kamae-rs/boundary-defense/)、保存単位は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) と揃える。
 
 ## ドメイン概念を明示的に表現する
+
+プリミティブのままだと、単位の混同や ID の取り違えはコンパイル時に検出できない。newtype のコストはボイラープレートより、誤った組み合わせを早く落とす効果の方が大きい。
 
 意味が異なる値には、プリミティブな文字列や数値のまま置かず、名前付き構造体・列挙型・newtype で表現する。
 
@@ -59,9 +62,9 @@ pub enum TaxiRequest {
 
 ## 構築を正直に保つ
 
-`new`、`try_new`、`TryFrom`、`FromStr` で構築時に不変条件を強制する。呼び出し元が迂回できる public フィールドを公開しない。
+`new`、`try_new`、`TryFrom`、`FromStr` で構築時に不変条件を強制する。public フィールドを公開すると、呼び出し元が検証を迂回して無効な組み合わせを作れてしまう。
 
-不変条件のない単純データ、またはテストモジュール内の builder だけが struct リテラルを許容する。
+不変条件のない単純データ、または `#[cfg(test)]` 内の builder だけが struct リテラルを許容する。本番経路と同じコンストラクタをテストでも使う方針は [テストデータ](/docs/kamae-rs/test-data/) を参照する。
 
 ## trait の derive は意図的に選ぶ
 
@@ -85,7 +88,7 @@ API/DB/env raw data -> DTO/row struct -> TryFrom -> domain type
 
 ## 概念ごとに整理する
 
-1 ドメイン概念につき 1 ファイルまたは 1 モジュールとし、型・コンストラクタ・メソッド・テストをまとめる。型と振る舞いを分けた catch-all の `types.rs` / `models.rs` は避ける。
+1 ドメイン概念につき 1 ファイル（または小さなモジュール）とし、型・コンストラクタ・メソッド・テストを同じ場所に置く。`types.rs` と `models.rs` に型だけ、別モジュールに振る舞いだけ、という分離は、変更のたびにファイルを行き来させ、不変条件のレビューも難しくする。
 
 ## Phantom 型による typestate パターン
 

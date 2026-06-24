@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** ポートとアダプタ、ユースケース struct、composition root の配線を設計するとき。
-> **関連:** [エラーハンドリング](/docs/kamae-rs/error-handling/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)。
+ユースケース struct がオーケストレーション（読み込み → 認可 → 遷移 → 永続化）を所有し、ハンドラは薄い入口に留める。具象の DB クライアントや HTTP クライアントをドメインに漏らすと、テストが実インフラに依存し、変更の影響範囲も読み取れなくなる。
+
+リポジトリ trait の形は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、失敗の層分けは [エラーハンドリング](/docs/kamae-rs/error-handling/) と整合させる。
 
 <!-- constrained-by ./persistence-events.md -->
 <!-- constrained-by ./error-handling.md -->
@@ -13,9 +14,9 @@ sidebar:
 
 ## 基本方針
 
-ドメイン遷移は純粋で小さく保つ。オーケストレーションは port に依存するユースケース型に置き、具体 DB や HTTP クライアントには依存させない。adapter は composition root（`main`、テスト setup、フレームワーク bootstrap）でのみ配線する。
+ドメイン遷移は純粋で小さく保ち、副作用は持たせない。ビジネス上の順序（読み込み、認可、遷移、保存）は port に依存するユースケース型が所有し、具体の DB クライアントや HTTP クライアントはユースケースのフィールドとして注入する。adapter の `new` や接続プールの取得は composition root（`main`、テスト setup、フレームワーク bootstrap）だけが行う。
 
-サービスロケータ、グローバル singleton、重い DI コンテナより、struct フィールドの明示的依存を優先する。
+グローバル singleton やサービスロケータは、テスト時の差し替えを難しくし、依存関係をコードから読み取れなくする。struct フィールドの明示的依存を優先する。
 
 ## ポートとアダプタ
 
@@ -124,9 +125,9 @@ let app = Router::new().route(
 
 ## 副作用をドメインコードから追い出す
 
-ドメイン遷移は `Transition<_, _>` または `Result<_, DomainError>` を返す。ユースケースが I/O 順序を所有する: load、authorize、transition、persist、publish。repository と client は port の背後に留める。
+ドメイン遷移は `Transition<_, _>` または `Result<_, DomainError>` を返し、I/O は持たない。ユースケースが load → authorize → transition → persist → publish の順序を所有し、repository と client は port の背後に留める。
 
-handler が SQL や HTTP を直接呼び始めたら、port を抽出しワークフローをユースケース struct に移す。
+ハンドラ の中で `sqlx::query` や HTTP クライアントを直接呼び始めたら、それは配線の漏れのサインだ。port を抽出し、ワークフローをユースケース struct に移す。典型例は「ドメイン呼び出しのあいだに DB を読む」ハンドラで、テストが実 DB を要求し、トランザクション境界も曖昧になる。
 
 レビューでは、ORM / SDK 形状の肥大したポート、ハンドラやドメインからの具象 I/O 直呼び、散在したオーケストレーション、隠れたグローバルや DI コンテナ、実インフラ必須のユースケーステストを指摘する。
 

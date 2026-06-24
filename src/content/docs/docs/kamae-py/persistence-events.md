@@ -4,10 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 集約境界、リポジトリ、トランザクション、アウトボックス、冪等コマンド、楽観的ロック、イベントペイロードを設計・実装するときに読む。
-> **関連:** [ORM アダプター](/docs/kamae-py/orm-adapters/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/)、[境界防御](/docs/kamae-py/boundary-defense/)、[状態遷移](/docs/kamae-py/state-transitions/)。
+1 コマンドで一貫させるべき状態変更とドメインイベントを別トランザクションで保存すると、障害やリトライのたびに「状態だけ進んだ」「イベントだけ二重に出た」が起きうる。Kamae ではアグリゲート境界・楽観的ロック・アウトボックスをセットで設計する。
+
+状態の型と純粋遷移は [状態遷移](/docs/kamae-py/state-transitions/) と [ドメインモデリング](/docs/kamae-py/domain-modeling/) が前提。ORM への落とし込みは [ORM アダプター](/docs/kamae-py/orm-adapters/)、外部呼び出しのリトライは [インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/) と整合させる。
 
 ## ここでのアグリゲートの定義
+
+DDD の用語をそのまま全テーブルに当てはめるのではなく、**1 コマンドで一貫させたい不変条件**の単位としてアグリゲートを切る。
 
 Kamae Python における**アグリゲート**は、次の単位である:
 

@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** ドメイン、境界、PII、persistence、テスト、サンプルコードの変更を仕上げる前。**ローカルおよび CI チェックの正規コマンド一覧**。
-> **関連:** [開発環境](/docs/kamae-rs/dev-environment/)、[CI セットアップ](/docs/kamae-rs/ci-setup/)、[スキルリポジトリの開発](/docs/kamae-rs/development-setup/)（スキルリポジトリ向け）。
+ドメイン方針はレビューだけに頼ると再現できない。触った crate では `cargo fmt --check`、プロジェクトの `clippy` 方針、焦点を絞ったテストをローカルと CI で同じコマンドに揃える。ここが正規一覧である。
+
+アプリケーション crate のセットアップは [開発環境](/docs/kamae-rs/dev-environment/)、Actions への反映は [CI セットアップ](/docs/kamae-rs/ci-setup/)、スキルリポジトリ開発は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を読む。
 
 ## ベースラインコマンド
 

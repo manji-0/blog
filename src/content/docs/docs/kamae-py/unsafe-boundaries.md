@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** `ctypes`、`cffi`、ネイティブ拡張、`model_construct`、広いキャスト、未検証バイト、その他 Python/Pydantic 不変条件を迂回するコードに触れるときに読む。
-> **関連:** [境界防御](/docs/kamae-py/boundary-defense/)、[Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/)、[ORM アダプター](/docs/kamae-py/orm-adapters/)。
+`model_construct`、広い `cast`、ネイティブ FFI は、型チェッカーを満足させてもランタイムの不変条件を保証しない。これらはアダプターかインフラに閉じ、小さな安全 API の内側で前提を検証してからドメイン値を返す。
+
+通常の境界パースは [境界防御](/docs/kamae-py/boundary-defense/)、マッパーでの `model_construct` の条件は [ORM アダプター](/docs/kamae-py/orm-adapters/) と [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/) を参照する。
 
 ## デフォルト方針
 

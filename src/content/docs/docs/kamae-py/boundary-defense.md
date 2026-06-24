@@ -4,10 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** API ペイロード、DB 行、環境変数、ファイル、キューメッセージ、外部 SDK レスポンスを受け入れるときに読む。
-> **関連:** [unsafe 境界](/docs/kamae-py/unsafe-boundaries/)、[Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/)、[ORM アダプター](/docs/kamae-py/orm-adapters/)、[エラーハンドリング](/docs/kamae-py/error-handling/)。
+外部から入るデータは、ドメインに到達するまで**未知**として扱う。Pydantic は形状と宣言された制約を検証するが、ビジネス上の意味（テナント所有権、ライフサイクル前提、金額の単位など）はドメインコンストラクタや遷移の前提で守る必要がある。
+
+状態の型付けは [ドメインモデリング](/docs/kamae-py/domain-modeling/) を、検証コストと `model_construct` の境界は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/) と [unsafe 境界](/docs/kamae-py/unsafe-boundaries/) を、DB 行のマッピングは [ORM アダプター](/docs/kamae-py/orm-adapters/) を参照する。
 
 ## 未知のデータはエッジでパースする
+
+根拠は単純だ。検証前の値をドメインに流すと、型チェッカーは「もう正しい」とみなすが、ランタイムの不変条件はまだ証明されていない。
 
 API ボディ、DB 行、キューメッセージ、ファイル、環境変数、SDK レスポンスは、Pydantic が検証するまで未知として扱う。
 
@@ -250,7 +253,7 @@ async def assign_driver_use_case(
 
 ## ドメイン状態では余分なフィールドを禁止する
 
-ドメイン状態とイベントモデルに `extra="forbid"` を使い、存在すべきでないフィールドを黙って受け入れない。ログと永続化では、意図しないレイヤーを通過する余分なフィールドが機密データを運ぶ可能性がある。
+ドメイン状態とイベントモデルには `extra="forbid"` を使い、存在すべきでないフィールドを黙って受け入れない。未知キーを許すと、`model_dump()` 経由でログや永続化に想定外のデータ（たとえばクライアントが付けた余分な PII フィールド）が載る経路ができる。
 
 ## 未検証キャストを避ける
 

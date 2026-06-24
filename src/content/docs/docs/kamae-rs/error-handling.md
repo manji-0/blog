@@ -4,12 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** ドメインエラー列挙型、`Result` の層分け、インフラエラーの変換、非同期ユースケースのエラー契約を設計・レビューするとき。
-> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[アプリケーション配線](/docs/kamae-rs/application-wiring/)、[ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、[クレートガイド（thiserror）](/docs/kamae-rs/crate-guides/#thiserror)。
+ドメインコードで `unwrap` や `panic` に頼ると、想定内のビジネス失敗とバグの区別がつかなくなる。Kamae ではドメイン固有の `enum` と `Result` で失敗を明示し、インフラエラーはアダプター境界で変換する。
+
+ユースケースの流れは [状態遷移](/docs/kamae-rs/state-transitions/) と [アプリケーション配線](/docs/kamae-rs/application-wiring/) とセット。ログとソースチェーンは [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、`thiserror` の置き方は [クレートガイド（thiserror）](/docs/kamae-rs/crate-guides/#thiserror) を参照する。
 
 ## ドメイン固有のエラー enum を使う
 
-ドメインおよびユースケースコードでは `Result<T, E>` と具体的な error enum を使う。
+呼び出し元が分岐すべき失敗は列挙型のバリアントに載せ、`anyhow` や文字列エラーは HTTP ハンドラなど報告境界まで留める。
 
 ```rust
 #[derive(Debug, thiserror::Error)]

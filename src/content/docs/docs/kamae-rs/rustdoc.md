@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 公開ドメイン API の rustdoc 契約、doctest、`# Safety` を整備するとき。
-> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[unsafe 境界](/docs/kamae-rs/unsafe-boundaries/)、[品質ゲート](/docs/kamae-rs/quality-gates/)。
+公開ドメイン API の rustdoc は実装メモではなく**契約**である。不変条件、有効入力、`# Errors`、`# Panics`、`# Safety` を書かないと、型は正しくても誤用がレビューをすり抜ける。
+
+型設計は [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、unsafe の隔離は [unsafe 境界](/docs/kamae-rs/unsafe-boundaries/)、チェックの自動化は [品質ゲート](/docs/kamae-rs/quality-gates/) と整合させる。
 
 ## 基本方針
 
@@ -15,7 +16,7 @@ rustdoc は実装の説明ではなくドメイン契約を文書化する。公
 
 ## 文書化する対象
 
-ドメインまたは adapter 契約の一部である公開 item:
+公開 item のうち、呼び出し元が**依存してよい振る舞い**を説明する。実装の写しや名前の繰り返しは契約にならない。次がドメインまたは adapter 契約の一部であるとき、rustdoc を書く。
 
 - Newtype と value object: 意味、検証ルール、単位、範囲、プライバシー/redaction 期待
 - コンストラクタと `TryFrom`/`FromStr`: 受理/拒否入力と error バリアント

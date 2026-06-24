@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** `proptest` で不変条件・往復・遷移法則を広い入力空間で検証するとき。
-> **関連:** [テストデータ](/docs/kamae-rs/test-data/)、[ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[状態遷移](/docs/kamae-rs/state-transitions/)、[クレートガイド（proptest）](/docs/kamae-rs/crate-guides/#proptest)。
+例表だけのテストは「書いた通り動く」ことは示すが、入力空間全体の法則は示さない。`proptest` は不変条件・往復・遷移の拒否ルールを広い入力で叩くのに向く。
+
+フィクスチャの組み立ては [テストデータ](/docs/kamae-rs/test-data/)、状態機械の形は [状態遷移](/docs/kamae-rs/state-transitions/)、型の前提は [ドメインモデリング](/docs/kamae-rs/domain-modeling/) と [クレートガイド（proptest）](/docs/kamae-rs/crate-guides/#proptest) を参照する。
 
 <!-- constrained-by ./test-data.md -->
 <!-- constrained-by ./domain-modeling.md -->

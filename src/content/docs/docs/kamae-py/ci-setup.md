@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **対象読者:** スキルを自リポジトリにインストールするプロジェクト。`kamae-py` スキルリポジトリ自体については [開発環境とセットアップ](/docs/kamae-py/development-setup/) を読む。
-> **いつ読むか:** GitHub Actions の作成・更新、ブランチ保護の指針、リポジトリ検証ジョブを整備するときに読む。
-> **関連:** [品質ゲート](/docs/kamae-py/quality-gates/)（CI が実行すべきチェック）、[開発環境とセットアップ](/docs/kamae-py/development-setup/)。
+CI はローカルで再現できる品質ゲートを、マージ前に機械的に強制する層である。人間のレビューが前提にしているチェックが CI に無いと、ドメイン方針のドリフトは気づきにくい。
+
+実行すべきコマンドの正規一覧は [品質ゲート](/docs/kamae-py/quality-gates/) にある。`kamae-py` スキルリポジトリ自体を開発するときは [開発環境とセットアップ](/docs/kamae-py/development-setup/) を読む。
 
 ## デフォルトの GitHub Actions ワークフロー
 
-CI は [品質ゲート](/docs/kamae-py/quality-gates/) と同じチェックを実行すべきだ。`uv sync --locked` を使い、ロックファイルのドリフトでビルドを失敗させる。
+`uv sync --locked` でロックファイルのドリフトを検知し、依存の再現性を保つ。
 
 このスキルをインストールしたときは、同梱テンプレート [`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) を使う:
 

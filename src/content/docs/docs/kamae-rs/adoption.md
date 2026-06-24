@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 既存 Rust コードベースへ Kamae を段階的に導入するとき。
-> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[アプリケーション配線](/docs/kamae-rs/application-wiring/)。
+レガシー Rust コードベースを一括置換すると、境界・エラー・永続化の穴が同時に広がる。Kamae では触れたワークフローごとに、DTO パース → 型付き状態 → ポート分離 → 原子性永続化の順で段階的に締める。
+
+各段の詳細は [境界防御](/docs/kamae-rs/boundary-defense/)、[ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[アプリケーション配線](/docs/kamae-rs/application-wiring/) を参照する。
 
 ## 基本方針
 

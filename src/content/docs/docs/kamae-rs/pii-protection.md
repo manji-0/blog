@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** PII・シークレットのラップ、`Debug` / ログ / シリアライズの redaction を設計するとき。
-> **関連:** [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、[クレートガイド（secrecy）](/docs/kamae-rs/crate-guides/#secrecy)、[テストデータ](/docs/kamae-rs/test-data/)。
+`Debug` derive や span フィールドは、意図せず個人データや資格情報をログに載せる。型でラップし、露出はアダプターに閉じる設計にしないと、可観測性がそのまま漏洩面になる。
+
+ログとメトリクスの実装は [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、資格情報の扱いは [クレートガイド（secrecy）](/docs/kamae-rs/crate-guides/#secrecy)、テストでの検証は [テストデータ](/docs/kamae-rs/test-data/) を参照する。
 
 ## ログに載せにくい sensitive データにする
 

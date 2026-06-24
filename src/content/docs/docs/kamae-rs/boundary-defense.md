@@ -4,10 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** HTTP・DB・設定・gRPC など外部データを DTO 経由でドメイン型へ変換するとき。
-> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[エラーハンドリング](/docs/kamae-rs/error-handling/)、[クレートガイド（serde）](/docs/kamae-rs/crate-guides/#serde)。
+`serde` や DB ドライバは「要求された形状」を満たすことは証明しても、ドメイン上の意味（有効 ID、テナント境界、金額の単位など）は保証しない。外部データは DTO で受け、`TryFrom` でドメイン型に変換する二段構えにする。
+
+状態と newtype の設計は [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、エラーの返し方は [エラーハンドリング](/docs/kamae-rs/error-handling/)、serde の使い分けは [クレートガイド（serde）](/docs/kamae-rs/crate-guides/#serde) を参照する。
 
 ## デシリアライズは形状パースに留める
+
+JSON や行データが「形として正しい」ことと「ビジネスとして許可される」ことは別問題だ。二段変換にしないと、後段のドメインコードが暗黙に外部形状を信頼することになる。
 
 `serde` はデータが要求された形状を持つことを証明するだけで、ドメイン上の意味を満たすことは保証しない。まず DTO にデシリアライズし、`TryFrom` でドメイン型に変換する。
 

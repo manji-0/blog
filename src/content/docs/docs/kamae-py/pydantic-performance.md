@@ -4,10 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 大きなモデル、高頻度エンドポイント、`model_construct` のトレードオフ、msgspec 風境界シリアライザーで検証オーバーヘッドが問題になるときに読む。
-> **関連:** [ドメインモデリング](/docs/kamae-py/domain-modeling/)、[境界防御](/docs/kamae-py/boundary-defense/)、[unsafe 境界](/docs/kamae-py/unsafe-boundaries/)。
+Pydantic v2 は境界とドメイン状態のデフォルトとして妥当だが、大きなモデルや高頻度エンドポイントでは検証に実コストがある。パフォーマンス改善は不変条件を弱める口実ではなく、**どこで何を再検証するか**を絞る話である。
 
-Kamae Python はドメイン状態と境界パースのデフォルトとして Pydantic v2 を維持する。大きなモデル、ネストした共用体、高頻度エンドポイントでは検証に実コストがある。パフォーマンスは境界とホットパスの関心事として扱う。ドメイン不変条件を弱める理由にはしない。
+型の選び方は [ドメインモデリング](/docs/kamae-py/domain-modeling/)、検証を飛ばしてよい経路は [unsafe 境界](/docs/kamae-py/unsafe-boundaries/)、受信データの入口は [境界防御](/docs/kamae-py/boundary-defense/) と整合させる。
 
 ## コストが現れる場所
 
@@ -131,6 +130,8 @@ HTTP bytes → msgspec.Struct (wire) → Pydantic DTO (strict) → domain comman
 
 ## バッチ処理向け TypeAdapter キャッシュ戦略
 
+取り込みや一覧処理では、行ごとに `TypeAdapter` を new するとスキーマコンパイルが繰り返され、CPU が境界検証に消える。モジュールレベルで 1 インスタンスを共有し、ループ内では `validate_python` だけを呼ぶ。
+
 | パターン | 実装 | 使うとき |
 | --- | --- | --- |
 | モジュールレベルアダプター | `FooAdapter = TypeAdapter(Foo)` | 繰り返しパースのデフォルト |
@@ -171,6 +172,8 @@ def adapter_for_schema_version(version: int) -> TypeAdapter[TaxiRequest]:
 5. **境界でのみ `strict=True` を使う。** 強制変換（`"123"` → `123`）はコストがあり、データ品質問題を隠す。外部 DTO で strict パースを有効にし、すべての内部ハンドオフでは有効にしない。
 
 ## キャッシュ戦略
+
+キャッシュは**検証の後**に置く。生の dict や未検証 JSON をキャッシュヒット時にそのままドメインとして扱うと、古いスキーマや壊れた行が長く残る。バージョンまたは ETag でキーを切り、無効化方針を決めてから導入する。
 
 | 戦略 | 使うとき |
 | --- | --- |

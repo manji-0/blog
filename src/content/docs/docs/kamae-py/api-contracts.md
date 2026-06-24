@@ -4,12 +4,16 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 公開ドメイン API、リポジトリプロトコル、遷移関数、DTO 変換、イベントスキーマ、安全なラッパーを文書化するときに読む。
-> **関連:** [ドメインモデリング](/docs/kamae-py/domain-modeling/)、[状態遷移](/docs/kamae-py/state-transitions/)、[unsafe 境界](/docs/kamae-py/unsafe-boundaries/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)。
+公開 API の docstring や rustdoc 相当の説明は、実装の写しではなく**契約**として書く。呼び出し元が依存してよい不変条件、構築経路、エラー、副作用を明示しないと、型は正しくても誤用がレビューをすり抜ける。
+
+型と状態の設計は [ドメインモデリング](/docs/kamae-py/domain-modeling/) と [状態遷移](/docs/kamae-py/state-transitions/) を先に読んでおく。ネイティブ境界や `model_construct` の扱いは [unsafe 境界](/docs/kamae-py/unsafe-boundaries/)、イベント契約は [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と整合させる。
 
 ## ナレーションではなくドメイン契約を文書化する
 
-公開ドメイン API は、呼び出し側が依存してよいものを説明すべきだ。不変条件、構築経路、状態遷移、エラー、副作用、トランザクション期待、冪等性、マスキング、安全でない/ネイティブ境界契約を含む。
+次に挙げる項目は、公開 API の docstring に書くべき**契約**の範囲である。「ドライバーを割り当てる」のような実装の説明だけでは、呼び出し元は失敗時の振る舞いや副作用を判断できない。
+
+悪い例: `"""Assigns a driver."""` — 有効な入力、拒否条件、返るエラーが分からない。  
+良い例: 受理する状態、必要な引数、返る `Err` バリアント、永続化が呼び出し側の責務かどうかを書く。
 
 プライベートヘルパーは、微妙な不変条件をエンコードしていない限り、通常 docstring は不要である。
 

@@ -4,10 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** CPU バウンドのドメイン作業、GIL、`ProcessPoolExecutor`、または asyncio イベントループのブロックが懸念されるときに読む。
-> **関連:** [アプリケーション配線](/docs/kamae-py/application-wiring/)、[状態遷移](/docs/kamae-py/state-transitions/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/)。
+Kamae Python は純粋ドメイン遷移を**同期**のまま保ち、I/O はユースケースとアダプターで `async` 化する。この分離がなければ、イベントループ上で重い CPU 処理やブロック ORM が同時リクエスト全体を止め、ビジネスルールの単体テストも asyncio に引きずられる。
 
-Kamae Python は I/O バウンドのアプリケーションコードに **asyncio** を前提とする: HTTP ハンドラー、リポジトリアダプター、キューコンシューマー。純粋ドメイン遷移は**同期的**のまま。この分離により、イベントループなしでビジネスルールをテストしやすく保つ。
+ユースケースの配線は [アプリケーション配線](/docs/kamae-py/application-wiring/)、ロックとトランザクションの境界は [状態遷移](/docs/kamae-py/state-transitions/) と [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と照合する。
 
 ## デフォルトモデル
 

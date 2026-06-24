@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** ユースケースをリポジトリポート、フレームワークエントリポイント、フェイクに配線するとき、または明示的引数と DI コンテナの選択をするときに読む。
-> **関連:** [ドメインモデリング](/docs/kamae-py/domain-modeling/)、[並行性と非同期](/docs/kamae-py/concurrency/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/)。
+ユースケースはビジネス上の順序（読み込み → 認可 → 遷移 → 永続化）を所有し、インフラの詳細はポートの背後に隠す。ハンドラや遷移関数が SQL や HTTP を直接呼ぶと、テストが実 DB に依存し、変更の影響範囲も読み取れなくなる。
+
+ポートの形は [永続化、集約、イベント](/docs/kamae-py/persistence-events/) のリポジトリ契約と、[ドメインモデリング](/docs/kamae-py/domain-modeling/) の Protocol 定義に合わせる。非同期配線とリトライはそれぞれ [並行性と非同期](/docs/kamae-py/concurrency/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/) を参照する。
 
 ## デフォルト方針: DI コンテナではなく明示的引数
 
@@ -29,6 +30,8 @@ async def assign_driver_use_case(
 リポジトリがすでに標準化していない限り、新規コードのために DI コンテナを採用しない。
 
 ## レイヤーの責務
+
+依存の向きは一方向に保つ。ドメインはフレームワークや ORM を知らず、アプリケーションはポート（`Protocol`）だけを知り、インフラが具象実装を提供する。ドメインが SQLAlchemy や FastAPI を import し始めると、単体テストがフレームワーク起動を要求し、ビジネスルールの変更がインフラ変更と絡み合う。
 
 | レイヤー | 責務 | 依存先 |
 | --- | --- | --- |

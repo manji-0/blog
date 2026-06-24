@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** ドメイン、境界、PII、永続化、テスト、サンプルコードへの変更を終える前に読む。**ローカルと CI チェックの正規コマンド一覧。**
-> **関連:** [開発環境とセットアップ](/docs/kamae-py/development-setup/)、[CI セットアップ](/docs/kamae-py/ci-setup/)、[開発環境とセットアップ](/docs/kamae-py/development-setup/)。
+ドメイン方針は「レビューで気づく」だけでは再現性がない。触ったパッケージではフォーマット・リント・型チェック・焦点を絞ったテストをローカルと CI の両方で同じコマンドに揃える。ここが正規のコマンド一覧である。
+
+初回セットアップは [開発環境とセットアップ](/docs/kamae-py/development-setup/)、GitHub Actions への反映は [CI セットアップ](/docs/kamae-py/ci-setup/) を参照する。
 
 ## ベースラインコマンド
 

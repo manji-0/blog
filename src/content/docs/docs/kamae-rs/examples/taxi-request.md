@@ -5,9 +5,6 @@ sidebar:
   label: "タクシー配車例"
 ---
 
-> **いつ読むか:** Kamae Rust のエンドツーエンド例として、状態遷移とドメインイベントの流れを一通り追いたいとき。
-> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[状態遷移](/docs/kamae-rs/state-transitions/)、[エラーハンドリング](/docs/kamae-rs/error-handling/)。
-
 本例は Kamae Rust のエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/docs/kamae-rs/domain-modeling/) と [状態遷移](/docs/kamae-rs/state-transitions/) の原則を、ひと続きのコードで追える。
 
 ```rust

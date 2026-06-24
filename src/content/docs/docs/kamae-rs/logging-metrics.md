@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 構造化ログ、メトリクス、ID 分類、エラーチェーンと可観測性の統合を設計するとき。
-> **関連:** [PII 保護](/docs/kamae-rs/pii-protection/)、[エラーハンドリング](/docs/kamae-rs/error-handling/)、[状態遷移](/docs/kamae-rs/state-transitions/)。
+`tracing` とメトリクスは障害調査の主経路である。関数名だけのログや、生 ID をラベルにしたメトリクスは、原因特定を遅らせるうえ漏洩経路にもなる。
+
+遷移の記録はユースケース境界で行う（[状態遷移](/docs/kamae-rs/state-transitions/)）。マスキングと ID 分類は [PII 保護](/docs/kamae-rs/pii-protection/)、エラーの一度きりの記録は [エラーハンドリング](/docs/kamae-rs/error-handling/) と整合させる。
 
 <!-- constrained-by ./pii-protection.md -->
 <!-- constrained-by ./state-transitions.md -->

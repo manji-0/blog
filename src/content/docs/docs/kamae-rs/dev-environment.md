@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **対象読者:** Kamae スキルに従うアプリケーション crate をローカルで開発する担当者。スキルパッケージ本体は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を参照。
-> **いつ読むか:** 初回ブートストラップ、ツールチェーン、crate レイアウト、fake port、ローカル品質ゲートを整えるとき。
-> **関連:** [品質ゲート](/docs/kamae-rs/quality-gates/)、[テストデータ](/docs/kamae-rs/test-data/)、[CI セットアップ](/docs/kamae-rs/ci-setup/)。
+Kamae スキルに従う**アプリケーション crate** をローカルで立ち上げる手順である。スキルパッケージ本体の編集は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を読む。
+
+日常のチェックは [品質ゲート](/docs/kamae-rs/quality-gates/)、フィクスチャの組み立ては [テストデータ](/docs/kamae-rs/test-data/)、CI への反映は [CI セットアップ](/docs/kamae-rs/ci-setup/) を参照する。
 
 <!-- constrained-by ./application-wiring.md -->
 <!-- constrained-by ./ci-setup.md -->

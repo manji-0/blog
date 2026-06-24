@@ -4,8 +4,9 @@ sidebar:
   order: 10
 ---
 
-> **いつ読むか:** 状態ごとの型、遷移メソッド、`Transition` の返し方、所有権による旧状態の封じ込めを設計するとき。
-> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)。
+閉じた状態集合は enum と遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われテストと並行性の reasoning が難しくなる。
+
+状態のデータ構造は [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) に委ねる。
 
 ## ソース型で遷移を制約する
 
