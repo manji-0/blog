@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "latest-statuses-proxy/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - ".github/workflows/deploy-latest-statuses-proxy.yml"
   workflow_dispatch:
 
@@ -14,31 +16,30 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: latest-statuses-proxy
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: latest-statuses-proxy/package-lock.json
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Worker types
-        run: npm run types
+        run: pnpm --filter latest-statuses-proxy run types
 
       - name: Type check
-        run: npm run check
+        run: pnpm --filter latest-statuses-proxy run check
 
       - name: Deploy Worker
-        run: npm run deploy
+        run: pnpm --filter latest-statuses-proxy run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

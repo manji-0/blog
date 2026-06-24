@@ -1,0 +1,5 @@
+packages:
+  - .
+  - github-status-proxy
+  - cloudflare-status-proxy
+  - latest-statuses-proxy

@@ -16,15 +16,15 @@ Successful responses are cached at the edge for one day.
 ## Local Development
 
 ```bash
-npm install
-npm run types
-npm run dev
+pnpm install
+pnpm --filter github-status-proxy run types
+pnpm --filter github-status-proxy run dev
 ```
 
 ## Deploy
 
 ```bash
-npm run deploy
+pnpm --filter github-status-proxy run deploy
 ```
 
 The GitHub Actions workflow expects these repository secrets:

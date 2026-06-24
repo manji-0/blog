@@ -32,8 +32,8 @@ Astro + Starlight で構築した個人サイトです。
 ## Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ローカル起動先: `http://localhost:4321`
@@ -41,8 +41,8 @@ npm run dev
 ## Build
 
 ```bash
-npm run build
-npm run preview
+pnpm run build
+pnpm run preview
 ```
 
 ビルド成果物は `dist/` に出力されます。

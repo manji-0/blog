@@ -8,7 +8,7 @@ on:
       - "src/components/starlight/Search.astro"
       - "public/_headers"
       - "package.json"
-      - "package-lock.json"
+      - "pnpm-lock.yaml"
       - ".github/workflows/search-index.yml"
   push:
     branches: [main]
@@ -18,7 +18,7 @@ on:
       - "src/components/starlight/Search.astro"
       - "public/_headers"
       - "package.json"
-      - "package-lock.json"
+      - "pnpm-lock.yaml"
       - ".github/workflows/search-index.yml"
   workflow_dispatch:
 
@@ -32,20 +32,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: Install SQLite
         run: sudo apt-get update && sudo apt-get install -y sqlite3
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build search index
-        run: npm run search:index
+        run: pnpm run search:index
 
       - name: Verify search index assets
         run: |
