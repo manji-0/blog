@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae/rust/stream-continuous-queries/
+redirect: /docs/kamae-rs/references/stream-continuous-queries/
 sidebar:
   hidden: true
 ---
 
-このページは `references/` 配下から移動しました。
+このページは移動しました。

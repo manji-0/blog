@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae/rust/crate-guides/nutype/
+redirect: /docs/kamae-rs/references/crate-guides/nutype/
 sidebar:
   hidden: true
 ---
 
-このページは `references/crate-guides/` から移動しました。
+このページは移動しました。

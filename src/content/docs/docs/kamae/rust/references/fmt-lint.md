@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae/rust/quality-gates/
+redirect: /docs/kamae-rs/references/fmt-lint/
 sidebar:
   hidden: true
 ---
 
-このページは統合のため移動しました。自動的に転送されます。
+このページは移動しました。

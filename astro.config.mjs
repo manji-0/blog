@@ -143,11 +143,7 @@ export default defineConfig({
 				},
 				{
 					label: 'Docs',
-					items: [
-						{ label: 'Kamae', link: '/docs/kamae/' },
-						getKamaeRustSidebar(),
-						getKamaePythonSidebar(),
-					],
+					items: [getKamaeRustSidebar(), getKamaePythonSidebar()],
 				},
 			],
 			expressiveCode: {

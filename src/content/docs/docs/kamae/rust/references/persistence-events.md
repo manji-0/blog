@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae/rust/persistence-events/
+redirect: /docs/kamae-rs/references/persistence-events/
 sidebar:
   hidden: true
 ---
 
-このページは `references/` 配下から移動しました。
+このページは移動しました。

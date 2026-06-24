@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae/rust/crate-guides/serde/
+redirect: /docs/kamae-rs/references/crate-guides/serde/
 sidebar:
   hidden: true
 ---
 
-このページは `references/crate-guides/` から移動しました。
+このページは移動しました。

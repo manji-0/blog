@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae/python/pii-protection/
+redirect: /docs/kamae-py/references/loggable-identifiers/
 sidebar:
   hidden: true
 ---
 
-このページは統合のため移動しました。自動的に転送されます。
+このページは移動しました。
