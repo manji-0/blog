@@ -143,8 +143,15 @@ export default defineConfig({
 				{
 					label: 'Docs',
 					items: [
-						{ autogenerate: { directory: 'docs/kamae-rs' } },
-						{ autogenerate: { directory: 'docs/kamae-py' } },
+						{ label: 'Kamae', link: '/docs/kamae/' },
+						{
+							label: 'Rust',
+							items: [{ autogenerate: { directory: 'docs/kamae/rust' } }],
+						},
+						{
+							label: 'Python',
+							items: [{ autogenerate: { directory: 'docs/kamae/python' } }],
+						},
 					],
 				},
 			],

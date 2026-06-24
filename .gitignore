@@ -1,5 +1,7 @@
 # build output
 dist/
+public/search/
+public/cloudflare-platform-uptime.json
 public/github-pages-uptime.json
 public/fediverse-statuses.json
 public/cloudflare-status.json
