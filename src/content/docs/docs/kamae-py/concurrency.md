@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** CPU バウンドのドメイン作業、GIL、`ProcessPoolExecutor`、または asyncio イベントループのブロックが懸念されるときに読む。
-> **関連:** [`application-wiring.md`](/docs/kamae-py/application-wiring/)、[`state-transitions.md`](/docs/kamae-py/state-transitions/)、[`infrastructure-resilience.md`](/docs/kamae-py/infrastructure-resilience/)。
+> **関連:** [アプリケーション配線](/docs/kamae-py/application-wiring/)、[状態遷移](/docs/kamae-py/state-transitions/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/)。
 
 Kamae Python は I/O バウンドのアプリケーションコードに **asyncio** を前提とする: HTTP ハンドラー、リポジトリアダプター、キューコンシューマー。純粋ドメイン遷移は**同期的**のまま。この分離により、イベントループなしでビジネスルールをテストしやすく保つ。
 
@@ -28,9 +28,9 @@ await store.save_en_route(en_route, ...)
 return Ok(en_route)
 ```
 
-完全なユースケースは [`state-transitions.md`](/docs/kamae-py/state-transitions/#keep-use-cases-thin) を参照。
+完全なユースケースは [状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) を参照。
 
-遷移は呼び出し側スレッドのイベントループ上で実行される。高速なら問題ない。重い CPU 作業を行うときは問題である。
+遷移は呼び出し元スレッドのイベントループ上で実行される。処理が軽ければ問題ないが、重い CPU 処理を同期で走らせるとイベントループを塞ぐ。
 
 ## 実務における GIL
 
@@ -91,7 +91,7 @@ async def resize_proof_image_use_case(
 
 ## ドメインレイヤーと非同期でないコード
 
-ドメインモジュールは **asyncio なしでインポート可能**であるべきである。ルールは次のとおりである。
+ドメインモジュールは **asyncio なしで import できる**べきだ。ルールは次のとおり。
 
 1. 純粋遷移はプレーンな `def` 関数。
 2. `domain.py` 内で `asyncio.run`、`get_event_loop`、`await` を呼ばない。
@@ -110,7 +110,7 @@ async def lifespan(app: FastAPI):
     app.state.image_executor.shutdown(wait=True)
 ```
 
-ポート配線は [`application-wiring.md`](/docs/kamae-py/application-wiring/)、遅いワーカー周りのタイムアウトとリトライは [`infrastructure-resilience.md`](/docs/kamae-py/infrastructure-resilience/) を読む。
+ポート配線は [アプリケーション配線](/docs/kamae-py/application-wiring/)、遅いワーカー周りのタイムアウトとリトライは [インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/) を読む。
 
 ## レビュー観点
 
@@ -122,7 +122,7 @@ async def lifespan(app: FastAPI):
 
 所有権やトランザクション境界が不明瞭なまま、並行タスク間で共有される DB セッション、ORM アイデンティティマップ、ロックを指摘する。
 
-await/ロック相互作用は [`error-handling.md`](/docs/kamae-py/error-handling/) と [`persistence-events.md`](/docs/kamae-py/persistence-events/) と突き合わせる。
+await/ロック相互作用は [エラーハンドリング](/docs/kamae-py/error-handling/) と [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と照合する。
 
 ### ドメインコードで共有可変状態を避けているか — Medium
 

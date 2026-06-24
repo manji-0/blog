@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-> **対象読者:** スキルを自リポジトリにインストールするプロジェクト。`kamae-py` スキルリポジトリ自体については [`development-setup.md`](/docs/kamae-py/development-setup/) を読む。
+> **対象読者:** スキルを自リポジトリにインストールするプロジェクト。`kamae-py` スキルリポジトリ自体については [開発環境とセットアップ](/docs/kamae-py/development-setup/) を読む。
 > **いつ読むか:** GitHub Actions の作成・更新、ブランチ保護の指針、リポジトリ検証ジョブを整備するときに読む。
-> **関連:** [`quality-gates.md`](/docs/kamae-py/quality-gates/)（CI が実行すべきチェック）、[`development-setup.md`](/docs/kamae-py/development-setup/)。
+> **関連:** [品質ゲート](/docs/kamae-py/quality-gates/)（CI が実行すべきチェック）、[開発環境とセットアップ](/docs/kamae-py/development-setup/)。
 
 ## デフォルトの GitHub Actions ワークフロー
 
-CI は [`quality-gates.md`](/docs/kamae-py/quality-gates/) と同じチェックを実行すべきである。`uv sync --locked` を使い、ロックファイルのドリフトでビルドを失敗させる。
+CI は [品質ゲート](/docs/kamae-py/quality-gates/) と同じチェックを実行すべきだ。`uv sync --locked` を使い、ロックファイルのドリフトでビルドを失敗させる。
 
 このスキルをインストールしたときは、同梱テンプレート [`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) を使う:
 
@@ -146,4 +146,4 @@ jobs:
 
 コアチェックの文書化されたローカル相当がなく、失敗出力が再現しにくい CI を指摘する。
 
-触れたコード向けのパッケージ検証、フォーマット、リント、型チェック、テストの短いローカルコマンド一覧やスクリプトを提案する。推奨ファストパスとフル pre-push ループは [`development-setup.md`](/docs/kamae-py/development-setup/) と突き合わせる。
+触れたコード向けのパッケージ検証、フォーマット、リント、型チェック、テストの短いローカルコマンド一覧やスクリプトを提案する。推奨ファストパスとフル pre-push ループは [開発環境とセットアップ](/docs/kamae-py/development-setup/) と照合する。

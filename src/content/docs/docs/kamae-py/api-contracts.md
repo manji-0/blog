@@ -5,11 +5,11 @@ sidebar:
 ---
 
 > **いつ読むか:** 公開ドメイン API、リポジトリプロトコル、遷移関数、DTO 変換、イベントスキーマ、安全なラッパーを文書化するときに読む。
-> **関連:** [`domain-modeling.md`](/docs/kamae-py/domain-modeling/)、[`state-transitions.md`](/docs/kamae-py/state-transitions/)、[`unsafe-boundaries.md`](/docs/kamae-py/unsafe-boundaries/)、[`persistence-events.md`](/docs/kamae-py/persistence-events/)。
+> **関連:** [ドメインモデリング](/docs/kamae-py/domain-modeling/)、[状態遷移](/docs/kamae-py/state-transitions/)、[unsafe 境界](/docs/kamae-py/unsafe-boundaries/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)。
 
 ## ナレーションではなくドメイン契約を文書化する
 
-公開ドメイン API は、呼び出し側が依存してよいものを説明すべきである。不変条件、構築経路、状態遷移、エラー、副作用、トランザクション期待、冪等性、マスキング、安全でない/ネイティブ境界契約を含む。
+公開ドメイン API は、呼び出し側が依存してよいものを説明すべきだ。不変条件、構築経路、状態遷移、エラー、副作用、トランザクション期待、冪等性、マスキング、安全でない/ネイティブ境界契約を含む。
 
 プライベートヘルパーは、微妙な不変条件をエンコードしていない限り、通常 docstring は不要である。
 
@@ -244,7 +244,7 @@ class RequestStore(Protocol):
 
 - リポジトリがサポートするとき、重要な例で doctest またはスニペットテストを実行する。
 - 公開 docstring 契約の破壊的変更は、レビューで API 変更と同様に扱う。
-- イベントと DTO のドキュメントでは方針本文をコピーせず、[`persistence-events.md`](/docs/kamae-py/persistence-events/) と [`boundary-defense.md`](/docs/kamae-py/boundary-defense/) へリンクする。
+- イベントと DTO のドキュメントでは方針本文をコピーせず、[永続化、集約、イベント](/docs/kamae-py/persistence-events/) と [境界防御](/docs/kamae-py/boundary-defense/) へリンクする。
 
 ## レビュー観点
 

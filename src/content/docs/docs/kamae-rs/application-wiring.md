@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** ポートとアダプタ、ユースケース struct、composition root の配線を設計するとき。
-> **関連:** [`error-handling.md`](/docs/kamae-rs/error-handling/)、[`persistence-events.md`](/docs/kamae-rs/persistence-events/)、[`persistence-events.md`](/docs/kamae-rs/persistence-events/)。
+> **関連:** [エラーハンドリング](/docs/kamae-rs/error-handling/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)。
 
 <!-- constrained-by ./persistence-events.md -->
 <!-- constrained-by ./error-handling.md -->

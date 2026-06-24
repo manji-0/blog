@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 集約境界、リポジトリ、トランザクション、アウトボックス、冪等コマンド、楽観的ロック、イベントペイロードを設計・実装するときに読む。
-> **関連:** [`orm-adapters.md`](/docs/kamae-py/orm-adapters/)、[`infrastructure-resilience.md`](/docs/kamae-py/infrastructure-resilience/)、[`boundary-defense.md`](/docs/kamae-py/boundary-defense/)、[`state-transitions.md`](/docs/kamae-py/state-transitions/)。
+> **関連:** [ORM アダプター](/docs/kamae-py/orm-adapters/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/)、[境界防御](/docs/kamae-py/boundary-defense/)、[状態遷移](/docs/kamae-py/state-transitions/)。
 
 ## ここでのアグリゲートの定義
 
@@ -67,9 +67,9 @@ HTTP/queue command
 
 ## トランザクションの所有者
 
-**リポジトリアダプター**が `save(...)` のデータベーストランザクションを所有すべきである。ユースケースはビジネス上の順序を所有し、アダプターはコミット/ロールバックを所有する。
+**リポジトリアダプター**が `save(...)` のデータベーストランザクションを所有すべきだ。ユースケースはビジネス上の順序を所有し、アダプターはコミット/ロールバックを所有する。
 
-ポートメソッドにトランザクションの所有権を文書化する。パラメータは [`persistence-events.md`](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポートと一致する:
+ポートメソッドにトランザクションの所有権を文書化する。パラメータは [永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポートと一致する:
 
 ```python
 class RequestStore(Protocol):
@@ -84,7 +84,7 @@ class RequestStore(Protocol):
 
 テストが依然として原子性セマンティクスを強制するインメモリフェイクを使う場合を除き、`save_state` と `insert_events` を別々の公開リポジトリメソッドに分割しない。
 
-`VersionConflict` をユースケースで `Err` にマップする — [`error-handling.md`](/docs/kamae-py/error-handling/#preferred-pattern-early-return) を参照。
+`VersionConflict` をユースケースで `Err` にマップする — [エラーハンドリング](/docs/kamae-py/error-handling/#preferred-pattern-early-return) を参照。
 
 ## 楽観的 vs 悲観的並行性
 
@@ -121,14 +121,14 @@ class RequestStore(Protocol):
 - 無関係なライフサイクルが 1 つの blob モデルを共有している
 - 異なるコマンドが異なる一貫性戦略を必要とする
 
-アウトボックスと冪等性の詳細は [`persistence-events.md`](/docs/kamae-py/persistence-events/) を読む。
+アウトボックスと冪等性の詳細は [永続化、集約、イベント](/docs/kamae-py/persistence-events/) を読む。
 
 
 ## リポジトリプロトコルは小さく保つ
 
 楽観的ロック、冪等性、イベント永続化向けの**正規** `RequestResolver` と `RequestStore` 定義:
 
-リポジトリプロトコルは ORM の都合ではなくユースケースのニーズを表現すべきである。広い CRUD 操作への依存を呼び出し側から防ぐ必要があるときは、読み取りと書き込みのインターフェースを分割する。
+リポジトリプロトコルは ORM の都合ではなくユースケースのニーズを表現すべきだ。広い CRUD 操作への依存を呼び出し側から防ぐ必要があるときは、読み取りと書き込みのインターフェースを分割する。
 
 ```python
 class RequestResolver(Protocol):
@@ -146,13 +146,13 @@ class RequestStore(Protocol):
     ) -> None: ...
 ```
 
-アダプターは内部で SQLAlchemy、SQLModel、asyncpg、psycopg、Django ORM などを使える。そのツールのモデル形状をデフォルトでドメイン API にしてはならない。ORM エンティティと Pydantic ドメイン状態間のマッパー実装は [`orm-adapters.md`](/docs/kamae-py/orm-adapters/) を読む。
+アダプターは内部で SQLAlchemy、SQLModel、asyncpg、psycopg、Django ORM などを使える。そのツールのモデル形状をデフォルトでドメイン API にしてはならない。ORM エンティティと Pydantic ドメイン状態間のマッパー実装は [ORM アダプター](/docs/kamae-py/orm-adapters/) を読む。
 
 ## 楽観的ロック
 
 <!-- constrained-by ./persistence-events.md#optimistic-vs-pessimistic-concurrency -->
 
-**チェックリスト対応（12.1、12.4）:** 状態とともにバージョンを読み込み、純粋遷移を適用し、`expected_version` で保存する。データベース `UPDATE` は条件付きであるべきだ。
+**チェックリスト対応（12.1、12.4）:** 状態とともにバージョンを読み込み、純粋遷移を適用し、`expected_version` で保存する。データベース `UPDATE` は条件付きにすべきだ。
 
 ### 状態とバージョン列
 
@@ -241,7 +241,7 @@ except VersionConflict:
 return Ok(en_route)
 ```
 
-在庫や残高ホールド向けの悲観的ロック（`SELECT … FOR UPDATE`）はアダプターに属する。[`persistence-events.md`](/docs/kamae-py/persistence-events/#optimistic-vs-pessimistic-concurrency) を読む。
+在庫や残高ホールド向けの悲観的ロック（`SELECT … FOR UPDATE`）はアダプターに属する。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#optimistic-vs-pessimistic-concurrency) を読む。
 
 ## トランザクションコンテキストマネージャー
 
@@ -488,17 +488,17 @@ def parse_driver_assigned(raw: dict[str, object]) -> DriverAssigned:
 3. 必要ならオフラインジョブで履歴アウトボックス/アーカイブ行をバックフィル。
 4. v1 トラフィックがゼロであるメトリクスを確認した後のみ v1 サポートを削除。
 
-新フィールドに PII を含めるときは [`pii-protection.md`](/docs/kamae-py/pii-protection/) に合わせる。保持とマスキングレビューが必要である。
+新フィールドに PII を含めるときは [PII と観測経路の保護](/docs/kamae-py/pii-protection/) に合わせる。保持とマスキングレビューが必要である。
 
 ## レビュー観点
 
 ### 1 つのユースケースがトランザクション境界を所有しているか — High
 
-単一ユースケースがアトミックな作業単位を調整せず、無関係な複数呼び出し元から状態保存、イベント発行、メッセージ発行を行っているワークフローを指摘する。
+単一ユースケースがアトミックな作業単位を調整せず、無関係な複数の呼び出し元から状態保存・イベント発行・メッセージ発行を担うワークフローを指摘する。
 
 ### リトライと重複コマンドは境界で冪等か — High
 
-[`test-data.md`](/docs/kamae-py/test-data/) と突き合わせる。冪等キーや重複排除レコードなしに同じ遷移を二回適用しうるコマンドハンドラやコンシューマを指摘する。
+[テストデータ](/docs/kamae-py/test-data/) と照合する。冪等キーや重複排除レコードなしに同じ遷移を二回適用しうるコマンドハンドラやコンシューマを指摘する。
 
 ### リトライと重複配信は冪等か — High
 

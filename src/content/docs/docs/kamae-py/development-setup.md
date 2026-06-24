@@ -89,7 +89,7 @@ createdb myapp_dev
 export DB_HOST=localhost DB_PORT=5432 DB_NAME=myapp_dev DB_USER=$USER DB_PASSWORD=
 ```
 
-pydantic-settings で `.env` を使う（[`boundary-defense.md`](/docs/kamae-py/boundary-defense/#environment-and-cli-boundaries) を参照）。`.env` を `.gitignore` に追加する。
+pydantic-settings で `.env` を使う（[境界防御](/docs/kamae-py/boundary-defense/#environment-and-cli-boundaries) を参照）。`.env` を `.gitignore` に追加する。
 
 ### 5. ツールチェーンの検証
 
@@ -109,11 +109,11 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target . --include-tests
 
 ## ローカルチェックループ
 
-ブートストラップ後、[`quality-gates.md`](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。スキル/プラグインリポジトリではさらに `uv run python scripts/validate_package.py` を実行する。
+ブートストラップ後、[品質ゲート](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。スキル/プラグインリポジトリではさらに `uv run python scripts/validate_package.py` を実行する。
 
-チームがコミット前の自動フォーマットを望むなら、[`quality-gates.md`](/docs/kamae-py/quality-gates/#pre-commit-integration) から pre-commit フックをインストールする。
+チームがコミット前の自動フォーマットを望むなら、[品質ゲート](/docs/kamae-py/quality-gates/#pre-commit-integration) から pre-commit フックをインストールする。
 
-mypy と Pydantic プラグイン設定については、[`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) をマージするか、[`domain-modeling.md`](/docs/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin) に従う。
+mypy と Pydantic プラグイン設定については、[`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/docs/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin) に従う。
 
 ## Docker を追加するタイミング
 
@@ -155,7 +155,7 @@ uv run pytest
 
 ## ローカル品質ゲートの実行
 
-[`quality-gates.md`](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。このリポジトリではさらに次を実行する:
+[品質ゲート](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。このリポジトリではさらに次を実行する:
 
 ```bash
 uv run python scripts/validate_package.py
@@ -220,7 +220,7 @@ CI は `uv sync --locked` を実行するため、古いロックファイルで
 
 ### コミットされた env ファイルにシークレットと PII がないか — High
 
-[`pii-protection.md`](/docs/kamae-py/pii-protection/) と突き合わせる。コミットされた `.env`、例の実認証情報、デバッグ用生 PII ログを促すローカルセットアップ文書を指摘する。
+[PII と観測経路の保護](/docs/kamae-py/pii-protection/) と照合する。コミットされた `.env`、例の実認証情報、デバッグ用に生 PII をログするよう促すローカルセットアップ文書を指摘する。
 
 ### ドメインコードはフレームワークと ORM の import がないか — High
 
@@ -236,9 +236,9 @@ CI は `uv sync --locked` を実行するため、古いロックファイルで
 
 ### フィクスチャはコンストラクタ経由で組み立てられているか — Medium
 
-[`test-data.md`](/docs/kamae-py/test-data/) と突き合わせる。ドメイン/ユースケーステストで生 dict、`model_construct`、ORM 行により不変条件を迂回しているテストヘルパーを指摘する。
+[テストデータ](/docs/kamae-py/test-data/) と照合する。ドメイン/ユースケーステストで生 dict、`model_construct`、ORM 行により不変条件を迂回しているテストヘルパーを指摘する。
 
 ### 文書化されたローカルチェックループがあるか — Low
 
-[`ci-setup.md`](/docs/kamae-py/ci-setup/) と整合するファストパスとフル pre-push コマンド一覧なしに Kamae 規約を採用するプロジェクトを指摘する。
+[CI セットアップ](/docs/kamae-py/ci-setup/) と整合するファストパスとフル pre-push コマンド一覧なしに Kamae 規約を採用するプロジェクトを指摘する。
 

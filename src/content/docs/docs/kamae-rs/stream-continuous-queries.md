@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** イベントフィード、継続クエリ、projection、backpressure を `Stream` でモデル化するとき。
-> **関連:** [`persistence-events.md`](/docs/kamae-rs/persistence-events/)、[`persistence-events.md`](/docs/kamae-rs/persistence-events/)、[`service-boundaries.md`](/docs/kamae-rs/service-boundaries/)。
+> **関連:** [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[サービス境界](/docs/kamae-rs/service-boundaries/)。
 
 <!-- constrained-by ./persistence-events.md -->
 <!-- constrained-by ./persistence-events.md -->
@@ -92,7 +92,7 @@ tokio::spawn(async move {
 
 1. event payload を型付き domain または integration event にパース
 2. event ID または `(aggregate_id, sequence)` で idempotent に更新適用
-3. スキーマ進化ポリシーに従い未知 type/version をスキップまたは dead-letter（[`service-boundaries.md`](/docs/kamae-rs/service-boundaries/) 参照）
+3. スキーマ進化ポリシーに従い未知 type/version をスキップまたは dead-letter（[サービス境界](/docs/kamae-rs/service-boundaries/) 参照）
 
 ```rust
 async fn apply_event(
@@ -117,7 +117,7 @@ async fn apply_event(
 
 read model はクエリ向けに非正規化してよいが、第二の write model になってはならない。projection 内の集約横断更新は event に反応し、他集約を直接 mutate しない。
 
-write 側のトランザクションスコープ、楽観的 versioning、outbox 原子性は [`persistence-events.md`](/docs/kamae-rs/persistence-events/) と [`persistence-events.md`](/docs/kamae-rs/persistence-events/) 参照。
+write 側のトランザクションスコープ、楽観的 versioning、outbox 原子性は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) と [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照。
 
 ## 検出ヒント
 
@@ -149,4 +149,4 @@ write 側のトランザクションスコープ、楽観的 versioning、outbox
 
 ### 未知のイベントバージョンは明示的に扱われるか — Medium
 
-[`service-boundaries.md`](/docs/kamae-rs/service-boundaries/) も照合する。イベントを非同期保存するとき、未対応イベント型でパニックする、または黙って無視するハンドラを指摘する。
+[サービス境界](/docs/kamae-rs/service-boundaries/) も照合する。イベントを非同期保存するとき、未対応イベント型でパニックする、または黙って無視するハンドラを指摘する。

@@ -6,7 +6,7 @@ sidebar:
 
 > **対象読者:** **kamae-rs** スキルリポジトリで作業するコントリビュータ（汎用インストール先ではない）。
 > **いつ読むか:** このスキルパッケージを開発・テストするローカルワークスペースをセットアップするとき。
-> **関連:** [`quality-gates.md`](/docs/kamae-rs/quality-gates/)（正規チェックコマンド）、[`development-setup.md`](/docs/kamae-rs/dev-environment/)、[`ci-setup.md`](/docs/kamae-rs/ci-setup/)。
+> **関連:** [品質ゲート](/docs/kamae-rs/quality-gates/)（正規チェックコマンド）、[開発環境](/docs/kamae-rs/dev-environment/)、[CI セットアップ](/docs/kamae-rs/ci-setup/)。
 
 ## 前提条件
 
@@ -34,7 +34,7 @@ cargo run -q -p kamae-review-probe -- skills/kamae-rs/examples/taxi-request.rs -
 
 ## ローカル品質ゲートの実行
 
-[`quality-gates.md`](/docs/kamae-rs/quality-gates/) のベースラインコマンドを実行する。このリポジトリでは追加で次も実行する:
+[品質ゲート](/docs/kamae-rs/quality-gates/) のベースラインコマンドを実行する。このリポジトリでは追加で次も実行する:
 
 ```bash
 python3 scripts/validate_package.py
@@ -82,4 +82,4 @@ python3 skills/kamae-rs/scripts/apply_templates.py --target /tmp/kamae-rs-test -
 - **review probe が example で多数の lead を出す**: taxi 例は意図的に本番契約の一部を省略している。probe 変更の検証には実ドメインコードで probe を使う。
 - **インストール後にテンプレート CI パスが誤る**: 生成 workflow の `path/to/kamae-rs` を vendored スクリプトパスまたは絶対インストール先に置き換える。
 
-スキルに従うアプリケーション crate（このリポジトリではない）については [`dev-environment.md`](/docs/kamae-rs/dev-environment/) を読む。
+スキルに従うアプリケーション crate（このリポジトリではない）については [開発環境](/docs/kamae-rs/dev-environment/) を読む。

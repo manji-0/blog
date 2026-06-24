@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** `unsafe`、FFI、`MaybeUninit`、`Pin` をドメイン外の adapter に閉じ込めるとき。
-> **関連:** [`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`pii-protection.md`](/docs/kamae-rs/pii-protection/)、[`quality-gates.md`](/docs/kamae-rs/quality-gates/)。
+> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[PII 保護](/docs/kamae-rs/pii-protection/)、[品質ゲート](/docs/kamae-rs/quality-gates/)。
 
 ## 基本方針
 

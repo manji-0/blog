@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 状態ごとの型、遷移メソッド、`Transition` の返し方、所有権による旧状態の封じ込めを設計するとき。
-> **関連:** [`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`persistence-events.md`](/docs/kamae-rs/persistence-events/)、[`persistence-events.md`](/docs/kamae-rs/persistence-events/)。
+> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)。
 
 ## ソース型で遷移を制約する
 
@@ -166,7 +166,7 @@ impl WaitingRequest {
 }
 ```
 
-ユースケースが分解し、[`persistence-events.md`](/docs/kamae-rs/persistence-events/) 経由で persist し event を publish する。遷移メソッド内の global buffer に event を積まない。
+ユースケースが分解し、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 経由で persist し event を publish する。遷移メソッド内の global buffer に event を積まない。
 
 state 消費遷移では `self` by value を優先。元 state を残す必要があるときだけ borrow。
 
@@ -228,8 +228,8 @@ pub fn assign_driver(
 ## typestate と集約との関係
 
 - **State struct + `self` 消費**: 明確なライフサイクルのサーバードメインのデフォルト
-- **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる; [`domain-modeling.md`](/docs/kamae-rs/domain-modeling/#typestate-with-phantom-types) 参照
-- **集約トランザクション**: ユースケースが version 付き集約を load、純粋遷移、原子的 save; [`persistence-events.md`](/docs/kamae-rs/persistence-events/) 参照
+- **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる; [ドメインモデリング](/docs/kamae-rs/domain-modeling/#typestate-with-phantom-types) 参照
+- **集約トランザクション**: ユースケースが version 付き集約を load、純粋遷移、原子的 save; [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照
 
 
 レビューでは、遷移が `&mut` と `status: String` で状態を書き換えること、型で強制できる前提を `panic!` や `unwrap` に頼ること、遷移内の global / static バッファへの event 蓄積、テスト seam なしの `OccurredAt::now()`、move 意味論なしの同一ソース状態の二重使用を指摘する。
@@ -244,7 +244,7 @@ pub fn assign_driver(
 
 楽観的ロック、バージョンチェック、一意制約、冪等キー、シリアライザブルトランザクションなしに競合しうるライフサイクルや残高変更を指摘する。
 
-バージョン付き保存とトランザクション境界の期待について [`persistence-events.md`](/docs/kamae-rs/persistence-events/) も照合する。
+バージョン付き保存とトランザクション境界の期待について [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) も照合する。
 
 ### 認可とテナントチェックは遷移前に実施されているか — High
 
@@ -256,7 +256,7 @@ pub fn assign_driver(
 
 ### 遷移は副作用が明示的でない限り純粋か — Medium
 
-遷移メソッド内で永続化、ログ、メッセージ発行を行う状態遷移を指摘する。状態とイベントを返し、ユースケースが副作用を調整することを提案する。
+遷移メソッド内で永続化、ログ、メッセージ発行まで担う状態遷移を指摘する。状態とイベントを返し、副作用の調整はユースケースに任せることを提案する。
 
 ### 遷移関数は型でソース状態を制約しているか — Medium
 

@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** PII・シークレットのラップ、`Debug` / ログ / シリアライズの redaction を設計するとき。
-> **関連:** [`logging-metrics.md`](/docs/kamae-rs/logging-metrics/)、[`crate-guides.md#secrecy`](/docs/kamae-rs/crate-guides/#secrecy)、[`test-data.md`](/docs/kamae-rs/test-data/)。
+> **関連:** [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、[クレートガイド（secrecy）](/docs/kamae-rs/crate-guides/#secrecy)、[テストデータ](/docs/kamae-rs/test-data/)。
 
 ## ログに載せにくい sensitive データにする
 
@@ -41,7 +41,7 @@ pub struct PaymentGatewayCredentials {
 | --- | --- | --- |
 | API key、password、token、private key | `secrecy::SecretString` / `SecretBox` | drop 時 zeroize。`Debug` はデフォルト非表示 |
 | 氏名、メール、電話、住所、政府 ID | `Redacted<T>` または domain newtype | PII は crypto 意味の secret ではないが log に出してはならない |
-| ops log で安全な opaque surrogate ID | safe `Display` 付き plain newtype | [`logging-metrics.md`](/docs/kamae-rs/logging-metrics/#which-ids-belong-in-logs) 参照 |
+| ops log で安全な opaque surrogate ID | safe `Display` 付き plain newtype | [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/#which-ids-belong-in-logs) 参照 |
 | UI または audit export に表示する値 | domain 型 + 明示 `expose_for_*` | 露出は意図的かつ命名される |
 
 `secrecy` は資格情報処理とメモリ衛生向け。`Redacted<T>` は個人データの accidental log 防止向け。すべてのメールを `SecretString` に包まない。長寿命 PII を `Debug` derive だけで守らない。
@@ -60,7 +60,7 @@ domain error や log に sensitive 値を format しない。
 
 ## ログ前に識別子を分類
 
-`user_id` や `passenger_id` というフィールド名が safe を決めない。[`logging-metrics.md`](/docs/kamae-rs/logging-metrics/#which-ids-belong-in-logs) のルール:
+`user_id` や `passenger_id` というフィールド名が safe を決めない。[ロギングとメトリクス](/docs/kamae-rs/logging-metrics/#which-ids-belong-in-logs) のルール:
 
 - **デフォルト safe**: opaque surrogate 集約 ID、correlation ID、内部 job/transaction ID、有界 domain enum
 - **ログ禁止**: secret、政府 ID、支払識別子、連絡先 identity、人物記述、健康データ、精密位置、ネットワーク tracking ID
@@ -177,7 +177,7 @@ fn credentials_debug_is_hidden() {
 }
 ```
 
-assert が決定論的になるよう既知値の fixture builder。[`test-data.md`](/docs/kamae-rs/test-data/) で合成データ慣習。
+assert が決定論的になるよう既知値の fixture builder。[テストデータ](/docs/kamae-rs/test-data/) で合成データ慣習。
 
 ## よくある crate 組み合わせ
 
@@ -209,7 +209,7 @@ assert が決定論的になるよう既知値の fixture builder。[`test-data.
 
 ### 人物に紐づく ID は条件付きで、自動的に安全とはみなさない — High
 
-[`logging-metrics.md`](/docs/kamae-rs/logging-metrics/) の「ログに載せる ID」の節も照合する。不透明なサロゲートである根拠なしに `user_id`、`passenger_id`、`customer_id`、`patient_id`、`device_id`、パートナー参照をログする箇所を指摘する。
+[ロギングとメトリクス](/docs/kamae-rs/logging-metrics/) の「ログに載せる ID」の節も照合する。不透明なサロゲートである根拠なしに `user_id`、`passenger_id`、`customer_id`、`patient_id`、`device_id`、パートナー参照をログする箇所を指摘する。
 
 `request_id`、`order_id`、`correlation_id` のような内部集約 ID で、明らかにサロゲートキーかつ安全な整形である場合は指摘しない。
 

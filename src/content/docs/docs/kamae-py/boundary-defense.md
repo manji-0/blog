@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** API ペイロード、DB 行、環境変数、ファイル、キューメッセージ、外部 SDK レスポンスを受け入れるときに読む。
-> **関連:** [`unsafe-boundaries.md`](/docs/kamae-py/unsafe-boundaries/)、[`pydantic-performance.md`](/docs/kamae-py/pydantic-performance/)、[`orm-adapters.md`](/docs/kamae-py/orm-adapters/)、[`error-handling.md`](/docs/kamae-py/error-handling/)。
+> **関連:** [unsafe 境界](/docs/kamae-py/unsafe-boundaries/)、[Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/)、[ORM アダプター](/docs/kamae-py/orm-adapters/)、[エラーハンドリング](/docs/kamae-py/error-handling/)。
 
 ## 未知のデータはエッジでパースする
 
@@ -32,7 +32,7 @@ def parse_queue_message(body: bytes) -> TaxiRequestEvent:
     return TaxiRequestEventAdapter.validate_json(body)
 ```
 
-ホットパスでは `json.loads` の後に `validate_python` するより、`model_validate_json` / `TypeAdapter.validate_json` を優先する。JSON パースとスキーマ検証は Pydantic の Rust コアで作業を共有できる。差が重要になる場合は [`pydantic-performance.md`](/docs/kamae-py/pydantic-performance/#validate-python-vs-validate-json) を読む。
+ホットパスでは `json.loads` の後に `validate_python` するより、`model_validate_json` / `TypeAdapter.validate_json` を優先する。JSON パースとスキーマ検証は Pydantic の Rust コアで作業を共有できる。差が重要になる場合は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/#validate-python-vs-validate-json) を読む。
 
 ## フレームワーク境界では DTO を優先する
 
@@ -78,7 +78,7 @@ class CreateRequestInput(BaseModel):
 - 黙って強制変換するとビジネス意味が変わる（金額、真偽値、列挙）。
 - 検証失敗を早く表面化し、上流のデータバグを見つけたい。
 
-両側が Python コードで型がすでに一致する内部ハンドオフには `strict=True` を適用しない。安全性の利得なくコストが増える。[`pydantic-performance.md`](/docs/kamae-py/pydantic-performance/#reduce-work-without-bypassing-invariants) を読む。
+両側が Python コードで型がすでに一致する内部ハンドオフには `strict=True` を適用しない。安全性の利得なくコストが増える。[Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/#reduce-work-without-bypassing-invariants) を読む。
 
 `ConfigDict(strict=True)` はすべてのフィールドに `Strict*` 型（`StrictInt`、`StrictStr` など）を付けるのと等価である。DTO ではモデルレベルフラグを優先し、1 フィールドだけ強制変換が必要なときだけフィールド単位の strict 型を使う。
 
@@ -161,7 +161,7 @@ class AppSettings(BaseSettings):
 - **`extra="forbid"`** はフィールドにマップされる環境変数名の typo を検出する。
 - 資格情報には **`SecretStr`**。`model_dump()` で設定をログに出さない。
 - **CLI フラグ**は `CliSettingsSource` または Pydantic モデルを構築する薄い argparse レイヤー経由で設定モデルに入れられる。env ベース設定と同じ検証ルール。
-- **リクエストごとの値**（テナント ID、アクター ID）は設定ではない。リクエストコンテキストに属する。`BaseSettings` ではない。[`application-wiring.md`](/docs/kamae-py/application-wiring/) を参照。
+- **リクエストごとの値**（テナント ID、アクター ID）は設定ではない。リクエストコンテキストに属する。`BaseSettings` ではない。[アプリケーション配線](/docs/kamae-py/application-wiring/) を参照。
 
 ## 認可とテナント境界
 
@@ -258,7 +258,7 @@ async def assign_driver_use_case(
 
 許容される狭い例外:
 
-- データベースドライバーまたは先行する Pydantic パースですでに検証された値を受け取る、テスト済みマッパー内の `model_construct`。[`unsafe-boundaries.md`](/docs/kamae-py/unsafe-boundaries/#model_construct-in-orm-mappers) を読む。
+- データベースドライバーまたは先行する Pydantic パースですでに検証された値を受け取る、テスト済みマッパー内の `model_construct`。[unsafe 境界](/docs/kamae-py/unsafe-boundaries/#model_construct-in-orm-mappers) を読む。
 - 近くに実行時検証と短いコメントがあるフレームワーク制限まわりの `cast`。
 
 生成クライアント、ネイティブアダプター、ORM はしばしば広すぎる、または信頼しすぎる型の値を返す。まず DTO/行モデル経由で変換し、その後ドメインモデルへ。
@@ -344,7 +344,7 @@ async def handle_message(body: bytes) -> None:
     await process_event(event)
 ```
 
-恒久的な検証失敗の poison メッセージはデッドレターキューへ。一時的失敗はバックオフ付きリトライ。[`persistence-events.md`](/docs/kamae-py/persistence-events/#outbox-relay-at-least-once-delivery) を読む。
+恒久的な検証失敗の poison メッセージはデッドレターキューへ。一時的失敗はバックオフ付きリトライ。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#outbox-relay-at-least-once-delivery) を読む。
 
 ### レイヤーの責務
 
@@ -371,7 +371,7 @@ async def handle_message(body: bytes) -> None:
 
 HTTP ハンドラ、キューコンシューマ、DB 行マッパー、ファイル/設定/環境変数リーダー、CLI パーサーが検証済み変換なしに生データをドメインロジックへ渡している箇所を指摘する。
 
-値がアダプター層に留まる生 DTO/読み取りモデル構築、検証アダプターまたはコンストラクター経路内の直接ドメイン構築は指摘しない。
+値がアダプター層に留まる生 DTO/読み取りモデル構築、検証アダプターまたはコンストラクタ経路での直接ドメイン構築は指摘しない。
 
 ### 認可とテナント境界はチェックされているか — High
 

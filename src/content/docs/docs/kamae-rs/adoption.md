@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 既存 Rust コードベースへ Kamae を段階的に導入するとき。
-> **関連:** [`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`application-wiring.md`](/docs/kamae-rs/application-wiring/)。
+> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[アプリケーション配線](/docs/kamae-rs/application-wiring/)。
 
 ## 基本方針
 
@@ -27,7 +27,7 @@ Rust サーバーコードベースでよくある出発点:
 
 ## 導入ラダー
 
-一度に一段ずつ進める。各ステップは単独でレビュー可能であること。
+一度に一段ずつ進める。各ステップは単独でレビューできること。
 
 | Step | 変更 | 典型的な触りどころ | リスク |
 | --- | --- | --- | --- |
@@ -73,7 +73,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 3. レガシーサービスはまだ文字列を受け取る。検証は `TryFrom` に移る。
 4. 同じルートのまま出荷する。テストは緑のまま。
 
-[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/) を参照。
+[境界防御](/docs/kamae-rs/boundary-defense/) を参照。
 
 ### Phase 3 — 触った ID の newtype（2 週目）
 
@@ -81,7 +81,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 2. `TryFrom` を newtype 構築に変更する。レガシーサービスは境界で `.as_str()` を受け取る。
 3. 新しい `domain` モジュールだけに追加 clippy を有効化する。
 
-[`domain-modeling.md`](/docs/kamae-rs/domain-modeling/) を参照。
+[ドメインモデリング](/docs/kamae-rs/domain-modeling/) を参照。
 
 ### Phase 4 — ユースケース抽出（3 週目）
 
@@ -89,7 +89,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 2. ハンドラは `use_case.execute(cmd)` のみ呼ぶ。
 3. このパスの `anyhow` を `AssignDriverError`（`thiserror`）に置き換える。
 
-[`error-handling.md`](/docs/kamae-rs/error-handling/) を参照。
+[エラーハンドリング](/docs/kamae-rs/error-handling/) を参照。
 
 ### Phase 5 — 1 集約の型付き状態（3〜4 週目）
 
@@ -97,7 +97,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 2. DB のレガシー `status: String` は残す。adapter が row <-> state struct をマップする。
 3. HTTP なしで遷移の単体テストを追加する。
 
-[`state-transitions.md`](/docs/kamae-rs/state-transitions/) を参照。
+[状態遷移](/docs/kamae-rs/state-transitions/) を参照。
 
 ### Phase 6 — リポジトリポート（4〜5 週目）
 
@@ -105,7 +105,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 2. ユースケースから SQL を `SqlxRequestStore` に移す。
 3. ユースケースは trait のみに依存する。`main` で配線する。
 
-[`persistence-events.md`](/docs/kamae-rs/persistence-events/) と [`application-wiring.md`](/docs/kamae-rs/application-wiring/) を参照。
+[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) と [アプリケーション配線](/docs/kamae-rs/application-wiring/) を参照。
 
 ### Phase 7 — トランザクション、バージョン、outbox（5〜6 週目）
 
@@ -113,7 +113,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 2. state save と outbox insert を 1 トランザクションに包む。
 3. リトライクライアント向けに idempotency key を追加する。
 
-[`persistence-events.md`](/docs/kamae-rs/persistence-events/) を参照。
+[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照。
 
 ### Phase 8 — レガシーパス削除（6 週目以降）
 
@@ -147,7 +147,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 移行時:
 
-- スコープ判断に [`adoption.md`](/docs/kamae-rs/adoption/) を読み込む
+- スコープ判断に [段階的導入](/docs/kamae-rs/adoption/) を読み込む
 - 実装する段のトピックガイドを読み込む
 - 周囲がレガシーでも、変更パスに `kamae-rs-review` を使う
 - crate 全体が移行済みのふりをせず、残るレガシーリスクを明示する

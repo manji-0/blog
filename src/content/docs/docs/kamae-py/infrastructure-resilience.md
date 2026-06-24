@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 外部 API、データベース、キューアダプター周りにリトライ、タイムアウト、サーキットブレーカー振る舞いを追加するときに読む。
-> **関連:** [`error-handling.md`](/docs/kamae-py/error-handling/)、[`persistence-events.md`](/docs/kamae-py/persistence-events/)、[`application-wiring.md`](/docs/kamae-py/application-wiring/)。
+> **関連:** [エラーハンドリング](/docs/kamae-py/error-handling/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)、[アプリケーション配線](/docs/kamae-py/application-wiring/)。
 
 ## 耐障害性はインフラに置く
 
@@ -16,7 +16,7 @@ sidebar:
 | 「リクエストが見つからない」 | Application / domain | `Err(RequestNotFound(...))` |
 | パートナー API からの一時的 HTTP 503 | Infrastructure | バックオフ付きリトライ、その後 raise またはマップ |
 | DB 接続タイムアウト | Infrastructure | raise。フレームワークまたはジョブランナーがリトライしうる |
-| リトライ時の重複コマンド | Application + persistence | 冪等性キー（[`persistence-events.md`](/docs/kamae-py/persistence-events/) を参照） |
+| リトライ時の重複コマンド | Application + persistence | 冪等性キー（[永続化、集約、イベント](/docs/kamae-py/persistence-events/) を参照） |
 
 ドメインコードは `tenacity`、サーキットブレーカーライブラリ、HTTP クライアントリトライミドルウェアをインポートしてはならない。
 
@@ -49,7 +49,7 @@ async def fetch_driver_profile(client: httpx.AsyncClient, driver_id: UUID) -> Dr
 
 枯渇したリトライをアダプターエッジで安定したインフラ例外またはユースケースエラーにマップする。生の `httpx` またはドライバー例外型をポートプロトコル経由で漏らさない。
 
-インフラ失敗が例外のままか `Err` になるかは [`error-handling.md`](/docs/kamae-py/error-handling/) を読む。
+インフラ失敗が例外のままか `Err` になるかは [エラーハンドリング](/docs/kamae-py/error-handling/) を読む。
 
 ### Tenacity 戦略決定表
 
@@ -155,7 +155,7 @@ N 回失敗してから成功するフェイクでリトライパスをテスト
 
 冪等キーや重複排除レコードなしに、副作用を二重適用しうるリトライコマンド、アウトボックスプロセッサ、外部 API 呼び出しを指摘する。
 
-[`persistence-events.md`](/docs/kamae-py/persistence-events/) と突き合わせる。
+[永続化、集約、イベント](/docs/kamae-py/persistence-events/) と照合する。
 
 ### タイムアウトとサーキットブレーカーは明示的か — Medium
 

@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** ドメインモデル、DTO、ログ、メトリクス、エラー、トレース、イベントに個人データ、資格情報、トークン、識別子が含まれるときに読む。
-> **関連:** [`logging-metrics.md`](/docs/kamae-py/logging-metrics/)、[`persistence-events.md`](/docs/kamae-py/persistence-events/)、[`test-data.md`](/docs/kamae-py/test-data/)。
+> **関連:** [ロギングとメトリクス](/docs/kamae-py/logging-metrics/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)、[テストデータ](/docs/kamae-py/test-data/)。
 
 デフォルト方針は**デフォルトでマスキング**である。まずログ可能な識別子かを判断し、次にマスキングと露出方針を適用する。
 
@@ -159,7 +159,7 @@ def log_context(**fields: object) -> dict[str, object]:
     return {key: value for key, value in fields.items() if key in allowed}
 ```
 
-アダプター境界で許可リストを使う。ドメインとユースケースコードはモデルをダンプするのではなく、明示的なフィールド名を渡すべきである。
+アダプター境界で許可リストを使う。ドメインとユースケースコードはモデルをダンプするのではなく、明示的なフィールド名を渡すべきだ。
 
 ## ログが信頼ゾーンを離れるときのハッシュ
 
@@ -178,18 +178,18 @@ def hash_for_export(value: str, *, pepper: str) -> str:
 
 ## テスト
 
-可観測性テストでは次をアサートする:
+可観測性テストでは次を検証する:
 
 - Tier A と B の値がログ出力、スパン属性、メトリクスラベルに決して現れない。
 - Tier C と D の値は構造化フィールドにのみ現れ、メッセージ文字列内には現れない。
 - メトリクスエクスポートには Tier E ラベルのみ含まれる。
 - 公開エラーレスポンスが Tier B または予期しない Tier D を漏らさない。
 
-フィクスチャ指針は [`test-data.md`](/docs/kamae-py/test-data/) を参照。
+フィクスチャ指針は [テストデータ](/docs/kamae-py/test-data/) を参照。
 
 ## デフォルトでマスキングする
 
-個人データとシークレットは誤ってログに出しにくくすべきである。PII には氏名、メールアドレス、電話番号、住所、政府発行 ID、支払い識別子、健康データ、IP アドレス、デバイス識別子、精密な位置、人またはアカウントを識別できるテナント/顧客識別子が含まれる。
+個人データとシークレットは誤ってログに出ないようにすべきだ。PII には氏名、メールアドレス、電話番号、住所、政府発行 ID、支払い識別子、健康データ、IP アドレス、デバイス識別子、精密な位置、人またはアカウントを識別できるテナント/顧客識別子が含まれる。
 
 資格情報とシークレットにはパスワード、API キー、OAuth トークン、セッション Cookie、暗号素材、署名鍵、Webhook シークレットが含まれる。
 
@@ -289,7 +289,7 @@ def configure_logging() -> None:
 - フィルターは型付き `Redacted` モデルと許可リスト化された `extra` キーを**補完**するが置き換えない。
 - プロジェクト固有のパターン（政府 ID、内部アカウント形式）を明示的に追加する。
 - 完全な `model_dump()` 出力をログに出さない。事後には構造化規律をフィルターで回復できない。
-- 上記の識別子ティア のティアルールは依然として適用される。構造化フィールドのシークレットに正規表現だけを頼らない。
+- 上記の識別子ティア のティア別ルールは依然として適用される。構造化フィールドのシークレットに正規表現だけを頼らない。
 
 ## OpenTelemetry スパン属性
 
@@ -339,7 +339,7 @@ def record_assignment(request_id: UUID, reason: str) -> None:
 | 保持 | PII を含むイベントには保持 TTL またはコンパクションジョブを組み合わせる |
 | 消去 | 消去要求が関連イベントストリームを対象にできるよう `aggregate_id` キーを設計 |
 
-バージョン付きイベントにフィールドを追加する前に [`persistence-events.md`](/docs/kamae-py/persistence-events/#event-schema-evolution) を読む。
+バージョン付きイベントにフィールドを追加する前に [永続化、集約、イベント](/docs/kamae-py/persistence-events/#event-schema-evolution) を読む。
 
 ## ログ、メトリクス、エラー、イベントをマスキングする
 
@@ -364,7 +364,7 @@ Pydantic の `SecretStr` は表現をマスキングするが、`get_secret_valu
 
 ## マスキングのテスト
 
-ラッパーとロギング境界でマスキングをアサートする。コードが動くだけでは不十分。
+ラッパーとロギング境界でマスキングを検証する。コードが動くだけでは不十分。
 
 ```python
 def test_redacted_repr_masks_email() -> None:
@@ -427,7 +427,7 @@ def test_assign_driver_error_does_not_echo_pii(caplog: pytest.LogCaptureFixture)
 
 ### 人物に紐づく ID は自動安全とみなさないか — High
 
-上記の識別子ティア と突き合わせる。不透明な代理キーである根拠なく `user_id`、`passenger_id`、`customer_id`、`patient_id`、`device_id`、パートナー参照をログする箇所を指摘する。
+上記の識別子ティア と照合する。不透明な代理キーである根拠なく `user_id`、`passenger_id`、`customer_id`、`patient_id`、`device_id`、パートナー参照をログする箇所を指摘する。
 
 `request_id`、`order_id`、`correlation_id` のような内部集約 ID が明らかな代理キーで安全な整形なら指摘しない。
 

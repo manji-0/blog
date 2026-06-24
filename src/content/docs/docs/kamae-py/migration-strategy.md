@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 既存のクラスベースまたは ORM 中心のコードベースに Kamae Python を導入するときに読む。
-> **関連:** [`boundary-defense.md`](/docs/kamae-py/boundary-defense/)、[`orm-adapters.md`](/docs/kamae-py/orm-adapters/)、[`persistence-events.md`](/docs/kamae-py/persistence-events/)。
+> **関連:** [境界防御](/docs/kamae-py/boundary-defense/)、[ORM アダプター](/docs/kamae-py/orm-adapters/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)。
 
 Kamae Python は到達状態を記述する。既存のクラスベースサービス、blob モデル、ORM 中心のコードは、ビッグバン書き換えなしで**段階的**にそこへ近づけられる。
 
@@ -68,7 +68,7 @@ class TaxiRequestService:
 
 ### フェーズ 3: ユースケースを抽出
 
-サービスメソッドをポートを受け取る非同期関数にする。完全実装: [`state-transitions.md`](/docs/kamae-py/state-transitions/#keep-use-cases-thin)。
+サービスメソッドをポートを受け取る非同期関数にする。完全実装: [状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin)。
 
 ```python
 async def assign_driver_use_case(
@@ -85,9 +85,9 @@ async def assign_driver_use_case(
 
 ### フェーズ 4: リポジトリプロトコル
 
-SQLAlchemy/Django ORM クエリをアダプターモジュールへ移す。ユースケースが見るのはドメイン状態と明示的エラーのみであるべきだ。
+SQLAlchemy/Django ORM クエリをアダプターモジュールへ移す。ユースケースが扱うのはドメイン状態と明示的なエラーだけにすべきだ。
 
-`mapped_column` エンティティ、行 DTO、`domain_from_row_dto` マッパー、Django `select_for_update` 書き込みパターンは [`orm-adapters.md`](/docs/kamae-py/orm-adapters/) を読む。
+`mapped_column` エンティティ、行 DTO、`domain_from_row_dto` マッパー、Django `select_for_update` 書き込みパターンは [ORM アダプター](/docs/kamae-py/orm-adapters/) を読む。
 
 ### フェーズ 5: イベントとアウトボックス
 
@@ -130,9 +130,9 @@ files = [
 - ビジネス遷移がテスト付き純粋関数である
 - ユースケースが明示的エラーを返すか、インフラ失敗を明確にマップする
 - リポジトリアダプターが必要なら状態を原子性保存する
-- 可観測性が [`pii-protection.md`](/docs/kamae-py/pii-protection/) に従う
+- 可観測性が [PII と観測経路の保護](/docs/kamae-py/pii-protection/) に従う
 
-最初に移行するワークフローの選択は [`persistence-events.md`](/docs/kamae-py/persistence-events/) と [`application-wiring.md`](/docs/kamae-py/application-wiring/) を読む。
+最初に移行するワークフローの選択は [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と [アプリケーション配線](/docs/kamae-py/application-wiring/) を読む。
 
 ## レビュー観点
 
@@ -140,7 +140,7 @@ files = [
 
 移行経路が生ペイロードの旧ログを維持し、マスクを落とし、新設計で必要なトランザクション/アウトボックス保証を迂回する箇所を指摘する。
 
-[`pii-protection.md`](/docs/kamae-py/pii-protection/) と [`persistence-events.md`](/docs/kamae-py/persistence-events/) と突き合わせる。
+[PII と観測経路の保護](/docs/kamae-py/pii-protection/) と [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と照合する。
 
 ### レガシーコードは明確に隔離されているか — Medium
 

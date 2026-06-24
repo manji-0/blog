@@ -5,11 +5,11 @@ sidebar:
 ---
 
 > **いつ読むか:** フィクスチャ、ファクトリー、プロパティベーステスト、遷移テスト、境界テスト、永続化リトライテストを追加するときに読む。
-> **関連:** [`state-transitions.md`](/docs/kamae-py/state-transitions/)、[`pii-protection.md`](/docs/kamae-py/pii-protection/)、[`logging-metrics.md`](/docs/kamae-py/logging-metrics/)。
+> **関連:** [状態遷移](/docs/kamae-py/state-transitions/)、[PII と観測経路の保護](/docs/kamae-py/pii-protection/)、[ロギングとメトリクス](/docs/kamae-py/logging-metrics/)。
 
 ## 公開経路でフィクスチャを構築する
 
-フィクスチャは本番と同じ Pydantic アダプター、コンストラクタ、コマンドビルダー、遷移関数を通過すべきである。テストが明示的に破損入力またはマイグレーション互換性についてである場合を除き、生 dict、`model_construct`、部分リテラルは避ける。
+フィクスチャは本番と同じ Pydantic アダプター、コンストラクタ、コマンドビルダー、遷移関数を通過すべきだ。テスト対象が明示的に破損入力またはマイグレーション互換性である場合を除き、生 dict、`model_construct`、部分リテラルは避ける。
 
 ```python
 def waiting_request(now: datetime) -> Waiting:
@@ -38,7 +38,7 @@ def waiting_request(now: datetime) -> Waiting:
 
 可観測性テストでは、マスキングされたログ、安全なエラーメッセージ、安全なメトリクスラベル、機密データがあるときのレスポンス DTO シリアライズを検証する。
 
-識別子方針については、[`pii-protection.md`](/docs/kamae-py/pii-protection/) のティアルールをアサートする:
+識別子方針は [PII と観測経路の保護](/docs/kamae-py/pii-protection/) のティア別ルールを検証する:
 
 - Tier A/B の値がログ、トレース、エラー、メトリクスラベルに決して現れない。
 - Tier C/D の値は構造化フィールドにのみ現れ、ログメッセージ文字列内には現れない。
@@ -66,7 +66,7 @@ PBT に適した対象:
 - 金額演算、単位変換、タイムスタンプ境界ルール。
 - マスキングヘルパーと安全シリアライズ。
 
-生成値は依然として公開コンストラクタまたは Pydantic アダプターを通過すべきである。プライベート/生フィールドを埋めるジェネレーターは、本番コードが構築できない状態を誤ってテストしうる。
+生成値は依然として公開コンストラクタまたは Pydantic アダプターを通過すべきだ。プライベート/生フィールドを埋めるジェネレーターは、本番コードが構築できない状態を誤ってテストしうる。
 
 ### 状態遷移法則
 
@@ -156,7 +156,7 @@ Hypothesis は失敗例を自動でシュリンクする。CI でプロパティ
 
 未知フィールド、デフォルト付きフィールド、不正 DTO、マスクされたログ/エラー、読み取りモデルの安全シリアライズのテストなしに境界変更を指摘する。
 
-識別子階層のアサーションは [`pii-protection.md`](/docs/kamae-py/pii-protection/) と突き合わせる。
+識別子階層のアサーションは [PII と観測経路の保護](/docs/kamae-py/pii-protection/) と照合する。
 
 ### 永続化とリトライのエッジはテストされているか — Medium
 

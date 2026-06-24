@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** `ctypes`、`cffi`、ネイティブ拡張、`model_construct`、広いキャスト、未検証バイト、その他 Python/Pydantic 不変条件を迂回するコードに触れるときに読む。
-> **関連:** [`boundary-defense.md`](/docs/kamae-py/boundary-defense/)、[`pydantic-performance.md`](/docs/kamae-py/pydantic-performance/)、[`orm-adapters.md`](/docs/kamae-py/orm-adapters/)。
+> **関連:** [境界防御](/docs/kamae-py/boundary-defense/)、[Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/)、[ORM アダプター](/docs/kamae-py/orm-adapters/)。
 
 ## デフォルト方針
 
@@ -83,7 +83,7 @@ def waiting_from_api(data: dict[str, Any]) -> Waiting:
     return Waiting.model_construct(**data)
 ```
 
-ORM エンティティ、行 DTO、ドメイン状態間の完全なマッパーレイヤリングは [`orm-adapters.md`](/docs/kamae-py/orm-adapters/) を読む。
+ORM エンティティ、行 DTO、ドメイン状態間の完全なマッパーレイヤリングは [ORM アダプター](/docs/kamae-py/orm-adapters/) を読む。
 
 ## ctypes: メモリとエラーハンドリング
 
@@ -211,7 +211,7 @@ def test_waiting_from_row_does_not_accept_missing_version() -> None:
 
 ### ネイティブコードがドメイン構築やマスクを迂回できないか — High
 
-正規アダプター/コンストラクター経路なしで生データからドメイン値を組み立てるネイティブコード、またはログ、`repr`、例外、FFI コールバック、メトリクスラベル、生バッファで PII/シークレットを露出するコードを指摘する。
+正規アダプター/コンストラクタ経路なしで生データからドメイン値を組み立てるネイティブコード、またはログ、`repr`、例外、FFI コールバック、メトリクスラベル、生バッファで PII/シークレットを露出するコードを指摘する。
 
 ### 未検証/ネイティブコードはドメインロジックにないか — High
 

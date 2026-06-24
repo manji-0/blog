@@ -5,11 +5,11 @@ sidebar:
 ---
 
 > **いつ読むか:** 状態遷移、ユースケース、ドメインイベント、または判別共用体の網羅的な分岐を実装するときに読む。
-> **関連:** [`error-handling.md`](/docs/kamae-py/error-handling/)、[`persistence-events.md`](/docs/kamae-py/persistence-events/)、[`logging-metrics.md`](/docs/kamae-py/logging-metrics/)。
+> **関連:** [エラーハンドリング](/docs/kamae-py/error-handling/)、[永続化、集約、イベント](/docs/kamae-py/persistence-events/)、[ロギングとメトリクス](/docs/kamae-py/logging-metrics/)。
 
 ## 有効な遷移を関数として表現する
 
-許可された遷移ごとに純粋関数を定義する。入力型は許可されたソース状態を、戻り値型はターゲット状態を表すべきである。
+許可された遷移ごとに純粋関数を定義する。入力型は許可されたソース状態を、戻り値型はターゲット状態を表すべきだ。
 
 ```python
 from datetime import datetime
@@ -84,11 +84,11 @@ async def assign_driver_use_case(
 
 `Ok` / `Err` の名前はプロジェクトがすでに使っている結果ライブラリに合わせる。プロジェクトがアプリケーションサービスに例外を使うなら、期待されるドメイン失敗は具体的に保ち、コントローラー境界で変換する。
 
-非同期 `Result` の合成とインフラエラーの境界については [`error-handling.md`](/docs/kamae-py/error-handling/) を読む。1 コマンドのトランザクション範囲については [`persistence-events.md`](/docs/kamae-py/persistence-events/) を読む。
+非同期 `Result` の合成とインフラエラーの境界については [エラーハンドリング](/docs/kamae-py/error-handling/) を読む。1 コマンドのトランザクション範囲については [永続化、集約、イベント](/docs/kamae-py/persistence-events/) を読む。
 
 ## 遷移の前に認可する
 
-ユースケースは状態遷移を適用する前に、アクター、テナント、アカウント、または能力の認可を証明すべきである。権限がドメインルールの一部なら遷移関数は認可値を受け入れてもよいが、ライフサイクル状態を先に変更してから認可を確認しない。
+ユースケースは状態遷移を適用する前に、アクター、テナント、アカウント、または能力の認可を確認すべきだ。権限がドメインルールの一部なら遷移関数は認可値を受け入れてもよいが、ライフサイクル状態を先に変更してから認可を確認しない。
 
 ```python
 async def assign_driver_use_case(
@@ -110,7 +110,7 @@ async def assign_driver_use_case(
 
 2 つのコマンドが競合しうるとき、ライフサイクルと残高の遷移には並行性保護が必要である。システムのアーキテクチャに応じて、楽観的バージョンフィールド、条件付き更新、一意制約、冪等性キー、行ロック、シリアライザブルトランザクション、または単一ライターキューを使う。
 
-リポジトリプロトコルは並行性の期待を可視にすべきである。[`persistence-events.md`](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規** `RequestStore` シグネチャ（`expected_version`、`idempotency_key`、イベントタプル）を使う。
+リポジトリプロトコルは並行性の期待を明示すべきだ。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規** `RequestStore` シグネチャ（`expected_version`、`idempotency_key`、イベントタプル）を使う。
 
 ## ドメインイベントを不変レコードとしてモデル化する
 
@@ -164,7 +164,7 @@ def describe(request: TaxiRequest) -> str:
 
 楽観的ロック、バージョンチェック、一意制約、冪等キー、シリアライザブルトランザクションなしに競合しうるライフサイクル変更や残高変更を指摘する。
 
-バージョン付き保存とトランザクション境界の期待は [`persistence-events.md`](/docs/kamae-py/persistence-events/) と突き合わせる。
+バージョン付き保存とトランザクション境界の期待は [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と照合する。
 
 ### 時刻、乱数、ID 生成は注入されているか — High
 
@@ -182,7 +182,7 @@ def describe(request: TaxiRequest) -> str:
 
 ### 遷移は副作用が明示的でない限り純粋か — Medium
 
-遷移関数内で永続化、ログ、メッセージ発行を行っている箇所を指摘する。状態とイベントを返し、ユースケースが副作用を調整する形を提案する。
+遷移関数内で永続化、ログ、メッセージ発行まで担う箇所を指摘する。状態とイベントを返し、副作用の調整はユースケースに任せる形を提案する。
 
 ### 遷移関数はソース状態を型で制約しているか — Medium
 

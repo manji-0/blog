@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** ユースケースをリポジトリポート、フレームワークエントリポイント、フェイクに配線するとき、または明示的引数と DI コンテナの選択をするときに読む。
-> **関連:** [`domain-modeling.md`](/docs/kamae-py/domain-modeling/)、[`concurrency.md`](/docs/kamae-py/concurrency/)、[`infrastructure-resilience.md`](/docs/kamae-py/infrastructure-resilience/)。
+> **関連:** [ドメインモデリング](/docs/kamae-py/domain-modeling/)、[並行性と非同期](/docs/kamae-py/concurrency/)、[インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/)。
 
 ## デフォルト方針: DI コンテナではなく明示的引数
 
@@ -24,7 +24,7 @@ async def assign_driver_use_case(
     ...
 ```
 
-依存関係は型付きポートとしてユースケース境界に入る。純粋遷移関数はインフラから自由のままである。完全なオーケストレーション例は [`state-transitions.md`](/docs/kamae-py/state-transitions/#keep-use-cases-thin) を参照する。
+依存関係は型付きポートとしてユースケース境界に入る。純粋遷移関数はインフラから自由のままである。完全なオーケストレーション例は [状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) を参照する。
 
 リポジトリがすでに標準化していない限り、新規コードのために DI コンテナを採用しない。
 
@@ -41,7 +41,7 @@ async def assign_driver_use_case(
 
 ## ポートとアダプター
 
-**ポート**はユースケースが必要とするものを表す `typing.Protocol` 型である。**正規**の `RequestResolver` と `RequestStore` の形状: [`persistence-events.md`](/docs/kamae-py/persistence-events/#keep-repository-protocols-small)。入門的なポート概念: [`domain-modeling.md`](/docs/kamae-py/domain-modeling/#define-repository-ports-with-protocols)。
+**ポート**はユースケースが必要とするものを表す `typing.Protocol` 型である。**正規**の `RequestResolver` と `RequestStore` の形状: [永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small)。入門的なポート概念: [ドメインモデリング](/docs/kamae-py/domain-modeling/#define-repository-ports-with-protocols)。
 
 **アダプター**はインフラモジュール内の具象実装である。
 
@@ -97,7 +97,7 @@ def build_assign_driver_use_case(session: AsyncSession) -> AssignDriverUseCase:
 
 ## フェイクでのテスト
 
-テストは本番と同じポート型でインメモリまたはフェイクアダプターを渡すべきである。フェイクは [`persistence-events.md`](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポートを実装する。
+テストは本番と同じポート型でインメモリまたはフェイクアダプターを渡すべきだ。フェイクは [永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポートを実装する。
 
 ```python
 class FakeRequestStore:
@@ -117,7 +117,7 @@ class FakeRequestStore:
 
 アプリケーションテストにはフェイクを使う。トランザクション、制約、ロックのテストには実データベースアダプターを使う。
 
-発信 HTTP、キュー、SDK 呼び出しをリトライ、タイムアウト、サーキットブレーカー方針で包むときは [`infrastructure-resilience.md`](/docs/kamae-py/infrastructure-resilience/) を読む。
+発信 HTTP、キュー、SDK 呼び出しをリトライ、タイムアウト、サーキットブレーカー方針で包むときは [インフラの耐障害性](/docs/kamae-py/infrastructure-resilience/) を読む。
 
 ## レビュー観点
 

@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** ドメイン、境界、PII、永続化、テスト、サンプルコードへの変更を終える前に読む。**ローカルと CI チェックの正規コマンド一覧。**
-> **関連:** [`development-setup.md`](/docs/kamae-py/development-setup/)、[`ci-setup.md`](/docs/kamae-py/ci-setup/)、[`development-setup.md`](/docs/kamae-py/development-setup/)。
+> **関連:** [開発環境とセットアップ](/docs/kamae-py/development-setup/)、[CI セットアップ](/docs/kamae-py/ci-setup/)、[開発環境とセットアップ](/docs/kamae-py/development-setup/)。
 
 ## ベースラインコマンド
 
@@ -20,7 +20,7 @@ uv run pytest
 
 狭い変更では、触れたファイルと状態をカバーする最小コマンド集合を実行し、制限を述べる。
 
-初回ローカルセットアップは [`development-setup.md`](/docs/kamae-py/development-setup/) を読み、[`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ下のファイルが含まれるが、このリポジトリルートの `pyproject.toml`、`uv.lock`、`.github/`、`scripts/` は確実にはインストールされない。
+初回ローカルセットアップは [開発環境とセットアップ](/docs/kamae-py/development-setup/) を読み、[`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ下のファイルが含まれるが、このリポジトリルートの `pyproject.toml`、`uv.lock`、`.github/`、`scripts/` は確実にはインストールされない。
 
 ## スキルパッケージとポリシーチェック
 
@@ -31,7 +31,7 @@ uv run python scripts/validate_package.py
 uv run python path/to/kamae-py/scripts/check_kamae_policy.py --include-tests --strict
 ```
 
-**kamae-py** リポジトリ自体では `skills/kamae-py/scripts/check_kamae_policy.py` を使う。CI では `ruff format --check` を使う。チェック失敗時はローカルで `ruff format .` で適用する。ワークフロー配線は [`ci-setup.md`](/docs/kamae-py/ci-setup/)、このリポジトリの開発ワークフローは [`development-setup.md`](/docs/kamae-py/development-setup/) を参照。
+**kamae-py** リポジトリ自体では `skills/kamae-py/scripts/check_kamae_policy.py` を使う。CI では `ruff format --check` を使う。チェック失敗時はローカルで `ruff format .` で適用する。ワークフロー配線は [CI セットアップ](/docs/kamae-py/ci-setup/)、このリポジトリの開発ワークフローは [開発環境とセットアップ](/docs/kamae-py/development-setup/) を参照。
 
 ## ドメイン安全性に重要な Ruff シグナル
 
@@ -50,7 +50,7 @@ uv run python path/to/kamae-py/scripts/check_kamae_policy.py --include-tests --s
 
 ## 型チェック
 
-プロジェクトに設定があれば mypy または pyright を実行する。Pydantic v2 プロジェクトでは `plugins = ["pydantic.mypy"]` と strict プラグインフラグ（`init_forbid_extra`、`init_typed`、`warn_required_dynamic_aliases`）付き mypy を優先する。完全な `[tool.mypy]` と `[tool.pydantic-mypy]` 例: [`domain-modeling.md`](/docs/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin)。
+プロジェクトに設定があれば mypy または pyright を実行する。Pydantic v2 プロジェクトでは `plugins = ["pydantic.mypy"]` と strict プラグインフラグ（`init_forbid_extra`、`init_typed`、`warn_required_dynamic_aliases`）付き mypy を優先する。完全な `[tool.mypy]` と `[tool.pydantic-mypy]` 例: [ドメインモデリング](/docs/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin)。
 
 プラグインは素の mypy が見逃しうる Pydantic 固有リスクを検出する: 型なしモデルフィールド、frozen モデル変更、誤った `model_construct`、無効フィールドデフォルト、余分なコンストラクタキーワード、必須動的エイリアス。
 
@@ -155,7 +155,7 @@ tasks:
     deps: [format, lint, typecheck, test]
 ```
 
-CI ワークフローを `make check` または `task check` に向け、ローカルとパイプラインのドリフトを 1 か所で可視にする。GitHub Actions 配線は [`ci-setup.md`](/docs/kamae-py/ci-setup/) を読む。
+CI ワークフローを `make check` または `task check` に向け、ローカルとパイプラインのドリフトを 1 か所で可視にする。GitHub Actions 配線は [CI セットアップ](/docs/kamae-py/ci-setup/) を読む。
 
 ## レビュー観点
 

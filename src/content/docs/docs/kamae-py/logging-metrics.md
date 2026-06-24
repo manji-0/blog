@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** ドメインオブジェクト、状態遷移、ユースケース、ドメインイベント周りにログ、メトリクス、トレース、可観測性を追加するときに読む。
-> **関連:** [`pii-protection.md`](/docs/kamae-py/pii-protection/)、[`pii-protection.md`](/docs/kamae-py/pii-protection/)、[`state-transitions.md`](/docs/kamae-py/state-transitions/)。
+> **関連:** [PII と観測経路の保護](/docs/kamae-py/pii-protection/)、[PII と観測経路の保護](/docs/kamae-py/pii-protection/)、[状態遷移](/docs/kamae-py/state-transitions/)。
 
 ## テレメトリシグナルには OpenTelemetry を優先する
 
@@ -67,7 +67,7 @@ logger.info(
 
 ## ユースケースとアダプター周りにスパンを記録する
 
-OpenTelemetry トレースでコマンドのライフサイクルを追う: ユースケース呼び出し、認可、遷移、イベント作成、永続化。ログとメトリクスと同じ安全な許可リスト集合からスパン属性を追加する。[`state-transitions.md`](/docs/kamae-py/state-transitions/#keep-use-cases-thin) の**正規**ユースケースを包む:
+OpenTelemetry トレースでコマンドのライフサイクルを追う: ユースケース呼び出し、認可、遷移、イベント作成、永続化。ログとメトリクスと同じ安全な許可リスト集合からスパン属性を追加する。[状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) の**正規**ユースケースを包む:
 
 ```python
 from opentelemetry import trace
@@ -145,7 +145,7 @@ logger.info(f"driver assigned: {en_route.model_dump_json()}")
 
 ## 遷移処理には遷移情報を含める
 
-ログ行が状態変化に伴うとき、遷移名、ソース状態 kind、ターゲット状態 kind を含める。純粋遷移の後にユースケースからログを出す（[`state-transitions.md`](/docs/kamae-py/state-transitions/#keep-use-cases-thin)）:
+ログ行が状態変化に伴うとき、遷移名、ソース状態 kind、ターゲット状態 kind を含める。純粋遷移の後にユースケースからログを出す（[状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin)）:
 
 ```python
 logger.info(
@@ -161,22 +161,22 @@ logger.info(
 
 ## 純粋遷移関数からロギングを除く
 
-遷移関数は純粋のままであるべきである。ロガーを呼び、時計を読み、ID を生成し、I/O を行ってはならない。結果を呼び出し側に返し、ユースケースまたはアダプターがログを出す。
+遷移関数は純粋のままにすべきだ。ロガーを呼び、時計を読み、ID を生成し、I/O を行ってはならない。結果を呼び出し元に返し、ユースケースまたはアダプターがログを出す。
 
 ## デフォルトで PII とシークレットをマスキングする
 
-エラーとイベントと同じマスキングルールを適用する。[`pii-protection.md`](/docs/kamae-py/pii-protection/) のティアルールに従う:
+エラーとイベントと同じマスキングルールを適用する。[PII と観測経路の保護](/docs/kamae-py/pii-protection/) のティア別ルールに従う:
 
 - Tier A シークレットと Tier B 直接 PII: ログしない。
 - Tier C 相関 ID: 構造化ログとトレース属性のみ。
 - Tier D アカウント/アクター ID: 必要なとき構造化属性のみ。メッセージ文字列やメトリクスラベルには入れない。
 - Tier E 語彙: メトリクスラベルとメッセージに安全。
 
-名前、連絡先、資格情報、トークン、位置データのマスキングは [`pii-protection.md`](/docs/kamae-py/pii-protection/) を読む。
+名前、連絡先、資格情報、トークン、位置データのマスキングは [PII と観測経路の保護](/docs/kamae-py/pii-protection/) を読む。
 
 ## 安定名と低カーディナリティラベルでメトリクスを設計する
 
-メトリクス名はデプロイをまたいで安定であるべきである。ラベルはユーザー生成やアグリゲートごとの値ではなく、有界なドメイン語彙から来るべきである。
+メトリクス名はデプロイをまたいで安定したままにすべきだ。ラベルはユーザー生成値や集約ごとの値ではなく、有界なドメイン語彙から選ぶ。
 
 メーターは一度取得し（例: モジュールスコープ）、そこから計器を作る:
 
@@ -242,17 +242,17 @@ match result:
 
 ## レビュー観点
 
-マスク規則は [`pii-protection.md`](/docs/kamae-py/pii-protection/) も参照。
+マスク規則は [PII と観測経路の保護](/docs/kamae-py/pii-protection/) も参照。
 
 ### ログ、スパン、メトリクスから PII とシークレットが除外されているか — High
 
-[`pii-protection.md`](/docs/kamae-py/pii-protection/) と突き合わせる。生の機微値を運ぶログフィールド、スパン属性、メトリクスラベル、エラー表示文字列を指摘する。
+[PII と観測経路の保護](/docs/kamae-py/pii-protection/) と照合する。生の機微値を運ぶログフィールド、スパン属性、メトリクスラベル、エラー表示文字列を指摘する。
 
 ドメインオブジェクトがオブザーバビリティヘルパーに届く前にマスクラッパーと許可リストが一貫して適用されているかも確認する。
 
 ### ログされる ID は正しく分類されているか — High
 
-[`pii-protection.md`](/docs/kamae-py/pii-protection/) と突き合わせる。文書化された安全性ではなくフィールド名の仮定でログする識別子を指摘する。
+[PII と観測経路の保護](/docs/kamae-py/pii-protection/) と照合する。文書化された安全性ではなくフィールド名の仮定でログする識別子を指摘する。
 
 ログ、スパン、メトリクスラベルにシークレット、政府/決済/健康/連絡先の本人情報、不透明代理でない人物紐づき ID、メトリクスラベルとしての生 user/customer/passenger ID がある場合はエスカレートする。
 

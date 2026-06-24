@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 構造化ログ、メトリクス、ID 分類、エラーチェーンと可観測性の統合を設計するとき。
-> **関連:** [`pii-protection.md`](/docs/kamae-rs/pii-protection/)、[`error-handling.md`](/docs/kamae-rs/error-handling/)、[`state-transitions.md`](/docs/kamae-rs/state-transitions/)。
+> **関連:** [PII 保護](/docs/kamae-rs/pii-protection/)、[エラーハンドリング](/docs/kamae-rs/error-handling/)、[状態遷移](/docs/kamae-rs/state-transitions/)。
 
 <!-- constrained-by ./pii-protection.md -->
 <!-- constrained-by ./state-transitions.md -->
@@ -66,7 +66,7 @@ log レベルを意図的に選ぶ:
 
 ## log から PII 漏洩を防ぐ
 
-log は長寿命で広くアクセス可能: 公開境界として扱う。[`pii-protection.md`](/docs/kamae-rs/pii-protection/) のルールに従う。
+log は長寿命で広くアクセス可能: 公開境界として扱う。[PII 保護](/docs/kamae-rs/pii-protection/) のルールに従う。
 
 - raw 氏名、メール、電話、住所、位置、token、資格情報を log しない。
 - newtype と redacting wrapper で `Debug` derive や値補間の accidental 露出を防ぐ。
@@ -250,7 +250,7 @@ tracing::Span::current().record("error", tracing::field::display(&error));
 - raw client error が endpoint、SQL、secret を漏らす前に意味論 variant にマップ
 - enum variant 由来 `error_code` 等 bounded label で metric increment。full error text ではない
 
-error enum 設計は [`error-handling.md`](/docs/kamae-rs/error-handling/) と照合。ユースケースが richer domain context で同一失敗を log 済みなら repository adapter で重複 log しない。
+error enum 設計は [エラーハンドリング](/docs/kamae-rs/error-handling/) と照合。ユースケースが richer domain context で同一失敗を log 済みなら repository adapter で重複 log しない。
 
 ## 有用なときだけ `tracing`
 
@@ -347,11 +347,11 @@ span は internal call 各所ではなくユースケース境界。操作名と
 
 ## レビュー観点
 
-マスキングルールは [`pii-protection.md`](/docs/kamae-rs/pii-protection/) も参照。
+マスキングルールは [PII 保護](/docs/kamae-rs/pii-protection/) も参照。
 
 ### PII とシークレットはログ、スパン、メトリクスから除外されているか — High
 
-[`pii-protection.md`](/docs/kamae-rs/pii-protection/) も照合する。生の機密値を載せるログフィールド、スパン属性、メトリクスラベル、エラー表示文字列を指摘する。
+[PII 保護](/docs/kamae-rs/pii-protection/) も照合する。生の機密値を載せるログフィールド、スパン属性、メトリクスラベル、エラー表示文字列を指摘する。
 
 ドメインオブジェクトが可観測性ヘルパに到達する前に、`Debug` 実装、マスキングラッパ、許可リストが一貫して適用されているかも確認する。
 

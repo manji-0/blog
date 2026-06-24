@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 識別子・値オブジェクト・状態型・集約境界・newtype を定義するとき。
-> **関連:** [`state-transitions.md`](/docs/kamae-rs/state-transitions/)、[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`persistence-events.md`](/docs/kamae-rs/persistence-events/)、[`property-based-tests.md`](/docs/kamae-rs/property-based-tests/)。
+> **関連:** [状態遷移](/docs/kamae-rs/state-transitions/)、[境界防御](/docs/kamae-rs/boundary-defense/)、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、[プロパティベーステスト](/docs/kamae-rs/property-based-tests/)。
 
 ## ドメイン概念を明示的に表現する
 
@@ -53,9 +53,9 @@ pub enum TaxiRequest {
 
 集約は、まとめて原子的に変わる必要のある不変条件を所有する。ルールを所有する状態または集約に遷移メソッドを置き、他集約は ID で参照する。判断用に安定したスナップショットをロードするユースケースは除く。
 
-トランザクションスコープ・バージョニング・集約横断の調整は [`persistence-events.md`](/docs/kamae-rs/persistence-events/) を参照する。
+トランザクションスコープ・バージョニング・集約横断の調整は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
 
-アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2 つの集約ルートをメモリ上で変更し、呼び出し側の両方の save に頼る遷移も避け、ユースケースと明示的なドメインイベントで集約横断を行う。
+アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2 つの集約ルートをメモリ上で変更し、呼び出し側の両方の save に頼る遷移も避け、ユースケースと明示的なドメインイベントで集約をまたぐ変更を行う。
 
 ## 構築を正直に保つ
 
@@ -75,13 +75,13 @@ private 不変条件があるドメイン型に無制限の `Serialize` / `Deser
 
 API JSON・DB 行・ドメインエンティティに同一 struct を使わない。外部形状は optional や非正規化フィールドを含み、ドメインに漏れうる。
 
-フローは次のとおりである。
+フローは次のとおり。
 
 ```text
 API/DB/env raw data -> DTO/row struct -> TryFrom -> domain type
 ```
 
-[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/) を参照する。
+[境界防御](/docs/kamae-rs/boundary-defense/) を参照する。
 
 ## 概念ごとに整理する
 
@@ -133,7 +133,7 @@ typestate を使うときは次を満たす。
 - フェーズごとに利用可能な操作が大きく変わる
 - 1 つの struct にまとめると多数の `Option` やランタイムチェックが必要になる
 
-各状態が異なるフィールドを持ち遷移が主 API なら、別の状態構造体を優先する（[`state-transitions.md`](/docs/kamae-rs/state-transitions/)）。typestate と状態構造体は併用できる。例: `ExpenseReport<Submitted>` が `SubmittedReport` を包む。
+各状態が異なるフィールドを持ち遷移が主 API なら、別の状態構造体を優先する（[状態遷移](/docs/kamae-rs/state-transitions/)）。typestate と状態構造体は併用できる。例: `ExpenseReport<Submitted>` が `SubmittedReport` を包む。
 
 ## ドメイン enum の `#[non_exhaustive]`
 
@@ -249,7 +249,7 @@ impl Hash for FareEstimate {
 }
 ```
 
-secret や PII を含み、ログで map key に誤用しうる型に `Hash` / `Eq` derive しない。[`pii-protection.md`](/docs/kamae-rs/pii-protection/) を参照する。
+secret や PII を含み、ログで map key に誤用しうる型に `Hash` / `Eq` derive しない。[PII 保護](/docs/kamae-rs/pii-protection/) を参照する。
 
 ## テスト builder
 
@@ -300,10 +300,10 @@ builder はテストとフィクスチャ専用とする。テスト簡略化の
 
 | スタック | モデリングパターン |
 | --- | --- |
-| `nutype` + `thiserror` | 生成 guard 付き検証 newtype（[`crate-guides.md#nutype`](/docs/kamae-rs/crate-guides/#nutype)） |
+| `nutype` + `thiserror` | 生成 guard 付き検証 newtype（[クレートガイド（nutype）](/docs/kamae-rs/crate-guides/#nutype)） |
 | `rust_decimal` + newtypes | checked 算術の `Money`、`TaxRate` |
-| `serde(try_from)` + newtypes | JSON 境界のリーフ value object（[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)） |
-| `proptest` + builders | primitive に `Arbitrary` のあと `try_new`（[`property-based-tests.md`](/docs/kamae-rs/property-based-tests/)） |
+| `serde(try_from)` + newtypes | JSON 境界のリーフ value object（[境界防御](/docs/kamae-rs/boundary-defense/)） |
+| `proptest` + builders | primitive に `Arbitrary` のあと `try_new`（[プロパティベーステスト](/docs/kamae-rs/property-based-tests/)） |
 
 レビューでは、ビジネス意味を持つ素の `String` や `i64`、invalid sentinel を生む `Default`、金額・課金での `f64`、文書化された例外なしの `Deserialize` / `FromRow` derive、public フィールドリテラルによる不変条件の迂回を指摘する。
 
@@ -311,7 +311,7 @@ builder はテストとフィクスチャ専用とする。テスト簡略化の
 
 ### 呼び出し元が不変条件を迂回できないか — High
 
-不変条件を持つドメイン型で public フィールドまたは public タプルフィールドがある場合は指摘する。コンストラクタが正規の経路であること。
+不変条件を持つドメイン型で public フィールドまたは public タプルフィールドがある場合は指摘する。コンストラクタを正規の経路とすること。
 
 複数フィールドの不変条件の一部だけを更新するミューテータ、再検証のスキップ、無効な中間状態の流出を許すミューテータを指摘する。
 

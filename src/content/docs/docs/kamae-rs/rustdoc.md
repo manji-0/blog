@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 公開ドメイン API の rustdoc 契約、doctest、`# Safety` を整備するとき。
-> **関連:** [`domain-modeling.md`](/docs/kamae-rs/domain-modeling/)、[`unsafe-boundaries.md`](/docs/kamae-rs/unsafe-boundaries/)、[`quality-gates.md`](/docs/kamae-rs/quality-gates/)。
+> **関連:** [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、[unsafe 境界](/docs/kamae-rs/unsafe-boundaries/)、[品質ゲート](/docs/kamae-rs/quality-gates/)。
 
 ## 基本方針
 

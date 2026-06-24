@@ -5,7 +5,7 @@ sidebar:
 ---
 
 > **いつ読むか:** 集約境界、リポジトリ trait、outbox、楽観的ロック、冪等性、イベントの永続化を設計するときに読む。
-> **関連:** [`boundary-defense.md`](/docs/kamae-rs/boundary-defense/)、[`stream-continuous-queries.md`](/docs/kamae-rs/stream-continuous-queries/)、[`application-wiring.md`](/docs/kamae-rs/application-wiring/)。
+> **関連:** [境界防御](/docs/kamae-rs/boundary-defense/)、[ストリームと継続クエリ](/docs/kamae-rs/stream-continuous-queries/)、[アプリケーション配線](/docs/kamae-rs/application-wiring/)。
 
 ## 集約とトランザクション境界
 
@@ -141,7 +141,7 @@ event payload では型付き timestamp、money、単位を使う。裸 `String`
 
 ## 必要なら永続 event を Stream で公開
 
-read model、統合、オペレータが変更フィードを購読するとき、ユースケース内 ad-hoc poll ではなく `futures::Stream` port で永続 event または outbox 行を公開。[`stream-continuous-queries.md`](/docs/kamae-rs/stream-continuous-queries/) で backpressure、checkpoint、projection idempotency。
+read model、統合、オペレータが変更フィードを購読するとき、ユースケース内 ad-hoc poll ではなく `futures::Stream` port で永続 event または outbox 行を公開。[ストリームと継続クエリ](/docs/kamae-rs/stream-continuous-queries/) で backpressure、checkpoint、projection idempotency。
 
 ## `sqlx` によるトランザクション管理
 
@@ -299,7 +299,7 @@ if result.rows_affected() == 0 {
 }
 ```
 
-`ConcurrentModification` を型付きユースケースエラーとして公開し、HTTP が 409、queue consumer が fresh load でリトライできるようにする。[`persistence-events.md`](/docs/kamae-rs/persistence-events/#optimistic-concurrency-is-the-default) 参照。
+`ConcurrentModification` を型付きユースケースエラーとして公開し、HTTP が 409、queue consumer が fresh load でリトライできるようにする。[永続化、集約、イベント](/docs/kamae-rs/persistence-events/#optimistic-concurrency-is-the-default) 参照。
 
 ## リトライ向け idempotency key
 
@@ -344,7 +344,7 @@ pub async fn execute_with_retry(
 
 ## 行マッピングと境界防御
 
-persistence adapter も DTO -> ドメイン変換に従う。[`boundary-defense.md`](/docs/kamae-rs/boundary-defense/#database-rows-sqlxfromrow) 参照。破損またはレガシー行は adapter で `RepositoryError::CorruptRow` とし、無効 domain state を出さない。
+persistence adapter も DTO -> ドメイン変換に従う。[境界防御](/docs/kamae-rs/boundary-defense/#database-rows-sqlxfromrow) 参照。破損またはレガシー行は adapter で `RepositoryError::CorruptRow` とし、無効 domain state を出さない。
 
 ## よくある crate 組み合わせ
 
@@ -362,7 +362,7 @@ persistence adapter も DTO -> ドメイン変換に従う。[`boundary-defense.
 
 ### 1 ユースケースがトランザクション境界を所有しているか — High
 
-単一ユースケースが原子作業単位を調整せず、無関係な複数呼び出し元から状態保存、イベント発行、メッセージ公開を行うワークフローを指摘する。
+単一ユースケースがアトミックな作業単位を調整せず、無関係な複数の呼び出し元から状態保存・イベント発行・メッセージ公開を担うワークフローを指摘する。
 
 ### リトライと重複コマンドは境界で冪等か — High
 
