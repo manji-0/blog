@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
@@ -8,6 +8,7 @@ const bucket = process.env.R2_ASSET_BUCKET || 'manjio-assets';
 const keyPrefix = trimSlashes(process.env.R2_ASSET_PREFIX || 'astro');
 const routePrefix = `/${trimSlashes(process.env.R2_ASSET_ROUTE_PREFIX || 'assets/r2')}`;
 const uploadEnabled = process.env.R2_ASSET_UPLOAD !== '0';
+const uploadConcurrency = Number(process.env.R2_UPLOAD_CONCURRENCY) || 8;
 const imageExtensions = new Set(['.avif', '.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp']);
 
 function trimSlashes(value) {
@@ -53,22 +54,45 @@ function listFiles(dir) {
 }
 
 function uploadFile(filePath, key) {
-	const args = [
-		'wrangler',
-		'r2',
-		'object',
-		'put',
-		`${bucket}/${key}`,
-		`--file=${filePath}`,
-		`--content-type=${contentTypeFor(filePath)}`,
-		'--cache-control=public, max-age=31536000, immutable',
-		'--remote',
-	];
-	const result = spawnSync('npx', args, { stdio: 'inherit' });
+	return new Promise((resolve, reject) => {
+		const args = [
+			'wrangler',
+			'r2',
+			'object',
+			'put',
+			`${bucket}/${key}`,
+			`--file=${filePath}`,
+			`--content-type=${contentTypeFor(filePath)}`,
+			'--cache-control=public, max-age=31536000, immutable',
+			'--remote',
+		];
+		const child = spawn('npx', args, { stdio: 'inherit' });
 
-	if (result.status !== 0) {
-		throw new Error(`Failed to upload ${filePath} to R2 key ${key}`);
+		child.on('error', reject);
+		child.on('close', (code) => {
+			if (code !== 0) {
+				reject(new Error(`Failed to upload ${filePath} to R2 key ${key}`));
+				return;
+			}
+			resolve();
+		});
+	});
+}
+
+async function uploadFilesInParallel(assets, concurrency) {
+	let index = 0;
+
+	async function worker() {
+		while (index < assets.length) {
+			const current = index++;
+			const asset = assets[current];
+			await uploadFile(asset.file, asset.key);
+		}
 	}
+
+	await Promise.all(
+		Array.from({ length: Math.min(concurrency, assets.length) }, () => worker()),
+	);
 }
 
 function rewriteHtml(assetMappings) {
@@ -123,9 +147,7 @@ if (assetMappings.length === 0) {
 }
 
 if (uploadEnabled) {
-	for (const asset of assetMappings) {
-		uploadFile(asset.file, asset.key);
-	}
+	await uploadFilesInParallel(assetMappings, uploadConcurrency);
 } else {
 	console.log('[r2-assets] Upload skipped because R2_ASSET_UPLOAD=0.');
 }
