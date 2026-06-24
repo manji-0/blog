@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "search:index": "node scripts/build-search-index.mjs",
+    "docs:sync-kamae": "node scripts/sync-kamae-docs.mjs",
     "fonts:subset": "node scripts/subset-fonts.mjs",
     "r2:upload-assets": "node scripts/upload-r2-assets.mjs",
     "deploy:pages": "wrangler pages deploy dist --project-name=manjio",

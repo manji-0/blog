@@ -140,6 +140,13 @@ export default defineConfig({
 					label: 'Coding',
 					items: [{ autogenerate: { directory: 'coding' } }],
 				},
+				{
+					label: 'Docs',
+					items: [
+						{ autogenerate: { directory: 'docs/kamae-rs' } },
+						{ autogenerate: { directory: 'docs/kamae-py' } },
+					],
+				},
 			],
 			expressiveCode: {
 				themes: ['starlight-dark', 'starlight-light'],
