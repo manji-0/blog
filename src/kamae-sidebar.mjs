@@ -66,6 +66,7 @@ export function getKamaeRustSidebar() {
 		label: 'kamae-rs',
 		items: [
 			{ label: 'はじめに', link: '/docs/kamae-rs/' },
+			{ label: 'クレートガイド（参照）', link: '/docs/kamae-rs/crate-guides/' },
 			group(
 				'kamae-rs',
 				'ドメイン設計',
@@ -95,7 +96,6 @@ export function getKamaeRustSidebar() {
 				'ci-setup',
 			]),
 			group('kamae-rs', '実践例', ['examples/taxi-request'], false),
-			slug('kamae-rs', 'crate-guides'),
 		],
 	};
 }
