@@ -68,7 +68,7 @@ logger.info(
 
 ## ユースケースとアダプター周りにスパンを記録する
 
-OpenTelemetry トレースでコマンドのライフサイクルを追う: ユースケース呼び出し、認可、遷移、イベント作成、永続化。ログとメトリクスと同じ安全な許可リスト集合からスパン属性を追加する。[状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) の**正規**ユースケースを包む:
+OpenTelemetry トレースでコマンドのライフサイクルを追う: ユースケース呼び出し、認可、遷移、イベント作成、永続化。ログとメトリクスと同じ安全な許可リストからスパン属性を追加する。次の例は、[状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) で示す**正規**ユースケースをスパンで包むパターンである。
 
 ```python
 from opentelemetry import trace

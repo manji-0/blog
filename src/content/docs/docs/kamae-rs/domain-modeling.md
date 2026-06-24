@@ -12,7 +12,7 @@ sidebar:
 
 プリミティブのままだと、単位の混同や ID の取り違えはコンパイル時に検出できない。newtype のコストはボイラープレートより、誤った組み合わせを早く落とす効果の方が大きい。
 
-意味が異なる値には、プリミティブな文字列や数値のまま置かず、名前付き構造体・列挙型・newtype で表現する。
+次の例は、空文字を拒否する `RequestId` による典型的な newtype である。
 
 ```rust
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -70,7 +70,7 @@ pub enum TaxiRequest {
 
 不変条件付きドメイン型に、本当のドメイン default がない限り `Default` derive しない。空 ID・ゼロ金額・最初の enum バリアントは、通常 invalid または misleading な default になる。
 
-`Clone` は狭く derive する。小さな不変 value object や DTO では問題が少ないが、集約・エンティティへの広い `Clone` は所有ミスや stale copy の persist を隠す。
+`Clone` は狭く derive する。小さな不変 value object や DTO では問題が少ないが、集約・エンティティへの広い `Clone` は所有関係の誤りや、古いコピーをそのまま永続化する経路を隠す。
 
 private 不変条件があるドメイン型に無制限の `Serialize` / `Deserialize` derive しない。DTO・行構造体・リーフ value object の serde `try_from` でデシリアライズも検証を通す。
 

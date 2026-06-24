@@ -97,7 +97,7 @@ pub enum SaveError {
 | --- | --- |
 | 1 ルートが決定を所有し、他は事実だけ必要 | ID でスナップショットまたは read model をクエリ |
 | 両ルート変更が必要で、一方失敗時に他方をロールバック | 単一ユースケース、明示順序、saga/outbox、または datastore が許す 1 トランザクション境界 |
-|  eventual consistency で足りる | ドメインイベント + 下流 consumer |
+| 結果整合性（eventual consistency）で足りる | ドメインイベント + 下流 consumer |
 
 集約横断オーケストレーションを repository adapter 内に隠さない。ユースケースがビジネスステップを名指しする。
 
@@ -128,7 +128,7 @@ pub trait RequestStore {
 }
 ```
 
-Rust 1.75+ で caller が static dispatch を使い `dyn Trait` を要しない内部 trait では、native `async fn` を優先。MSRV が古い、フレームワークが trait object を要求する、`Box<dyn RequestStore + Send + Sync>` で意図的に保持する場合は `async_trait`。tradeoff は明示: native trait は static path で macro 展開と boxing を避ける; `async_trait` は boxing された future で dynamic dispatch を ergonomical にする。
+Rust 1.75+ で caller が static dispatch を使い `dyn Trait` を要しない内部 trait では、native `async fn` を優先。MSRV が古い、フレームワークが trait object を要求する、`Box<dyn RequestStore + Send + Sync>` で意図的に保持する場合は `async_trait`。tradeoff は明示する。native trait は static path で macro 展開と boxing を避ける。`async_trait` は、ボックス化された future により dynamic dispatch を扱いやすくする。
 
 ## state と event を原子的に永続化する
 

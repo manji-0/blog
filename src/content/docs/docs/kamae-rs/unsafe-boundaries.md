@@ -10,7 +10,7 @@ sidebar:
 
 ## 基本方針
 
-`unsafe` をドメインロジックから追い出す。ドメインエンティティ、値オブジェクト、state 遷移、ユースケース、DTO 変換、PII redaction、repository trait は通常 safe Rust。
+`unsafe` をドメインロジックから追い出す。ドメインエンティティ、値オブジェクト、状態遷移、ユースケース、DTO 変換、PII のマスキング、リポジトリ trait は、通常は safe Rust で書く。
 
 許容コストで safe Rust に表現できない要求のときだけ `unsafe`:
 
@@ -23,7 +23,7 @@ sidebar:
 
 ## unsafe を safe API の背後に閉じ込める
 
-`unsafe` block は可能な限り小さく、コア domain ではなく adapter または infrastructure module に置く。
+`unsafe` ブロックは可能な限り小さくし、コアのドメイン層ではなく、アダプターまたはインフラモジュールに置く。
 
 `unsafe` に入る前にすべての前提を強制する safe API を公開:
 
@@ -195,7 +195,7 @@ Miri がよく捕まえるもの:
 - 無効長の `unsafe` `from_raw_parts`
 - FFI handle の誤った `Send`/`Sync` impl による data race
 
-Miri は遅い。whole workspace ではなく `unsafe` を所有する adapter crate で、CI nightly または pre-release で実行。
+Miri は遅い。ワークスペース全体ではなく、`unsafe` を所有する adapter crate で、CI nightly または pre-release で実行する。
 
 ### AddressSanitizer（ASan）
 

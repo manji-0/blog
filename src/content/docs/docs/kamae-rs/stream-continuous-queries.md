@@ -41,7 +41,7 @@ pub trait AggregateEventSource {
 | Continuous query / projection | `Stream<Item = Result<ReadModelRow, E>>` | 派生 state。write model より遅れうる |
 | Outbox dispatch | `Stream<Item = Result<OutboxMessage, E>>` | at-least-once 配送。handler は冪等 |
 
-ドメイン遷移メソッドから `Stream` を公開しない。遷移から event を出し、原子的に persist し、adapter が永続ログを stream として公開する。
+ドメイン遷移メソッドから `Stream` を公開しない。遷移から event を出し、原子的に永続化し、adapter が永続ログを stream として公開する。
 
 ## persist 後に subscribe
 
@@ -116,7 +116,7 @@ async fn apply_event(
 
 ## CQRS 境界を明示
 
-read model（投影）はクエリを速くするための非正規化ビューであり、第二の write model ではない。投影ハンドラ内で他集約を直接 mutate すると、コマンド経路を迂回した状態変更が増え、リトライや並行更新の reasoning が崩れる。集約横断の変更が必要なら、ドメインイベントを発行し、別のユースケースまたはコマンドが反応する形にする。
+read model（投影）はクエリを速くするための非正規化ビューであり、第二の write model ではない。投影ハンドラ内で他集約を直接変更すると、コマンド経路を迂回した状態変更が増え、リトライや並行更新の見通しが立たなくなる。集約横断の変更が必要なら、ドメインイベントを発行し、別のユースケースまたはコマンドが反応する形にする。
 
 write 側のトランザクションスコープ、楽観的 versioning、outbox の原子性は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
 

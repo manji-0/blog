@@ -14,7 +14,7 @@ sidebar:
 
 ## ドメインコンテキストで log する
 
-各 log エントリは 3 点に答える: 何が起きたか、どの domain オブジェクトか、なぜ重要か。log は domain 不変条件の深部ではなく、ユースケース、アプリケーションサービス、adapter から出す。
+各ログエントリは次の 3 点に答える。何が起きたか、どのドメインオブジェクトに関する事象か、なぜ重要か。ログはドメイン不変条件の内部ではなく、ユースケース、アプリケーションサービス、アダプターから出力する。
 
 1. **意味のあるメッセージ**: 関数名ではなく domain 用語でイベントや判断を述べる。「`assign_driver called`」より「driver assigned to waiting request」。
 2. **Domain オブジェクト state**: 判断理解に必要な identifier、現 state variant、値。補間文字列より structured field。

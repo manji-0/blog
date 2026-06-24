@@ -30,7 +30,7 @@ python3 scripts/validate_package.py
 cargo run -q -p kamae-review-probe -- skills/kamae-rs/examples/taxi-request.rs --json
 ```
 
-変更前にパッケージ検証が通ること。
+変更を加える前に、パッケージ検証が通ることを確認する。
 
 ## ローカル品質ゲートの実行
 

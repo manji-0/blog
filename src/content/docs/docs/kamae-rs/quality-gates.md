@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-ドメイン方針はレビューだけに頼ると再現できない。触った crate では `cargo fmt --check`、プロジェクトの `clippy` 方針、焦点を絞ったテストをローカルと CI で同じコマンドに揃える。ここが正規一覧である。
+変更した crate では、`cargo fmt --check`、プロジェクトの `clippy` 方針、焦点を絞ったテストを、ローカルと CI で同じコマンドとして揃える。以下が品質ゲートの正規コマンド一覧である。
 
 アプリケーション crate のセットアップは [開発環境](/docs/kamae-rs/dev-environment/)、Actions への反映は [CI セットアップ](/docs/kamae-rs/ci-setup/)、スキルリポジトリ開発は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を読む。
 
@@ -50,7 +50,7 @@ cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -
 
 ## フォーマットのベースライン
 
-変更を仕上げる前に触った Rust ファイルで `cargo fmt` または `rustfmt` を実行する。Kamae ではフォーマットはスタイル議論ではない。差分をレビュー可能に保ち、ドメイン、境界、PII、unsafe、persistence の変更を inspect しやすくする。
+変更を仕上げる前に触った Rust ファイルで `cargo fmt` または `rustfmt` を実行する。Kamae ではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、unsafe、永続化の変更を確認しやすくするための手段である。
 
 `rustfmt` が戻す手整列をしない。複雑条件を隠す formatting トリックより、小さな helper 関数または named value object を優先。
 

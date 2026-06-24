@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-`Debug` derive や span フィールドは、意図せず個人データや資格情報をログに載せる。型でラップし、露出はアダプターに閉じる設計にしないと、可観測性がそのまま漏洩面になる。
+`Debug` derive や span フィールドは、意図せず個人データや資格情報をログに載せてしまう。型でラップし、露出はアダプターに閉じる設計にしないと、可観測性がそのまま漏洩面になる。
 
 ログとメトリクスの実装は [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、資格情報の扱いは [クレートガイド（secrecy）](/docs/kamae-rs/crate-guides/#secrecy)、テストでの検証は [テストデータ](/docs/kamae-rs/test-data/) を参照する。
 
 ## ログに載せにくい sensitive データにする
 
-個人データはデフォルトで redacting wrapper または typed value object を使う。資格情報、API key、token、password、暗号 material には `secrecy::SecretString` または `SecretBox<T>` を reserve。名前やメールなど一般 PII は `Redacted<T>` または safe `Debug` 付き domain newtype が通常で、`secrecy` ではない。
+個人データはデフォルトで redacting wrapper または typed value object を使う。資格情報、API key、token、password、暗号 material には `secrecy::SecretString` または `SecretBox<T>` に限定する。名前やメールなど一般 PII は `Redacted<T>` または safe `Debug` 付き domain newtype が通常で、`secrecy` ではない。
 
 PII の例: 氏名、メール、電話、住所、政府 ID、支払識別子、健康データ、IP、精密位置。
 
@@ -125,7 +125,7 @@ pub struct PatientResponse {
 }
 ```
 
-大半が safe な struct では field ごと `serialize_with` より別 response DTO。otherwise safe struct の 1 field だけ redaction が必要なとき `serialize_with`。
+大半が safe な struct では、フィールドごとの `serialize_with` より別の response DTO を優先する。それ以外は safe な struct のうち 1 フィールドだけマスキングが必要なときに `serialize_with` を使う。
 
 ## `Display` vs `Debug`
 
@@ -147,7 +147,7 @@ impl std::fmt::Display for EmailAddress {
 ```
 
 - **`Debug`**: PII 型はデフォルト redact。log、test、`tracing` debug 出力の `{:?}` を保護
-- **`Display`**: 意図的用户 visible または adapter 出力。call site を狭く
+- **`Display`**: 意図的なユーザー向け表示、またはアダプター出力用。呼び出し箇所を狭く保つ
 
 すべての `to_string()` が log に漏れるなら PII 型に `Display` derive しない。adapter では `expose_for_delivery()` が `&str` を返す形を優先。
 

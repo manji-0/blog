@@ -52,7 +52,7 @@ class RequestRow(Base):
 
 ### 行 DTO + ドメインマッパー
 
-アダプター境界で狭い行 DTO 経由でパースし、判別共用体にマップする。
+アダプター境界では、狭い行 DTO を経由してパースし、判別共用体へマップする。
 
 ```python
 from typing import Annotated, Literal

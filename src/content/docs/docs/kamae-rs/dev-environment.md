@@ -15,7 +15,7 @@ Kamae スキルに従う**アプリケーション crate** をローカルで立
 
 ## 目的
 
-Kamae が期待する方法で domain コードを実装・テストできる workspace をセットアップする: typed domain model、port ベースユースケース、constructor ベースフィクスチャ、レビュアと CI が依存する同一チェック。
+Kamae が想定する方法でドメインコードを実装・テストできるワークスペースを整える。型付きドメインモデル、ポートベースのユースケース、コンストラクタ経由のフィクスチャを揃え、レビュアと CI が同じチェックに依存できる状態を目指す。
 
 **スキルに従う application crate** 向けガイド。スキルパッケージ自体の編集はリポジトリルート [`DEVELOPMENT.md`](/docs/kamae-rs/../../../DEVELOPMENT/) を参照。
 
@@ -24,7 +24,7 @@ Kamae が期待する方法で domain コードを実装・テストできる wo
 
 `gh skill` または `npx skills` でインストールした場合、リポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/workflows/ci.yml`、`scripts/validate_package.py` などは同梱されない。プロジェクトブートストラップには [`../assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) 配下のテンプレートを使う。
 
-最速の経路は同梱スクリプト:
+最も手早い方法は、同梱スクリプトを使うことである。
 
 ```bash
 python3 path/to/kamae-rs/skills/kamae-rs/scripts/apply_templates.py --target . --ci backend
@@ -46,7 +46,7 @@ python3 path/to/kamae-rs/skills/kamae-rs/scripts/apply_templates.py --target . -
 cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -- src/domain/ src/application/
 ```
 
-probe はデフォルトで advisory。出力は panic、unsafe 境界、serde derive、PII 用語、rustdoc ギャップのレビューリードとして扱い、チームが配線しない限り失敗ゲートにしない。
+review probe は既定では助言（advisory）モードである。出力は panic、unsafe 境界、serde derive、PII 用語、rustdoc の不足をレビューの手がかりとして扱い、チームが明示的に配線しない限り、失敗を伴うゲートにはしない。
 
 推奨ローカルファイル:
 
@@ -84,7 +84,7 @@ cp path/to/kamae-rs/skills/kamae-rs/assets/templates/rust-toolchain.toml .
 
 ブートストラップ後、[品質ゲート](/docs/kamae-rs/quality-gates/) のベースラインコマンドを実行する。スキル/プラグインリポジトリでは `python3 scripts/validate_package.py` も実行する。
 
-crate レイアウト、fake port、テスト層、fast vs full pre-push ループは [開発環境](/docs/kamae-rs/dev-environment/) を参照。
+クレートレイアウト、フェイクポート、テスト層、高速ループとフル pre-push ループの詳細は、本稿の後述セクションを参照する。
 
 ## ツールチェーン
 
@@ -201,7 +201,7 @@ cargo test -p application --lib
 cargo test --all-targets --all-features
 ```
 
-domain と use-case test に Docker 不要。PostgreSQL、Redis 等が本当に必要な adapter integration のみ container。
+ドメイン層とユースケース層のテストに Docker は不要である。PostgreSQL や Redis などが本当に必要なのは、アダプター層の統合テストに限る。
 
 ## Fake port とテストフィクスチャ
 
@@ -237,7 +237,7 @@ pub fn assign_driver_use_case() -> AssignDriver<FakeResolver, FakeRequestStore> 
 
 ## 任意ローカルサービス
 
-adapter integration が実 infra を要するとき、チーム向け blessed path を 1 つ文書化。
+アダプター統合テストが実際のインフラを要する場合、チームで共有する推奨手順を 1 つに決め、文書化する。
 
 **docker-compose**（シンプル、repo に check-in）:
 
@@ -345,7 +345,7 @@ README または `CONTRIBUTING.md` に差分を明示:
 - MSRV job vs 開発者 stable toolchain
 - advisory Miri/fuzz job
 
-どの失敗が merge を block し、どれが scheduled advisory か開発者が知ること（[CI セットアップ](/docs/kamae-rs/ci-setup/)）。
+どの失敗がマージをブロックし、どれがスケジュール実行の助言（advisory）にとどまるのかを、開発者が README や `CONTRIBUTING.md` で確認できるようにする（[CI セットアップ](/docs/kamae-rs/ci-setup/) を参照）。
 
 レビューでは、ドメイン crate のインフラ依存、fake port で足りるのに実 DB 必須のテスト、不変条件を迂回するテストヘルパ、文書化されていないローカル品質ゲート、コミットされた秘密や生 PII ログ、ドメインテストの HTTP / DB 直結を指摘する。
 

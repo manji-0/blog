@@ -33,11 +33,11 @@ return Ok(en_route)
 
 ## 実務における GIL
 
-CPython の Global Interpreter Lock は、プロセスごとに一度に 1 スレッドだけが Python バイトコードを実行できるようにする。含意:
+CPython の Global Interpreter Lock は、プロセスごとに一度に 1 スレッドだけが Python バイトコードを実行できるようにする。その含意は次のとおりである。
 
 - **`asyncio`** はタスクが I/O 待ちのときに優れる。1 コルーチンがソケットを await している間、他が実行される。
 - **`threading`** は非同期非対応の**I/O バウンドブロッキングライブラリ**（一部 DB ドライバー、レガシー SDK）に役立つ。**CPU バウンドの Python ループ**は高速化しない。
-- **`multiprocessing` / `ProcessPoolExecutor`** は**CPU バウンド** Python 作業のデフォルトの逃げ道: 画像処理、大規模集計、大きなペイロードの暗号、純 Python の ML 推論。
+- **`multiprocessing` / `ProcessPoolExecutor`** は、**CPU バウンド**な Python 作業に対する既定の選択肢である。例として、画像処理、大規模集計、大きなペイロードの暗号処理、純 Python の ML 推論がある。
 
 `async def` ユースケース内で長い CPU バウンド Python 関数を直接実行しない。イベントループ全体をブロックし、同時リクエストをすべて停滞させる。
 
@@ -77,7 +77,7 @@ async def resize_proof_image_use_case(
 - ワーカープロセスには**プレーンデータ**（bytes、プリミティブ、frozen Pydantic モデル）を渡す。開いた接続、ORM セッション、ロックは渡さない。
 - multiprocessing を POSIX と Windows で使うとき、ワーカー関数は**トップレベル**で picklable であるべき。
 - ジョブが長い、リトライが必要、プロセス再起動後も存続すべきときは**専用ワーカーサービス**（Celery、RQ、ARQ、SQS コンシューマー）を優先する。
-- **ネイティブ拡張**（Pillow、numpy、一部暗号ライブラリ）内で GIL を解放する。文書化され上限があるなら、ネイティブへの同期呼び出しはイベントループ上で許容されうる。まずプロファイルする。
+- **ネイティブ拡張**（Pillow、numpy、一部暗号ライブラリ）内では GIL が解放される。公式に文書化された上限がある場合に限り、ネイティブ関数への同期呼び出しをイベントループ上で許容してよい。判断前にプロファイルする。
 
 ## スレッド vs プロセスプール
 

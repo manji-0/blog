@@ -25,7 +25,7 @@ async def assign_driver_use_case(
     ...
 ```
 
-依存関係は型付きポートとしてユースケース境界に入る。純粋遷移関数はインフラから自由のままである。完全なオーケストレーション例は [状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) を参照する。
+依存関係は型付きポートとしてユースケース境界に入る。純粋遷移関数はインフラに依存しないまま保たれる。完全なオーケストレーション例は [状態遷移](/docs/kamae-py/state-transitions/#keep-use-cases-thin) を参照する。
 
 リポジトリがすでに標準化していない限り、新規コードのために DI コンテナを採用しない。
 
@@ -61,7 +61,7 @@ src/
     routes.py              # composition root for HTTP
 ```
 
-汎用の `get` / `update` より狭いポート名（`find_waiting`、`save_en_route`）を保つ。
+ポート名は汎用の `get` / `update` より、`find_waiting` や `save_en_route` のようにユースケースに沿って狭く保つ。
 
 ## コンポジションルート
 

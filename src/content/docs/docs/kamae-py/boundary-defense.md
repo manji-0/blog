@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-外部から入るデータは、ドメインに到達するまで**未知**として扱う。Pydantic は形状と宣言された制約を検証するが、ビジネス上の意味（テナント所有権、ライフサイクル前提、金額の単位など）はドメインコンストラクタや遷移の前提で守る必要がある。
+外部から入るデータは、ドメインに到達するまで**未知**として扱う。Pydantic は形状と宣言された制約を検証するが、ビジネス上の意味（テナント所有権、ライフサイクル上の前提、金額の単位など）は、ドメインコンストラクタや状態遷移の前提条件で守る必要がある。
 
 状態の型付けは [ドメインモデリング](/docs/kamae-py/domain-modeling/) を、検証コストと `model_construct` の境界は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/) と [unsafe 境界](/docs/kamae-py/unsafe-boundaries/) を、DB 行のマッピングは [ORM アダプター](/docs/kamae-py/orm-adapters/) を参照する。
 
@@ -35,7 +35,7 @@ def parse_queue_message(body: bytes) -> TaxiRequestEvent:
     return TaxiRequestEventAdapter.validate_json(body)
 ```
 
-ホットパスでは `json.loads` の後に `validate_python` するより、`model_validate_json` / `TypeAdapter.validate_json` を優先する。JSON パースとスキーマ検証は Pydantic の Rust コアで作業を共有できる。差が重要になる場合は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/#validate-python-vs-validate-json) を読む。
+ホットパスでは、`json.loads` のあとに `validate_python` するより、`model_validate_json` / `TypeAdapter.validate_json` を優先する。JSON のパースとスキーマ検証は、Pydantic の Rust コア側でまとめて処理できる。差が重要になる場合は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/#validate-python-vs-validate-json) を読む。
 
 ## フレームワーク境界では DTO を優先する
 
@@ -347,7 +347,7 @@ async def handle_message(body: bytes) -> None:
     await process_event(event)
 ```
 
-恒久的な検証失敗の poison メッセージはデッドレターキューへ。一時的失敗はバックオフ付きリトライ。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#outbox-relay-at-least-once-delivery) を読む。
+恒久的な検証失敗となる poison メッセージは、デッドレターキューへ送る。一時的失敗はバックオフ付きリトライ。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#outbox-relay-at-least-once-delivery) を読む。
 
 ### レイヤーの責務
 

@@ -12,7 +12,7 @@ sidebar:
 <!-- constrained-by ./domain-modeling.md -->
 <!-- constrained-by ./state-transitions.md -->
 
-## property test がコストに見合うタイミング
+## プロパティテストがコストに見合う場合
 
 不変条件が多入力にわたって成り立ち、例表が不完全または保守が面倒なとき property-based test を使う。
 
@@ -87,7 +87,7 @@ proptest! {
 }
 ```
 
-前提外入力は vacuous success を assert せず `prop_assume!` で捨てる。
+前提を満たさない入力については、空虚な成功をアサートせず、`prop_assume!` で棄却する。
 
 ## state machine を strategy としてモデル化する
 
@@ -115,7 +115,7 @@ proptest! {
 
 ## shrinking をドメイン安全に保つ
 
-shrinking がコンストラクタを迂回する値を出さない。空文字、ゼロ金額、不可能 enum variant に shrink したら strategy を直すか `prop_assume!` を追加。
+縮小処理がコンストラクタを迂回する値を生成しないようにする。空文字、ゼロ金額、あり得ない列挙バリアントへ縮小された場合は、ストラテジを修正するか `prop_assume!` を追加する。
 
 自明でない入力のバグには `proptest-regressions` で再現可能失敗を保存:
 

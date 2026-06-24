@@ -10,7 +10,7 @@ Kamae Python の中心は、ビジネス状態を Pydantic v2 の凍結モデル
 
 ## ドメイン状態には Pydantic v2 のバリアントを使う
 
-Python 3.12 以降と Pydantic v2 を前提とする。`frozen=True` と `extra="forbid"` は、構築後の暗黙ミューテーションと未知フィールドの混入を防ぐためのデフォルトである。各ビジネス状態を個別の凍結モデルとして定義し、プロジェクト全体で `kind` という名前の判別子を 1 つ使う。
+Python 3.12 以降と Pydantic v2 を前提とする。`frozen=True` と `extra="forbid"` は、構築後の暗黙的な変更と未知フィールドの混入を防ぐための**既定**とする。各ビジネス状態を個別の凍結モデルとして定義し、プロジェクト全体で `kind` という名前の判別子を 1 つ使う。
 
 ```python
 from datetime import datetime
@@ -189,7 +189,7 @@ class AccountId(SemanticId):
 
 実行時の取り違えが無害なら `NewType` は軽量なドキュメントとして許容される。金額、テナント境界、認証に敏感な ID にはラッパーモデルを使う。
 
-ドメインコンストラクタと Pydantic アダプターが権威であるべきだ。テスト、リポジトリ、ネイティブアダプター、マイグレーションは、破損データ処理が明示的な目的でない限り、生の dict や `model_construct` で不変条件を持つ値を構築してはならない。信頼できるマッパーで `model_construct` が適切な場合は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/) を読む。
+値の構築は、ドメインコンストラクタと Pydantic アダプターを正規の入口とする。テスト、リポジトリ、ネイティブアダプター、マイグレーションは、破損データ処理が明示的な目的でない限り、生の dict や `model_construct` で不変条件を持つ値を構築してはならない。信頼できるマッパーで `model_construct` が適切な場合は [Pydantic のパフォーマンス](/docs/kamae-py/pydantic-performance/) を読む。
 
 ## プロトコルでリポジトリポートを定義する
 

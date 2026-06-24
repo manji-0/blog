@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-閉じた状態集合は enum と遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われテストと並行性の reasoning が難しくなる。
+閉じた状態集合は enum と遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
 
 状態のデータ構造は [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) に委ねる。
 
@@ -37,7 +37,7 @@ impl WaitingRequest {
 
 非法ソース state はコンパイル時に失敗する。
 
-すべての前提が入力型に符号化されているときだけ遷移を infallible にする。ソース state や引数型に表れないデータに依存するルールがあるならドメインエラーを返す:
+すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソース state や引数型に表れないデータに依存するルールがあるならドメインエラーを返す:
 
 ```rust
 pub enum DomainError {
@@ -103,7 +103,7 @@ pub enum TaxiRequest {
 
 網羅的 `match` アームを使う。将来 variant すべてに本当に不変でない限り、ドメイン match で `_` を避ける。
 
-集約境界を明示: リクエスト集約を全体として load/save し、他集約参照は ID またはスナップショット。他集約の mutable state を借りない。遷移は自集約の不変条件を守り、他所所有の事実はユースケースまたは policy へ。
+集約境界を明示する。リクエスト集約を全体として load/save し、他集約参照は ID またはスナップショットにとどめる。他集約の mutable state を借りない。遷移は自集約の不変条件を守り、他の集約が所有する事実はユースケースまたはポリシー層で扱う。
 
 ## 複数遷移先
 
@@ -167,7 +167,7 @@ impl WaitingRequest {
 }
 ```
 
-ユースケースが分解し、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 経由で persist し event を publish する。遷移メソッド内の global buffer に event を積まない。
+ユースケースが結果を分解し、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 経由で状態を保存し、イベントを発行する。遷移メソッド内の global buffer に event を積まない。
 
 state 消費遷移では `self` by value を優先。元 state を残す必要があるときだけ borrow。
 
@@ -228,7 +228,7 @@ pub fn assign_driver(
 
 ## typestate と集約との関係
 
-- **State struct + `self` 消費**: 明確なライフサイクルのサーバードメインのデフォルト
+- **State struct + `self` 消費**: ライフサイクルが明確なサーバー側ドメイン層では、こちらをデフォルトとする
 - **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる; [ドメインモデリング](/docs/kamae-rs/domain-modeling/#typestate-with-phantom-types) 参照
 - **集約トランザクション**: ユースケースが version 付き集約を load、純粋遷移、原子的 save; [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照
 
