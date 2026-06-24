@@ -1,11 +1,18 @@
 ---
-title: "タクシー配車リクエストの例"
+title: "タクシー配車の例"
 sidebar:
   order: 20
   label: "タクシー配車の例"
 ---
 
-Kamae Python のエンドツーエンド例です。Pydantic v2 の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで追えます。[ドメインモデリング](/docs/kamae/python/references/domain-modeling/) と [状態遷移](/docs/kamae/python/references/state-transitions/) の原則の実例として読んでください。
+> **いつ読むか:** Kamae Python の原則をエンドツーエンドのコードで追いたいときに読む。
+> **関連:** [ドメインモデリング](/docs/kamae/python/domain-modeling/)、[状態遷移](/docs/kamae/python/state-transitions/)。
+
+この例は、タクシー配車リクエストを題材に、Pydantic v2 の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで示す。[ドメインモデリング](/docs/kamae/python/domain-modeling/) と [状態遷移](/docs/kamae/python/state-transitions/) の原則を、実装に落とし込んだ読み物として使える。
+
+## 凍結状態と判別共用体
+
+各ビジネス状態を `kind` 判別子付きの凍結 Pydantic モデルとして定義し、`Annotated[..., Field(discriminator="kind")]` で共用体にまとめる。`DomainModel` は `frozen=True` と `extra="forbid"` を共通設定とする。
 
 ```python
 """Compact Kamae Python example for a taxi request aggregate."""
@@ -67,8 +74,13 @@ type TaxiRequest = Annotated[
 ]
 type CancellableRequest = Waiting | EnRoute | InTrip
 TaxiRequestAdapter: TypeAdapter[TaxiRequest] = TypeAdapter(TaxiRequest)
+```
 
+## 純粋遷移関数
 
+遷移は入力型がソース状態、戻り値型がターゲット状態になる純粋関数として書く。複数の状態から有効な遷移には `CancellableRequest` のような部分共用体を使う。時刻と ID は引数で受け取る。
+
+```python
 def create_request(request_id: UUID, passenger_id: UUID, now: datetime) -> Waiting:
     return Waiting(request_id=request_id, passenger_id=passenger_id, created_at=now)
 
@@ -124,8 +136,13 @@ def describe(request: TaxiRequest) -> str:
             return f"cancelled: {reason}"
         case _:
             assert_never(request)
+```
 
+## ドメインイベントとポート
 
+イベントは不変レコードとしてモデル化する。リポジトリは `Protocol` で狭く定義し、ユースケースが必要とする操作だけを露出する。
+
+```python
 class DriverAssigned(DomainModel):
     event_name: Literal["driver_assigned"] = "driver_assigned"
     event_id: UUID
@@ -155,8 +172,13 @@ class RequestStore(Protocol):
         state: EnRoute,
         events: tuple[DriverAssigned, ...],
     ) -> None: ...
+```
 
+## 境界パースと実行例
 
+外部データは `TypeAdapter` で一度パースする。以下の `example()` は、作成から配車、シリアライズ、再パース、表示までのハッピーパスを示す。
+
+```python
 def parse_request(raw: object) -> TaxiRequest:
     return TaxiRequestAdapter.validate_python(raw)
 

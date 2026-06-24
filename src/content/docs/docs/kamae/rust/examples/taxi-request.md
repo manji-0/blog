@@ -1,11 +1,14 @@
 ---
-title: "タクシー配車リクエストの例"
+title: "タクシー配車の例"
 sidebar:
   order: 20
   label: "タクシー配車例"
 ---
 
-Kamae Rust のエンドツーエンド例です。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示します。[ドメインモデリング](/docs/kamae/rust/references/domain-modeling/) と [状態遷移](/docs/kamae/rust/references/state-transitions/) の原則を、ひと続きのコードで追えます。
+> **いつ読むか:** Kamae Rust のエンドツーエンド例として、状態遷移とドメインイベントの流れを一通り追いたいとき。
+> **関連:** [`domain-modeling.md`](/docs/kamae/rust/domain-modeling/)、[`state-transitions.md`](/docs/kamae/rust/state-transitions/)、[`error-handling.md`](/docs/kamae/rust/error-handling/)。
+
+本例は Kamae Rust のエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/docs/kamae/rust/domain-modeling/) と [状態遷移](/docs/kamae/rust/state-transitions/) の原則を、ひと続きのコードで追える。
 
 ```rust
 use std::fmt;
