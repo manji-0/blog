@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-doobie 行、Slick エンティティ、Quill レコードをドメイン型にマップするときに読む。Kamae Scala は ORM / DB 行型を**インフラ**に閉じ、ユースケースと遷移にはドメイン state だけを見せる。
+doobie 行、Slick エンティティ、Quill レコードをドメイン型へマップするときに読む。Kamae Scala は ORM / DB 行型を**インフラ**に閉じ、ユースケースと遷移にはドメイン state だけを見せる。
 
 関連: [境界防御](/docs/kamae-scala/boundary-defense/)、[永続化、集約、イベント](/docs/kamae-scala/persistence-events/)、[段階的導入](/docs/kamae-scala/adoption/)。
 
@@ -97,7 +97,7 @@ class Requests(tag: Tag) extends Table[RequestRow](tag, "requests"):
   def * = (id, kind, passengerId, driverId, version).mapTo[RequestRow]
 ```
 
-ユースケースに返す前に repository adapter で `RequestRow` をドメインにマップする。ドメイン port から `DBIO` や `Query` 型を公開しない。
+ユースケースへ返す前に repository adapter で `RequestRow` をドメイン型へマップする。ドメイン port から `DBIO` や `Query` 型を公開しない。
 
 [ライブラリガイド（slick）](/docs/kamae-scala/library-guides/slick/) を参照。
 

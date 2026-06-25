@@ -99,7 +99,7 @@ pub struct CreateUserDto {
 
 プロジェクトが composable な検証ルール付き derive ベース検証を好む場合、DTO 向け `garde` を使う。
 
-ドメインコンストラクタを権威とする。DTO 検証ルールだけがドメイン不変条件の唯一の所在にならないようにする。
+ドメインコンストラクタを権威とする。DTO 検証ルールだけをドメイン不変条件の唯一の根拠としない。
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
@@ -111,13 +111,13 @@ pub struct CreateUserDto {
 
 ## nutype
 
-プロジェクトがすでに `nutype` を使う場合、または多数の検証付き newtype でボイラープレートが繰り返される場合に newtype 向けに使う。詳細は [ドメインモデリング](/docs/kamae-rs/domain-modeling/) を優先する。
+プロジェクトがすでに `nutype` を使う場合、または多数の検証付き newtype でボイラープレートが繰り返される場合は newtype 向けに使う。詳細は [ドメインモデリング](/docs/kamae-rs/domain-modeling/) を優先する。
 
 フィールドは private と生成コンストラクタを優先する。型名は意味論的に保つ（`EmailAddress`、`OrderId`、`MoneyAmount`）。意味をぼかす汎用 wrapper は避ける。
 
 ## secrecy
 
-`Debug` 出力に現れてはならず、メモリに必要以上に残してはならない資格情報などの secret 向けに `secrecy` を使う。詳細は [PII 保護](/docs/kamae-rs/pii-protection/) を優先する。
+`Debug` 出力に現れてはならず、メモリ上に必要以上残してはならない資格情報などの secret 向けに `secrecy` を使う。詳細は [PII 保護](/docs/kamae-rs/pii-protection/) を優先する。
 
 個人データ（PII）は `Redacted<T>` または custom `Debug` 付きドメイン newtype を優先する。
 

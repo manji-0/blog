@@ -101,7 +101,7 @@ where
 
 ## composition root で配線する
 
-adapter とユースケースを `main`、`bootstrap` モジュール、またはテストフィクスチャで構築する。handler は完成したユースケースまたは application state を受け取り、インフラを自前で組み立てない。
+adapter とユースケースを `main`、`bootstrap` モジュール、またはテストフィクスチャで構築する。handler は完成したユースケースか application state を受け取り、インフラを自前で組み立てない。
 
 ```rust
 // main.rs or bootstrap.rs

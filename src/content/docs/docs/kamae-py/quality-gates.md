@@ -19,7 +19,7 @@ uv run mypy .
 uv run pytest
 ```
 
-狭い変更では、触れたファイルと状態をカバーする最小コマンド集合を実行し、制限を述べる。
+狭い変更では、触れたファイルと状態をカバーする最小コマンドを実行し、制限を述べる。
 
 初回ローカルセットアップは [開発環境とセットアップ](/docs/kamae-py/development-setup/) を読み、[`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ下のファイルが含まれるが、このリポジトリルートの `pyproject.toml`、`uv.lock`、`.github/`、`scripts/` は確実にはインストールされない。
 

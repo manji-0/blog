@@ -204,7 +204,7 @@ refined DTO フィールドを、アダプター境界で明示的エラー ADT 
 
 完全なパターンは [PII 保護](/docs/kamae-scala/pii-protection/) を優先する。本節は資格情報と API キー向けの Scala 固有デフォルトを扱う。
 
-ドメインまたはユースケース層に生の `String` でシークレットを置かない。`toString` を制限した opaque type、または生値を決してログしない専用 wrapper を優先する。
+ドメインまたはユースケース層に生の `String` でシークレットを置かない。`toString` を制限した opaque type、あるいは生値を決してログしない専用 wrapper を優先する。
 
 ```scala
 final class ApiToken private (private val value: String):
@@ -218,7 +218,7 @@ object ApiToken:
   extension (token: ApiToken) def expose: String = token.value
 ```
 
-シークレット値の露出は狭いアダプター関数（`expose`、`value`）に HTTP / auth / payment 境界に限定する。露出した値を error ADT に含めない。
+シークレット値の露出は HTTP / auth / payment 境界の狭いアダプター関数（`expose`、`value`）に限定する。露出した値を error ADT に含めない。
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |

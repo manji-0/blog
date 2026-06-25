@@ -91,7 +91,7 @@ tracing::info!("notification sent to {}", email);
 
 ## どの ID を log に載せるか
 
-log、span、metrics、error に到達する前に identifier を分類。フィールド名は safe を決めない。identifier の意味、 derivation、再識別リスクが決める。
+identifier を分類してから log、span、metrics、error へ到達させる。フィールド名は safe を決めない。identifier の意味、 derivation、再識別リスクが決める。
 
 ### デフォルト: log してよい
 
@@ -248,7 +248,7 @@ if let Err(error) = self.execute(request_id, driver).await {
 tracing::Span::current().record("error", tracing::field::display(&error));
 ```
 
-- raw client error が endpoint、SQL、secret を漏らす前に意味論 variant にマップ
+- raw client error を意味論 variant へマップしてから endpoint、SQL、secret を漏らさない
 - enum variant 由来 `error_code` 等 bounded label で metric increment。full error text ではない
 
 error enum 設計は [エラーハンドリング](/docs/kamae-rs/error-handling/) と照合。ユースケースが richer domain context で同一失敗を log 済みなら repository adapter で重複 log しない。
@@ -354,7 +354,7 @@ span は internal call 各所ではなくユースケース境界。操作名と
 
 [PII 保護](/docs/kamae-rs/pii-protection/) も照合する。生の機密値を載せるログフィールド、スパン属性、メトリクスラベル、エラー表示文字列を指摘する。
 
-ドメインオブジェクトが可観測性ヘルパに到達する前に、`Debug` 実装、マスキングラッパ、許可リストが一貫して適用されているかも確認する。
+ドメインオブジェクトが可観測性ヘルパへ到達する前に、`Debug` 実装、マスキングラッパ、許可リストが一貫して適用されているかも確認する。
 
 ### ログに載せる ID は正しく分類されているか — High
 

@@ -28,7 +28,7 @@ python path/to/kamae-py/scripts/apply_templates.py --target . --ci skill-package
 
 ## ポリシーサニティチェック
 
-ブートストラップ後、同梱ポリシーチェッカーを実行し、CI に到達する前に一般的な Kamae 方針の問題を検出する:
+ブートストラップ後、同梱ポリシーチェッカーを実行し、CI へ到達する前に一般的な Kamae 方針の問題を検出する:
 
 ```bash
 python path/to/kamae-py/scripts/check_kamae_policy.py --target .
@@ -46,7 +46,7 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target .
 
 ## 初回セットアップ
 
-uv と Python 3.12+ を使う。**Docker は任意** — デフォルトはローカル Python ツールチェーンと、必要なときだけの任意コンテナ依存（例: Postgres 統合テスト）。
+uv と Python 3.12+ を使う。**Docker は任意**。デフォルトはローカル Python ツールチェーンと、必要なときだけの任意コンテナ依存（例: Postgres 統合テスト）である。
 
 ### 1. uv をインストールし Python をピン留め
 

@@ -20,7 +20,7 @@ rustdoc は実装の説明ではなくドメイン契約を文書化する。公
 
 - Newtype と value object: 意味、検証ルール、単位、範囲、プライバシー/redaction 期待
 - コンストラクタと `TryFrom`/`FromStr`: 受理/拒否入力と error バリアント
-- State struct と enum: 有効ライフサイクル state と各 variant がいつ生成されるか
+- State struct および enum: 有効ライフサイクル state、各 variant がいつ生成されるか
 - 遷移メソッド: ソース state、ターゲット state、前提、発行 event、失敗モード
 - Repository trait: トランザクション期待、一貫性保証、idempotency、error マッピング
 - DTO 変換関数: 外部形状の仮定と検証境界
@@ -100,7 +100,7 @@ panic 指向 API を明示文書化しない限り、公開 doctest で `unwrap(
 
 ## `#[doc(hidden)]` — 使うタイミング
 
-public rustdoc index から隠しつつ macro、テスト、内部 crate 向けに利用可能にする:
+public rustdoc index から隠しつつ macro、テスト、内部 crate でも利用できるようにする:
 
 - **Sealed trait** と downstream impl 防止用 trait impl hook
 - 直接使わせない **macro 展開ヘルパー**

@@ -37,7 +37,7 @@ impl WaitingRequest {
 
 非法ソース state はコンパイル時に失敗する。
 
-すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソース state や引数型に表れないデータに依存するルールがあるならドメインエラーを返す:
+すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソース state や引数型から読み取れないデータに依存するルールがあるならドメインエラーを返す:
 
 ```rust
 pub enum DomainError {
@@ -200,7 +200,7 @@ impl Clock for FixedClock {
 
 遷移メソッドまたは小さな domain service に `&dyn Clock` または generic `C: Clock` を注入。乱数割当には `&mut dyn RngCore` または port `fn draw_driver(&mut self, candidates: &[DriverId]) -> Option<DriverId>`。
 
-テストは `FixedClock` と seed 付き RNG で event payload と順序を assert 可能にする。
+テストは `FixedClock` および seed 付き RNG で event payload ならびに順序を assert 可能にする。
 
 ## ロードと dispatch
 
@@ -233,7 +233,7 @@ pub fn assign_driver(
 - **集約トランザクション**: ユースケースが version 付き集約を load、純粋遷移、原子的 save; [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照
 
 
-レビューでは、遷移が `&mut` と `status: String` で状態を書き換えること、型で強制できる前提を `panic!` や `unwrap` に頼ること、遷移内の global / static バッファへの event 蓄積、テスト seam なしの `OccurredAt::now()`、move 意味論なしの同一ソース状態の二重使用を指摘する。
+レビューでは、遷移が `&mut` と `status: String` で状態を書き換えることや、型で強制できる前提を `panic!` や `unwrap` に頼ることを指摘する。遷移内の global / static バッファへの event 蓄積、テスト seam なしの `OccurredAt::now()`、move 意味論なしの同一ソース状態の二重使用も同様である。
 
 ## レビュー観点
 

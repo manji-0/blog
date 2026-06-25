@@ -36,7 +36,7 @@ derivation 向きでない:
 | 単純ボイラープレート | Scala 3 `derives Eq, Show`（**境界** DTO のみ） | 不変条件を持つ domain state には使わない |
 | 繰り返し event メタデータ | `domain` モジュール内の internal `inline given` または小さなマクロ | event が同一形状を共有するときのみ |
 
-チームがパターンを所有し、ライブラリが serde や ORM の懸念をドメイン型に漏らさずに契約を表現できないとき、`myapp.domain.macros` のような内部マクロまたはメタプログラミングモジュールを導入する。
+チームがパターンを所有し、ライブラリが serde や ORM の懸念をドメイン型へ漏らさない形で契約を表現できないとき、`myapp.domain.macros` のような内部マクロまたはメタプログラミングモジュールを導入する。
 
 ## ID にはマクロより opaque type
 

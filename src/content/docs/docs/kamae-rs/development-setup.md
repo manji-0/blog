@@ -10,7 +10,7 @@ sidebar:
 
 ## 前提条件
 
-- `rustfmt`、`clippy`、`rustdoc` を含む [Rust](https://www.rust-lang.org/tools/install) ツールチェーン（スキルのみ編集する場合は rustdoc は任意）
+- `rustfmt`、`clippy`、`rustdoc` を含む [Rust](https://www.rust-lang.org/tools/install) ツールチェーン（スキルのみ編集する場合、rustdoc は任意）
 - Python 3（パッケージ検証とテンプレート適用に使用）
 
 ## クローンとブートストラップ

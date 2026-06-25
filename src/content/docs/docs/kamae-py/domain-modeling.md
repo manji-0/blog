@@ -95,7 +95,7 @@ class TaxiRequest(BaseModel):
 
 ドメインの Pydantic モデルには `ConfigDict(frozen=True, extra="forbid")` を設定する。状態の変更は既存モデルを変更するのではなく、新しいターゲット状態を構築する。強制変換がデータ品質の問題を隠す場合は、外部 DTO 境界で `strict=True` を検討する。
 
-公開セッター、部分更新ヘルパー、またはフィールド間不変条件を破る可能性のある `model_copy(update=...)` パスは避ける。更新がビジネスアクションなら、遷移またはコマンドとして命名し、不変条件全体を検証させる。
+公開セッター、部分更新ヘルパー、またはフィールド間不変条件を破る可能性のある `model_copy(update=...)` パスは避ける。更新がビジネスアクションなら、遷移かコマンドとして命名し、不変条件全体を検証させる。
 
 Pydantic mypy プラグインを有効にすると、frozen モデルは静的にもチェックされる。モデルフィールドへの代入は、実行時より前に mypy で失敗するはずだ。
 
@@ -232,7 +232,7 @@ uv add "pydantic>=2,<3"
 uv lock
 ```
 
-インポート可能な Python パッケージではないスキルまたはドキュメントリポジトリでは、`[tool.uv]` の下に `package = false` を設定する。
+インポート可能な Python パッケージではないスキル、またはドキュメントリポジトリでは、`[tool.uv]` の下に `package = false` を設定する。
 
 ## Pydantic プラグイン付きで Mypy を設定する
 
@@ -250,7 +250,7 @@ init_typed = true
 warn_required_dynamic_aliases = true
 ```
 
-`init_typed = true` を維持し、コンストラクタ呼び出しが Pydantic のデフォルト強制変換の `Any` を受け入れず、フィールド型に対してチェックされるようにする。`init_forbid_extra = true` を維持し、予期しないコンストラクタキーワードが `**kwargs: Any` の背後に隠れないようにする。コンストラクタチェックを弱めるため、ドメインモデルに必須の動的エイリアスは避ける。
+`init_typed = true` を維持し、コンストラクタ呼び出しが Pydantic のデフォルト強制変換の `Any` を受け入れず、フィールド型に対してチェックされるようにする。`init_forbid_extra = true` も維持し、予期しないコンストラクタキーワードが `**kwargs: Any` の背後へ隠れないようにする。コンストラクタチェックを弱めるため、ドメインモデルに必須の動的エイリアスは避ける。
 
 ## Pydantic、dataclass、attrs の選択
 

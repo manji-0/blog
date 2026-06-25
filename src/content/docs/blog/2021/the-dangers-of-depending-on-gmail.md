@@ -2,6 +2,7 @@
 title: The dangers of depending on Gmail
 ---
 
+<!-- textlint-disable -->
 
 Incidents of Google accounts being suddenly banned have been reported frequently.
 

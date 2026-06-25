@@ -156,7 +156,7 @@ relax_row_positions_with_corridor_hints(
 | blend | (なし) | 0.6 | ダンピングなしだと振動が発生するケースがあった |
 | anchor_weight | (暗黙 0.5) | 1.4 | Corridor hints との重みバランスのため明示化・増加 |
 
-特に **blend factor** の導入が効いている。初版では weighted median の結果をそのまま新しい位置として採用していた。これは収束が速い反面、2 ノードが互いに引き合うケースで振動が起きることがあった。現行では `new_pos = 0.6 × median + 0.4 × old_pos` というダンピングを入れることで、振動を抑えつつ 8 イテレーションで安定的に収束する。
+特に **blend factor** の導入が効いている。初版では weighted median の結果をそのまま新しい位置として採用していた。これは収束が速い反面、2 ノードが互いに引き合うケースでは振動する。現行では `new_pos = 0.6 × median + 0.4 × old_pos` というダンピングを入れることで、振動を抑えつつ 8 イテレーションで安定的に収束する。
 
 ## 4. Route Scoring の精緻化
 
@@ -395,7 +395,7 @@ struct C4RouteQualitySummary {
 - Gap budgeting を単一パイプライン内の局所操作からフルレイアウト比較に昇格させ、gap 圧縮の副作用を検出可能にした
 - Crossing minimization の知見を corridor hints として relaxation に渡し、フェーズ間の情報断絶を解消した
 - Relaxation に blend factor を導入し、振動を抑制しつつ収束速度を維持した
-- Route scoring を dual score に分離し、route の幾何学的品質と環境干渉を独立に評価できるようにした
+- Route scoring を dual score に分離し、route の幾何学的品質と環境干渉を別々に評価できるようにした
 - ラベル配置に 2-step lookahead repair を導入し、reroute の副作用を評価してから採用するようにした
 - 12 種類の検証 issue を hard/soft に分類し、レイアウト品質を定量的に比較可能にした
 

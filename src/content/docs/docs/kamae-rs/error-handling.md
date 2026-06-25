@@ -6,7 +6,7 @@ sidebar:
 
 ドメインコードで `unwrap` や `panic` に頼ると、想定内のビジネス失敗とバグの区別がつかなくなる。Kamae ではドメイン固有の `enum` と `Result` で失敗を明示し、インフラエラーはアダプター境界で変換する。
 
-ユースケースの流れは [状態遷移](/docs/kamae-rs/state-transitions/) と [アプリケーション配線](/docs/kamae-rs/application-wiring/) とセット。ログとソースチェーンは [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、`thiserror` の置き方は [クレートガイド（thiserror）](/docs/kamae-rs/crate-guides/#thiserror) を参照する。
+ユースケースの流れは [状態遷移](/docs/kamae-rs/state-transitions/) および [アプリケーション配線](/docs/kamae-rs/application-wiring/) とセットである。ログとソースチェーンは [ロギングとメトリクス](/docs/kamae-rs/logging-metrics/)、`thiserror` の置き方は [クレートガイド（thiserror）](/docs/kamae-rs/crate-guides/#thiserror) を参照する。
 
 ## ドメイン固有のエラー enum を使う
 

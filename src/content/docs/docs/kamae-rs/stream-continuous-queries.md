@@ -122,7 +122,7 @@ write 側のトランザクションスコープ、楽観的 versioning、outbox
 
 ## 検出ヒント
 
-`Cargo.toml` に `futures`、`tokio-stream`、`async-stream`、event-store client があるとき、手動 `loop { sleep; poll }` worker より型付き `Stream` port を優先。subscription、projection、outbox processor に触れる diff では persistence と service-boundary ガイドと併せて読み込む。
+`Cargo.toml` に `futures`、`tokio-stream`、`async-stream`、event-store client があるとき、手動 `loop { sleep; poll }` worker より型付き `Stream` port を優先。subscription、projection、outbox processor に触れる diff では persistence および service-boundary ガイドも併せて読み込む。
 
 レビューでは、型付き `Stream` で足りるのに手書き poll ループを使うこと、チェックポイントなしの購読、重複排除なしの副作用、無制限バッファ、コマンド経路外の遷移呼び出し、未対応イベント型でのパニックを指摘する。
 

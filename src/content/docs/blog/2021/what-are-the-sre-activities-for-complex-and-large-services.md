@@ -2,6 +2,7 @@
 title: What are the SRE activities for complex and large services?
 ---
 
+<!-- textlint-disable -->
 
 I'm working as an SRE for the infrastructure platform at LINE.
 

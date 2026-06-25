@@ -14,7 +14,7 @@ sidebar:
 
 ## プロパティテストがコストに見合う場合
 
-不変条件が多入力にわたって成り立ち、例表が不完全または保守が面倒なとき property-based test を使う。
+不変条件が多入力にわたって成り立ち、例表は不完全または保守が面倒なとき property-based test を使う。
 
 向いている対象:
 
@@ -111,7 +111,7 @@ proptest! {
 }
 ```
 
-非法遷移では invalid と分かる source state と action を生成し、特定 error バリアントを assert — `is_err()` だけにしない。
+非法遷移では invalid な source state および action を生成し、特定 error バリアントを assert — `is_err()` だけにしない。
 
 ## shrinking をドメイン安全に保つ
 

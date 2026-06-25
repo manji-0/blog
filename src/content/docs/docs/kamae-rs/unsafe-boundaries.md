@@ -25,7 +25,7 @@ sidebar:
 
 `unsafe` ブロックは可能な限り小さくし、コアのドメイン層ではなく、アダプターまたはインフラモジュールに置く。
 
-`unsafe` に入る前にすべての前提を強制する safe API を公開:
+すべての前提を強制してから `unsafe` に入る safe API を公開:
 
 ```rust
 pub struct NonEmptyBytes(Vec<u8>);
@@ -216,7 +216,7 @@ RUSTFLAGS="-Zsanitizer=thread" cargo +nightly test -p my_adapter_crate -Zbuild-s
 package 名と target はリポジトリに合わせ調整。non-trivial unsafe なら adapter crate README に正確なコマンドを文書化。safe domain crate は自前 `unsafe` がなければ sanitizer 不要なことが多い。
 
 
-レビューでは、ドメイン・ユースケース・遷移モジュール内の `unsafe`、`TryFrom` なしの FFI 戻り値のドメイン変換、証明済み `write` 前の `MaybeUninit` read、self-referential struct の move、redaction なしの PII / secret の plain `*const c_char` FFI を指摘する。
+レビューでは、ドメイン・ユースケース・遷移モジュール内の `unsafe` や `TryFrom` なしの FFI 戻り値のドメイン変換を指摘する。証明済み `write` 前の `MaybeUninit` read、self-referential struct の move、redaction なしの PII / secret の plain `*const c_char` FFI も同様である。
 
 ## レビュー観点
 

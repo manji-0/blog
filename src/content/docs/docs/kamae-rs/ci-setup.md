@@ -159,7 +159,7 @@ unsafe 多め crate、FFI wrapper、memory layout コードでは optional job:
 - parser、boundary 変換、unsafe wrapper 向け fuzz/property
 - 資格情報/PII を扱う repo では `cargo deny` 等の依存ポリシー、secret scan、dependency audit
 
-すべての application crate にデフォルト必須にしない。unsafe 所有、raw pointer、FFI lifetime、parser trust boundary、コンプライアンス sensitive data などリスクに紐付ける。
+すべての application crate をデフォルト必須としない。unsafe 所有、raw pointer、FFI lifetime、parser trust boundary、コンプライアンス sensitive data などリスクに紐付ける。
 
 ## Pinning と更新
 

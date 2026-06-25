@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-`toString` や span 属性は、意図せず個人データや資格情報をログに載せてしまう。型でラップし、露出はアダプターに閉じる設計にしないと、可観測性がそのまま漏洩面になる。
+`toString` や span 属性は、意図せず個人データや資格情報をログに載せてしまう。型でラップし、露出をアダプターで閉じる設計にしないと、可観測性がそのまま漏洩面になる。
 
 ログとメトリクスの実装は [ロギングとメトリクス](/docs/kamae-scala/logging-metrics/)、資格情報の扱いは [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets)、テストでの検証は [テストデータ](/docs/kamae-scala/test-data/) を参照する。
 
@@ -62,7 +62,7 @@ domain error や info レベル log に sensitive 値を format しない。
 
 - **デフォルト safe**: opaque surrogate 集約 ID、correlation ID、内部 job/transaction ID、有界 domain enum
 - **ログ禁止**: secret、政府 ID、支払識別子、連絡先 identity、人物記述、健康データ、精密位置、ネットワーク tracking ID
-- **条件付き**: プロジェクトが opaque surrogate と safe `toString`/`Show` と文書化した person-linked ID
+- **条件付き**: プロジェクトが opaque surrogate、safe `toString`/`Show`、および文書化した person-linked ID
 
 決定を型に符号化。一般 log に出してはならない ID は `Redacted[T]`、制限 formatting、adapter のみ露出で accidental emission を防ぐ。
 
@@ -121,7 +121,7 @@ final class EmailAddress private (private val raw: String):
 - **`toString`**: PII 型はデフォルト redact。log と test を保護
 - **意図的表示**: 命名メソッド経由のアダプター呼び出し箇所のみ
 
-すべての `toString` が log に漏れるなら PII opaque 型に public `.value` を付けない。adapter では `exposeForDelivery` を優先する。
+すべての `toString` が log に漏れるなら PII opaque 型へ public `.value` を付けない。adapter では `exposeForDelivery` を優先する。
 
 ## Redaction のテスト
 
@@ -152,7 +152,7 @@ test("api token toString is hidden"):
 | Circe + response DTOs | domain `Encoder` ではなく別 `PatientResponse` |
 | `Either` error + PII | error variant は field 名のみ、raw 値なし |
 
-レビューでは、error メッセージ文字列への raw email / phone / 政府 ID、PII 付き case class のデフォルト `derives Codec` や未チェック `toString`、redaction 方針なしの user/patient DTO 全体の structured log、非資格情報 PII への一律 credential wrapper、domain entity への無制限 encoder を指摘する。
+レビューでは、error メッセージ文字列への raw email / phone / 政府 ID、PII 付き case class のデフォルト `derives Codec` や未チェック `toString`、redaction 方針なしの user/patient DTO structured log を指摘する。非資格情報 PII への一律 credential wrapper や domain entity への無制限 encoder も同様である。
 
 [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) で credential 固有パターンも照合する。
 

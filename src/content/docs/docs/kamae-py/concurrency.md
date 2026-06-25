@@ -33,7 +33,7 @@ return Ok(en_route)
 
 ## 実務における GIL
 
-CPython の Global Interpreter Lock は、プロセスごとに一度に 1 スレッドだけが Python バイトコードを実行できるようにする。その含意は次のとおりである。
+CPython の Global Interpreter Lock は、プロセスごとに一度だけ 1 スレッドが Python バイトコードを実行できるようにする。その含意は次のとおりである。
 
 - **`asyncio`** はタスクが I/O 待ちのときに優れる。1 コルーチンがソケットを await している間、他が実行される。
 - **`threading`** は非同期非対応の**I/O バウンドブロッキングライブラリ**（一部 DB ドライバー、レガシー SDK）に役立つ。**CPU バウンドの Python ループ**は高速化しない。

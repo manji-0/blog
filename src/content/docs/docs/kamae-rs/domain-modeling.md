@@ -58,7 +58,7 @@ pub enum TaxiRequest {
 
 トランザクションスコープ・バージョニング・集約横断の調整は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
 
-アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2 つの集約ルートをメモリ上で変更し、呼び出し側の両方の save に頼る遷移も避け、ユースケースと明示的なドメインイベントで集約をまたぐ変更を行う。
+アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2 つの集約ルートをメモリ上で変更し、呼び出し側の両方の save に頼る遷移も避け、ユースケースと明示的なドメインイベントで集約をまたぐ変更する。
 
 ## 構築を正直に保つ
 
@@ -92,7 +92,7 @@ API/DB/env raw data -> DTO/row struct -> TryFrom -> domain type
 
 ## Phantom 型による typestate パターン
 
-非法な状態をコンパイル時に不可能にするとき、ライフサイクルフェーズをゼロサイズの phantom marker 型パラメータで符号化する。
+コンパイル時点で非法な状態を不可能にするとき、ライフサイクルフェーズをゼロサイズの phantom marker 型パラメータで符号化する。
 
 ```rust
 use std::marker::PhantomData;
@@ -252,7 +252,7 @@ impl Hash for FareEstimate {
 }
 ```
 
-secret や PII を含み、ログで map key に誤用しうる型に `Hash` / `Eq` derive しない。[PII 保護](/docs/kamae-rs/pii-protection/) を参照する。
+secret や PII を含み、ログで map key として誤用しうる型には `Hash` / `Eq` derive しない。[PII 保護](/docs/kamae-rs/pii-protection/) を参照する。
 
 ## テスト builder
 

@@ -39,7 +39,7 @@ def parse_queue_message(body: bytes) -> TaxiRequestEvent:
 
 ## フレームワーク境界では DTO を優先する
 
-フレームワークのリクエストモデルは DTO にできる。検証後にドメインコマンド値またはドメイン状態に変換する。フレームワーク専用の関心事をドメインモデルに漏らさない。
+フレームワークのリクエストモデルは DTO にできる。検証後、ドメインコマンド値またはドメイン状態へ変換する。フレームワーク専用の関心事をドメインモデルへ漏らさない。
 
 ```python
 class AssignDriverBody(BaseModel):
@@ -253,7 +253,7 @@ async def assign_driver_use_case(
 
 ## ドメイン状態では余分なフィールドを禁止する
 
-ドメイン状態とイベントモデルには `extra="forbid"` を使い、存在すべきでないフィールドを黙って受け入れない。未知キーを許すと、`model_dump()` 経由でログや永続化に想定外のデータ（たとえばクライアントが付けた余分な PII フィールド）が載る経路ができる。
+ドメイン状態とイベントモデルには `extra="forbid"` を使い、存在すべきでないフィールドを黙って受け入れない。未知キーを許すと、`model_dump()` 経由でログや永続化へ想定外のデータが載る経路を作る（たとえばクライアントが付けた余分な PII フィールドを含む）。
 
 ## 未検証キャストを避ける
 
@@ -268,7 +268,7 @@ async def assign_driver_use_case(
 
 ## スキーマ経由で永続化と再水和
 
-データベースから読むときは、ユースケースに渡す前に行をドメインモデルにパースする。データベースに書くときは、ドライバーに応じて `model_dump(mode="python")` または `model_dump(mode="json")` で意図的にダンプする。
+データベースから読むときは、ユースケースへ渡す前に行をドメインモデルへパースする。データベースに書くときは、ドライバーに応じて `model_dump(mode="python")` または `model_dump(mode="json")` で意図的にダンプする。
 
 ```python
 def request_from_row(row: Mapping[str, object]) -> TaxiRequest:

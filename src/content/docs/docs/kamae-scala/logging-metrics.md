@@ -81,7 +81,7 @@ log は長寿命で広くアクセス可能: 公開境界として扱う。[PII 
 
 ## どの ID を log に載せるか
 
-log、span、metrics、error に到達する前に identifier を分類。フィールド名は safe を決めない。identifier の意味、 derivation、再識別リスクが決める。
+identifier を分類してから log、span、metrics、error へ到達させる。フィールド名は safe を決めない。identifier の意味、 derivation、再識別リスクが決める。
 
 ### デフォルト: log してよい
 
@@ -209,7 +209,7 @@ execute(requestId, driver).flatMap {
 
 - error ADT の `toString` は nested error 経由で `cause` を含める
 - domain field（`requestId`、`command`、`errorCode`）を error の `toString` 内ではなく横に
-- raw client error が endpoint、SQL、secret を漏らす前に意味論 variant にマップ
+- raw client error を意味論 variant へマップしてから endpoint、SQL、secret を漏らさない
 - enum variant 由来 `errorCode` 等 bounded label で metric increment。full error text ではない
 
 error ADT 設計は [エラーハンドリング](/docs/kamae-scala/error-handling/) と照合。ユースケースが richer domain context で同一失敗を log 済みなら repository adapter で重複 log しない。

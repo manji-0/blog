@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.astro/
+pnpm-lock.yaml
+src/content/docs/resume.md
+src/content/docs/index.md
