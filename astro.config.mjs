@@ -11,7 +11,11 @@ import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
 import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
 import cloudflarePlatformUptimeIntegration from './src/integrations/cloudflare-platform-uptime.mjs';
-import { getKamaePythonSidebar, getKamaeRustSidebar } from './src/kamae-sidebar.mjs';
+import {
+	getKamaePythonSidebar,
+	getKamaeRustSidebar,
+	getKamaeScalaSidebar,
+} from './src/kamae-sidebar.mjs';
 
 const fontFaceCss = readFileSync(new URL('./public/fonts/fonts.css', import.meta.url), 'utf8');
 const blogContentDir = new URL('./src/content/docs/blog/', import.meta.url);
@@ -143,7 +147,11 @@ export default defineConfig({
 				},
 				{
 					label: 'Docs',
-					items: [getKamaeRustSidebar(), getKamaePythonSidebar()],
+					items: [
+						getKamaeRustSidebar(),
+						getKamaePythonSidebar(),
+						getKamaeScalaSidebar(),
+					],
 				},
 			],
 			expressiveCode: {
