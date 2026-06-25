@@ -5,7 +5,7 @@ sidebar:
   label: "タクシー配車例"
 ---
 
-本例は Kamae Rust のエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/docs/kamae-rs/domain-modeling/) と [状態遷移](/docs/kamae-rs/state-transitions/) の原則を、ひと続きのコードで追える。
+本例はKamae Rustのエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/docs/kamae-rs/domain-modeling/) と [状態遷移](/docs/kamae-rs/state-transitions/) の原則を、ひと続きのコードで追える。
 
 ```rust
 use std::fmt;

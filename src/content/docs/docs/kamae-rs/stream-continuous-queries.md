@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-イベントを購読する側は、少なくとも一度の配信と再起動を前提にする。メモリ上の broadcast だけに頼ると再接続でイベントを落とし、チェックポイントなしでは重複処理とスキップの両方が起きうる。
+イベントを購読する側は、少なくとも一度の配信と再起動を前提にする。メモリ上のbroadcastだけに頼ると再接続でイベントを落とし、チェックポイントなしでは重複処理とスキップの両方が起きうる。
 
 権威ある状態変更はコマンド経路（[状態遷移](/docs/kamae-rs/state-transitions/)）に留め、投影は読み取りモデルとして扱う。保存形式は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、スキーマ進化は [サービス境界](/docs/kamae-rs/service-boundaries/) と整合させる。
 
@@ -13,7 +13,7 @@ sidebar:
 
 ## event と変更フィードに Stream を使う
 
-event-sourced または CQRS 設計では、consumer が one-shot クエリではなく集約変更の継続フィードを必要とすることが多い。adapter 内の ad-hoc callback ループではなく、port 境界で `futures::Stream`（または `tokio_stream::StreamExt` ヘルパー）としてモデル化する。
+event-sourcedまたはCQRS設計では、consumerがone-shotクエリではなく集約変更の継続フィードを必要とすることが多い。adapter内のad-hoc callbackループではなく、port境界で `futures::Stream`（あるいは `tokio_stream::StreamExt` ヘルパー）としてモデル化する。
 
 ```rust
 use futures::Stream;
@@ -30,7 +30,7 @@ pub trait AggregateEventSource {
 }
 ```
 
-ドメイン遷移は同期のまま。Stream は read-side projection、outbox processor、ストレージを poll/subscribe する integration adapter に属する。
+ドメイン遷移は同期のまま。Streamはread-side projection、outbox processor、ストレージをpoll/subscribeするintegration adapterに属する。
 
 ## コマンドパスと read stream を分離
 
@@ -41,11 +41,11 @@ pub trait AggregateEventSource {
 | Continuous query / projection | `Stream<Item = Result<ReadModelRow, E>>` | 派生 state。write model より遅れうる |
 | Outbox dispatch | `Stream<Item = Result<OutboxMessage, E>>` | at-least-once 配送。handler は冪等 |
 
-ドメイン遷移メソッドから `Stream` を公開しない。遷移から event を出し、原子的に永続化し、adapter が永続ログを stream として公開する。
+ドメイン遷移メソッドから `Stream` を公開しない。遷移からeventを出し、原子的に永続化し、adapterが永続ログをstreamとして公開する。
 
 ## persist 後に subscribe
 
-event sequence、LSN、または `occurred_at` + tie-breaker など durable cursor から subscription を開始する。consumer 再接続時に event を落とす in-memory broadcast を避ける。
+event sequence、LSN、または `occurred_at` + tie-breakerなどdurable cursorからsubscriptionを開始する。consumer再接続時にeventを落とすin-memory broadcastを避ける。
 
 ```rust
 pub struct EventCursor {
@@ -61,15 +61,15 @@ impl OutboxReader {
 }
 ```
 
-projection が追いついたら、projection テーブルと同じ persistence 技術に checkpoint を保存し、再起動時に安全再開する。
+projectionが追いついたら、projectionテーブルと同じpersistence技術にcheckpointを保存し、再起動時に安全再開する。
 
 ## バックプレッシャーとキャンセルを扱う
 
-バックプレッシャーを適用しない stream は、consumer が遅いとメモリを使い尽くしたり重複作業を起こす。
+バックプレッシャーを適用しないstreamは、consumerが遅いとメモリを使い尽くしたり重複作業を起こす。
 
-- ストレージ poll と handler の間は明示容量の bounded channel（`tokio::sync::mpsc`）
-- キャンセルを伝播: `JoinHandle` または HTTP リクエスト drop 時に poll を止め DB cursor または lock を解放
-- `Stream::poll_next` エラーは、adapter がリトライ意味論を文書化しない限りその subscription では terminal
+- ストレージpollとhandlerの間は明示容量のbounded channel（`tokio::sync::mpsc`）
+- キャンセルを伝播： `JoinHandle` またはHTTPリクエストdrop時にpollを止めDB cursorまたはlockを解放
+- `Stream::poll_next` エラーは、adapterがリトライ意味論を文書化しない限りそのsubscriptionではterminal
 
 ```rust
 use futures::StreamExt;
@@ -89,11 +89,11 @@ tokio::spawn(async move {
 
 ## projection は決定論的かつ冪等
 
-継続クエリは event stream から read model を再構築する。各 handler は:
+継続クエリはevent streamからread modelを再構築する。各handlerは：
 
-1. event payload を型付き domain または integration event にパース
-2. event ID または `(aggregate_id, sequence)` で idempotent に更新適用
-3. スキーマ進化ポリシーに従い未知 type/version をスキップまたは dead-letter（[サービス境界](/docs/kamae-rs/service-boundaries/) 参照）
+1. event payloadを型付きdomainまたはintegration eventにパース
+2. event IDまたは `(aggregate_id, sequence)` でidempotentに更新適用
+3. スキーマ進化ポリシーに従い未知type/versionをスキップまたはdead-letter（[サービス境界](/docs/kamae-rs/service-boundaries/) 参照）
 
 ```rust
 async fn apply_event(
@@ -116,21 +116,21 @@ async fn apply_event(
 
 ## CQRS 境界を明示
 
-read model（投影）はクエリを速くするための非正規化ビューであり、第二の write model ではない。投影ハンドラ内で他集約を直接変更すると、コマンド経路を迂回した状態変更が増え、リトライや並行更新の見通しが立たなくなる。集約横断の変更が必要なら、ドメインイベントを発行し、別のユースケースまたはコマンドが反応する形にする。
+read model（投影）はクエリを速くするための非正規化ビューであり、第二のwrite modelではない。投影ハンドラ内で他集約を直接変更すると、コマンド経路を迂回した状態変更が増え、リトライや並行更新の見通しが立たなくなる。集約横断の変更が必要なら、ドメインイベントを発行し、別のユースケースまたはコマンドが反応する形にする。
 
-write 側のトランザクションスコープ、楽観的 versioning、outbox の原子性は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
+write側のトランザクションスコープ、楽観的versioning、outboxの原子性は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
 
 ## 検出ヒント
 
-`Cargo.toml` に `futures`、`tokio-stream`、`async-stream`、event-store client があるとき、手動 `loop { sleep; poll }` worker より型付き `Stream` port を優先。subscription、projection、outbox processor に触れる diff では persistence および service-boundary ガイドも併せて読み込む。
+`Cargo.toml` に `futures`、`tokio-stream`、`async-stream`、event-store clientがあるとき、手動 `loop { sleep; poll }` workerより型付き `Stream` portを優先。subscription、projection、outbox processorに触れるdiffではpersistenceおよびservice-boundaryガイドも併せて読み込む。
 
-レビューでは、型付き `Stream` で足りるのに手書き poll ループを使うこと、チェックポイントなしの購読、重複排除なしの副作用、無制限バッファ、コマンド経路外の遷移呼び出し、未対応イベント型でのパニックを指摘する。
+レビューでは、型付き `Stream` で足りるのに手書きpollループを使うこと、チェックポイントなしの購読、重複排除なしの副作用、無制限バッファ、コマンド経路外の遷移呼び出し、未対応イベント型でのパニックを指摘する。
 
 ## レビュー観点
 
 ### プロジェクションハンドラは冪等か — High
 
-イベント ID、`(aggregate_id, sequence)`、または同等の冪等キーで重複排除せず副作用を適用する継続クエリやイベントハンドラを指摘する。
+イベントID、`(aggregate_id, sequence)`、または同等の冪等キーで重複排除せず副作用を適用する継続クエリやイベントハンドラを指摘する。
 
 ### リード側ストリームは書き込みモデル集約を変更しないか — High
 

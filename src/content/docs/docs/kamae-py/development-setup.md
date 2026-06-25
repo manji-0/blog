@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-スキルテンプレートからプロジェクトを立ち上げる担当者、および **kamae-py** スキルリポジトリのコントリビューター向けの手順書である。ツールチェーンとテンプレートの適用が揃っていないと、以降のドメイン規約をローカルで再現できず、CI 上だけが正しく見える状態になりやすい。
+スキルテンプレートからプロジェクトを立ち上げる担当者、および **kamae-py** スキルリポジトリのコントリビューター向けの手順書である。ツールチェーンとテンプレートの適用が揃っていないと、以降のドメイン規約をローカルで再現できず、CI上だけが正しく見える状態になりやすい。
 
-日常のチェックコマンドは [品質ゲート](/docs/kamae-py/quality-gates/)、GitHub Actions の配線は [CI セットアップ](/docs/kamae-py/ci-setup/) を参照する。
+日常のチェックコマンドは [品質ゲート](/docs/kamae-py/quality-gates/)、GitHub Actionsの配線は [CI セットアップ](/docs/kamae-py/ci-setup/) を参照する。
 
 ## プロジェクトのブートストラップ（テンプレートから）
 
@@ -18,7 +18,7 @@ sidebar:
 python path/to/kamae-py/scripts/apply_templates.py --target . --ci backend
 ```
 
-スキル/プラグインリポジトリ向け:
+スキル/プラグインリポジトリ向け：
 
 ```bash
 python path/to/kamae-py/scripts/apply_templates.py --target . --ci skill-package
@@ -28,25 +28,25 @@ python path/to/kamae-py/scripts/apply_templates.py --target . --ci skill-package
 
 ## ポリシーサニティチェック
 
-ブートストラップ後、同梱ポリシーチェッカーを実行し、CI へ到達する前に一般的な Kamae 方針の問題を検出する:
+ブートストラップ後、同梱ポリシーチェッカーを実行し、CIへ到達する前に一般的なKamae方針の問題を検出する：
 
 ```bash
 python path/to/kamae-py/scripts/check_kamae_policy.py --target .
 ```
 
-`tests/` もスキャンするには `--include-tests` を追加する。警告をエラー扱いするには `--strict` を使う。チェッカーはプロジェクト設定、禁止パッケージマネージャーファイル、frozen ドメインモデル、`kind` 判別共用体、純粋遷移、広い `except` や `typing.cast` などのリスクパターンをカバーする。
+`tests/` もスキャンするには `--include-tests` を追加する。警告をエラー扱いするには `--strict` を使う。チェッカーはプロジェクト設定、禁止パッケージマネージャーファイル、frozenドメインモデル、`kind` 判別共用体、純粋遷移、広い `except` や `typing.cast` などのリスクパターンをカバーする。
 
-推奨ローカルファイル:
+推奨ローカルファイル：
 
 - [`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) -> `pyproject.toml` または既存ファイルへマージ。
 - [`../assets/templates/gitignore`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/gitignore/) -> `.gitignore` または既存ファイルへマージ。
 - [`../assets/templates/validate_package.py`](../assets/templates/validate_package.py) -> スキル/プラグインリポジトリのみ `scripts/validate_package.py`。
 
-コミット前に `project.name`、`description`、`[tool.mypy].files` を調整する。アプリケーションリポジトリでは `[tool.mypy].files` は通常 `src` と `tests` を指す。スキルリポジトリでは `scripts`、examples、tests を含める。
+コミット前に `project.name`、`description`、`[tool.mypy].files` を調整する。アプリケーションリポジトリでは `[tool.mypy].files` は通常 `src` と `tests` を指す。スキルリポジトリでは `scripts`、examples、testsを含める。
 
 ## 初回セットアップ
 
-uv と Python 3.12+ を使う。**Docker は任意**。デフォルトはローカル Python ツールチェーンと、必要なときだけの任意コンテナ依存（例: Postgres 統合テスト）である。
+uvとPython 3.12+ を使う。**Docker は任意**。デフォルトはローカルPythonツールチェーンと、必要なときだけの任意コンテナ依存（例： Postgres統合テスト）である。
 
 ### 1. uv をインストールし Python をピン留め
 
@@ -76,21 +76,21 @@ uv run python -c "import pydantic; print(pydantic.__version__)"
 
 ### 4. Docker なしのローカルサービス（任意）
 
-統合テストに Postgres または Redis が必要なとき:
+統合テストにPostgresまたはRedisが必要なとき：
 
 | サービス | macOS (Homebrew) | Linux (apt) |
 | --- | --- | --- |
 | PostgreSQL | `brew install postgresql@16 && brew services start postgresql@16` | `sudo apt install postgresql` |
 | Redis | `brew install redis && brew services start redis` | `sudo apt install redis-server` |
 
-開発用データベースを作成し、設定をそこに向ける:
+開発用データベースを作成し、設定をそこに向ける：
 
 ```bash
 createdb myapp_dev
 export DB_HOST=localhost DB_PORT=5432 DB_NAME=myapp_dev DB_USER=$USER DB_PASSWORD=
 ```
 
-pydantic-settings で `.env` を使う（[境界防御](/docs/kamae-py/boundary-defense/#environment-and-cli-boundaries) を参照）。`.env` を `.gitignore` に追加する。
+pydantic-settingsで `.env` を使う（[境界防御](/docs/kamae-py/boundary-defense/#environment-and-cli-boundaries) を参照）。`.env` を `.gitignore` に追加する。
 
 ### 5. ツールチェーンの検証
 
@@ -104,34 +104,34 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target . --include-tests
 
 ### 6. エディタ統合
 
-- IDE で Ruff をフォーマット/リントプロバイダーとして有効化する。
+- IDEでRuffをフォーマット/リントプロバイダーとして有効化する。
 - `uv sync` 後、インタープリタを `.venv/bin/python` に設定する。
-- Pydantic mypy プラグインが解決されるよう、プロジェクトルートから `uv run mypy` を実行する。
+- Pydantic mypyプラグインが解決されるよう、プロジェクトルートから `uv run mypy` を実行する。
 
 ## ローカルチェックループ
 
 ブートストラップ後、[品質ゲート](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。スキル/プラグインリポジトリではさらに `uv run python scripts/validate_package.py` を実行する。
 
-チームがコミット前の自動フォーマットを望むなら、[品質ゲート](/docs/kamae-py/quality-gates/#pre-commit-integration) から pre-commit フックをインストールする。
+チームがコミット前の自動フォーマットを望むなら、[品質ゲート](/docs/kamae-py/quality-gates/#pre-commit-integration) からpre-commitフックをインストールする。
 
-mypy と Pydantic プラグイン設定については、[`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/docs/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin) に従う。
+mypyとPydanticプラグイン設定については、[`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/docs/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin) に従う。
 
 ## Docker を追加するタイミング
 
-次のときに Docker または Compose を使う:
+次のときにDockerまたはComposeを使う：
 
 - 本番同等性に正確なイメージバージョンが必要。
-- オンボーディングで Postgres/Redis をローカルインストールさせたくない。
-- CI が統合テストに同じ `docker compose up` を使う。
+- オンボーディングでPostgres/Redisをローカルインストールさせたくない。
+- CIが統合テストに同じ `docker compose up` を使う。
 
-ドメイン単体テストはコンテナなしで `uv run pytest` 実行可能に保つ。統合テストはマーカー（`pytest -m integration`）または任意 compose プロファイルの背後に置く。
+ドメイン単体テストはコンテナなしで `uv run pytest` 実行可能に保つ。統合テストはマーカー（`pytest -m integration`）または任意composeプロファイルの背後に置く。
 
 ## kamae-py リポジトリでの開発
 
 ## 前提条件
 
 - [uv](https://docs.astral.sh/uv/) がインストールされ `PATH` で利用可能であること。
-- プロジェクトの範囲に合う Python バージョン。このリポジトリは [`.python-version`](/docs/kamae-py/../../../.python-version/) でローカル Python をピン留めしている。
+- プロジェクトの範囲に合うPythonバージョン。このリポジトリは [`.python-version`](/docs/kamae-py/../../../.python-version/) でローカルPythonをピン留めしている。
 
 ## クローンとブートストラップ
 
@@ -156,7 +156,7 @@ uv run pytest
 
 ## ローカル品質ゲートの実行
 
-[品質ゲート](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。このリポジトリではさらに次を実行する:
+[品質ゲート](/docs/kamae-py/quality-gates/) のベースラインコマンドを実行する。このリポジトリではさらに次を実行する：
 
 ```bash
 uv run python scripts/validate_package.py
@@ -168,9 +168,9 @@ uv run ruff format --check .
 
 ## スキルパッケージの作業
 
-スキルは `skills/kamae-py/` にある:
+スキルは `skills/kamae-py/` にある：
 
-- `SKILL.md` — ディスパッチガイドと frontmatter。
+- `SKILL.md` — ディスパッチガイドとfrontmatter。
 - `` — 詳細リファレンス文書。
 - `scripts/` — `apply_templates.py`、`check_kamae_policy.py` などのヘルパースクリプト。
 - `assets/templates/` — インストール可能なプロジェクトテンプレート。
@@ -183,7 +183,7 @@ uv run ruff format --check .
 
 ## テスト用テンプレート適用
 
-`scripts/apply_templates.py` はテンプレートをターゲットディレクトリにコピーする。テンプレート変更をこのリポジトリに影響させずテストするには一時ディレクトリを使う:
+`scripts/apply_templates.py` はテンプレートをターゲットディレクトリにコピーする。テンプレート変更をこのリポジトリに影響させずテストするには一時ディレクトリを使う：
 
 ```bash
 mkdir -p /tmp/kamae-test
@@ -194,7 +194,7 @@ uv run python skills/kamae-py/scripts/apply_templates.py --target /tmp/kamae-tes
 
 ## 依存関係の変更
 
-依存関係を追加または削除したら `uv.lock` を更新する:
+依存関係を追加または削除したら `uv.lock` を更新する：
 
 ```bash
 uv add <package>
@@ -203,13 +203,13 @@ uv remove <package>
 uv lock
 ```
 
-CI は `uv sync --locked` を実行するため、古いロックファイルでビルドは失敗する。
+CIは `uv sync --locked` を実行するため、古いロックファイルでビルドは失敗する。
 
 ## コミット前
 
 1. 上記のローカル品質ゲート一式を実行する。
 2. 意図しないテンプレートまたはロックファイル変更がないか `git diff` を確認する。
-3. コミットは内容を絞る。1 つの論理変更につき 1 コミットとする。たとえば新しいリファレンス文書とその `SKILL.md` へのリンクは 1 コミットにまとめ、依存関係の更新は別コミットに分ける。
+3. コミットは内容を絞る。1つの論理変更につき1コミットとする。たとえば新しいリファレンス文書とその `SKILL.md` へのリンクは1コミットにまとめ、依存関係の更新は別コミットに分ける。
 
 ## トラブルシューティング
 
@@ -221,25 +221,25 @@ CI は `uv sync --locked` を実行するため、古いロックファイルで
 
 ### コミットされた env ファイルにシークレットと PII がないか — High
 
-[PII と観測経路の保護](/docs/kamae-py/pii-protection/) と照合する。コミットされた `.env`、例の実認証情報、デバッグ用に生 PII をログするよう促すローカルセットアップ文書を指摘する。
+[PII と観測経路の保護](/docs/kamae-py/pii-protection/) と照合する。コミットされた `.env`、例の実認証情報、デバッグ用に生PIIをログするよう促すローカルセットアップ文書を指摘する。
 
 ### ドメインコードはフレームワークと ORM の import がないか — High
 
-チームが Kamae スタイルの分離を主張しているのに、`domain` モジュールが FastAPI、Django モデル、SQLAlchemy セッション、boto3、その他インフラクレートを import する箇所を指摘する。
+チームがKamaeスタイルの分離を主張しているのに、`domain` モジュールがFastAPI、Djangoモデル、SQLAlchemyセッション、boto3、その他インフラクレートをimportする箇所を指摘する。
 
 ### テスト配置はレイヤー境界に合っているか — Medium
 
-ユースケース層のフェイクやインフラ層のアダプターではなく、ドメインテストが HTTP サーバーや DB プールを直接引く配置を指摘する。
+ユースケース層のフェイクやインフラ層のアダプターではなく、ドメインテストがHTTPサーバーやDBプールを直接引く配置を指摘する。
 
 ### ドメインとユースケースのテストは Docker なしで動くか — Medium
 
-基本的な遷移やユースケーステストにフェイクポートで足りるのに、ライブ DB や外部サービスを要求するワークフローを指摘する。
+基本的な遷移やユースケーステストにフェイクポートで足りるのに、ライブDBや外部サービスを要求するワークフローを指摘する。
 
 ### フィクスチャはコンストラクタ経由で組み立てられているか — Medium
 
-[テストデータ](/docs/kamae-py/test-data/) と照合する。ドメイン/ユースケーステストで生 dict、`model_construct`、ORM 行により不変条件を迂回しているテストヘルパーを指摘する。
+[テストデータ](/docs/kamae-py/test-data/) と照合する。ドメイン/ユースケーステストで生dict、`model_construct`、ORM行により不変条件を迂回しているテストヘルパーを指摘する。
 
 ### 文書化されたローカルチェックループがあるか — Low
 
-[CI セットアップ](/docs/kamae-py/ci-setup/) と整合するファストパスとフル pre-push コマンド一覧なしに Kamae 規約を採用するプロジェクトを指摘する。
+[CI セットアップ](/docs/kamae-py/ci-setup/) と整合するファストパスとフルpre-pushコマンド一覧なしにKamae規約を採用するプロジェクトを指摘する。
 

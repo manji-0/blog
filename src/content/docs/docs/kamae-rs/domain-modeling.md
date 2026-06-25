@@ -4,15 +4,15 @@ sidebar:
   order: 10
 ---
 
-意味の異なる値を同じ `String` や `i64` のまま置くと、コンパイラは区別できず、境界をすり抜けた値がドメイン深部まで届く。Kamae では newtype・enum・明示的なコンストラクタで意図を型に刻む。
+意味の異なる値を同じ `String` や `i64` のまま置くと、コンパイラは区別できず、境界をすり抜けた値がドメイン深部まで届く。Kamaeではnewtype・enum・明示的なコンストラクタで意図を型に刻む。
 
 ライフサイクル上の変化は [状態遷移](/docs/kamae-rs/state-transitions/)、外部データの取り込みは [境界防御](/docs/kamae-rs/boundary-defense/)、保存単位は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) と揃える。
 
 ## ドメイン概念を明示的に表現する
 
-プリミティブのままだと、単位の混同や ID の取り違えはコンパイル時に検出できない。newtype のコストはボイラープレートより、誤った組み合わせを早く落とす効果の方が大きい。
+プリミティブのままだと、単位の混同やIDの取り違えはコンパイル時に検出できない。newtypeのコストはボイラープレートより、誤った組み合わせを早く落とす効果の方が大きい。
 
-次の例は、空文字を拒否する `RequestId` による典型的な newtype である。
+次の例は、空文字を拒否する `RequestId` による典型的なnewtypeである。
 
 ```rust
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -32,13 +32,13 @@ impl RequestId {
 }
 ```
 
-値が意図的に透明で不変条件がない場合を除き、newtype のフィールドは private とする。
+値が意図的に透明で不変条件がない場合を除き、newtypeのフィールドはprivateとする。
 
 時刻・金額・単位は明示的な概念としてモデル化する。単位・タイムゾーン・精度・丸めが暗黙の裸のプリミティブより、`OccurredAt`、`ServiceDate`、`Money`、`CurrencyCode`、`DistanceMeters`、`DurationSeconds` を優先する。金額には `f32` / `f64` を使わない。
 
 ## 状態のバリアントには enum を優先する
 
-閉じた状態集合やドメイン上の代替には Rust の enum を使う。各状態が異なるデータを持つなら、構造体風のバリアントとする。
+閉じた状態集合やドメイン上の代替にはRustのenumを使う。各状態が異なるデータを持つなら、構造体風のバリアントとする。
 
 ```rust
 pub enum TaxiRequest {
@@ -54,29 +54,29 @@ pub enum TaxiRequest {
 
 ## 集約境界を定義する
 
-集約は、まとめて原子的に変わる必要のある不変条件を所有する。ルールを所有する状態または集約に遷移メソッドを置き、他集約は ID で参照する。判断用に安定したスナップショットをロードするユースケースは除く。
+集約は、まとめて原子的に変わる必要のある不変条件を所有する。ルールを所有する状態または集約に遷移メソッドを置き、他集約はIDで参照する。判断用に安定したスナップショットをロードするユースケースは除く。
 
 トランザクションスコープ・バージョニング・集約横断の調整は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) を参照する。
 
-アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2 つの集約ルートをメモリ上で変更し、呼び出し側の両方の save に頼る遷移も避け、ユースケースと明示的なドメインイベントで集約をまたぐ変更する。
+アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2つの集約ルートをメモリ上で変更し、呼び出し側の両方のsaveに頼る遷移も避け、ユースケースと明示的なドメインイベントで集約をまたぐ変更する。
 
 ## 構築を正直に保つ
 
-`new`、`try_new`、`TryFrom`、`FromStr` で構築時に不変条件を強制する。public フィールドを公開すると、呼び出し元が検証を迂回して無効な組み合わせを作れてしまう。
+`new`、`try_new`、`TryFrom`、`FromStr` で構築時に不変条件を強制する。publicフィールドを公開すると、呼び出し元が検証を迂回して無効な組み合わせを作れてしまう。
 
-不変条件のない単純データ、または `#[cfg(test)]` 内の builder だけが struct リテラルを許容する。本番経路と同じコンストラクタをテストでも使う方針は [テストデータ](/docs/kamae-rs/test-data/) を参照する。
+不変条件のない単純データ、または `#[cfg(test)]` 内のbuilderだけがstructリテラルを許容する。本番経路と同じコンストラクタをテストでも使う方針は [テストデータ](/docs/kamae-rs/test-data/) を参照する。
 
 ## trait の derive は意図的に選ぶ
 
-不変条件付きドメイン型に、本当のドメイン default がない限り `Default` derive しない。空 ID・ゼロ金額・最初の enum バリアントは、通常 invalid または misleading な default になる。
+不変条件付きドメイン型に、本当のドメインdefaultがない限り `Default` deriveしない。空ID・ゼロ金額・最初のenumバリアントは、通常invalidまたはmisleadingなdefaultになる。
 
-`Clone` は狭く derive する。小さな不変 value object や DTO では問題が少ないが、集約・エンティティへの広い `Clone` は所有関係の誤りや、古いコピーをそのまま永続化する経路を隠す。
+`Clone` は狭くderiveする。小さな不変value objectやDTOでは問題が少ないが、集約・エンティティへの広い `Clone` は所有関係の誤りや、古いコピーをそのまま永続化する経路を隠す。
 
-private 不変条件があるドメイン型に無制限の `Serialize` / `Deserialize` derive しない。DTO・行構造体・リーフ value object の serde `try_from` でデシリアライズも検証を通す。
+private不変条件があるドメイン型に無制限の `Serialize` / `Deserialize` deriveしない。DTO・行構造体・リーフvalue objectのserde `try_from` でデシリアライズも検証を通す。
 
 ## ドメインモデルを分離する
 
-API JSON・DB 行・ドメインエンティティに同一 struct を使わない。外部形状は optional や非正規化フィールドを含み、ドメインに漏れうる。
+API JSON・DB行・ドメインエンティティに同一structを使わない。外部形状はoptionalや非正規化フィールドを含み、ドメインに漏れうる。
 
 フローは次のとおり。
 
@@ -88,11 +88,11 @@ API/DB/env raw data -> DTO/row struct -> TryFrom -> domain type
 
 ## 概念ごとに整理する
 
-1 ドメイン概念につき 1 ファイル（または小さなモジュール）とし、型・コンストラクタ・メソッド・テストを同じ場所に置く。`types.rs` と `models.rs` に型だけ、別モジュールに振る舞いだけ、という分離は、変更のたびにファイルを行き来させ、不変条件のレビューも難しくする。
+1ドメイン概念につき1ファイル（または小さなモジュール）とし、型・コンストラクタ・メソッド・テストを同じ場所に置く。`types.rs` と `models.rs` に型だけ、別モジュールに振る舞いだけ、という分離は、変更のたびにファイルを行き来させ、不変条件のレビューも難しくする。
 
 ## Phantom 型による typestate パターン
 
-コンパイル時点で非法な状態を不可能にするとき、ライフサイクルフェーズをゼロサイズの phantom marker 型パラメータで符号化する。
+コンパイル時点で非法な状態を不可能にするとき、ライフサイクルフェーズをゼロサイズのphantom marker型パラメータで符号化する。
 
 ```rust
 use std::marker::PhantomData;
@@ -131,30 +131,30 @@ impl ExpenseReport<Submitted> {
 }
 ```
 
-typestate を使うときは次を満たす。
+typestateを使うときは次を満たす。
 
 - フェーズごとに利用可能な操作が大きく変わる
-- 1 つの struct にまとめると多数の `Option` やランタイムチェックが必要になる
+- 1つのstructにまとめると多数の `Option` やランタイムチェックが必要になる
 
-各状態が異なるフィールドを持ち遷移が主 API なら、別の状態構造体を優先する（[状態遷移](/docs/kamae-rs/state-transitions/)）。typestate と状態構造体は併用できる。例: `ExpenseReport<Submitted>` が `SubmittedReport` を包む。
+各状態が異なるフィールドを持ち遷移が主APIなら、別の状態構造体を優先する（[状態遷移](/docs/kamae-rs/state-transitions/)）。typestateと状態構造体は併用できる。例： `ExpenseReport<Submitted>` が `SubmittedReport` を包む。
 
 ## ドメイン enum の `#[non_exhaustive]`
 
-`#[non_exhaustive]` は、下流 crate が enum の `match` に wildcard arm を含める必要があることを示す。次の用途に向く。
+`#[non_exhaustive]` は、下流crateがenumの `match` にwildcard armを含める必要があることを示す。次の用途に向く。
 
-- ドメイン enum を拡張点として公開する public library crate
-- 他リポジトリの matcher に breaking を出さずバリアントを追加する integration 向け event / status enum
+- ドメインenumを拡張点として公開するpublic library crate
+- 他リポジトリのmatcherにbreakingを出さずバリアントを追加するintegration向けevent / status enum
 
 次の場合は避ける。
 
-- enum が 1 サービス crate 内部にあり、`match` サイトが同一 workspace にある
-- 網羅的 `match` が安全属性である（例: 課金で全 `TaxiRequest` バリアントが必須）
+- enumが1サービスcrate内部にあり、`match` サイトが同一workspaceにある
+- 網羅的 `match` が安全属性である（例： 課金で全 `TaxiRequest` バリアントが必須）
 
-単一ドメイン crate 内では `non_exhaustive` なしの網羅 `match` を優先し、バリアント追加時にコンパイラ更新を強制する。
+単一ドメインcrate内では `non_exhaustive` なしの網羅 `match` を優先し、バリアント追加時にコンパイラ更新を強制する。
 
 ## 金額と数量
 
-金額に `f32` / `f64` を使わない。`rust_decimal::Decimal` または minor unit の整数表現を newtype で包む。
+金額に `f32` / `f64` を使わない。`rust_decimal::Decimal` またはminor unitの整数表現をnewtypeで包む。
 
 ```rust
 use rust_decimal::Decimal;
@@ -188,11 +188,11 @@ impl Money {
 }
 ```
 
-非金額の数量（距離・重量）は単位付き newtype（`DistanceMeters`、`WeightGrams`）とし、異なる単位の加算をコンパイルエラーにする。
+非金額の数量（距離・重量）は単位付きnewtype（`DistanceMeters`、`WeightGrams`）とし、異なる単位の加算をコンパイルエラーにする。
 
 ## newtype 間の `From` と `TryFrom`
 
-依存方向に沿って変換を設計する。wire / DB 型からドメイン型へ向ける。ドメインモジュールで逆方向にしない。
+依存方向に沿って変換を設計する。wire / DB型からドメイン型へ向ける。ドメインモジュールで逆方向にしない。
 
 | 変換 | 推奨 |
 | --- | --- |
@@ -216,17 +216,17 @@ impl From<RequestId> for String {
 }
 ```
 
-transport 型依存を作る `TryFrom<Domain> for Dto` をドメイン crate に impl しない。outbound マッピングは adapter 層に置く。
+transport型依存を作る `TryFrom<Domain> for Dto` をドメインcrateにimplしない。outboundマッピングはadapter層に置く。
 
 ## 手動 `Eq`、`Hash`、`Ord`
 
-全フィールドが対応 trait を持ち意味が derive と一致するとき derive。
+全フィールドが対応traitを持ち意味がderiveと一致するときderive。
 
-手動 impl する場合:
+手動implする場合：
 
-- `f64` を含むが丸め/離散 view で等価が必要
-- 順序が domain 固有（`Priority` がフィールド辞書順でない）
-- 等価から derived/cache field を無視
+- `f64` を含むが丸め/離散viewで等価が必要
+- 順序がdomain固有（`Priority` がフィールド辞書順でない）
+- 等価からderived/cache fieldを無視
 
 ```rust
 #[derive(Clone, Debug)]
@@ -252,11 +252,11 @@ impl Hash for FareEstimate {
 }
 ```
 
-secret や PII を含み、ログで map key として誤用しうる型には `Hash` / `Eq` derive しない。[PII 保護](/docs/kamae-rs/pii-protection/) を参照する。
+secretやPIIを含み、ログでmap keyとして誤用しうる型には `Hash` / `Eq` deriveしない。[PII 保護](/docs/kamae-rs/pii-protection/) を参照する。
 
 ## テスト builder
 
-本番コンストラクタは strict とする。`#[cfg(test)]` または `tests/support` で sensible default と fluent override の builder を置く。
+本番コンストラクタはstrictとする。`#[cfg(test)]` または `tests/support` でsensible defaultとfluent overrideのbuilderを置く。
 
 ```rust
 #[cfg(test)]
@@ -297,7 +297,7 @@ fn assign_driver_moves_to_en_route() {
 }
 ```
 
-builder はテストとフィクスチャ専用とする。テスト簡略化のためドメインエンティティに `Default` を公開しない。
+builderはテストとフィクスチャ専用とする。テスト簡略化のためドメインエンティティに `Default` を公開しない。
 
 ## よくある crate 組み合わせ
 
@@ -308,31 +308,31 @@ builder はテストとフィクスチャ専用とする。テスト簡略化の
 | `serde(try_from)` + newtypes | JSON 境界のリーフ value object（[境界防御](/docs/kamae-rs/boundary-defense/)） |
 | `proptest` + builders | primitive に `Arbitrary` のあと `try_new`（[プロパティベーステスト](/docs/kamae-rs/property-based-tests/)） |
 
-レビューでは、ビジネス意味を持つ素の `String` や `i64`、invalid sentinel を生む `Default`、金額・課金での `f64`、文書化された例外なしの `Deserialize` / `FromRow` derive、public フィールドリテラルによる不変条件の迂回を指摘する。
+レビューでは、ビジネス意味を持つ素の `String` や `i64`、invalid sentinelを生む `Default`、金額・課金での `f64`、文書化された例外なしの `Deserialize` / `FromRow` derive、publicフィールドリテラルによる不変条件の迂回を指摘する。
 
 ## レビュー観点
 
 ### 呼び出し元が不変条件を迂回できないか — High
 
-不変条件を持つドメイン型で public フィールドまたは public タプルフィールドがある場合は指摘する。コンストラクタを正規の経路とすること。
+不変条件を持つドメイン型でpublicフィールドまたはpublicタプルフィールドがある場合は指摘する。コンストラクタを正規の経路とすること。
 
 複数フィールドの不変条件の一部だけを更新するミューテータ、再検証のスキップ、無効な中間状態の流出を許すミューテータを指摘する。
 
-正規コンストラクタ内の直接構築、非公開テストヘルパ、使用前に検証付きドメインコンストラクタへ変換される DTO / 行構造体には指摘しない。
+正規コンストラクタ内の直接構築、非公開テストヘルパ、使用前に検証付きドメインコンストラクタへ変換されるDTO / 行構造体には指摘しない。
 
 ### 意味のあるプリミティブは newtype で表現されているか — High
 
-ユーザー ID、注文 ID、メールアドレス、金額、数量、外部参照など、異なるドメイン概念にそのまま `String`、`&str`、整数、decimal、UUID 型を使っている箇所を指摘する。
+ユーザー ID、注文ID、メールアドレス、金額、数量、外部参照など、異なるドメイン概念にそのまま `String`、`&str`、整数、decimal、UUID型を使っている箇所を指摘する。
 
-プライベートフィールドの newtype と検証付きコンストラクタを提案する。
+プライベートフィールドのnewtypeと検証付きコンストラクタを提案する。
 
-ローカル一時変数、非公開アダプタフィールド、テストリテラル、シリアライズ専用 DTO フィールド、Rust 型以上のドメイン不変条件を持たない値には指摘しない。
+ローカル一時変数、非公開アダプタフィールド、テストリテラル、シリアライズ専用DTOフィールド、Rust型以上のドメイン不変条件を持たない値には指摘しない。
 
 ### DTO、DB 行、ドメインエンティティは分離されているか — Medium
 
-`Deserialize`、`FromRow`、ORM derive により外部データが検証を迂回したり、ドメイン不変条件がストレージ形状に結合するドメインエンティティを指摘する。
+`Deserialize`、`FromRow`、ORM deriveにより外部データが検証を迂回したり、ドメイン不変条件がストレージ形状に結合するドメインエンティティを指摘する。
 
-意図的なリードモデル、プロジェクション、API レスポンス DTO、ドメイン状態へデシリアライズできない監査用エクスポート型の `Serialize` には指摘しない。
+意図的なリードモデル、プロジェクション、APIレスポンスDTO、ドメイン状態へデシリアライズできない監査用エクスポート型の `Serialize` には指摘しない。
 
 ### 状態は明示的にモデル化されているか — Medium
 
@@ -344,7 +344,7 @@ builder はテストとフィクスチャ専用とする。テスト簡略化の
 
 ### ドメインコードは概念ごとに整理されているか — Low
 
-無関係な概念を集め、振る舞いとデータを分離する catch-all の `types.rs`、`models.rs`、`domain.rs` モジュールを指摘する。
+無関係な概念を集め、振る舞いとデータを分離するcatch-allの `types.rs`、`models.rs`、`domain.rs` モジュールを指摘する。
 
 狭い境界づけられたコンテキスト目的のまとまったモジュール、生成スキーマモジュール、意図的に薄く保たれた互換シムには指摘しない。
 

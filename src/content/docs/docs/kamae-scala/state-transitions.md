@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-閉じた状態集合は enum と遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
+閉じた状態集合はenumと遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
 
 状態のデータ構造は [ドメインモデリング](/docs/kamae-scala/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/docs/kamae-scala/persistence-events/) に委ねる。
 
 ## ソース型で遷移を制約する
 
-1 つの状態だけが遷移できるときは、その特定の状態型を受け取る。広い enum 全体を受け取らない。
+1つの状態だけが遷移できるときは、その特定の状態型を受け取る。広いenum全体を受け取らない。
 
 ```scala
 final case class WaitingRequest(
@@ -29,9 +29,9 @@ extension (request: WaitingRequest)
     EnRouteRequest(request.requestId, request.passengerId, driverId)
 ```
 
-非法ソース state はコンパイル時に失敗する。
+非法ソースstateはコンパイル時に失敗する。
 
-すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソース state や引数型から読み取れないデータに依存するルールがあるならドメインエラーを返す。
+すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソースstateや引数型から読み取れないデータに依存するルールがあるならドメインエラーを返す。
 
 ```scala
 extension (request: WaitingRequest)
@@ -49,18 +49,18 @@ extension (request: WaitingRequest)
 
 ## ソース状態を消費することの意味
 
-ソース状態を引数として受け取り、新しい状態を返す（共有集約を mutate するのではなく）設計には、次の利点がある。
+ソース状態を引数として受け取り、新しい状態を返す（共有集約をmutateするのではなく）設計には、次の利点がある。
 
-1. **旧 state を再利用できない。** `waiting.assignDriver(driver)` の後、呼び出し元は返却された状態で作業する。隠れた mutation なしで二重割当を防ぎやすい。
-2. **遷移は state 置換として読める。** 返却 case class が新しい真実である。
+1. **旧 state を再利用できない。** `waiting.assignDriver(driver)` の後、呼び出し元は返却された状態で作業する。隠れたmutationなしで二重割当を防ぎやすい。
+2. **遷移は state 置換として読める。** 返却case classが新しい真実である。
 3. **永続化マッピングが容易。** ユースケースは所有 `EnRouteRequest` を `saveAssigned` に渡せる。
 4. **event ペアリングが明確。** `Transition(state, events)` を消費入力から一度構築する。
 
-`var` フィールドや in-place mutation を使うのは:
+`var` フィールドやin-place mutationを使うのは：
 
 - パフォーマンス上のホットパスで計測済みの必要があり、
 - 各ミューテータで不変条件を再検証し、
-- チームが compile-time の状態置換が実用的でない理由を文書化しているとき
+- チームがcompile-timeの状態置換が実用的でない理由を文書化しているとき
 
 に限る。デフォルトは不変な遷移結果とする。
 
@@ -120,8 +120,8 @@ final case class Transition[TState, TEvent](state: TState, events: List[TEvent])
 
 ## 正規の例
 
-- 実装: [kamae-scala の `TaxiRequest.scala`](https://github.com/manji-0/kamae-scala/blob/main/examples/src/main/scala/kamae/examples/TaxiRequest.scala)
-- コンパイル時安全性: [kamae-scala の `CompileTimeSafetySuite.scala`](https://github.com/manji-0/kamae-scala/blob/main/examples/src/test/scala/kamae/examples/CompileTimeSafetySuite.scala) — munit の `compileErrors` で `EnRouteRequest` が `WaitingRequest` の要求箇所に渡せないことを検証する。
+- 実装は [kamae-scala の `TaxiRequest.scala`](https://github.com/manji-0/kamae-scala/blob/main/examples/src/main/scala/kamae/examples/TaxiRequest.scala) を参照する。
+- コンパイル時安全性： [kamae-scala の `CompileTimeSafetySuite.scala`](https://github.com/manji-0/kamae-scala/blob/main/examples/src/test/scala/kamae/examples/CompileTimeSafetySuite.scala) — munitの `compileErrors` で `EnRouteRequest` が `WaitingRequest` の要求箇所に渡せないことを検証する。
 
 ## レビュー観点
 

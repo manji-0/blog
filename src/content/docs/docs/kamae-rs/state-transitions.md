@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-閉じた状態集合は enum と遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
+閉じた状態集合はenumと遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
 
 状態のデータ構造は [ドメインモデリング](/docs/kamae-rs/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) に委ねる。
 
 ## ソース型で遷移を制約する
 
-1 つの状態だけが遷移できるときは、その特定の状態型を受け取る。広い enum 全体を受け取らない。
+1つの状態だけが遷移できるときは、その特定の状態型を受け取る。広いenum全体を受け取らない。
 
 ```rust
 pub struct WaitingRequest {
@@ -35,9 +35,9 @@ impl WaitingRequest {
 }
 ```
 
-非法ソース state はコンパイル時に失敗する。
+非法ソースstateはコンパイル時に失敗する。
 
-すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソース state や引数型から読み取れないデータに依存するルールがあるならドメインエラーを返す:
+すべての前提が入力型に表れているときだけ、遷移を失敗しない（常に成功する）形にする。ソースstateや引数型から読み取れないデータに依存するルールがあるならドメインエラーを返す：
 
 ```rust
 pub enum DomainError {
@@ -73,23 +73,23 @@ impl WaitingRequest {
 
 ## `self` by value（所有権消費）の理由
 
-state 変更遷移で `&mut self` ではなく `self` を取る利点:
+state変更遷移で `&mut self` ではなく `self` を取る利点：
 
-1. **旧 state を再利用できない。** `waiting.assign_driver(driver)` の後 `waiting` は move され、再参照はコンパイルエラー。ランタイムフラグなしで二重割当バグを防ぐ。
-2. **遷移は state 置換として読める。** 返却 struct が新しい真実。共有ハンドル上の隠れた mutation がない。
-3. **永続化マッピングが容易。** ユースケースは mutable 集約から clone せず、所有 `EnRouteRequest` を `save_assigned` に渡せる。
+1. **旧 state を再利用できない。** `waiting.assign_driver(driver)` の後 `waiting` はmoveされ、再参照はコンパイルエラー。ランタイムフラグなしで二重割当バグを防ぐ。
+2. **遷移は state 置換として読める。** 返却structが新しい真実。共有ハンドル上の隠れたmutationがない。
+3. **永続化マッピングが容易。** ユースケースはmutable集約からcloneせず、所有 `EnRouteRequest` を `save_assigned` に渡せる。
 4. **event ペアリングが明確。** `Transition { state, events }` を消費入力から一度構築。
 
-`&mut self` を使うのは:
+`&mut self` を使うのは：
 
-- 同一 state 内の小さなフィールド更新（ETA 更新など）
-- 単一 save 前に in-memory 編集をバッチし、型システムがすでに非法 state を防いでいる（稀）
+- 同一state内の小さなフィールド更新（ETA更新など）
+- 単一save前にin-memory編集をバッチし、型システムがすでに非法stateを防いでいる（稀）
 
 ライフサイクル移動（`Waiting` -> `EnRoute` -> `InTrip`）では `self` を優先。
 
 ## 境界では enum を使う
 
-呼び出し側がすべての可能 state を保持、ロード、分岐するとき集約 enum を使う。
+呼び出し側がすべての可能stateを保持、ロード、分岐するとき集約enumを使う。
 
 ```rust
 pub enum TaxiRequest {
@@ -101,13 +101,13 @@ pub enum TaxiRequest {
 }
 ```
 
-網羅的 `match` アームを使う。将来 variant すべてに本当に不変でない限り、ドメイン match で `_` を避ける。
+網羅的 `match` アームを使う。将来variantすべてに本当に不変でない限り、ドメインmatchで `_` を避ける。
 
-集約境界を明示する。リクエスト集約を全体として load/save し、他集約参照は ID またはスナップショットにとどめる。他集約の mutable state を借りない。遷移は自集約の不変条件を守り、他の集約が所有する事実はユースケースまたはポリシー層で扱う。
+集約境界を明示する。リクエスト集約を全体としてload/saveし、他集約参照はIDまたはスナップショットにとどめる。他集約のmutable stateを借りない。遷移は自集約の不変条件を守り、他の集約が所有する事実はユースケースかポリシー層で扱う。
 
 ## 複数遷移先
 
-1 ソース state から複数 target へ行けるとき、単一 struct 型ではなく outcome enum を返す。
+1ソースstateから複数targetへ行けるとき、単一struct型ではなくoutcome enumを返す。
 
 ```rust
 pub enum WaitingExit {
@@ -135,11 +135,11 @@ pub enum WaitingTransition {
 }
 ```
 
-別メソッド（`assign_driver`、`cancel`）がそれぞれ `WaitingRequest` を消費する形でも同じ compile-time 保証。1 値につき 1 つだけ呼べる。
+別メソッド（`assign_driver`、`cancel`）がそれぞれ `WaitingRequest` を消費する形でも同じcompile-time保証。1値につき1つだけ呼べる。
 
 ## 遷移結果を明示的に返す
 
-遷移が event を出すとき、隠れた state を mutate せず outcome struct を返す。
+遷移がeventを出すとき、隠れたstateをmutateせずoutcome structを返す。
 
 ```rust
 pub struct Transition<TState, TEvent> {
@@ -148,7 +148,7 @@ pub struct Transition<TState, TEvent> {
 }
 ```
 
-`TransitionOutcome<S, E>` は同趣旨。チームが最小型を好むなら type alias または tuple `(S, Vec<E>)` でよい。
+`TransitionOutcome<S, E>` は同趣旨。チームが最小型を好むならtype aliasまたはtuple `(S, Vec<E>)` でよい。
 
 ```rust
 pub type TransitionOutcome<S, E> = (S, Vec<E>);
@@ -167,13 +167,13 @@ impl WaitingRequest {
 }
 ```
 
-ユースケースが結果を分解し、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 経由で状態を保存し、イベントを発行する。遷移メソッド内の global buffer に event を積まない。
+ユースケースが結果を分解し、[永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 経由で状態を保存し、イベントを発行する。遷移メソッド内のglobal bufferにeventを積まない。
 
-state 消費遷移では `self` by value を優先。元 state を残す必要があるときだけ borrow。
+state消費遷移では `self` by valueを優先。元stateを残す必要があるときだけborrow。
 
 ## テスト容易性: 時刻と乱数
 
-`occurred_at` を打刻したり抽選結果を引く遷移は、テストで決定論が必要なら domain 内で `SystemTime::now()` や `thread_rng()` を直接呼ばない。
+`occurred_at` を打刻したり抽選結果を引く遷移は、テストで決定論が必要ならdomain内で `SystemTime::now()` や `thread_rng()` を直接呼ばない。
 
 ```rust
 pub trait Clock {
@@ -198,13 +198,13 @@ impl Clock for FixedClock {
 }
 ```
 
-遷移メソッドまたは小さな domain service に `&dyn Clock` または generic `C: Clock` を注入。乱数割当には `&mut dyn RngCore` または port `fn draw_driver(&mut self, candidates: &[DriverId]) -> Option<DriverId>`。
+遷移メソッドまたは小さなdomain serviceに `&dyn Clock` またはgeneric `C: Clock` を注入。乱数割当には `&mut dyn RngCore` またはport `fn draw_driver(&mut self, candidates: &[DriverId]) -> Option<DriverId>`。
 
-テストは `FixedClock` および seed 付き RNG で event payload ならびに順序を assert 可能にする。
+テストは `FixedClock` およびseed付きRNGでevent payloadならびに順序をassert可能にする。
 
 ## ロードと dispatch
 
-ロード後、集約 enum を match し state 固有ロジックへ委譲:
+ロード後、集約enumをmatchしstate固有ロジックへ委譲：
 
 ```rust
 pub fn assign_driver(
@@ -224,16 +224,16 @@ pub fn assign_driver(
 }
 ```
 
-コマンドに対する非法ソース state は境界 match で型付きエラー。panic ではない。
+コマンドに対する非法ソースstateは境界matchで型付きエラー。panicではない。
 
 ## typestate と集約との関係
 
 - **State struct + `self` 消費**: ライフサイクルが明確なサーバー側ドメイン層では、こちらをデフォルトとする
-- **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる; [ドメインモデリング](/docs/kamae-rs/domain-modeling/#typestate-with-phantom-types) 参照
-- **集約トランザクション**: ユースケースが version 付き集約を load、純粋遷移、原子的 save; [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照
+- **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる。[ドメインモデリング](/docs/kamae-rs/domain-modeling/#typestate-with-phantom-types) を参照
+- **集約トランザクション**: ユースケースがversion付き集約をload、純粋遷移、原子的save; [永続化、集約、イベント](/docs/kamae-rs/persistence-events/) 参照
 
 
-レビューでは、遷移が `&mut` と `status: String` で状態を書き換えることや、型で強制できる前提を `panic!` や `unwrap` に頼ることを指摘する。遷移内の global / static バッファへの event 蓄積、テスト seam なしの `OccurredAt::now()`、move 意味論なしの同一ソース状態の二重使用も同様である。
+レビューでは、遷移が `&mut` と `status: String` で状態を書き換えることや、型で強制できる前提を `panic!` や `unwrap` に頼ることを指摘する。遷移内のglobal / staticバッファへのevent蓄積、テストseamなしの `OccurredAt::now()`、move意味論なしの同一ソース状態の二重使用も同様である。
 
 ## レビュー観点
 

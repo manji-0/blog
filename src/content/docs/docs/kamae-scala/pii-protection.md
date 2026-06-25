@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-`toString` や span 属性は、意図せず個人データや資格情報をログに載せてしまう。型でラップし、露出をアダプターで閉じる設計にしないと、可観測性がそのまま漏洩面になる。
+`toString` やspan属性は、意図せず個人データや資格情報をログに載せてしまう。型でラップし、露出をアダプターで閉じる設計にしないと、可観測性がそのまま漏洩面になる。
 
 ログとメトリクスの実装は [ロギングとメトリクス](/docs/kamae-scala/logging-metrics/)、資格情報の扱いは [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets)、テストでの検証は [テストデータ](/docs/kamae-scala/test-data/) を参照する。
 
@@ -13,9 +13,9 @@ sidebar:
 
 ## ログに載せにくい sensitive データにする
 
-個人データはデフォルトで redacting wrapper または検証済み opaque 型を使う。資格情報、API key、token、password、暗号 material には [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) の credential wrapper に限定する。名前やメールなど一般 PII は safe `toString` 付き domain 型が通常で、credential wrapper ではない。
+個人データはデフォルトでredacting wrapperまたは検証済みopaque型を使う。資格情報、API key、token、password、暗号materialには [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) のcredential wrapperに限定する。名前やメールなど一般PIIはsafe `toString` 付きdomain型が通常で、credential wrapperではない。
 
-PII の例: 氏名、メール、電話、住所、政府 ID、支払識別子、健康データ、IP、精密位置。
+PIIの例： 氏名、メール、電話、住所、政府ID、支払識別子、健康データ、IP、精密位置。
 
 ```scala
 final case class Patient(
@@ -25,9 +25,9 @@ final case class Patient(
 )
 ```
 
-raw PII を含む case class にデフォルト `toString` を使わない。opaque 型、カスタム `toString`、`Redacted[T]` wrapper を使う。
+raw PIIを含むcase classにデフォルト `toString` を使わない。opaque型、カスタム `toString`、`Redacted[T]` wrapperを使う。
 
-資格情報と secret:
+資格情報とsecret:
 
 ```scala
 final class ApiToken private (private val value: String):
@@ -43,36 +43,36 @@ final class ApiToken private (private val value: String):
 | ops log で安全な opaque surrogate ID | safe `toString` 付き plain opaque 型 | [ロギングとメトリクス](/docs/kamae-scala/logging-metrics/#どの-id-を-log-に載せるか) 参照 |
 | UI または audit export に表示する値 | domain 型 + 明示 `exposeFor*` | 露出は意図的かつ命名される |
 
-すべてのメールを credential 型に包まない。長寿命 PII をデフォルト case class `toString` だけで守らない。
+すべてのメールをcredential型に包まない。長寿命PIIをデフォルトcase class `toString` だけで守らない。
 
 ## 露出は明示的に
 
-メール配信、決済、暗号 adapter、audit export など本当に必要な境界でのみ sensitive 値を露出する。
+メール配信、決済、暗号adapter、audit exportなど本当に必要な境界でのみsensitive値を露出する。
 
 ```scala
 extension (patient: Patient)
   def exposeEmailForDelivery: EmailAddress = patient.email
 ```
 
-domain error や info レベル log に sensitive 値を format しない。
+domain errorやinfoレベルlogにsensitive値をformatしない。
 
 ## ログ前に識別子を分類
 
-`userId` や `passengerId` というフィールド名が safe を決めない。[ロギングとメトリクス](/docs/kamae-scala/logging-metrics/#どの-id-を-log-に載せるか) のルール:
+`userId` や `passengerId` というフィールド名がsafeを決めない。[ロギングとメトリクス](/docs/kamae-scala/logging-metrics/#どの-id-を-log-に載せるか) のルール：
 
-- **デフォルト safe**: opaque surrogate 集約 ID、correlation ID、内部 job/transaction ID、有界 domain enum
-- **ログ禁止**: secret、政府 ID、支払識別子、連絡先 identity、人物記述、健康データ、精密位置、ネットワーク tracking ID
-- **条件付き**: プロジェクトが opaque surrogate、safe `toString`/`Show`、および文書化した person-linked ID
+- **デフォルト safe**: opaque surrogate集約ID、correlation ID、内部job/transaction ID、有界domain enum
+- **ログ禁止**: secret、政府ID、支払識別子、連絡先identity、人物記述、健康データ、精密位置、ネットワークtracking ID
+- **条件付き**: プロジェクトがopaque surrogate、safe `toString`/`Show`、および文書化したperson-linked ID
 
-決定を型に符号化。一般 log に出してはならない ID は `Redacted[T]`、制限 formatting、adapter のみ露出で accidental emission を防ぐ。
+決定を型に符号化。一般logに出してはならないIDは `Redacted[T]`、制限formatting、adapterのみ露出でaccidental emissionを防ぐ。
 
 ## Tracing と span フィールド
 
-span と log 属性はデフォルトで PII を運ばない。
+spanとlog属性はデフォルトでPIIを運ばない。
 
 ### sensitive 引数を auto-instrumentation から除外
 
-マクロや AOP でメソッド引数を log するとき、patient/user DTO を除外する。surrogate ID のみの明示 attribute map を優先する。
+マクロやAOPでメソッド引数をlogするとき、patient/user DTOを除外する。surrogate IDのみの明示attribute mapを優先する。
 
 ### redacted 型向け custom `toString`
 
@@ -91,11 +91,11 @@ object EmailAddress:
 
 ### 多層防御
 
-多モジュールが共有 facade 経由で log するとき、OTLP や stdout 前に既知 sensitive key（`email`、`phone`、`ssn`）を strip する sanitizing appender または export filter を追加する。layer はソース redacted 型の代わりにならない。
+多モジュールが共有facade経由でlogするとき、OTLPやstdout前に既知sensitive key（`email`、`phone`、`ssn`）をstripするsanitizing appenderまたはexport filterを追加する。layerはソースredacted型の代わりにならない。
 
 ## JSON と API 出力 redaction
 
-Circe/Play JSON 出力を明示制御する。response DTO が redact しない限り raw PII を含む domain entity を encode しない。
+Circe/Play JSON出力を明示制御する。response DTOがredactしない限りraw PIIを含むdomain entityをencodeしない。
 
 ```scala
 final case class PatientResponse(id: PatientId, emailRedacted: String)
@@ -105,11 +105,11 @@ object PatientResponse:
     PatientResponse(patient.id, patient.email.redacted)
 ```
 
-大半が safe な struct では、フィールドごとの custom encoder より別の response DTO を優先する。
+大半がsafeなstructでは、フィールドごとのcustom encoderより別のresponse DTOを優先する。
 
 ## `toString` vs 意図的表示
 
-ユーザー向けテキストと開発者診断が異なるとき振る舞いを分ける:
+ユーザー向けテキストと開発者診断が異なるとき振る舞いを分ける：
 
 ```scala
 final class EmailAddress private (private val raw: String):
@@ -118,14 +118,14 @@ final class EmailAddress private (private val raw: String):
   def exposeForDelivery: String = raw
 ```
 
-- **`toString`**: PII 型はデフォルト redact。log と test を保護
+- **`toString`**: PII型はデフォルトredact。logとtestを保護
 - **意図的表示**: 命名メソッド経由のアダプター呼び出し箇所のみ
 
-すべての `toString` が log に漏れるなら PII opaque 型へ public `.value` を付けない。adapter では `exposeForDelivery` を優先する。
+すべての `toString` がlogに漏れるならPII opaque型へpublic `.value` を付けない。adapterでは `exposeForDelivery` を優先する。
 
 ## Redaction のテスト
 
-string 形式に raw PII が含まれないことを assert する:
+string形式にraw PIIが含まれないことをassertする：
 
 ```scala
 test("patient toString does not leak email"):
@@ -133,7 +133,7 @@ test("patient toString does not leak email"):
   assert(!patient.toString.contains("patient@example.com"))
 ```
 
-credential 型:
+credential型：
 
 ```scala
 test("api token toString is hidden"):
@@ -141,7 +141,7 @@ test("api token toString is hidden"):
   assert(!token.toString.contains("super-secret"))
 ```
 
-合成 fixture データを使う。[テストデータ](/docs/kamae-scala/test-data/) を参照。
+合成fixtureデータを使う。[テストデータ](/docs/kamae-scala/test-data/) を参照。
 
 ## よくあるスタック組み合わせ
 
@@ -152,9 +152,9 @@ test("api token toString is hidden"):
 | Circe + response DTOs | domain `Encoder` ではなく別 `PatientResponse` |
 | `Either` error + PII | error variant は field 名のみ、raw 値なし |
 
-レビューでは、error メッセージ文字列への raw email / phone / 政府 ID、PII 付き case class のデフォルト `derives Codec` や未チェック `toString`、redaction 方針なしの user/patient DTO structured log を指摘する。非資格情報 PII への一律 credential wrapper や domain entity への無制限 encoder も同様である。
+レビューでは、errorメッセージ文字列へのraw email / phone / 政府ID、PII付きcase classのデフォルト `derives Codec` や未チェック `toString`、redaction方針なしのuser/patient DTO structured logを指摘する。非資格情報PIIへの一律credential wrapperやdomain entityへの無制限encoderも同様である。
 
-[ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) で credential 固有パターンも照合する。
+[ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) でcredential固有パターンも照合する。
 
 ## レビュー観点
 
@@ -162,23 +162,23 @@ test("api token toString is hidden"):
 
 生の機密値を含む `toString`、`tracing` フィールド、整形エラー、ログを指摘する。
 
-メトリクス、スパン属性、監査イベント、例外メッセージ、検証エラーにも生の PII やシークレットがないか確認する。
+メトリクス、スパン属性、監査イベント、例外メッセージ、検証エラーにも生のPIIやシークレットがないか確認する。
 
 ### PII とシークレットはラップされているか — High
 
-メール、電話、住所、氏名、政府 ID、決済データ、健康データ、IP アドレス、精密位置、トークン、パスワードを運ぶ素の `String`、プリミティブフィールドを指摘する。
+メール、電話、住所、氏名、政府ID、決済データ、健康データ、IPアドレス、精密位置、トークン、パスワードを運ぶ素の `String`、プリミティブフィールドを指摘する。
 
-opaque secret wrapper またはプロジェクトローカルのマスキングラッパを提案する。
+opaque secret wrapperまたはプロジェクトローカルのマスキングラッパを提案する。
 
-すべての PII 値に credential wrapper を必須としない。表示名、メール、粗い IP など非シークレット識別子は、`toString`、ログ、シリアライズがマスキングされるか意図的に公開されるならドメイン newtype でよい。
+すべてのPII値にcredential wrapperを必須としない。表示名、メール、粗いIPなど非シークレット識別子は、`toString`、ログ、シリアライズがマスキングされるか意図的に公開されるならドメインnewtypeでよい。
 
 ### 人物に紐づく ID は条件付きで、自動的に安全とはみなさない — High
 
-[ロギングとメトリクス](/docs/kamae-scala/logging-metrics/) の「ログに載せる ID」の節も照合する。不透明なサロゲートである根拠なしに `userId`、`passengerId`、`customerId`、`patientId`、`deviceId`、パートナー参照をログする箇所を指摘する。
+[ロギングとメトリクス](/docs/kamae-scala/logging-metrics/) の「ログに載せるID」の節も照合する。不透明なサロゲートである根拠なしに `userId`、`passengerId`、`customerId`、`patientId`、`deviceId`、パートナー参照をログする箇所を指摘する。
 
 ### 可観測性はデフォルトでマスキングされているか — High
 
-マスキング方針、許可リストフィールド、明示的な安全表示ラッパなしに、任意のドメインオブジェクトや DTO を受け取るログ / メトリクスヘルパを指摘する。
+マスキング方針、許可リストフィールド、明示的な安全表示ラッパなしに、任意のドメインオブジェクトやDTOを受け取るログ / メトリクスヘルパを指摘する。
 
 ### 平文露出は狭く名前付きか — Medium
 

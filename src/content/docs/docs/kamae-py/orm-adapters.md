@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-ORM エンティティはインフラに置き、ユースケースと遷移が見るのは Pydantic ドメイン状態だけにする。アダプターが行とドメインの間を往復検証しないと、DB の NULL や型のゆらぎが不変条件を迂回する。
+ORMエンティティはインフラに置き、ユースケースと遷移が見るのはPydanticドメイン状態だけにする。アダプターが行とドメインの間を往復検証しないと、DBのNULLや型のゆらぎが不変条件を迂回する。
 
-集約の保存契約（バージョン、アウトボックス、冪等キー）は [永続化、集約、イベント](/docs/kamae-py/persistence-events/)、受信 DTO の形は [境界防御](/docs/kamae-py/boundary-defense/) と揃える。段階的導入は [マイグレーション戦略](/docs/kamae-py/migration-strategy/) を参照する。
+集約の保存契約（バージョン、アウトボックス、冪等キー）は [永続化、集約、イベント](/docs/kamae-py/persistence-events/)、受信DTOの形は [境界防御](/docs/kamae-py/boundary-defense/) と揃える。段階的導入は [マイグレーション戦略](/docs/kamae-py/migration-strategy/) を参照する。
 
 ## レイヤリング
 
@@ -20,11 +20,11 @@ Use case  →  RequestStore (Protocol)  →  SqlAlchemyRequestStore (adapter)
                                          Waiting | EnRoute | ...
 ```
 
-SQLAlchemy `Mapped` クラスや Django `Model` インスタンスをユースケースに渡してはならない。遅延ロード、セッション添付、nullable カラム、ドメイン不変条件を弱める余分なフィールドを運ぶためである。
+SQLAlchemy `Mapped` クラスやDjango `Model` インスタンスをユースケースに渡してはならない。遅延ロード、セッション添付、nullableカラム、ドメイン不変条件を弱める余分なフィールドを運ぶためである。
 
 ## SQLAlchemy 2.0 パターン
 
-ORM エンティティをドメイン状態から分離して定義する。明示的型の `mapped_column` を使い、テーブルモデルは永続化に集中させる。
+ORMエンティティをドメイン状態から分離して定義する。明示的型の `mapped_column` を使い、テーブルモデルは永続化に集中させる。
 
 ```python
 from datetime import datetime
@@ -52,7 +52,7 @@ class RequestRow(Base):
 
 ### 行 DTO + ドメインマッパー
 
-アダプター境界では、狭い行 DTO を経由してパースし、判別共用体へマップする。
+アダプター境界では、狭い行DTOを経由してパースし、判別共用体へマップする。
 
 ```python
 from typing import Annotated, Literal
@@ -153,7 +153,7 @@ class SqlAlchemyRequestStore:
 
 ## Django ORM パターン
 
-Django モデルは `infrastructure` またはアプリエッジの `models.py` に置く。ドメインパッケージには置かない。
+Djangoモデルは `infrastructure` またはアプリエッジの `models.py` に置く。ドメインパッケージには置かない。
 
 ```python
 # infrastructure/request_mapper.py
@@ -177,7 +177,7 @@ def domain_from_django(instance: RequestModel) -> TaxiRequest:
     return domain_from_row_dto(row_dto_from_django(instance))
 ```
 
-書き込みでは、`transaction.atomic()` 内で `model_dump(mode="python")` または明示的フィールドマップからフィールドを更新する:
+書き込みでは、`transaction.atomic()` 内で `model_dump(mode="python")` または明示的フィールドマップからフィールドを更新する：
 
 ```python
 from django.db import transaction
@@ -203,50 +203,50 @@ def save_en_route_django(
 
 ## リポジトリポート形状
 
-ポートは ORM インスタンスや生の行オブジェクトではなく、検証済みのドメイン状態を返す。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポート定義に合わせる。
+ポートはORMインスタンスや生の行オブジェクトではなく、検証済みのドメイン状態を返す。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポート定義に合わせる。
 
 `save(request: TaxiRequest)` のような広いメソッドは、たとえば `Waiting` のまま保存する非法操作を型では防げない。`find_waiting` と `save_en_route` のように、操作ごとに有効なライフサイクル状態をメソッド名と引数型で表す。
 
 ## マイグレーション共存
 
-Strangler マイグレーション中、レガシーサービスはまだ dict や ORM オブジェクトを読むかもしれない。ビジネスルールを書き換える**前に**マッパーを導入する:
+Stranglerマイグレーション中、レガシーサービスはまだdictやORMオブジェクトを読むかもしれない。ビジネスルールを書き換える**前に**マッパーを導入する：
 
 1. `RequestRowDto` + `domain_from_row_dto` を追加。
 2. レガシー `TaxiRequestService` メソッドをマッパー呼び出し、その後純粋遷移を呼ぶよう包む。
-3. クエリを `SqlAlchemyRequestStore` / Django アダプターモジュールへ移す。
+3. クエリを `SqlAlchemyRequestStore` / Djangoアダプターモジュールへ移す。
 4. ユースケースがフローを所有したらレガシーラッパーを削除。
 
 段階的ロールアウトは [マイグレーション戦略](/docs/kamae-py/migration-strategy/) を読む。
 
 ## テスト
 
-- **マッパーテスト:** すべての `kind`、null の組み合わせ、破損行、タイムゾーン付き datetime。
-- **アダプター統合テスト:** 実 DB トランザクション、`select_for_update`、バージョン競合、同一トランザクション内のアウトボックス行。
-- **ユースケーステスト:** フェイクポート。ORM なし。
+- **マッパーテスト:** すべての `kind`、nullの組み合わせ、破損行、タイムゾーン付きdatetime。
+- **アダプター統合テスト:** 実DBトランザクション、`select_for_update`、バージョン競合、同一トランザクション内のアウトボックス行。
+- **ユースケーステスト:** フェイクポート。ORMなし。
 
-破損入力処理を対象とするテストでない限り、マッパーテストで生 dict からドメイン状態を構築しない。
+破損入力処理を対象とするテストでない限り、マッパーテストで生dictからドメイン状態を構築しない。
 
 ## レビュー観点
 
 ### ORM エンティティはドメインモジュール外か — High
 
-ドメイン状態、遷移、ユースケースモジュールが SQLAlchemy モデル、Django モデル、セッション束縛エンティティを import する箇所を指摘する。
+ドメイン状態、遷移、ユースケースモジュールがSQLAlchemyモデル、Djangoモデル、セッション束縛エンティティをimportする箇所を指摘する。
 
 ### マッパーは入出力双方で検証するか — High
 
-未検証属性アクセス、`model_construct`、`cast` で行→ドメイン変換する箇所を指摘する。Pydantic アダプターまたは明示コンストラクタを使うべき。
+未検証属性アクセス、`model_construct`、`cast` で行→ドメイン変換する箇所を指摘する。Pydanticアダプターまたは明示コンストラクタを使うべき。
 
 ### 楽観的ロック列は一貫してマッピングされているか — High
 
-保存時に無視される version/etag 列、または並行変更を黙って上書きしうる ORM 更新を指摘する。
+保存時に無視されるversion/etag列、または並行変更を黙って上書きしうるORM更新を指摘する。
 
 [永続化、集約、イベント](/docs/kamae-py/persistence-events/) と照合する。
 
 ### セッションとトランザクションはアダプターが所有するか — Medium
 
-リポジトリアダプターが永続化の関心を所有すべきなのに、ユースケースが ORM セッションを直接管理する箇所を指摘する。
+リポジトリアダプターが永続化の関心を所有すべきなのに、ユースケースがORMセッションを直接管理する箇所を指摘する。
 
 ### 遅延読み込みはドメイン/ユースケース経路に入らないか — Medium
 
-遷移やユースケースロジック中にトリガーされる暗黙の遅延読み込み、デタッチインスタンス、N+1 クエリパターンを指摘する。
+遷移やユースケースロジック中にトリガーされる暗黙の遅延読み込み、デタッチインスタンス、N+1クエリパターンを指摘する。
 

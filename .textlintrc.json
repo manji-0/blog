@@ -3,7 +3,12 @@
     "comments": true
   },
   "rules": {
+    "preset-jtf-style": {
+      "1.1.1.本文": false,
+      "4.3.7.山かっこ<>": false
+    },
     "preset-ja-technical-writing": {
+      "arabic-kanji-numbers": false,
       "no-mix-dearu-desumasu": {
         "preferDearu": true
       },
@@ -18,7 +23,7 @@
       },
       "ja-no-mixed-period": {
         "periodMark": "。",
-        "allowPeriodMarks": [":", "、"]
+        "allowPeriodMarks": [":", "、", "："]
       },
       "max-kanji-continuous-len": {
         "max": 6,
@@ -46,7 +51,8 @@
           "超大規模集積回路",
           "遷移前提条件関数",
           "階層的品質比較",
-          "静的状態安全性"
+          "静的状態安全性",
+          "行動面接質問集"
         ]
       },
       "no-exclamation-question-mark": false,

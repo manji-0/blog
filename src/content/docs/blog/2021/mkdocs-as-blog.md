@@ -42,16 +42,16 @@ description: mkdocs便利 分かりやすい 最高
 
 <div class="blog-card" style="padding:12px;margin:15px 0;border:1px solid #ddd;word-wrap:break-word;width:auto;border-radius:5px;"><div class="blog-card-thumbnail" style="float:left;"><a href="https://squidfunk.github.io/mkdocs-material/" class="blog-card-thumbnail-link" target="_blank"><img src="http://capture.heartrails.com/120x120/shorten?https://squidfunk.github.io/mkdocs-material/" class="blog-card-thumb-image wp-post-image" alt="12436288584_94d6bc46d2_b.jpg" style="width:100px;height:100px;"></a></div><div class="blog-card-content" style="margin-left:110px;line-height:120%;"><div class="blog-card-title" style="margin-bottom:5px;"><a href="%url%" class="blog-card-title-link" style="font-weight:bold;text-decoration:none;color:#111;" target="_blank">Material for MkDocs - Material for MkDocs</a></div><div class="blog-card-excerpt" style="color:#333;font-size:90%;">Material for MkDocs - Material for MkDocs</div></div><div class="blog-card-footer" style="font-size:70%;color:#777;margin-top:10px;clear:both;"><span class="blog-card-hatena"><a href="http://b.hatena.ne.jp/entry/https://squidfunk.github.io/mkdocs-material/" target="_blank"><img border="0" src="https://b.hatena.ne.jp/entry/image/https://squidfunk.github.io/mkdocs-material/" border="0" alt="" /></a></span></div></div>
 
-* 検索機能がついてる(static siteで動くし結構早い)
+* 検索機能がついてる（static siteで動くし結構早い）
 * CSS, JS, HTMLをoverrideできる
     * 色とかフォントを弄ったり
     * `head.meta` をゴリゴリに調整したり
-    * 追加のWebFontを読み込むようにしたり(`FontAwsome`とか)
+    * 追加のWebFontを読み込むようにしたり（`FontAwsome`とか）
 
 自分がカスタムしたのは以下。
 
 ### `meta`タグをちゃんとつけた
-ちゃんとつけないとTwitterとかにリンク貼ったときの見た目が悪いので..。
+ちゃんとつけないとTwitterとかにリンク貼ったときの見た目が悪いので。.。
 
 <script src="https://gist.github.com/manji-0/523b98ddf5f6120c307dcd350339825a.js"></script>
 
@@ -118,4 +118,4 @@ extra_css:
 ## まとめ
 簡単でデザインもスッキリしていてカスタムもかなり柔軟性が高くて検索ができる、便利。
 
-なんとなくホスト先を AWS Amplify にしてみたけど、Vercelと違って有料なので、ちょっとだけ心配している。爆発しねえよな...?
+なんとなくホスト先をAWS Amplifyにしてみたけど、Vercelと違って有料なので、ちょっとだけ心配している。爆発しねえよな。..?

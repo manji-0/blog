@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-変更した crate では、`cargo fmt --check`、プロジェクトの `clippy` 方針、焦点を絞ったテストを、ローカルと CI で同じコマンドとして揃える。以下が品質ゲートの正規コマンド一覧である。
+変更したcrateでは、`cargo fmt --check`、プロジェクトの `clippy` 方針、焦点を絞ったテストを、ローカルとCIで同じコマンドとして揃える。以下が品質ゲートの正規コマンド一覧である。
 
-アプリケーション crate のセットアップは [開発環境](/docs/kamae-rs/dev-environment/)、Actions への反映は [CI セットアップ](/docs/kamae-rs/ci-setup/)、スキルリポジトリ開発は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を読む。
+アプリケーションcrateのセットアップは [開発環境](/docs/kamae-rs/dev-environment/)、Actionsへの反映は [CI セットアップ](/docs/kamae-rs/ci-setup/)、スキルリポジトリ開発は [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を読む。
 
 ## ベースラインコマンド
 
-リポジトリに既存コマンドがあればそれを優先する。なければ触った Rust コード向けに次のデフォルトを使う:
+リポジトリに既存コマンドがあればそれを優先する。なければ触ったRustコード向けに次のデフォルトを使う：
 
 ```bash
 cargo fmt --all
@@ -19,7 +19,7 @@ cargo test --all-targets --all-features
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
 ```
 
-狭い変更では、触った crate をカバーする最小コマンドセットを実行し、制限を明記する:
+狭い変更では、触ったcrateをカバーする最小コマンドセットを実行し、制限を明記する：
 
 ```bash
 cargo fmt --all
@@ -27,22 +27,22 @@ cargo clippy -p domain -p application --all-targets -- -D warnings
 cargo test -p domain -p application
 ```
 
-CI では `cargo fmt --check` を使う。ローカルでフォーマットチェックが失敗したら `cargo fmt --all` で適用する。
+CIでは `cargo fmt --check` を使う。ローカルでフォーマットチェックが失敗したら `cargo fmt --all` で適用する。
 
 初回ローカルセットアップは [開発環境](/docs/kamae-rs/dev-environment/#テンプレートからの初回ブートストラップ) を読み、[`../assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ配下のファイルが含まれるが、このリポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/`、`scripts/` は確実にはインストールされない。
 
 ## スキルパッケージと review probe チェック
 
-スキル/プラグインリポジトリでは追加で実行する:
+スキル/プラグインリポジトリでは追加で実行する：
 
 ```bash
 python3 scripts/validate_package.py
 cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -- skills/kamae-rs/examples/taxi-request.rs --json
 ```
 
-**kamae-rs** リポジトリ本体では `scripts/validate_package.py` と `cargo run -p kamae-review-probe` を使う。例コードは `skills/kamae-rs/examples/` 配下の workspace crate `kamae-rs-taxi-request` にある。リポジトリルートから `cargo test --all-targets` を実行する。このリポジトリの開発ワークフローは [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を参照。
+**kamae-rs** リポジトリ本体では `scripts/validate_package.py` と `cargo run -p kamae-review-probe` を使う。例コードは `skills/kamae-rs/examples/` 配下のworkspace crate `kamae-rs-taxi-request` にある。リポジトリルートから `cargo test --all-targets` を実行する。このリポジトリの開発ワークフローは [スキルリポジトリの開発](/docs/kamae-rs/development-setup/) を参照。
 
-スキルをインストールしたアプリケーション crate は、ドメインディレクトリが変わるとき CI または pre-push フックに probe を追加してよい:
+スキルをインストールしたアプリケーションcrateは、ドメインディレクトリが変わるときCIまたはpre-pushフックにprobeを追加してよい：
 
 ```bash
 cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -- src/domain/ src/application/
@@ -50,25 +50,25 @@ cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -
 
 ## フォーマットのベースライン
 
-変更を仕上げる前に触った Rust ファイルで `cargo fmt` または `rustfmt` を実行する。Kamae ではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、unsafe、永続化の変更を確認しやすくするための手段である。
+変更を仕上げる前に触ったRustファイルで `cargo fmt` または `rustfmt` を実行する。Kamaeではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、unsafe、永続化の変更を確認しやすくするための手段である。
 
-`rustfmt` が戻す手整列をしない。複雑条件を隠す formatting トリックより、小さな helper 関数または named value object を優先。
+`rustfmt` が戻す手整列をしない。複雑条件を隠すformattingトリックより、小さなhelper関数またはnamed value objectを優先。
 
 ## Clippy ベースライン
 
-Rust crate があるプロジェクトでは関連 package または workspace で `cargo clippy` を実行。既存コマンドがあればそれを使う。
+Rust crateがあるプロジェクトでは関連packageまたはworkspaceで `cargo clippy` を実行。既存コマンドがあればそれを使う。
 
-推奨デフォルト:
+推奨デフォルト：
 
 ```bash
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
-feature、package、warning ポリシーはリポジトリに合わせて調整。無関係な変更でより厳しい global lint ポリシーを安易に導入しない。
+feature、package、warningポリシーはリポジトリに合わせて調整。無関係な変更でより厳しいglobal lintポリシーを安易に導入しない。
 
 ## ワークスペース lint 統一
 
-複数ドメイン crate の workspace では lint ポリシーを集中し、adapter と domain crate が同じバーを共有する。
+複数ドメインcrateのworkspaceではlintポリシーを集中し、adapterとdomain crateが同じバーを共有する。
 
 ### ルート `Cargo.toml` — 継承 lint（Rust 1.74+）
 
@@ -93,11 +93,11 @@ name = "booking-domain"
 workspace = true
 ```
 
-メンバー crate は `[lints] workspace = true` で継承。1 crate（例: `booking-domain`）だけ追加 `deny` で引き締め、リスト全体をコピーしない。
+メンバー crateは `[lints] workspace = true` で継承。1 crate（例： `booking-domain`）だけ追加 `deny` で引き締め、リスト全体をコピーしない。
 
 ### `clippy.toml` 推奨
 
-ワークスペースルートに配置:
+ワークスペースルートに配置：
 
 ```toml
 # Reject short, ambiguous names in public domain APIs
@@ -110,56 +110,56 @@ disallowed-names = ["foo", "bar", "baz"]
 # cognitive-complexity-threshold = 25
 ```
 
-ドメイン crate で通貨に `f64` を禁止するとき `disallowed-methods` または `disallowed-types` を追加（nightly または review による規律）。
+ドメインcrateで通貨に `f64` を禁止するとき `disallowed-methods` または `disallowed-types` を追加（nightlyまたはreviewによる規律）。
 
-`clippy.toml` はローカル dev と同じフラグの CI とセット。[CI セットアップ](/docs/kamae-rs/ci-setup/) 参照。
+`clippy.toml` はローカルdevと同じフラグのCIとセット。[CI セットアップ](/docs/kamae-rs/ci-setup/) 参照。
 
 ## ドメイン安全性で重要な lint
 
-無効状態や運用失敗を隠しうる lint とパターンに特に注意:
+無効状態や運用失敗を隠しうるlintとパターンに特に注意：
 
 - ドメイン/ユースケースの `unwrap_used`、`expect_used`、`panic`、未チェック索引
 - テストや証明済み不変条件外の `todo`、`unimplemented`、`unreachable`
-- 不自然なドメイン境界を示す `large_enum_variant`、`result_large_err`、不要 clone
+- 不自然なドメイン境界を示す `large_enum_variant`、`result_large_err`、不要clone
 - 金額、数量、期間、単位の `float_cmp`、疑わしい算術、ロッシーキャスト
-- ドメイン enum の `wildcard_enum_match_arm` と広い `_`
+- ドメインenumの `wildcard_enum_match_arm` と広い `_`
 - 敏感または不変条件付き型の `derive_partial_eq_without_eq`、広い `derive(Debug)`、serialization derive
-- ユースケース/adapter の `await_holding_lock`、デタッチタスク、無視 `Result`
+- ユースケース/adapterの `await_holding_lock`、デタッチタスク、無視 `Result`
 
-上記すべてを global 有効にする必要はない。触ったコードやローカル設定に現れた review シグナルとして使う。
+上記すべてをglobal有効にする必要はない。触ったコードやローカル設定に現れたreviewシグナルとして使う。
 
 ## 抑制ルール
 
-`#[allow(...)]` は可能な限り狭く:
+`#[allow(...)]` は可能な限り狭く：
 
-- crate レベルより item/expression レベルを優先
-- 正確性、安全、PII、persistence、error handling に触れる lint 抑制には短い理由
-- 本番コードで `#![allow(warnings)]`、`#![allow(clippy::all)]`、広い module allow を避ける
+- crateレベルよりitem/expressionレベルを優先
+- 正確性、安全、PII、persistence、error handlingに触れるlint抑制には短い理由
+- 本番コードで `#![allow(warnings)]`、`#![allow(clippy::all)]`、広いmodule allowを避ける
 
-良い例:
+良い例：
 
 ```rust
 #[allow(clippy::result_large_err, reason = "error enum preserves exhaustive domain handling")]
 pub fn assign_driver(...) -> Result<..., AssignDriverError> { ... }
 ```
 
-toolchain が `reason` 非対応なら近くにコメント。
+toolchainが `reason` 非対応なら近くにコメント。
 
 ## 生成コードと第三者コード
 
-生成 binding、vendored、外部維持スナップショットをドメインと同じ lint バーに通さない。生成元を文書化し隔離。
+生成binding、vendored、外部維持スナップショットをドメインと同じlintバーに通さない。生成元を文書化し隔離。
 
-生成コードは広い allow 可。生成/FFI 周りの safe wrapper は unsafe 境界と境界検証ガイダンスに従う。
+生成コードは広いallow可。生成/FFI周りのsafe wrapperはunsafe境界と境界検証ガイダンスに従う。
 
 ## CI 期待
 
-[品質ゲート](/docs/kamae-rs/quality-gates/) のベースラインを CI job で実行:
+[品質ゲート](/docs/kamae-rs/quality-gates/) のベースラインをCI jobで実行：
 
 - `cargo fmt --all -- --check`
-- リポジトリ feature/package 行列での `cargo clippy`
-- ドメイン constructor、遷移、境界変換、unsafe wrapper、persistence 挙動に関連するテスト
+- リポジトリfeature/package行列での `cargo clippy`
+- ドメインconstructor、遷移、境界変換、unsafe wrapper、persistence挙動に関連するテスト
 
-フル workspace チェックが速くないプロジェクトでは、変更コードをカバーする最小 package/feature を実行し制限を明記。workflow テンプレートと branch protection は [CI セットアップ](/docs/kamae-rs/ci-setup/) 参照。
+フルworkspaceチェックが速くないプロジェクトでは、変更コードをカバーする最小package/featureを実行し制限を明記。workflowテンプレートとbranch protectionは [CI セットアップ](/docs/kamae-rs/ci-setup/) 参照。
 
 ## よくある crate 組み合わせ
 
@@ -169,18 +169,18 @@ toolchain が `reason` 非対応なら近くにコメント。
 | domain crate のみ厳格 | `booking-domain/Cargo.toml` で `unwrap_used = "deny"` 上書き |
 | 生成 prost/FFI | 生成 module に `#[allow(...)]`; safe wrapper crate を lint |
 
-レビューでは、未フォーマットの変更、新規 clippy 警告、広い lint 抑制、ドメイン安全性リスクを隠す抑制、CI に表れないフォーマット / lint ゲートを指摘する。
+レビューでは、未フォーマットの変更、新規clippy警告、広いlint抑制、ドメイン安全性リスクを隠す抑制、CIに表れないフォーマット / lintゲートを指摘する。
 
 
 ## Rustdoc と型契約
 
-公開ドメイン API を変更したら `-D warnings` 付きで `cargo doc` を実行する。公開コンストラクタ、遷移、repository ポート、unsafe 周りの safe wrapper には、不変条件、エラー、panic、安全義務を文書化する。
+公開ドメインAPIを変更したら `-D warnings` 付きで `cargo doc` を実行する。公開コンストラクタ、遷移、repositoryポート、unsafe周りのsafe wrapperには、不変条件、エラー、panic、安全義務を文書化する。
 
-判別 state enum、port trait、`Result` エラー意味論、境界 DTO 変換、redaction 挙動の周辺で文書を弱めない。
+判別state enum、port trait、`Result` エラー意味論、境界DTO変換、redaction挙動の周辺で文書を弱めない。
 
 ## テスト
 
-ドメインコンストラクタ、遷移、DTO 変換、PII redaction、unsafe wrapper、repository トランザクション、outbox 挙動、リトライ/idempotency パス向けに焦点を当てたテストを実行する。
+ドメインコンストラクタ、遷移、DTO変換、PII redaction、unsafe wrapper、repositoryトランザクション、outbox挙動、リトライ/idempotencyパス向けに焦点を当てたテストを実行する。
 
 | 関心 | テスト場所 | ガイド |
 | --- | --- | --- |
@@ -189,15 +189,15 @@ toolchain が `reason` 非対応なら近くにコメント。
 | コンパイル時 state 安全性 | `trybuild` | [テストデータ](/docs/kamae-rs/test-data/#test-compile-time-state-safety) |
 | fake port とユースケース | `application` tests | [開発環境](/docs/kamae-rs/dev-environment/#fake-ports-and-test-fixtures) |
 
-生成バインディング、vendored コード、外部維持スナップショットはフル lint バーから免除してよいが、それらを包む safe wrapper は境界検証、PII、unsafe-boundary ガイダンスに従う。
+生成バインディング、vendoredコード、外部維持スナップショットはフルlintバーから免除してよいが、それらを包むsafe wrapperは境界検証、PII、unsafe-boundaryガイダンスに従う。
 
 ## レビュー観点
 
 ### 抑制された lint がドメイン安全性リスクを隠していないか — High
 
-パニック、境界チェックなしインデックス、広い列挙 match、損失のあるキャスト、浮動小数点の金額 / 数量比較、無視された `Result`、`await_holding_lock`、unsafe ブロック、PII の `Debug`、境界デシリアライズに関する抑制や無視された警告を指摘する。
+パニック、境界チェックなしインデックス、広い列挙match、損失のあるキャスト、浮動小数点の金額 / 数量比較、無視された `Result`、`await_holding_lock`、unsafeブロック、PIIの `Debug`、境界デシリアライズに関する抑制や無視された警告を指摘する。
 
-抑制が無効な状態の許容、データ損失、PII 漏洩、不健全性、永続化失敗の見逃しにつながる場合はエスカレートする。
+抑制が無効な状態の許容、データ損失、PII漏洩、不健全性、永続化失敗の見逃しにつながる場合はエスカレートする。
 
 ### lint 抑制は狭く正当化されているか — Medium
 
@@ -207,19 +207,19 @@ toolchain が `reason` 非対応なら近くにコメント。
 
 ### 関連パッケージの lint 結果はクリーンか — Medium
 
-リポジトリが通常 `cargo clippy`、`cargo check`、または同等の CI を触ったパッケージで走らせるのに、新しい警告やスキップされた lint ゲートがある場合は指摘する。
+リポジトリが通常 `cargo clippy`、`cargo check`、または同等のCIを触ったパッケージで走らせるのに、新しい警告やスキップされたlintゲートがある場合は指摘する。
 
 リポジトリが `-D warnings` を使っていないのに新しいグローバル方針を要求しない。既存のローカルコマンドを走らせ、触ったコードの警告を直すことを推奨する。
 
 ### フォーマット / lint ゲートは CI またはパッケージ検証に表れているか — Low
 
-Rust ソース変更があるのにフォーマットと lint チェックの実行方法が文書化されていないパッケージを指摘する。`cargo fmt --check` とプロジェクトの関連 `cargo clippy` コマンドを提案する。
+Rustソース変更があるのにフォーマットとlintチェックの実行方法が文書化されていないパッケージを指摘する。`cargo fmt --check` とプロジェクトの関連 `cargo clippy` コマンドを提案する。
 
-ドキュメントのみの小変更を Rust CI 欠如でブロックしない。
+ドキュメントのみの小変更をRust CI欠如でブロックしない。
 
 ### 触った Rust コードはフォーマットされているか — Low
 
-生成コードやベンダーコードを除き、`cargo fmt --check` や `rustfmt --check` に失敗する触った Rust ファイルを指摘する。
+生成コードやベンダーコードを除き、`cargo fmt --check` や `rustfmt --check` に失敗する触ったRustファイルを指摘する。
 
-フォーマットの所見は、リスクのあるドメイン、unsafe、PII、永続化、境界変更を隠さない限り Low のままにする。
+フォーマットの所見は、リスクのあるドメイン、unsafe、PII、永続化、境界変更を隠さない限りLowのままにする。
 

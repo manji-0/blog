@@ -4,34 +4,34 @@ sidebar:
   order: 10
 ---
 
-CI はローカルで再現できる品質ゲートをマージ前に強制する層である。`scalafmt` / `scalafix` / テストが PR で抜けると、ドメイン安全性のレビュー前提が崩れる。
+CIはローカルで再現できる品質ゲートをマージ前に強制する層である。`scalafmt` / `scalafix` / テストがPRで抜けると、ドメイン安全性のレビュー前提が崩れる。
 
 正規コマンドは [品質ゲート](/docs/kamae-scala/quality-gates/)。`kamae-scala` スキルリポジトリ自体の開発は [スキルリポジトリの開発](/docs/kamae-scala/development-setup/)、アプリケーションの日常開発は [開発環境](/docs/kamae-scala/dev-environment/) を読む。
 
 ## 基本方針
 
-CI はレビュアが依存する安全シグナルを強制する。フォーマット、lint、テスト、Scaladoc、パッケージ固有検証がそれに当たる。デフォルトのパイプラインは単純で高速に保ち、リスク低減の効果が見込める場合にのみ、負荷の高いチェックを追加する。
+CIはレビュアが依存する安全シグナルを強制する。フォーマット、lint、テスト、Scaladoc、パッケージ固有検証がそれに当たる。デフォルトのパイプラインは単純で高速に保ち、リスク低減の効果が見込める場合にのみ、負荷の高いチェックを追加する。
 
-既存コマンドを先に使う。CI がなければ、変更した Scala ドメインコードをカバーする最小 workflow から始める。
+既存コマンドを先に使う。CIがなければ、変更したScalaドメインコードをカバーする最小workflowから始める。
 
 ## スキルリポジトリ workflow
 
-`kamae-scala` リポジトリは `.github/workflows/ci.yml` で 2 ジョブを実行する:
+`kamae-scala` リポジトリは `.github/workflows/ci.yml` で2ジョブを実行する：
 
 | ジョブ | 目的 |
 | --- | --- |
 | `package` | `validate_package.py`、review-probe スモークテスト、Python 構文チェック |
 | `scala` | `scalafmtCheckAll`、`scalafixAll --check`、compile、test、`taxiRequest` の Scaladoc |
 
-Scala ジョブは `package` に依存し、マニフェスト / リンク失敗を JVM ツールチェーン取得前に早期失敗させる。
+Scalaジョブは `package` に依存し、マニフェスト / リンク失敗をJVMツールチェーン取得前に早期失敗させる。
 
-ローカル再現:
+ローカル再現：
 
 ```bash
 ./scripts/ci.sh
 ```
 
-ステップごと:
+ステップごと：
 
 ```bash
 python3 scripts/validate_package.py
@@ -41,15 +41,15 @@ sbt scalafmtCheckAll "scalafixAll --check" "project taxiRequest" compile Test/co
 
 ## 必須レビュアーチェック
 
-Kamae スタイルの Scala アプリケーションプロジェクトの CI には、最低限次を含める:
+KamaeスタイルのScalaアプリケーションプロジェクトのCIには、最低限次を含める：
 
 1. `sbt scalafmtCheckAll`
-2. scalafix ルールが設定されているとき `sbt "scalafixAll --check"`
+2. scalafixルールが設定されているとき `sbt "scalafixAll --check"`
 3. 可能なら `-Xfatal-warnings` 付きの `sbt compile Test/compile`
 4. `sbt test`
-5. ライブラリ公開または公開ドメイン API 文書化があるとき `sbt doc`
+5. ライブラリ公開または公開ドメインAPI文書化があるとき `sbt doc`
 
-スキル / プラグインリポジトリでは追加で:
+スキル / プラグインリポジトリでは追加で：
 
 ```bash
 python3 scripts/validate_package.py
@@ -58,7 +58,7 @@ python3 skills/kamae-scala-review/scripts/review_probe.py <domain-or-example-pat
 
 ## 代表的なマトリクス
 
-使うスタックに CI を合わせる:
+使うスタックにCIを合わせる：
 
 | スタック | 追加 |
 | --- | --- |
@@ -69,22 +69,22 @@ python3 skills/kamae-scala-review/scripts/review_probe.py <domain-or-example-pat
 
 ## workflow の衛生
 
-- Java を LTS（17 または 21）に pin し、`actions/setup-java` で `cache: sbt` を有効にする。
-- `sbt/setup-sbt@v1` で `project/build.properties` の sbt バージョンを使う。
-- PR に `concurrency` と `cancel-in-progress: true` を追加する。
+- JavaをLTS（17または21）にpinし、`actions/setup-java` で `cache: sbt` を有効にする。
+- `sbt/setup-sbt@v1` で `project/build.properties` のsbtバージョンを使う。
+- PRに `concurrency` と `cancel-in-progress: true` を追加する。
 - ジョブがより多くを要さない限り `permissions: contents: read` を保つ。
 
 ## リスク連動の安全ジョブ
 
-次を使うコードベースでは専用ジョブを追加する:
+次を使うコードベースでは専用ジョブを追加する：
 
-- JNI またはネイティブライブラリ
+- JNIまたはネイティブライブラリ
 - 暗号 / トークン処理
-- 本番形状データに触れる migration スクリプト
+- 本番形状データに触れるmigrationスクリプト
 
 ## アプリケーションテンプレート
 
-アプリケーションリポジトリのブートストラップ用スターター workflow は `skills/kamae-scala/assets/templates/github-ci.yml` を参照する。
+アプリケーションリポジトリのブートストラップ用スターター workflowは `skills/kamae-scala/assets/templates/github-ci.yml` を参照する。
 
 同梱スクリプトでコピー:
 
@@ -95,15 +95,15 @@ python3 path/to/kamae-scala/skills/kamae-scala/scripts/apply_templates.py --targ
 
 スクリプトはデフォルト非破壊。プレビューは `--dry-run`、意図的置換のみ `--force`。
 
-Kamae review probe を CI または pre-push に追加可能:
+Kamae review probeをCIまたはpre-pushに追加可能：
 
 ```bash
 python3 path/to/kamae-scala/skills/kamae-scala-review/scripts/review_probe.py \
   domain/src/main/scala application/src/main/scala --json
 ```
 
-probe はデフォルト advisory。ドメイン型の迂回、PII 用語、境界漏れの review lead として使い、チームが方針化しない限り必須 merge gate にしない。
+probeはデフォルトadvisory。ドメイン型の迂回、PII用語、境界漏れのreview leadとして使い、チームが方針化しない限り必須merge gateにしない。
 
 ## ローカルとの差分
 
-[開発環境](/docs/kamae-scala/dev-environment/#ローカルと-ci-が異なるとき) と同様、README または `CONTRIBUTING.md` にローカルと CI の差分を文書化する。助言的 probe ジョブとマージブロッカーを区別する。
+[開発環境](/docs/kamae-scala/dev-environment/#ローカルと-ci-が異なるとき) と同様、READMEまたは `CONTRIBUTING.md` にローカルとCIの差分を文書化する。助言的probeジョブとマージブロッカーを区別する。

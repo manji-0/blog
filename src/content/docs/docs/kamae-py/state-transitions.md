@@ -10,7 +10,7 @@ sidebar:
 
 ## 有効な遷移を関数として表現する
 
-関数名はビジネスコマンド（`assign_driver` など）に合わせ、引数は遷移に必要なコンテキスト（アクター、時刻、外部 ID）だけに絞る。戻り値は新しい状態と、必要ならドメインイベントをタプルで返す。
+関数名はビジネスコマンド（`assign_driver` など）に合わせ、引数は遷移に必要なコンテキスト（アクター、時刻、外部ID）だけに絞る。戻り値は新しい状態と、必要ならドメインイベントをタプルで返す。
 
 ```python
 from datetime import datetime
@@ -26,9 +26,9 @@ def assign_driver(waiting: Waiting, driver_id: UUID, now: datetime) -> EnRoute:
     )
 ```
 
-1 つの状態だけが有効なときは、全体の共用体を受け入れない。`assign_driver(request: TaxiRequest, ...)` のように広い型を受け取ると、型チェックでは防げた無効状態を実行時に拒否する必要が生じる。
+1つの状態だけが有効なときは、全体の共用体を受け入れない。`assign_driver(request: TaxiRequest, ...)` のように広い型を受け取ると、型チェックでは防げた無効状態を実行時に拒否する必要が生じる。
 
-アグリゲート全体の共用体は API、リポジトリ、シリアライズ、またはディスパッチの境界に置く。これらの境界では、直ちに狭い状態型を受け入れるハンドラーへ委譲する。
+アグリゲート全体の共用体はAPI、リポジトリ、シリアライズ、またはディスパッチの境界に置く。これらの境界では、直ちに狭い状態型を受け入れるハンドラーへ委譲する。
 
 ## 共有遷移には部分共用体を使う
 
@@ -59,7 +59,7 @@ class TransitionOutcome[TState, TEvent](DomainModel):
     events: tuple[TEvent, ...]
 ```
 
-PEP 695 のジェネリックモデル構文には Pydantic 2.11 以降が必要である。それより前の 2.x 系では、代わりに `typing.Generic` を継承する。
+PEP 695のジェネリックモデル構文にはPydantic 2.11以降が必要である。それより前の2.x系では、代わりに `typing.Generic` を継承する。
 
 ## ユースケースは薄く保つ
 
@@ -85,7 +85,7 @@ async def assign_driver_use_case(
 
 `Ok` / `Err` の名前はプロジェクトがすでに使っている結果ライブラリに合わせる。プロジェクトがアプリケーションサービスに例外を使うなら、期待されるドメイン失敗は具体的に保ち、コントローラー境界で変換する。
 
-非同期 `Result` の合成とインフラエラーの境界については [エラーハンドリング](/docs/kamae-py/error-handling/) を読む。1 コマンドのトランザクション範囲については [永続化、集約、イベント](/docs/kamae-py/persistence-events/) を読む。
+非同期 `Result` の合成とインフラエラーの境界については [エラーハンドリング](/docs/kamae-py/error-handling/) を読む。1コマンドのトランザクション範囲については [永続化、集約、イベント](/docs/kamae-py/persistence-events/) を読む。
 
 ## 遷移の前に認可する
 
@@ -109,13 +109,13 @@ async def assign_driver_use_case(
 
 ## 並行遷移を保護する
 
-2 つのコマンドが競合しうるとき、ライフサイクルと残高の遷移には並行性保護が必要である。システムのアーキテクチャに応じて、楽観的バージョンフィールド、条件付き更新、一意制約、冪等性キー、行ロック、シリアライザブルトランザクション、または単一ライターキューを使う。
+2つのコマンドが競合しうるとき、ライフサイクルと残高の遷移には並行性保護が必要である。システムのアーキテクチャに応じて、楽観的バージョンフィールド、条件付き更新、一意制約、冪等性キー、行ロック、シリアライザブルトランザクション、または単一ライターキューを使う。
 
 リポジトリプロトコルは並行性の期待を明示すべきだ。[永続化、集約、イベント](/docs/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規** `RequestStore` シグネチャ（`expected_version`、`idempotency_key`、イベントタプル）を使う。
 
 ## ドメインイベントを不変レコードとしてモデル化する
 
-イベントモデルは、発行するアグリゲートまたはユースケースの横に置く。アグリゲートのアイデンティティとタイムスタンプを含める。状態とイベントを 1 トランザクションで永続化する。
+イベントモデルは、発行するアグリゲートまたはユースケースの横に置く。アグリゲートのアイデンティティとタイムスタンプを含める。状態とイベントを1トランザクションで永続化する。
 
 ```python
 class DriverAssigned(DomainModel):
@@ -131,7 +131,7 @@ class DriverAssigned(DomainModel):
 
 ## 網羅性をチェックする
 
-判別共用体を分岐するときは `typing.assert_never` を使う。Python 3.11+ では標準ライブラリにある。十分に strict なモードで pyright または mypy を実行する。
+判別共用体を分岐するときは `typing.assert_never` を使う。Python 3.11+ では標準ライブラリにある。十分にstrictなモードでpyrightまたはmypyを実行する。
 
 ```python
 from typing import assert_never
@@ -153,13 +153,13 @@ def describe(request: TaxiRequest) -> str:
             assert_never(request)
 ```
 
-プロジェクトのバージョンで型チェッカーが Pydantic 共用体を絞り込めない場合は、`request.kind` で分岐し、`assert_never` フォールバックを維持する。
+プロジェクトのバージョンで型チェッカーがPydantic共用体を絞り込めない場合は、`request.kind` で分岐し、`assert_never` フォールバックを維持する。
 
 ## レビュー観点
 
 ### ミューテータは不変条件を保つか — High
 
-クロスフィールドルール、ライフサイクル制限、合計、タイムスタンプ、所有権、テナントスコープを破りうる setter、`model_copy(update=...)`、部分更新コマンドを指摘する。
+クロスフィールドルール、ライフサイクル制限、合計、タイムスタンプ、所有権、テナントスコープを破りうるsetter、`model_copy(update=...)`、部分更新コマンドを指摘する。
 
 ### 並行遷移は保護されているか — High
 

@@ -9,7 +9,7 @@ title: AtCoderで入緑した
 
 ## 精進の記録
 
-参加し始めてからおおよそ5ヶ月くらい。精進はあんまりできてなかったです。
+参加し始めてからおおよそ5か月くらい。精進はあんまりできてなかったです。
 
 ![pie](../../assets/img/atcoder_green/pie.png)
 
@@ -19,7 +19,7 @@ title: AtCoderで入緑した
 
 ただ「やったこと」自体は実力向上に繋がっていたと思います。
 
-* Two Pointers Technique (尺取り法含む)
+* Two Pointers Technique（尺取り法含む）
 * BIT、平方分割を使ったクエリ高速化
 * UnionFindでシンプルに殴る
 * 基礎中の基礎部分のDP
@@ -30,16 +30,16 @@ title: AtCoderで入緑した
 
 また、
 
-* 再帰を使わない深さ優先探索の書き慣れ (※Python勢なので再帰を使わないテクが地味に大事)
+* 再帰を使わない深さ優先探索の書き慣れ（※Python勢なので再帰を使わないテクが地味に大事）
 * 幅優先探索の書き慣れ
 * set/dictなどのハッシュテーブルの使い慣れ
 * collections.dequeやitertools.permutations/productなどの使い慣れ
 
 あたりは「基礎的な処理を十分速く書けるようにする」ために大事です。これは灰~茶diffあたりの問題を選んで100問くらい解くと身に付くと思います。
 
-上の2種類を合計150問くらい解いたら、緑コーダー向けの知識と経験が揃い得るのではないかと思います。(僕はそうなってた)
+上の2種類を合計150問くらい解いたら、緑コーダー向けの知識と経験が揃い得るのではないかと思います。（僕はそうなってた）
 
-多分[AtCoder ProblemsのTraining](https://kenkoooo.com/atcoder/#/training)のEasy&Mediumを全部(計200問)解いたら余裕です。僕は解けてないですが。
+多分[AtCoder ProblemsのTraining](https://kenkoooo.com/atcoder/#/training)のEasy&Mediumを全部（計200問）解いたら余裕です。僕は解けてないですが。
 
 ![training](../../assets/img/atcoder_green/training.png)
 

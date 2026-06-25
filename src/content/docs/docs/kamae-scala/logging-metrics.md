@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-`log4cats` やメトリクスは障害調査の主経路である。関数名だけのログや、生 ID をラベルにしたメトリクスは、原因特定を遅らせるうえ漏洩経路にもなる。
+`log4cats` やメトリクスは障害調査の主経路である。関数名だけのログや、生IDをラベルにしたメトリクスは、原因特定を遅らせるうえ漏洩経路にもなる。
 
-遷移の記録はユースケース境界で行う（[状態遷移](/docs/kamae-scala/state-transitions/)）。マスキングと ID 分類は [PII 保護](/docs/kamae-scala/pii-protection/)、エラーの一度きりの記録は [エラーハンドリング](/docs/kamae-scala/error-handling/) と整合させる。
+遷移の記録はユースケース境界で行う（[状態遷移](/docs/kamae-scala/state-transitions/)）。マスキングとID分類は [PII 保護](/docs/kamae-scala/pii-protection/)、エラーの一度きりの記録は [エラーハンドリング](/docs/kamae-scala/error-handling/) と整合させる。
 
 <!-- constrained-by ./pii-protection.md -->
 <!-- constrained-by ./state-transitions.md -->
@@ -14,11 +14,11 @@ sidebar:
 
 ## ドメインコンテキストで log する
 
-各ログエントリは次の 3 点に答える。何が起きたか、どのドメインオブジェクトに関する事象か、なぜ重要か。ログはドメイン不変条件の内部ではなく、ユースケース、アプリケーションサービス、アダプターから出力する。
+各ログエントリは次の3点に答える。何が起きたか、どのドメインオブジェクトに関する事象か、なぜ重要か。ログはドメイン不変条件の内部ではなく、ユースケース、アプリケーションサービス、アダプターから出力する。
 
-1. **意味のあるメッセージ**: 関数名ではなく domain 用語でイベントや判断を述べる。「`assignDriver called`」より「driver assigned to waiting request」。
-2. **Domain オブジェクト state**: 判断理解に必要な identifier、現 state variant、値。structured field を優先する。
-3. **遷移情報**: 操作目的が state 遷移なら、source state、target state、トリガー command または event。
+1. **意味のあるメッセージ**: 関数名ではなくdomain用語でイベントや判断を述べる。「`assignDriver called`」より「driver assigned to waiting request」。
+2. **Domain オブジェクト state**: 判断理解に必要なidentifier、現state variant、値。structured fieldを優先する。
+3. **遷移情報**: 操作目的がstate遷移なら、source state、target state、トリガー commandまたはevent。
 
 ```scala
 import org.typelevel.log4cats.Logger
@@ -45,11 +45,11 @@ def logAssignment[F[_]: Logger](log: AssignDriverLog): F[Unit] =
   )
 ```
 
-structured logging API（log4cats、key-value marker 付き SLF4J、OpenTelemetry log attribute）を、entity 全体の文字列補間より優先する。
+structured logging API（log4cats、key-value marker付きSLF4J、OpenTelemetry log attribute）を、entity全体の文字列補間より優先する。
 
 ## 構造化ログを優先する
 
-人間可読文から意味を parse せず key-value field を使う。集約が message でグループ化し field で filter できるよう log テンプレートを安定させる。
+人間可読文から意味をparseせず、key-value fieldを使う。集約はmessageでグループ化し、fieldによるfilterができるようlogテンプレートを安定させる。
 
 ```scala
 // Good: stable template, structured context map or MDC.
@@ -62,30 +62,30 @@ Logger[F].info(Map(
 Logger[F].info(s"request ${requestId.value} persisted in state $state")
 ```
 
-log レベルを意図的に選ぶ:
+logレベルを意図的に選ぶ：
 
-- `ERROR`: domain 不変条件失敗、ユースケース完了不能、インフラ依存 unhealthy。secret を漏らさず再現に足る context。
-- `WARN`: リトライ可能 timeout など回復可能異常、予期外だが処理済み edge case。
-- `INFO`: 重要ビジネスイベントまたはライフサイクル step。
-- `DEBUG`: 特定問題診断向け詳細 state。高コスト値は DEBUG で guard。
+- `ERROR`: domain不変条件失敗、ユースケース完了不能、インフラ依存unhealthy。secretを漏らさず再現に足るcontext。
+- `WARN`: リトライ可能timeoutなど回復可能異常、予期外だが処理済みedge case。
+- `INFO`: 重要ビジネスイベントまたはライフサイクルstep。
+- `DEBUG`: 特定問題診断向け詳細state。高コスト値はDEBUGでguard。
 
 ## log から PII 漏洩を防ぐ
 
-log は長寿命で広くアクセス可能: 公開境界として扱う。[PII 保護](/docs/kamae-scala/pii-protection/) と [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) のルールに従う。
+logは長寿命で広くアクセス可能： 公開境界として扱う。[PII 保護](/docs/kamae-scala/pii-protection/) と [ライブラリガイド（secrets）](/docs/kamae-scala/library-guides/#secrets) のルールに従う。
 
-- raw 氏名、メール、電話、住所、位置、token、資格情報を log しない。
-- opaque 型と redacting wrapper で `toString` と structured field の accidental 露出を防ぐ。
-- identifier が sensitive なら hash または opaque reference を log。
+- raw氏名、メール、電話、住所、位置、token、資格情報をlogしない。
+- opaque型とredacting wrapperで `toString` とstructured fieldのaccidental露出を防ぐ。
+- identifierがsensitiveならhashまたはopaque referenceをlog。
 
 分類ルールは [どの ID を log に載せるか](#どの-id-を-log-に載せるか) 参照。
 
 ## どの ID を log に載せるか
 
-identifier を分類してから log、span、metrics、error へ到達させる。フィールド名は safe を決めない。identifier の意味、 derivation、再識別リスクが決める。
+identifierを分類してからlog、span、metrics、errorへ到達させる。フィールド名はsafeを決めない。identifierの意味、 derivation、再識別リスクが決める。
 
 ### デフォルト: log してよい
 
-運用相関に役立ち secret や直接個人 identity を露出しないとき:
+運用相関に役立ちsecretや直接個人identityを露出しないとき：
 
 | 種別 | 例 | 通常安全な理由 |
 | --- | --- | --- |
@@ -95,16 +95,16 @@ identifier を分類してから log、span、metrics、error へ到達させる
 | Tenant / org context | `tenantId`, `organizationId`, `fleetId` | アクセス制御下 multi-tenant ops に必要 |
 | Bounded domain enums | `state`, `commandName`, `eventType`, `errorCode` | 低 cardinality。個人データではない |
 
-「log してよい」の要件:
+「logしてよい」の要件：
 
-1. **Opaque surrogate**: システム内ランダムまたは sequential。email、phone、氏名、政府 ID、カードデータ由来でない。
-2. **Secret ではない**: session token、API key、password、signed URL capability ではない。
-3. **単体再識別リスク低**: 値単体がアプリ制御 datastore 外で自然人を特定しない。
-4. **Safe `toString` / `Show`**: opaque 型の formatting 経路が log 向けに review 済みで nested PII を露出しない。
+1. **Opaque surrogate**: システム内ランダムまたはsequential。email、phone、氏名、政府ID、カードデータ由来でない。
+2. **Secret ではない**: session token、API key、password、signed URL capabilityではない。
+3. **単体再識別リスク低**: 値単体がアプリ制御datastore外で自然人を特定しない。
+4. **Safe `toString` / `Show`**: opaque型のformatting経路がlog向けにreview済みでnested PIIを露出しない。
 
 ### デフォルト: log しない
 
-一般 application log、span、metrics label、error 文字列に載せない:
+一般application log、span、metrics label、error文字列に載せない：
 
 | 種別 | 例 | 理由 |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ identifier を分類してから log、span、metrics、error へ到達させる
 | Precise location | lat/long, full street address | 位置プライバシー |
 | Network identity | client IP, device fingerprint | tracking / PII |
 
-インシデントでこれらが必要なら、明示認可付き restricted audit export へ。一般 log retention を広げて載せない。
+インシデントでこれらが必要なら、明示認可付きrestricted audit exportへ。一般log retentionを広げて載せない。
 
 ### 条件付き: domain model で分類
 
@@ -127,14 +127,14 @@ identifier を分類してから log、span、metrics、error へ到達させる
 | `deviceId`, `installationId` | tracking リスク方針が低い opaque app 生成 surrogate | vendor advertising ID または hardware serial |
 | `externalId`, `partnerRef` | 契約上 ops log 可な opaque partner reference | partner 供給値に email、phone、national ID |
 
-条件付き ID を log 可能にするとき named opaque 型。log 不可は `Redacted[T]`、adapter-only `expose`（[PII 保護](/docs/kamae-scala/pii-protection/) 参照）。
+条件付きIDをlog可能にするときnamed opaque型。log不可は `Redacted[T]`、adapter-only `expose`（[PII 保護](/docs/kamae-scala/pii-protection/) 参照）。
 
 ### metric と span の ID ルール
 
-log safe な ID が metric label で自動 safe ではない。
+log safeなIDがmetric labelで自動safeではない。
 
-- **Log する**: backend が許容する request あたり cardinality なら log field と trace attribute に aggregate ID
-- **metric label にしない**: raw user/customer/passenger ID、timestamp、email、phone、IP、無界 string。`state`、`command`、`errorCode`、有界 `tenantId` など有界 domain label
+- **Log する**: backendが許容するrequestあたりcardinalityならlog fieldとtrace attributeにaggregate ID
+- **metric label にしない**: raw user/customer/passenger ID、timestamp、email、phone、IP、無界string。`state`、`command`、`errorCode`、有界 `tenantId` など有界domain label
 
 ```scala
 // Good: bounded domain vocabulary.
@@ -146,19 +146,19 @@ metrics.counter("notification.sent", "userId" -> userId.value).increment()
 
 ### クイック判断チェックリスト
 
-log 行に ID を足す前:
+log行にIDを足す前：
 
-1. secret または auth token か。Yes なら log しない。
-2. 直接 PII または規制 identifier か。Yes なら log しない。
-3. 埋め込み PII なし自システム opaque surrogate か。Yes なら通常 log 可。
-4. この field（`toString`/span/metric label）で意図以上を露出しないか。Yes なら redact、restricted audit のみ。
-5. 型の formatting が safe logging 向け review 済みか。No なら log 前に型を直す。
+1. secretまたはauth tokenか。Yesならlogしない。
+2. 直接PIIまたは規制identifierか。Yesならlogしない。
+3. 埋め込みPIIなし自システムopaque surrogateか。Yesなら通常log可。
+4. このfield（`toString`/span/metric label）で意図以上を露出しないか。Yesならredact、restricted auditのみ。
+5. 型のformattingがsafe logging向けreview済みか。Noならlog前に型を直す。
 
 ## state 遷移を明示的に log
 
-state 遷移は domain 振る舞いの中心。before/after state を log し trace、audit、インシデント調査でライフサイクル再構築可能に。
+state遷移はdomain振る舞いの中心。before/after stateをlogしtrace、audit、インシデント調査でライフサイクル再構築可能に。
 
-遷移が event を出すとき、payload 全体ではなく event 名または type（payload が safe で ops に有用な場合を除く）。
+遷移がeventを出すとき、payload全体ではなくevent名またはtype（payloadがsafeでopsに有用な場合を除く）。
 
 ```scala
 Logger[F].info(Map(
@@ -169,11 +169,11 @@ Logger[F].info(Map(
 ))("driver assignment completed")
 ```
 
-domain レベル log はトランザクションを所有するユースケース近く。getter や validation helper 各所に散らさない。
+domainレベルlogはトランザクションを所有するユースケース近く。getterやvalidation helper各所に散らさない。
 
 ## error を actionable に
 
-domain error に失敗経路と影響 object を追跡できる context。周囲ユースケースの structured identifier を再利用。ad-hoc ラベルを作らない。
+domain errorに失敗経路と影響objectを追跡できるcontext。周囲ユースケースのstructured identifierを再利用。ad-hocラベルを作らない。
 
 ```scala
 repository.findWaiting(requestId).flatMap {
@@ -185,11 +185,11 @@ repository.findWaiting(requestId).flatMap {
 }
 ```
 
-各層で同一失敗を log しない。ユースケースまたは application service が権威 log 行を所有し typed error を上へ。
+各層で同一失敗をlogしない。ユースケースまたはapplication serviceが権威log行を所有しtyped errorを上へ。
 
 ## 構造化ログと error chain 統合
 
-`Either` error ADT と logging を連携し、1 log 行で domain context と根因を見せる。
+`Either` error ADTとloggingを連携し、1 log行でdomain contextと根因を見せる。
 
 ```scala
 execute(requestId, driver).flatMap {
@@ -205,23 +205,23 @@ execute(requestId, driver).flatMap {
 }
 ```
 
-ガイドライン:
+ガイドライン：
 
-- error ADT の `toString` は nested error 経由で `cause` を含める
-- domain field（`requestId`、`command`、`errorCode`）を error の `toString` 内ではなく横に
-- raw client error を意味論 variant へマップしてから endpoint、SQL、secret を漏らさない
-- enum variant 由来 `errorCode` 等 bounded label で metric increment。full error text ではない
+- error ADTの `toString` はnested error経由で `cause` を含める
+- domain field（`requestId`、`command`、`errorCode`）をerrorの `toString` 内ではなく横に
+- raw client errorを意味論variantへマップしてからendpoint、SQL、secretを漏らさない
+- enum variant由来 `errorCode` 等bounded labelでmetric increment。full error textではない
 
-error ADT 設計は [エラーハンドリング](/docs/kamae-scala/error-handling/) と照合。ユースケースが richer domain context で同一失敗を log 済みなら repository adapter で重複 log しない。
+error ADT設計は [エラーハンドリング](/docs/kamae-scala/error-handling/) と照合。ユースケースがricher domain contextで同一失敗をlog済みならrepository adapterで重複logしない。
 
 ## Tracing と span（trace4cats / OpenTelemetry）
 
-trace4cats または OpenTelemetry を使うプロジェクトでは:
+trace4catsまたはOpenTelemetryを使うプロジェクトでは：
 
-- span はユースケース/application service 境界。internal helper 各所ではない
-- span 名は操作（`use_case.assign_driver`）、aggregate ID を運ぶ
-- attribute は明示追加。raw DTO や patient/user struct 全体を auto-serialize しない
-- log と同じ ID 分類ルールを適用
+- spanはユースケース/application service境界。internal helper各所ではない
+- span名は操作（`use_case.assign_driver`）、aggregate IDを運ぶ
+- attributeは明示追加。raw DTOやpatient/user struct全体をauto-serializeしない
+- logと同じID分類ルールを適用
 
 ```scala
 import trace4cats.Span
@@ -234,42 +234,42 @@ Span[F].trace("use_case.assign_driver") {
 }
 ```
 
-span を domain event や audit 記録と混同しない。observability 補助。耐久性は domain event 型または outbox。
+spanをdomain eventやaudit記録と混同しない。observability補助。耐久性はdomain event型またはoutbox。
 
 ## domain outcome を計測
 
-metrics は runtime 機構だけでなくビジネス outcome を反映。
+metricsはruntime機構だけでなくビジネスoutcomeを反映。
 
-- **Counters**: 遷移、command 受理/拒否、published event 等
-- **Histograms**: 各 aggregate state 滞在時間、ユースケース実行 latency 等
-- **Gauges**: 現在 waiting request 数等 point-in-state
+- **Counters**: 遷移、command受理/拒否、published event等
+- **Histograms**: 各aggregate state滞在時間、ユースケース実行latency等
+- **Gauges**: 現在waiting request数等point-in-state
 
-domain 型由来の一貫 label。TSDB 向け cardinality 低く。raw ID や timestamp より有界 state/command 名セット。
+domain型由来の一貫label。TSDB向けcardinality低く。raw IDやtimestampより有界state/command名セット。
 
 ## OpenTelemetry で telemetry export
 
-exporter は application startup のみ。domain/use-case は facade API（log4cats、Micrometer）に留める。
+exporterはapplication startupのみ。domain/use-caseはfacade API（log4cats、Micrometer）に留める。
 
-一般的な Scala スタック:
+一般的なScalaスタック：
 
-- **Metrics**: Micrometer + OTLP、または OpenTelemetry Java SDK を Cats Effect アプリの composition root で bridge
-- **Tracing**: trace4cats OTLP exporter、または JVM サービス向け OpenTelemetry agent
-- **Logs**: logback JSON appender または OTLP log exporter
+- **Metrics**: Micrometer + OTLP、またはOpenTelemetry Java SDKをCats Effectアプリのcomposition rootでbridge
+- **Tracing**: trace4cats OTLP exporter、またはJVMサービス向けOpenTelemetry agent
+- **Logs**: logback JSON appenderまたはOTLP log exporter
 
-domain/application 層を特定 vendor backend 向けに設計しない。
+domain/application層を特定vendor backend向けに設計しない。
 
 ## log と metrics を相関
 
-request、command、transaction 全体で correlation identifier を運ぶ。structured log に含め、実用的なら trace attribute で log/metrics/trace 間 pivot。
+request、command、transaction全体でcorrelation identifierを運ぶ。structured logに含め、実用的ならtrace attributeでlog/metrics/trace間pivot。
 
 ```scala
 val correlationId = CorrelationId.generate()
 // MDC, span attribute, or log context map
 ```
 
-span は internal call 各所ではなくユースケース境界。操作名と aggregate identifier。実行 thread 詳細ではない。
+spanはinternal call各所ではなくユースケース境界。操作名とaggregate identifier。実行thread詳細ではない。
 
-レビューでは、意味のないログメッセージ、ドメイン文脈の欠如、遷移ログの不足、非構造化ログ、ドメイン次元のないメトリクス、高カーディナリティラベル、PII 漏洩、誤分類 ID、重複エラーログを指摘する。
+レビューでは、意味のないログメッセージ、ドメイン文脈の欠如、遷移ログの不足、非構造化ログ、ドメイン次元のないメトリクス、高カーディナリティラベル、PII漏洩、誤分類ID、重複エラーログを指摘する。
 
 ## レビュー観点
 
@@ -281,17 +281,17 @@ span は internal call 各所ではなくユースケース境界。操作名と
 
 ### ログに載せる ID は正しく分類されているか — High
 
-本文の「ログに載せる ID」節も参照。文書化された安全性ではなくフィールド名の仮定で ID をログする箇所を指摘する。
+本文の「ログに載せるID」節も参照。文書化された安全性ではなくフィールド名の仮定でIDをログする箇所を指摘する。
 
-型の整形がレビュー済みで PII 由来でない場合、不透明サロゲート集約 ID（`requestId`、`orderId`、`correlationId`、内部 `transactionId`）には指摘しない。
+型の整形がレビュー済みでPII由来でない場合、不透明サロゲート集約ID（`requestId`、`orderId`、`correlationId`、内部 `transactionId`）には指摘しない。
 
 ### エラーチェーンはドメイン文脈付きで一度だけログされているか — Medium
 
-同一失敗を各アダプタ層で重複 log する、または error ADT の safe `toString` なしにエラーを文字列化するログを指摘する。
+同一失敗を各アダプタ層で重複logする、またはerror ADTのsafe `toString` なしにエラーを文字列化するログを指摘する。
 
 ### メトリクスのカーディナリティは制御されているか — Medium
 
-生 ID、タイムスタンプ、メールアドレス、無制限文字列をラベルに使う箇所を指摘する。
+生ID、タイムスタンプ、メールアドレス、無制限文字列をラベルに使う箇所を指摘する。
 
 ### ログメッセージは意味があるか — Medium
 
@@ -307,11 +307,11 @@ span は internal call 各所ではなくユースケース境界。操作名と
 
 ### エラーメトリクスは境界のあるラベルを使っているか — Low
 
-生エラーテキスト、SQL 断片、無制限文字列をラベルにするカウンタやヒストグラムを指摘する。
+生エラーテキスト、SQL断片、無制限文字列をラベルにするカウンタやヒストグラムを指摘する。
 
 ### メトリクスはドメイン結果に結びついているか — Low
 
-HTTP ステータスコード、スレッド数、汎用ランタイム値だけを数え、ドメイン次元のないメトリクスを指摘する。
+HTTPステータスコード、スレッド数、汎用ランタイム値だけを数え、ドメイン次元のないメトリクスを指摘する。
 
 ### ログは構造化され、レベルは適切か — Low
 

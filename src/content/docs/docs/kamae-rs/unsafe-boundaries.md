@@ -4,28 +4,28 @@ sidebar:
   order: 10
 ---
 
-`unsafe` ブロックはコンパイラの保証を外す。ドメイン型の中に置くのではなくアダプターに閉じ、安全 API の内側で前提・ライフタイム・エイリアシングを検証してから値を返す。
+`unsafe` ブロックはコンパイラの保証を外す。ドメイン型の中に置くのではなくアダプターに閉じ、安全APIの内側で前提・ライフタイム・エイリアシングを検証してから値を返す。
 
-通常の境界は [境界防御](/docs/kamae-rs/boundary-defense/)、doc 契約は [公開 API のドキュメント](/docs/kamae-rs/rustdoc/)、lint 方針は [品質ゲート](/docs/kamae-rs/quality-gates/) と揃える。
+通常の境界は [境界防御](/docs/kamae-rs/boundary-defense/)、doc契約は [公開 API のドキュメント](/docs/kamae-rs/rustdoc/)、lint方針は [品質ゲート](/docs/kamae-rs/quality-gates/) と揃える。
 
 ## 基本方針
 
-`unsafe` をドメインロジックから追い出す。ドメインエンティティ、値オブジェクト、状態遷移、ユースケース、DTO 変換、PII のマスキング、リポジトリ trait は、通常は safe Rust で書く。
+`unsafe` をドメインロジックから追い出す。ドメインエンティティ、値オブジェクト、状態遷移、ユースケース、DTO変換、PIIのマスキング、リポジトリtraitは、通常はsafe Rustで書く。
 
-許容コストで safe Rust に表現できない要求のときだけ `unsafe`:
+許容コストでsafe Rustに表現できない要求のときだけ `unsafe`:
 
-- FFI または OS/runtime 統合
-- raw pointer、メモリレイアウト、初期化を包む safe 抽象の実装
-- 契約上 unsafe 呼び出しを要求する crate との連携
-- safe 設計が不十分と証明された後の計測済み低レベル性能
+- FFIまたはOS/runtime統合
+- raw pointer、メモリレイアウト、初期化を包むsafe抽象の実装
+- 契約上unsafe呼び出しを要求するcrateとの連携
+- safe設計が不十分と証明された後の計測済み低レベル性能
 
-所有権、検証、constructor、privacy、serde 変換、tenant チェック、error handling を迂回するために `unsafe` を使わない。
+所有権、検証、constructor、privacy、serde変換、tenantチェック、error handlingを迂回するために `unsafe` を使わない。
 
 ## unsafe を safe API の背後に閉じ込める
 
 `unsafe` ブロックは可能な限り小さくし、コアのドメイン層ではなく、アダプターまたはインフラモジュールに置く。
 
-すべての前提を強制してから `unsafe` に入る safe API を公開:
+すべての前提を強制してから `unsafe` に入るsafe APIを公開：
 
 ```rust
 pub struct NonEmptyBytes(Vec<u8>);
@@ -46,28 +46,28 @@ impl NonEmptyBytes {
 }
 ```
 
-呼び出し側が前提を守る必要があるなら `unsafe fn` と `# Safety` セクション。モジュールが前提を自分でチェックできるなら safe 関数を優先。
+呼び出し側が前提を守る必要があるなら `unsafe fn` と `# Safety` セクション。モジュールが前提を自分でチェックできるならsafe関数を優先。
 
 ## Safety コメント
 
-すべての `unsafe` block、`unsafe fn`、`unsafe trait`、`unsafe impl` で説明:
+すべての `unsafe` block、`unsafe fn`、`unsafe trait`、`unsafe impl` で説明：
 
-- どの不変条件が操作を sound にするか
+- どの不変条件が操作をsoundにするか
 - その不変条件がどこで確立されるか
-- alias、lifetime、初期化、alignment、bounds がなぜ有効か
-- 将来の mutation や refactor 後も不変条件がどう保たれるか
+- alias、lifetime、初期化、alignment、boundsがなぜ有効か
+- 将来のmutationやrefactor後も不変条件がどう保たれるか
 
-操作を言い換えるだけ（「pointer を dereference」など）のコメントは避ける。soundness を正当化すること。
+操作を言い換えるだけ（「pointerをdereference」など）のコメントは避ける。soundnessを正当化すること。
 
 ## ドメイン境界を保つ
 
-unsafe は constructor や検証を迂回して domain 値を作らない。raw データを DTO/row に変換し、safe コードと同じ `TryFrom`、`FromStr`、constructor 経路を使う。
+unsafeはconstructorや検証を迂回してdomain値を作らない。rawデータをDTO/rowに変換し、safeコードと同じ `TryFrom`、`FromStr`、constructor経路を使う。
 
-unsafe は `Debug`、log、panic メッセージ、FFI callback、metrics label、raw memory dump 経由で PII を露出しない。unsafe 境界を越える前に sensitive データを wrap または redact。
+unsafeは `Debug`、log、panicメッセージ、FFI callback、metrics label、raw memory dump経由でPIIを露出しない。unsafe境界を越える前にsensitiveデータをwrapまたはredact。
 
 ## FFI エラーハンドリング（`extern "C"`）
 
-C API は通常 integer code と optional out-parameter で失敗を示す。ドメインコードの前に FFI 境界で `Result` にマップ。
+C APIは通常integer codeとoptional out-parameterで失敗を示す。ドメインコードの前にFFI境界で `Result` にマップ。
 
 ```rust
 #[repr(i32)]
@@ -107,15 +107,15 @@ pub fn lookup_name(id: &str) -> Result<String, NativeLookupError> {
 }
 ```
 
-ルール:
+ルール：
 
-- raw C string を `TryFrom` なしに domain 型へ伝播しない
-- C API 契約に従い safe wrapper でリソース解放
-- 未知 status code は専用 variant にマップ。`0` で `unwrap` しない
+- raw C stringを `TryFrom` なしにdomain型へ伝播しない
+- C API契約に従いsafe wrapperでリソース解放
+- 未知status codeは専用variantにマップ。`0` で `unwrap` しない
 
 ## `MaybeUninit` safe wrapper
 
-safe Rust がコンパイラに初期化を証明できないが API が read 前に確立する場合 `MaybeUninit` を使う。
+safe Rustがコンパイラに初期化を証明できないがAPIがread前に確立する場合 `MaybeUninit` を使う。
 
 ```rust
 pub struct FixedBuffer<const N: usize> {
@@ -140,11 +140,11 @@ impl<const N: usize> FixedBuffer<N> {
 }
 ```
 
-`&[MaybeUninit<u8>]` を caller に公開しない。部分 write を abandon するとき `Drop` で初期化または drop。
+`&[MaybeUninit<u8>]` をcallerに公開しない。部分writeをabandonするとき `Drop` で初期化またはdrop。
 
 ## `Pin` と自己参照 struct
 
-一部 safe 抽象（async future、特定 C callback）は pinned storage を要求。pinning は adapter module 内に留める。
+一部safe抽象（async future、特定C callback）はpinned storageを要求。pinningはadapter module内に留める。
 
 ```rust
 pub struct PinnedCallback {
@@ -165,37 +165,37 @@ impl PinnedCallback {
 }
 ```
 
-pin 後に型を move してはならない理由を文書化。プロファイルが証明しない限り手動 self-referential より `Pin<Box<T>>` を優先。
+pin後に型をmoveしてはならない理由を文書化。プロファイルが証明しない限り手動self-referentialより `Pin<Box<T>>` を優先。
 
 ## レビューとテスト
 
-unsafe 境界変更では safe wrapper 周りに焦点テスト:
+unsafe境界変更ではsafe wrapper周りに焦点テスト：
 
 - 通常と境界入力
-- constructor 拒否経路
-- safety 不変条件を保つ mutation 経路
-- 該当する FFI error 経路と null/invalid handle
+- constructor拒否経路
+- safety不変条件を保つmutation経路
+- 該当するFFI error経路とnull/invalid handle
 
-可能なら Miri、sanitizer build、fuzz/property、crate 固有 safety test。すべての domain 変更に必須ではないが、unsafe block が memory、pointer aliasing、初期化、FFI lifetime 契約を所有するとき推奨。
+可能ならMiri、sanitizer build、fuzz/property、crate固有safety test。すべてのdomain変更に必須ではないが、unsafe blockがmemory、pointer aliasing、初期化、FFI lifetime契約を所有するとき推奨。
 
 ## Miri と Sanitizer — コマンドと典型所見
 
 ### Miri（未定義動作検出）
 
-crate または workspace ルートから:
+crateまたはworkspaceルートから：
 
 ```bash
 cargo +nightly miri test -p my_adapter_crate
 ```
 
-Miri がよく捕まえるもの:
+Miriがよく捕まえるもの：
 
-- FFI が二重 free または `free` 後使用する use-after-free
-- 早すぎる safe slice 昇格による `MaybeUninit` 未初期化 read
+- FFIが二重freeまたは `free` 後使用するuse-after-free
+- 早すぎるsafe slice昇格による `MaybeUninit` 未初期化read
 - 無効長の `unsafe` `from_raw_parts`
-- FFI handle の誤った `Send`/`Sync` impl による data race
+- FFI handleの誤った `Send`/`Sync` implによるdata race
 
-Miri は遅い。ワークスペース全体ではなく、`unsafe` を所有する adapter crate で、CI nightly または pre-release で実行する。
+Miriは遅い。ワークスペース全体ではなく、`unsafe` を所有するadapter crateで、CI nightlyまたはpre-releaseで実行する。
 
 ### AddressSanitizer（ASan）
 
@@ -203,7 +203,7 @@ Miri は遅い。ワークスペース全体ではなく、`unsafe` を所有す
 RUSTFLAGS="-Zsanitizer=address" cargo +nightly test -p my_adapter_crate -Zbuild-std --target $(rustc -vV | sed -n 's|host: ||p')
 ```
 
-典型: C library 連携の heap buffer overflow、大コピー buffer の stack overflow。
+典型： C library連携のheap buffer overflow、大コピー bufferのstack overflow。
 
 ### ThreadSanitizer（TSan）
 
@@ -211,40 +211,40 @@ RUSTFLAGS="-Zsanitizer=address" cargo +nightly test -p my_adapter_crate -Zbuild-
 RUSTFLAGS="-Zsanitizer=thread" cargo +nightly test -p my_adapter_crate -Zbuild-std --target $(rustc -vV | sed -n 's|host: ||p')
 ```
 
-典型: 同期なしでスレッド共有される `Send` FFI handle の race。
+典型： 同期なしでスレッド共有される `Send` FFI handleのrace。
 
-package 名と target はリポジトリに合わせ調整。non-trivial unsafe なら adapter crate README に正確なコマンドを文書化。safe domain crate は自前 `unsafe` がなければ sanitizer 不要なことが多い。
+package名とtargetはリポジトリに合わせ調整。non-trivial unsafeならadapter crate READMEに正確なコマンドを文書化。safe domain crateは自前 `unsafe` がなければsanitizer不要なことが多い。
 
 
-レビューでは、ドメイン・ユースケース・遷移モジュール内の `unsafe` や `TryFrom` なしの FFI 戻り値のドメイン変換を指摘する。証明済み `write` 前の `MaybeUninit` read、self-referential struct の move、redaction なしの PII / secret の plain `*const c_char` FFI も同様である。
+レビューでは、ドメイン・ユースケース・遷移モジュール内の `unsafe` や `TryFrom` なしのFFI戻り値のドメイン変換を指摘する。証明済み `write` 前の `MaybeUninit` read、self-referential structのmove、redactionなしのPII / secretのplain `*const c_char` FFIも同様である。
 
 ## レビュー観点
 
 ### unsafe がドメイン構築やマスキングを迂回できないか — High
 
-通常の `TryFrom`、`FromStr`、コンストラクタ経路なしに生データからドメイン値を構築する unsafe、またはログ、`Debug`、パニックメッセージ、FFI コールバック、メトリクスラベル、生メモリバッファ経由で PII / シークレットを露出する unsafe を指摘する。
+通常の `TryFrom`、`FromStr`、コンストラクタ経路なしに生データからドメイン値を構築するunsafe、またはログ、`Debug`、パニックメッセージ、FFIコールバック、メトリクスラベル、生メモリバッファ経由でPII / シークレットを露出するunsafeを指摘する。
 
 ### unsafe は安全な抽象の背後に封じ込められているか — High
 
-呼び出し元に文書化されていないエイリアシング、ライフタイム、境界、初期化、FFI、所有権の前提を要求する公開 API を指摘する。`unsafe` ブロックの前に前提を検査する安全関数を優先する。
+呼び出し元に文書化されていないエイリアシング、ライフタイム、境界、初期化、FFI、所有権の前提を要求する公開APIを指摘する。`unsafe` ブロックの前に前提を検査する安全関数を優先する。
 
-API が `unsafe fn` である必要があるなら、呼び出し元の義務を名指す `# Safety` 契約を要求する。
+`unsafe fn` が必要なAPIなら、呼び出し元の義務を名指す `# Safety` 契約を要求する。
 
 ### ドメインロジックに unsafe はないか — High
 
-ドメインエンティティ、値オブジェクト、状態遷移、ユースケース、DTO 変換、PII ラッパ、リポジトリトレイト内の `unsafe` ブロック、`unsafe fn`、`unsafe impl`、生ポインタ参照、`MaybeUninit`、`transmute`、境界チェックなしインデックスを指摘する。
+ドメインエンティティ、値オブジェクト、状態遷移、ユースケース、DTO変換、PIIラッパ、リポジトリトレイト内の `unsafe` ブロック、`unsafe fn`、`unsafe impl`、生ポインタ参照、`MaybeUninit`、`transmute`、境界チェックなしインデックスを指摘する。
 
-安全 API の背後に隠れ、ドメインコンストラクタ、検証、認可、マスキングを迂回しないアダプタ / インフラモジュールに隔離された unsafe には指摘しない。
+安全APIの背後に隠れ、ドメインコンストラクタ、検証、認可、マスキングを迂回しないアダプタ / インフラモジュールに隔離されたunsafeには指摘しない。
 
 ### unsafe 境界は適切なツールでテストされているか — Medium
 
-通常入力、境界入力、拒否されるコンストラクタ、変更経路、null / 無効 FFI ハンドル、エラー経路に焦点を当てたテストのない unsafe ラッパを指摘する。
+通常入力、境界入力、拒否されるコンストラクタ、変更経路、null / 無効FFIハンドル、エラー経路に焦点を当てたテストのないunsafeラッパを指摘する。
 
-unsafe ブロックがメモリ、ポインタエイリアシング、初期化、FFI ライフタイム契約を担うときは Miri、サニタイザ、ファジング、プロパティテストを提案する。小さな安全ドメイン変更すべてにそれらを要求しない。
+unsafeブロックがメモリ、ポインタエイリアシング、初期化、FFIライフタイム契約を担うときはMiri、サニタイザ、ファジング、プロパティテストを提案する。小さな安全ドメイン変更すべてにそれらを要求しない。
 
 ### 安全性不変条件は unsafe 箇所で文書化されているか — Medium
 
-不変条件、成立箇所、エイリアシング・ライフタイム・初期化・整列・境界が有効な理由を説明する近傍の `SAFETY:` コメントのない unsafe ブロックを指摘する。
+不変条件、成立箇所、エイリアシング・ライフタイム・初期化・整列・境界が有効な理由を説明する近傍の `SAFETY:` コメントのないunsafeブロックを指摘する。
 
 操作を言い換えただけのコメントは受け入れない。
 

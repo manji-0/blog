@@ -92,6 +92,11 @@ html {
 
 body {
 	letter-spacing: 0;
+	text-autospace: normal;
+}
+
+:where(code, pre, kbd, samp) {
+	text-autospace: no-autospace;
 }
 
 a {

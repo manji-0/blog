@@ -5,11 +5,11 @@ sidebar:
   label: "タクシー配車の例"
 ---
 
-この例は、タクシー配車リクエストを題材に、Pydantic v2 の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで示す。[ドメインモデリング](/docs/kamae-py/domain-modeling/) と [状態遷移](/docs/kamae-py/state-transitions/) の原則を、実装に落とし込んだ読み物として使える。
+この例は、タクシー配車リクエストを題材に、Pydantic v2の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで示す。[ドメインモデリング](/docs/kamae-py/domain-modeling/) と [状態遷移](/docs/kamae-py/state-transitions/) の原則を、実装に落とし込んだ読み物として使える。
 
 ## 凍結状態と判別共用体
 
-各ビジネス状態を `kind` 判別子付きの凍結 Pydantic モデルとして定義し、`Annotated[..., Field(discriminator="kind")]` で共用体にまとめる。`DomainModel` は `frozen=True` と `extra="forbid"` を共通設定とする。
+各ビジネス状態を `kind` 判別子付きの凍結Pydanticモデルとして定義し、`Annotated[..., Field(discriminator="kind")]` で共用体にまとめる。`DomainModel` は `frozen=True` と `extra="forbid"` を共通設定とする。
 
 ```python
 """Compact Kamae Python example for a taxi request aggregate."""
@@ -75,7 +75,7 @@ TaxiRequestAdapter: TypeAdapter[TaxiRequest] = TypeAdapter(TaxiRequest)
 
 ## 純粋遷移関数
 
-遷移は入力型がソース状態、戻り値型がターゲット状態になる純粋関数として書く。複数の状態から有効な遷移には `CancellableRequest` のような部分共用体を使う。時刻と ID は引数で受け取る。
+遷移は入力型がソース状態、戻り値型がターゲット状態になる純粋関数として書く。複数の状態から有効な遷移には `CancellableRequest` のような部分共用体を使う。時刻とIDは引数で受け取る。
 
 ```python
 def create_request(request_id: UUID, passenger_id: UUID, now: datetime) -> Waiting:

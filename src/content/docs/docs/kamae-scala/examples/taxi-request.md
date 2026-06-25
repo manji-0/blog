@@ -5,9 +5,9 @@ sidebar:
   label: "タクシー配車例"
 ---
 
-本例は Kamae Scala のエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/docs/kamae-scala/domain-modeling/) と [状態遷移](/docs/kamae-scala/state-transitions/) の原則を、ひと続きのコードで追える。
+本例はKamae Scalaのエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/docs/kamae-scala/domain-modeling/) と [状態遷移](/docs/kamae-scala/state-transitions/) の原則を、ひと続きのコードで追える。
 
-opaque type で ID をモジュール外から抽象化し、`WaitingRequest` にのみ `assignDriver` を extension として付けることで、コンパイル時に誤った状態への操作を防ぐ。
+opaque typeでIDをモジュール外から抽象化し、`WaitingRequest` にのみ `assignDriver` をextensionとして付けることで、コンパイル時に誤った状態への操作を防ぐ。
 
 ## ドメイン型
 
@@ -131,7 +131,7 @@ export TaxiRequestDomain.{
 
 ## テスト
 
-フィクスチャは public コンストラクタ経由で構築する。munit の `compileErrors` で、誤った状態型への操作がコンパイル時に拒否されることを検証する。
+フィクスチャはpublicコンストラクタ経由で構築する。munitの `compileErrors` で、誤った状態型への操作がコンパイル時に拒否されることを検証する。
 
 ```scala
 package kamae.examples

@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-ユースケース struct がオーケストレーション（読み込み → 認可 → 遷移 → 永続化）を所有し、ハンドラは薄い入口に留める。具象の DB クライアントや HTTP クライアントをドメインに漏らすと、テストが実インフラに依存し、変更の影響範囲も読み取れなくなる。
+ユースケースstructがオーケストレーション（読み込み → 認可 → 遷移 → 永続化）を所有し、ハンドラは薄い入口に留める。具象のDBクライアントやHTTPクライアントをドメインに漏らすと、テストが実インフラに依存し、変更の影響範囲も読み取れなくなる。
 
-リポジトリ trait の形は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、失敗の層分けは [エラーハンドリング](/docs/kamae-rs/error-handling/) と整合させる。
+リポジトリtraitの形は [永続化、集約、イベント](/docs/kamae-rs/persistence-events/)、失敗の層分けは [エラーハンドリング](/docs/kamae-rs/error-handling/) と整合させる。
 
 <!-- constrained-by ./persistence-events.md -->
 <!-- constrained-by ./error-handling.md -->
@@ -14,16 +14,16 @@ sidebar:
 
 ## 基本方針
 
-ドメイン遷移は純粋かつ小さく保ち、副作用を持たせない。ビジネス上の順序（読み込み、認可、遷移、保存）は port に依存するユースケース型が所有し、具体の DB クライアントや HTTP クライアントはユースケースのフィールドとして注入する。adapter の `new` や接続プールの取得は composition root（`main`、テスト setup、フレームワーク bootstrap）だけが行う。
+ドメイン遷移は純粋かつ小さく保ち、副作用を持たせない。ビジネス上の順序（読み込み、認可、遷移、保存）はportに依存するユースケース型が所有し、具体のDBクライアントやHTTPクライアントはユースケースのフィールドとして注入する。adapterの `new` や接続プールの取得はcomposition root（`main`、テストsetup、フレームワークbootstrap）だけが行う。
 
-グローバル singleton やサービスロケータは、テスト時の差し替えを難しくし、依存関係をコードから読み取れなくする。struct フィールドの明示的依存を優先する。
+グローバルsingletonやサービスロケータは、テスト時の差し替えを難しくし、依存関係をコードから読み取れなくする。structフィールドの明示的依存を優先する。
 
 ## ポートとアダプタ
 
-- **Port**: アプリケーションまたはドメイン crate 内の小さな trait。ユースケースが必要とすることを述べる（`RequestResolver`、`RequestStore`、`PaymentGateway`）。
-- **Adapter**: その port のインフラ実装（`SqlxRequestStore`、`StripePaymentGateway`）。
+- **Port**: アプリケーションまたはドメインcrate内の小さなtrait。ユースケースが必要とすることを述べる（`RequestResolver`、`RequestStore`、`PaymentGateway`）。
+- **Adapter**: そのportのインフラ実装（`SqlxRequestStore`、`StripePaymentGateway`）。
 
-port は ORM テーブルやクライアント SDK 表面ではなく、ユースケースのニーズに合わせる。
+portはORMテーブルやクライアントSDK表面ではなく、ユースケースのニーズに合わせる。
 
 ```rust
 pub trait RequestResolver {
@@ -39,11 +39,11 @@ pub trait RequestStore {
 }
 ```
 
-port trait を通して `sqlx::Error`、HTTP ステータス、SDK 型を漏らさない。
+port traitを通して `sqlx::Error`、HTTPステータス、SDK型を漏らさない。
 
 ## 依存を持つ struct としてユースケースをモデル化する
 
-各ユースケースに struct を与え、port をフィールド経由で注入する。静的ディスパッチの generics がデフォルト。ランタイム置換が必要でトレードオフを受け入れる場合のみ `Arc<dyn Port + Send + Sync>` を使う。
+各ユースケースにstructを与え、portをフィールド経由で注入する。静的ディスパッチのgenericsがデフォルト。ランタイム置換が必要でトレードオフを受け入れる場合のみ `Arc<dyn Port + Send + Sync>` を使う。
 
 ```rust
 pub struct AssignDriver<Resolver, Store> {
@@ -97,11 +97,11 @@ where
 | 明示関数引数 | ワンオフスクリプト、非常に小さな handler | ワークフローが 2 依存を超える |
 | Reader 型環境渡し | コードベース全体が一貫して使っている | FP 見た目のためだけに導入 |
 
-プロジェクトがすでに標準化していない限り DI コンテナは導入しない。Axum `State`、Shuttle、または `main` の手動配線で通常十分である。
+プロジェクトがすでに標準化していない限りDIコンテナは導入しない。Axum `State`、Shuttle、または `main` の手動配線で通常十分である。
 
 ## composition root で配線する
 
-adapter とユースケースを `main`、`bootstrap` モジュール、またはテストフィクスチャで構築する。handler は完成したユースケースか application state を受け取り、インフラを自前で組み立てない。
+adapterとユースケースを `main`、`bootstrap` モジュール、またはテストフィクスチャで構築する。handlerは完成したユースケースかapplication stateを受け取り、インフラを自前で組み立てない。
 
 ```rust
 // main.rs or bootstrap.rs
@@ -121,39 +121,39 @@ let app = Router::new().route(
 );
 ```
 
-テストでは port を fake または in-memory adapter に差し替える。fake port で足りるとき、ドメインとユースケーステストを実 DB から解放する。
+テストではportをfakeまたはin-memory adapterに差し替える。fake portで足りるとき、ドメインとユースケーステストを実DBから解放する。
 
 ## 副作用をドメインコードから追い出す
 
-ドメイン遷移は `Transition<_, _>` または `Result<_, DomainError>` を返し、I/O は持たない。ユースケースが load → authorize → transition → persist → publish の順序を所有し、repository と client は port の背後に留める。
+ドメイン遷移は `Transition<_, _>` または `Result<_, DomainError>` を返し、I/Oは持たない。ユースケースがload → authorize → transition → persist → publishの順序を所有し、repositoryとclientはportの背後に留める。
 
-ハンドラの中で `sqlx::query` や HTTP クライアントを直接呼び始めたら、それは配線の漏れのサインだ。port を抽出し、ワークフローをユースケース struct に移す。典型例は「ドメイン呼び出しのあいだに DB を読む」ハンドラで、テストが実 DB を要求し、トランザクション境界も曖昧になる。
+ハンドラの中で `sqlx::query` やHTTPクライアントを直接呼び始めたら、それは配線の漏れのサインだ。portを抽出し、ワークフローをユースケースstructに移す。典型例は「ドメイン呼び出しのあいだにDBを読む」ハンドラで、テストが実DBを要求し、トランザクション境界も曖昧になる。
 
-レビューでは、ORM / SDK 形状の肥大したポート、ハンドラやドメインからの具象 I/O 直呼び、散在したオーケストレーション、隠れたグローバルや DI コンテナ、実インフラ必須のユースケーステストを指摘する。
+レビューでは、ORM / SDK形状の肥大したポート、ハンドラやドメインからの具象I/O直呼び、散在したオーケストレーション、隠れたグローバルやDIコンテナ、実インフラ必須のユースケーステストを指摘する。
 
 ## レビュー観点
 
 ### ユースケースは具象アダプタではなくポートに依存しているか — High
 
-ポートとアダプタ分割でワークフローを隔離できるのに、ハンドラ、ドメインモジュール、遷移メソッドが SQL、HTTP、キュー、SDK 関数を直接呼ぶ場合は指摘する。
+ポートとアダプタ分割でワークフローを隔離できるのに、ハンドラ、ドメインモジュール、遷移メソッドがSQL、HTTP、キュー、SDK関数を直接呼ぶ場合は指摘する。
 
 `main`、ブートストラップモジュール、テストのコンポジションルート配線には指摘しない。
 
 ### オーケストレーションはユースケース構造体に置かれているか — Medium
 
-名前付きユースケース型が load → authorize → transition → persist の順序を所有すべきなのに、ハンドラ、自由関数、リポジトリアダプタに散らばったビジネスワークフローを指摘する。
+名前付きユースケース型がload → authorize → transition → persistの順序を所有すべきなのに、ハンドラ、自由関数、リポジトリアダプタに散らばったビジネスワークフローを指摘する。
 
 ### ポートは小さくユースケース形状か — Medium
 
-ユースケースが実際に必要とする操作ではなく、ORM テーブル、SDK 表面、フレームワークハンドラ署名を写したリポジトリやクライアントトレイトを指摘する。
+ユースケースが実際に必要とする操作ではなく、ORMテーブル、SDK表面、フレームワークハンドラ署名を写したリポジトリやクライアントトレイトを指摘する。
 
 ### テストは実インフラではなくポートを差し替えるか — Low
 
-フェイクポートでワークフローを検証できるのに、ライブ DB やリモートサービスを要求するユースケーステストを指摘する。ドメインとユースケースカバレッジにはインメモリやフェイクアダプタを提案する。
+フェイクポートでワークフローを検証できるのに、ライブDBやリモートサービスを要求するユースケーステストを指摘する。ドメインとユースケースカバレッジにはインメモリやフェイクアダプタを提案する。
 
 ### 依存は明示的に注入されているか — Low
 
-プロジェクトの先例なしに隠れたグローバル、サービスロケータ、新しい重い DI コンテナを導入する箇所を指摘する。構造体フィールド、フレームワーク state、コンポジションルート配線を優先する。
+プロジェクトの先例なしに隠れたグローバル、サービスロケータ、新しい重いDIコンテナを導入する箇所を指摘する。構造体フィールド、フレームワークstate、コンポジションルート配線を優先する。
 
 プロジェクトが一貫してそのパターンを使っているなら、ジェネリック境界や `Arc<dyn Port + Send + Sync>` には指摘しない。
 
