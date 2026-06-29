@@ -1,6 +1,9 @@
 :root {
-	--sl-font-system: 'LINE Seed JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI',
-		'Yu Gothic', Meiryo, 'Segoe UI', system-ui, -apple-system, sans-serif;
+	--sl-font-body: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Yu Gothic', Meiryo,
+		'Segoe UI', system-ui, -apple-system, sans-serif;
+	--sl-font-brand: 'Fira Code', var(--__sl-font-mono);
+	--sl-font-system: var(--sl-font-body);
+	--sl-font: var(--sl-font-body);
 	--sl-font-code-block: 'Fira Code', var(--__sl-font-mono);
 
 	/* Dark theme: reliability console */
@@ -83,6 +86,7 @@
 }
 
 html {
+	font-family: var(--sl-font-body);
 	background:
 		linear-gradient(var(--manj-grid) 1px, transparent 1px),
 		linear-gradient(90deg, var(--manj-grid) 1px, transparent 1px),
@@ -93,6 +97,38 @@ html {
 body {
 	letter-spacing: 0;
 	text-autospace: normal;
+	font-family: var(--sl-font-body);
+	font-weight: 400;
+	font-synthesis: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+:where(
+	.header,
+	.sidebar,
+	.sidebar-content,
+	.sidebar-pane,
+	.right-sidebar,
+	starlight-toc,
+	.pagination-links,
+	.page-title-row,
+	footer
+) {
+	font-family: var(--sl-font-body);
+}
+
+.site-title {
+	font-family: var(--sl-font-brand);
+}
+
+:where(a, button, input, select, textarea, summary, strong, b, em, i, small, span) {
+	font-family: inherit;
+	font-size: inherit;
+	font-style: inherit;
+}
+
+:where(strong, b) {
+	font-weight: 700;
 }
 
 :where(code, pre, kbd, samp) {
@@ -109,7 +145,7 @@ a {
 }
 
 .site-title {
-	font-family: var(--sl-font-code-block);
+	font-family: var(--sl-font-brand);
 	font-size: 1.15rem;
 	letter-spacing: 0;
 }
@@ -196,11 +232,24 @@ a {
 
 .sidebar-content summary,
 .sidebar-content .large {
-	font-family: var(--sl-font-code-block);
-	font-size: 0.76rem;
-	letter-spacing: 0;
+	font-family: var(--sl-font-body);
+	font-size: var(--sl-text-xs);
+	font-weight: 700;
+	letter-spacing: 0.04em;
 	text-transform: uppercase;
 	color: var(--sl-color-accent-high);
+}
+
+.sidebar-content .top-level > li > a {
+	font-weight: 700;
+}
+
+.sidebar-content ul ul a {
+	font-family: inherit;
+	font-weight: 400;
+	font-size: var(--sl-text-sm);
+	text-transform: none;
+	letter-spacing: 0;
 }
 
 .right-sidebar::before,
@@ -389,15 +438,41 @@ a {
 
 /* Frontmatter title from PageTitle.astro — outside .sl-markdown-content */
 h1#_top {
-	font-family: var(--sl-font-system);
+	font-family: var(--sl-font-body);
 	font-size: clamp(1.35rem, 2.5vw, 1.9rem);
 	line-height: 1.2;
 	font-weight: 700;
 }
 
 .sl-markdown-content {
+	font-family: var(--sl-font-body);
 	font-size: 1rem;
+	font-weight: 400;
 	line-height: 1.8;
+	font-synthesis: none;
+	text-autospace: no-autospace;
+}
+
+.sl-markdown-content :is(p, li, td, th, blockquote, dd, dt, summary, ul, ol) {
+	font-family: inherit;
+}
+
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6) {
+	font-family: inherit;
+	font-weight: 700;
+}
+
+.sl-markdown-content :is(strong, b) {
+	font-weight: 700;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+	font-family: inherit;
+	font-weight: inherit;
+}
+
+.sl-markdown-content li :is(a, strong, em) {
+	font-family: inherit;
 }
 
 .sl-markdown-content h1,
@@ -407,9 +482,10 @@ h1#_top {
 }
 
 .sl-markdown-content h1 {
-	font-family: var(--sl-font-system);
+	font-family: inherit;
 	font-size: clamp(1.5rem, 2.8vw, 2.25rem);
 	line-height: 1.15;
+	font-weight: 700;
 }
 
 .sl-markdown-content h1 + p {
