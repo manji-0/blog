@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/dev-environment/
+redirect: /projects/kamae-rs/dev-environment/
 sidebar:
   hidden: true
 ---

@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/logging-metrics/
+redirect: /projects/kamae-rs/references/logging-metrics/
 sidebar:
   hidden: true
 ---

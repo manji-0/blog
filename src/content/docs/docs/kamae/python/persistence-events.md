@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/persistence-events/
+redirect: /projects/kamae-py/persistence-events/
 sidebar:
   hidden: true
 ---

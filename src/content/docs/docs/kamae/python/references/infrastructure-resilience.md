@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/references/infrastructure-resilience/
+redirect: /projects/kamae-py/references/infrastructure-resilience/
 sidebar:
   hidden: true
 ---

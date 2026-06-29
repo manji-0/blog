@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/references/concurrency/
+redirect: /projects/kamae-py/references/concurrency/
 sidebar:
   hidden: true
 ---

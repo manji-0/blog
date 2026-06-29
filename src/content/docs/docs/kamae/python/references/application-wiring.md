@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/references/application-wiring/
+redirect: /projects/kamae-py/references/application-wiring/
 sidebar:
   hidden: true
 ---

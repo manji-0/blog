@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/property-based-tests/
+redirect: /projects/kamae-rs/references/property-based-tests/
 sidebar:
   hidden: true
 ---

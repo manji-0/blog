@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/api-contracts/
+redirect: /projects/kamae-py/api-contracts/
 sidebar:
   hidden: true
 ---

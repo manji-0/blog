@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/fmt-lint/
+redirect: /projects/kamae-rs/references/fmt-lint/
 sidebar:
   hidden: true
 ---

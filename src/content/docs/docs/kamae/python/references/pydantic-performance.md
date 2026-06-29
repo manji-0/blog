@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/references/pydantic-performance/
+redirect: /projects/kamae-py/references/pydantic-performance/
 sidebar:
   hidden: true
 ---

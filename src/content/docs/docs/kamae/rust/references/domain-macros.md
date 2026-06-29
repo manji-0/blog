@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/domain-macros/
+redirect: /projects/kamae-rs/references/domain-macros/
 sidebar:
   hidden: true
 ---

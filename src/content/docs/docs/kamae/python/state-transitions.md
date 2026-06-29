@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/state-transitions/
+redirect: /projects/kamae-py/state-transitions/
 sidebar:
   hidden: true
 ---

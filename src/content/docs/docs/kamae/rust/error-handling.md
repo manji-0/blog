@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/error-handling/
+redirect: /projects/kamae-rs/error-handling/
 sidebar:
   hidden: true
 ---

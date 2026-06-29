@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/quality-gates/
+redirect: /projects/kamae-py/quality-gates/
 sidebar:
   hidden: true
 ---

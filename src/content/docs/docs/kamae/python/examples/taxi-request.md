@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/examples/taxi-request/
+redirect: /projects/kamae-py/examples/taxi-request/
 sidebar:
   hidden: true
 ---

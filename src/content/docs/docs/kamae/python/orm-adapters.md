@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/orm-adapters/
+redirect: /projects/kamae-py/orm-adapters/
 sidebar:
   hidden: true
 ---

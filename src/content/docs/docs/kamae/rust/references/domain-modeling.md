@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/domain-modeling/
+redirect: /projects/kamae-rs/references/domain-modeling/
 sidebar:
   hidden: true
 ---

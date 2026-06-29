@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/ci-setup/
+redirect: /projects/kamae-py/ci-setup/
 sidebar:
   hidden: true
 ---

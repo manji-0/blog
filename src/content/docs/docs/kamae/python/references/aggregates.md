@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/references/aggregates/
+redirect: /projects/kamae-py/references/aggregates/
 sidebar:
   hidden: true
 ---

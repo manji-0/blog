@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/application-wiring/
+redirect: /projects/kamae-rs/application-wiring/
 sidebar:
   hidden: true
 ---

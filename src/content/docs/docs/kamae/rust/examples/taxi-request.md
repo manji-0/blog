@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/examples/taxi-request/
+redirect: /projects/kamae-rs/examples/taxi-request/
 sidebar:
   hidden: true
 ---

@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/persistence-events/
+redirect: /projects/kamae-rs/persistence-events/
 sidebar:
   hidden: true
 ---

@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/
+redirect: /projects/kamae-rs/
 sidebar:
   hidden: true
 ---

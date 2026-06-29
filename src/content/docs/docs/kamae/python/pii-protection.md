@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/pii-protection/
+redirect: /projects/kamae-py/pii-protection/
 sidebar:
   hidden: true
 ---

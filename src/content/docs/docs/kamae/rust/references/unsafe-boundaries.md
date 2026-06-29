@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/unsafe-boundaries/
+redirect: /projects/kamae-rs/references/unsafe-boundaries/
 sidebar:
   hidden: true
 ---

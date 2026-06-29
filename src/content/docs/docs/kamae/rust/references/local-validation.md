@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/local-validation/
+redirect: /projects/kamae-rs/references/local-validation/
 sidebar:
   hidden: true
 ---

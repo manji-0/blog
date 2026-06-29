@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/error-handling/
+redirect: /projects/kamae-py/error-handling/
 sidebar:
   hidden: true
 ---

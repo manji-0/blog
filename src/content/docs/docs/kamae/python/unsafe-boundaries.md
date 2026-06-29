@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/unsafe-boundaries/
+redirect: /projects/kamae-py/unsafe-boundaries/
 sidebar:
   hidden: true
 ---

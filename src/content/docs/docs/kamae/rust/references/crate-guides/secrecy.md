@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/crate-guides/#secrecy
+redirect: /projects/kamae-rs/crate-guides/#secrecy
 sidebar:
   hidden: true
 ---
 
-このページは [クレートガイド](/docs/kamae-rs/crate-guides/) に統合しました。
+このページは [クレートガイド](/projects/kamae-rs/crate-guides/) に統合しました。

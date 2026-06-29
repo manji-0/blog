@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/stream-continuous-queries/
+redirect: /projects/kamae-rs/references/stream-continuous-queries/
 sidebar:
   hidden: true
 ---

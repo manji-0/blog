@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/references/rustdoc/
+redirect: /projects/kamae-rs/references/rustdoc/
 sidebar:
   hidden: true
 ---

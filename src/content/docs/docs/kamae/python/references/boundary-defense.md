@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/references/boundary-defense/
+redirect: /projects/kamae-py/references/boundary-defense/
 sidebar:
   hidden: true
 ---

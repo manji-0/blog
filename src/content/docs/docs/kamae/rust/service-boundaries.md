@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-rs/service-boundaries/
+redirect: /projects/kamae-rs/service-boundaries/
 sidebar:
   hidden: true
 ---

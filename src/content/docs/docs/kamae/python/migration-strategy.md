@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /docs/kamae-py/migration-strategy/
+redirect: /projects/kamae-py/migration-strategy/
 sidebar:
   hidden: true
 ---
