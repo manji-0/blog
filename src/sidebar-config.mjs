@@ -7,6 +7,7 @@ import {
 	getKamaeRustSidebarItems,
 	getKamaeScalaSidebarItems,
 } from './kamae-sidebar.mjs';
+import { getDagaynSidebarItems, getRdraIshSidebarItems } from './project-sidebar.mjs';
 
 const rootDir = process.cwd();
 const blogContentDir = join(rootDir, 'src/content/docs/blog');
@@ -23,7 +24,9 @@ const PROJECT_ORDER = [
 ];
 
 /** @type {Record<string, () => import('./kamae-sidebar.mjs').SidebarGroup[]>} */
-const KAMAE_PROJECT_TREES = {
+const PROJECT_TREES = {
+	dagayn: getDagaynSidebarItems,
+	'rdra-ish': getRdraIshSidebarItems,
 	'kamae-rs': getKamaeRustSidebarItems,
 	'kamae-py': getKamaePythonSidebarItems,
 	'kamae-scala': getKamaeScalaSidebarItems,
@@ -130,7 +133,7 @@ export function getSiteSidebarConfig() {
 
 /** Sidebar for a single project section: Top link + that project's tree. */
 export function getProjectSidebarConfig(projectSlug) {
-	const treeBuilder = KAMAE_PROJECT_TREES[projectSlug];
+	const treeBuilder = PROJECT_TREES[projectSlug];
 	const tree = treeBuilder ? treeBuilder() : getSimpleProjectTree(projectSlug);
 
 	return [{ label: 'Top', link: '/' }, ...tree];
