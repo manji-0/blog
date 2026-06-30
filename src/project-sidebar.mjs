@@ -36,7 +36,14 @@ export function getDagaynSidebarItems() {
 			'integrations',
 			'semantic-search',
 		]),
-		group('dagayn', '技術ノート', ['architecture', 'development', 'troubleshooting']),
+		group('dagayn', '技術ノート', [
+			'architecture',
+			'storage',
+			'metrics',
+			'review-analysis',
+			'development',
+			'troubleshooting',
+		]),
 	];
 }
 

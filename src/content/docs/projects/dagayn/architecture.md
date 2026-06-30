@@ -5,67 +5,127 @@ sidebar:
   order: 8
 ---
 
-dagaynはリポジトリ内容をローカル知識グラフに変換し、CLIとMCPから同じデータセットをクエリする。
+dagaynはリポジトリ内容をローカル知識グラフに変換し、CLIとMCPから同じデータセットをクエリする。中核は **Tree-sitter + SQLite** で、ホットパスは **Rust（`dagayn_core`）** が担う。
 
-## 処理パイプライン
+## 全体像
 
-1. **ファイル発見と言語検出** — 拡張子、shebang、設定に基づく
-2. **パーサ抽出** — Tree-sitter（および必要なフォールバック）でノード・エッジ生成
-3. **SQLite永続化** — `.dagayn/graph.db`
-4. **後処理** — フロー、コミュニティ、FTS、centrality、（任意）埋め込み
-5. **クエリ時分析** — レビュー、検索、リファクタ提案
+```mermaid
+flowchart TB
+  subgraph ingest [取り込み]
+    A[ファイル発見] --> B[言語検出]
+    B --> C[Tree-sitter パース]
+    C --> D[ノード / エッジ抽出]
+  end
+  subgraph persist [永続化]
+    D --> E[(graph.db)]
+    E --> F[後処理]
+    F --> G[nodes_fts / flows / communities]
+    F --> H[(embeddings.db 任意)]
+  end
+  subgraph query [クエリ]
+    G --> I[CLI / MCP]
+    H --> I
+    I --> J[AI エージェント]
+  end
+```
 
-## パーサ
+## 処理パイプライン（5段階）
 
-Tree-sitterを基本とし、fork固有のgrammarをcommit pinで取得する。
+### 1. ファイル発見と言語検出
 
-- **Terraform** — fork `tree-sitter-terraform`
-- **Markdown** — fork `tree-sitter-markdown`（directive対応）
-- **Notebook** — セル単位、span overlapで行番号ずれに耐性
+拡張子、shebang、設定ファイルに基づいてパーサを割り当てる。拡張子なしスクリプトはshebangからBash / Python等を推定する。
 
-Rust backendが既定。Markdown、Terraform、Rust、Python/notebook、主要なJS/TS系などはRust所有パスでパースされる。source checkoutで `dagayn._core` が無い場合は明確に失敗し、旧Pythonパーサにはフォールバックしない。
+対応はポリグロット：アプリコード、Markdown、Terraform、Notebookを同一リポジトリ内で混在可能。
 
-## ストレージ
+### 2. パーサ抽出
 
-グラフデータはSQLiteに保存される。ノード・エッジはファイルidentity、qualified name、分析用メタデータを持つ。
+Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得する。
 
-登録パスはリポジトリルート相対が期待され、symlink経由の一時パス差を吸収する。
-
-### GraphStore 境界
-
-Python `GraphStore` がCLI・MCP・テスト向けの安定APIを提供する。Rust graph backend（`dagayn_core`）はPyO3経由でホットパスを加速する。
-
-- Python: スキーマ互換、トランザクション、キャッシュ無効化、フォールバック
-- Rust: バッチ格納、フロー/コミュニティJSON、Markdown artifact解決、hub/bridge score計算
-
-新規コードはRust binding直接ではなく `GraphStore` メソッドに依存する。
-
-## 後処理
-
-| レイヤ | 出力 |
+| 形式 | 備考 |
 | --- | --- |
-| FTS5 | `nodes_fts` 仮想テーブル（build後常に利用可） |
-| 埋め込み | `.dagayn/embeddings.db` |
-| Centrality | `hub_scores`, `bridge_scores` テーブル |
-| フロー | エントリポイント→葉の到達経路 |
-| コミュニティ | Leiden分割結果 |
+| Terraform | fork `tree-sitter-terraform`。`.tf` / `.tfvars` |
+| Markdown | fork `tree-sitter-markdown`。directive コメント対応 |
+| Notebook | セル単位。span overlap で行番号ずれに耐性 |
+| Rust / Python / JS・TS 系 | Rust 所有パスが既定 |
 
-## クエリ面
+パーサ出力は常に **ファイル単位** のノード・エッジ列。qualified nameはリポジトリ内で一意。
 
-MCP layerとCLIは同一GraphStoreを読む。`review_tool`、`query_graph_tool`、`architecture_analysis_tool`、`refactor_tool` はすべてローカルデータセット上で $O(\text{graph})$ 操作である。
+### 3. SQLite 永続化
 
-## Rust 移行方針
+`.dagayn/graph.db` に書き込む。パスはリポジトリルート相対で正規化し、symlink経由の一時パス差を吸収する。
 
-探索・集計のホットパスは段階的にRustへ移行している。Python層はCLI・MCP・オーケストレーションを担う。
+詳細は [ストレージと SQLite](/projects/dagayn/storage/) を参照。
 
-詳細な移行状況はupstream `docs/RUST-CORE-MIGRATION-WIP.md` を参照。
+### 4. 後処理（postprocess）
+
+| 処理 | 出力 | スキップ |
+| --- | --- | --- |
+| FTS5 索引 | `nodes_fts` | 常に実行（build 後） |
+| コミュニティ | Leiden 分割 + cohesion | — |
+| Centrality | `hub_scores`, `bridge_scores` | — |
+| フロー | エントリ→葉の経路 | hook では `--skip-flows` |
+| 埋め込み | `embeddings.db` | `--local-embedding` 時のみ |
+
+派生データはmaterializeして保持する。リクエスト時に毎回NetworkXを組み立てない。
+
+### 5. クエリ時分析
+
+レビュー、semantic search、refactor提案はすべて同一GraphStoreを読む。変更検出はGit worktree状態とグラフを突き合わせる。
+
+## GraphStore と Rust 境界
+
+```text
+┌─────────────────────────────────────┐
+│  CLI / MCP / tests                  │
+├─────────────────────────────────────┤
+│  Python GraphStore（安定 API）       │
+│  ・スキーマ・トランザクション         │
+│  ・パス正規化・キャッシュ無効化       │
+├─────────────────────────────────────┤
+│  Rust dagayn_core（PyO3）            │
+│  ・バッチ store / parse              │
+│  ・Markdown artifact 解決            │
+│  ・centrality / フロー JSON 永続化    │
+└─────────────────────────────────────┘
+```
+
+移行方針：Rustは加速実装としてGraphStore APIの背後に置く。`dagayn._core` が無いsource checkoutは明確に失敗し、旧Pythonパーサにはフォールバックしない。
+
+## ハイブリッド検索（概要）
+
+`semantic_search_nodes` はFTS5とベクトル検索をRRF（k=10）で融合する。詳細は [セマンティック検索](/projects/dagayn/semantic-search/) を参照。
+
+## マルチリポジトリ
+
+レジストリに複数リポジトリを登録し、`cross_repo_search_tool` で横断検索できる。daemon設定はupstream `docs/DAEMON-CONFIG.md` を参照。
+
+## エクスポート
+
+GraphML、Mermaid C4、SVG、Cypher、Obsidian形式などへエクスポート可能。`dagayn visualize` / `generate_wiki_tool` が相当する。
+
+## 設計上の判断
+
+| 判断 | 理由 |
+| --- | --- |
+| qualified name でエッジ結合 | パーサ単純化、クロスアーティファクト、人間可読レスポンス |
+| 保存時に DAG 制約なし | 循環を観測可能にする。ADP は後処理 |
+| ファイル単位 replace 更新 | incremental diff より単純で速い |
+| edge kind を分離 | 探索時の index selector 兼意味分類 |
+| 派生テーブル materialize | MCP レイテンシを抑える |
+
+## Rust 移行状況
+
+探索・集計のホットパスは段階的にRustへ移行中。Python層はCLI・MCP・オーケストレーションを担う。upstream `docs/RUST-CORE-MIGRATION-WIP.md` に最新の移行表がある。
 
 ## 関連記事
 
 - [dagaynがコードグラフをSQLiteで取り扱うためのテクニック](/blog/2026/dagayn-python-speedups-and-rust-core/)
+- [すべてを有向グラフにする、俺とAI以外のやつが](/blog/2026/dagayn-knowledge-graph-for-code-review/)
 
 ## 関連ページ
 
+- [ストレージと SQLite](/projects/dagayn/storage/)
+- [構造メトリクス](/projects/dagayn/metrics/)
+- [レビューと影響分析](/projects/dagayn/review-analysis/)
 - [グラフモデル](/projects/dagayn/graph-model/)
 - [セマンティック検索](/projects/dagayn/semantic-search/)
-- [開発環境](/projects/dagayn/development/)

@@ -2,7 +2,7 @@
 title: "トラブルシューティング"
 description: "dagayn のよくある問題と対処"
 sidebar:
-  order: 10
+  order: 13
 ---
 
 ## `dagayn install` がエディタに反映されない

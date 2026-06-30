@@ -2,7 +2,7 @@
 title: "開発環境"
 description: "dagayn リポジトリの開発・コントリビュート手順"
 sidebar:
-  order: 9
+  order: 12
 ---
 
 dagayn本体の開発・パッチ提出向けの手順である。利用者向けの [インストール](/projects/dagayn/installation/) とは別物。
