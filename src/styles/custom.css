@@ -636,6 +636,47 @@ h1#_top {
 	color: var(--sl-color-accent-high);
 }
 
+.project-list {
+	display: grid;
+	gap: 0.55rem;
+	margin-block: 0.7rem 1.2rem;
+}
+
+.project-card {
+	display: grid;
+	gap: 0.32rem;
+	padding: 0.68rem 0.78rem;
+	border: 1px solid var(--sl-color-hairline);
+	border-radius: 0.5rem;
+	background: var(--manj-panel);
+}
+
+.project-card__title {
+	width: fit-content;
+	color: var(--sl-color-gray-1);
+	font-family: var(--sl-font-code-block);
+	font-size: 0.92rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.project-card__title::before {
+	content: '● ';
+	color: var(--sl-color-accent);
+}
+
+.project-card__title:hover,
+.project-card__title:focus-visible {
+	color: var(--sl-color-accent-high);
+}
+
+.project-card__description {
+	margin: 0;
+	color: var(--sl-color-gray-2);
+	font-size: 0.88rem;
+	line-height: 1.55;
+}
+
 .fediverse-statuses {
 	display: grid;
 	gap: 0.55rem;
@@ -746,7 +787,7 @@ h1#_top {
 	letter-spacing: 0;
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language]) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language]) .header::after {
 	margin-inline: 0.85rem auto;
 	border: 1px solid color-mix(in srgb, var(--sl-color-accent) 22%, transparent);
 	border-radius: 999px;
@@ -758,39 +799,64 @@ h1#_top {
 	font-weight: 600;
 	line-height: 1.35;
 	text-transform: uppercase;
+	content: 'CODE';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='css']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='bash']) .header::after,
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='sh']) .header::after,
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='shell']) .header::after,
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='zsh']) .header::after,
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='console']) .header::after {
+	content: 'SHELL';
+}
+
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='json']) .header::after {
+	content: 'JSON';
+}
+
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='toml']) .header::after {
+	content: 'TOML';
+}
+
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='scala']) .header::after {
+	content: 'SCALA';
+}
+
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='rdra']) .header::after {
+	content: 'RDRA';
+}
+
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='css']) .header::after {
 	content: 'CSS';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='js']) .header::after,
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='javascript']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='js']) .header::after,
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='javascript']) .header::after {
 	content: 'JS';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='md']) .header::after,
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='markdown']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='md']) .header::after,
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='markdown']) .header::after {
 	content: 'MD';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='python']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='python']) .header::after {
 	content: 'PYTHON';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='rust']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='rust']) .header::after {
 	content: 'RUST';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='sql']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='sql']) .header::after {
 	content: 'SQL';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='text']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='text']) .header::after {
 	content: 'TEXT';
 }
 
-.sl-markdown-content .expressive-code .frame:has(pre[data-language='yaml']) .header::after {
+.sl-markdown-content .expressive-code .frame:not(.is-terminal):has(pre[data-language='yaml']) .header::after {
 	content: 'YAML';
 }
 

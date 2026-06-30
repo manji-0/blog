@@ -15,6 +15,10 @@ coding agents. DAG is All You Need.
 
 `knowledge-graph` `ai` `architecture` `code-review`
 
+## Projects
+
+<!-- project-list -->
+
 ## Latest Statuses
 
 <div class="fediverse-statuses" data-fediverse-statuses>

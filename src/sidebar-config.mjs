@@ -8,20 +8,10 @@ import {
 	getKamaeScalaSidebarItems,
 } from './kamae-sidebar.mjs';
 import { getDagaynSidebarItems, getRdraIshSidebarItems } from './project-sidebar.mjs';
+import { listProjectSlugs, projectsContentDir } from './lib/projects.mjs';
 
 const rootDir = process.cwd();
 const blogContentDir = join(rootDir, 'src/content/docs/blog');
-const projectsContentDir = join(rootDir, 'src/content/docs/projects');
-
-/** @type {readonly string[]} */
-const PROJECT_ORDER = [
-	'dagayn',
-	'rdra-ish',
-	'kamae-model-translator',
-	'kamae-rs',
-	'kamae-py',
-	'kamae-scala',
-];
 
 /** @type {Record<string, () => import('./kamae-sidebar.mjs').SidebarGroup[]>} */
 const PROJECT_TREES = {
@@ -81,18 +71,6 @@ function getBlogYearSidebar(year) {
 		.map(({ _sidebarOrder, _createdTimestamp, ...item }) => item);
 
 	return { label: year, items };
-}
-
-function listProjectSlugs() {
-	const discovered = readdirSync(projectsContentDir).filter((name) => {
-		return statSync(join(projectsContentDir, name)).isDirectory();
-	});
-	const order = new Map(PROJECT_ORDER.map((slug, index) => [slug, index]));
-	return discovered.sort((a, b) => {
-		const aOrder = order.get(a) ?? Number.MAX_SAFE_INTEGER;
-		const bOrder = order.get(b) ?? Number.MAX_SAFE_INTEGER;
-		return aOrder - bOrder || a.localeCompare(b);
-	});
 }
 
 /** @returns {Array<{ label: string; link: string }>} */
