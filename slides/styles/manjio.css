@@ -1,0 +1,27 @@
+/* manj.io Slidev layout overrides (seriph / light) */
+
+.slidev-layout.center h1,
+.slidev-layout.default h1 {
+	text-align: left;
+	font-size: 2rem;
+}
+
+.slidev-layout.toc-slide {
+	display: flex;
+	flex-direction: column;
+}
+
+.slidev-layout.toc-slide h1 {
+	font-size: 2rem;
+	margin-bottom: 1.5rem;
+}
+
+.slidev-layout.statement h1 {
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.slidev-layout.cover h1 + div,
+.slidev-layout.cover .pt-12 {
+	opacity: 0.85;
+}

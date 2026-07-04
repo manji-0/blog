@@ -1,11 +1,31 @@
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const slidesRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const decksRoot = join(slidesRoot, 'decks');
 const outputRoot = join(slidesRoot, '..', 'site-worker', 'public', 'slides');
+
+const deckSetupSource = `import { defineRootSetup } from '@slidev/types'
+import '../../../styles/manjio.css'
+
+export default defineRootSetup(() => {
+\t// Shared layout CSS is imported above.
+})
+`;
+
+function ensureDeckSetup(deckDir) {
+	const setupDir = join(deckDir, 'setup');
+	const setupFile = join(setupDir, 'main.ts');
+	if (existsSync(setupFile)) {
+		return;
+	}
+
+	mkdirSync(setupDir, { recursive: true });
+	writeFileSync(setupFile, deckSetupSource);
+	console.log(`[slides] wrote default setup for ${deckDir}`);
+}
 
 function listDecks() {
 	return readdirSync(decksRoot, { withFileTypes: true })
@@ -16,6 +36,7 @@ function listDecks() {
 
 function runSlidevBuild(deckId) {
 	const deckDir = join(decksRoot, deckId);
+	ensureDeckSetup(deckDir);
 	const base = `/slides/${deckId}/`;
 	const outDir = join(outputRoot, deckId);
 
@@ -25,7 +46,7 @@ function runSlidevBuild(deckId) {
 	const entry = join(deckDir, 'slides.md');
 	const result = spawnSync(
 		'pnpm',
-		['exec', 'slidev', 'build', entry, '--base', base, '--out', outDir],
+		['exec', 'slidev', 'build', entry, '--base', base, '--out', outDir, '--router-mode', 'history'],
 		{
 			cwd: slidesRoot,
 			stdio: 'inherit',

@@ -9,36 +9,80 @@ class: text-center
 drawings:
   persist: false
 transition: false
+routerMode: history
+fonts:
+  sans: Noto Serif JP
+  serif: Noto Serif JP
+  mono: PT Mono
+---
+
+---
+layout: cover
 ---
 
 # Slidev on Cloudflare Workers
 
-小さなサンプルデッキ
+manj.io スライド基盤のサンプルデッキ
 
 <div class="pt-12 text-xl opacity-80">
-  www.manj.io/slides 向けの基盤
+  www.manj.io/slides
 </div>
+
+---
+class: toc-slide
+---
+
+# アジェンダ
+
+<AgendaToc
+  :current="1"
+  :items="[
+    { n: 1, title: '基盤と配信', sub: 'Slidev, Worker, ディープリンク' },
+    { n: 2, title: 'レイアウト', sub: 'cover, toc, center, statement' },
+    { n: 3, title: 'まとめ', sub: 'テンプレートの使い方' },
+  ]"
+/>
 
 ---
 layout: center
 ---
 
-# 2枚目
+# 基盤と配信
 
 - Slidev で Markdown からスライドを生成
 - `slidev build` で静的 SPA を出力
 - Worker が `/slides/{deck-id}/` 以下を配信
 
 ---
+layout: statement
+---
+
+# 1スライド = 1メッセージ
+
+---
 layout: center
 ---
 
-# 3枚目
+# コード例
 
-ディープリンク `/slides/sample/3` も SPA フォールバックで表示される
+ディープリンク `/slides/sample/5` も SPA フォールバックで表示される
 
 ```ts
 export function greet(name: string) {
   return `Hello, ${name}!`
 }
 ```
+
+---
+layout: center
+---
+
+# まとめ
+
+- 共有コンポーネント: `slides/components/AgendaToc.vue`
+- 共有スタイル: `slides/styles/manjio.css`
+- 新規デッキ: `.cursor/skills/create-slidev-deck/template/slides.md`
+
+<div class="pt-8 text-lg opacity-70">
+  ご清聴ありがとうございました
+</div>
