@@ -13,8 +13,9 @@
     "search:index": "node scripts/build-search-index.mjs",
     "fonts:subset": "node scripts/subset-fonts.mjs",
     "r2:upload-assets": "node scripts/upload-r2-assets.mjs",
-    "deploy:pages": "wrangler pages deploy dist --project-name=manjio",
-    "cf:deploy": "pnpm run fonts:subset && pnpm run build && pnpm run r2:upload-assets && pnpm run deploy:pages",
+    "deploy:worker": "pnpm --filter site-worker run deploy",
+    "cf:deploy:local": "pnpm run fonts:subset && pnpm run build && pnpm run r2:upload-assets && pnpm --filter site-worker run assemble && pnpm --filter slides run build",
+    "cf:deploy": "pnpm run cf:deploy:local && pnpm --filter site-worker run deploy",
     "lint:text": "textlint \"src/content/**/*.md\"",
     "lint:text:fix": "textlint --fix \"src/content/**/*.md\"",
     "prepare": "husky"

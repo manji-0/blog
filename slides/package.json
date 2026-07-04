@@ -1,0 +1,16 @@
+{
+  "name": "slides",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "slidev decks/sample/slides.md --open",
+    "dev:sample": "slidev decks/sample/slides.md --open"
+  },
+  "devDependencies": {
+    "@slidev/cli": "^52.16.0",
+    "@slidev/theme-seriph": "^0.25.0",
+    "vue": "^3.5.13"
+  }
+}

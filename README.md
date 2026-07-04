@@ -46,3 +46,15 @@ pnpm run preview
 ```
 
 ビルド成果物は `dist/` に出力されます。
+
+## Deploy
+
+`www.manj.io` は Cloudflare Workers Static Assets (`site-worker/`) で配信します。
+
+```bash
+pnpm run cf:deploy:local   # ビルド + assemble (R2 upload 含む)
+pnpm --filter site-worker run dev
+pnpm run cf:deploy           # Worker へデプロイ
+```
+
+Slidev デッキは `slides/` にあり、ビルド後 `site-worker/public/slides/` に配置されます。

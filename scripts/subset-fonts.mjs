@@ -296,6 +296,7 @@ function removeOldSubsetFiles(outputBase, keepPath) {
 
 function fingerprintSubsetFile(outputBase, tempOutputPath) {
 	const outputPath = `${outputBase}.${hashFile(tempOutputPath)}.woff2`;
+	mkdirSync(dirname(outputPath), { recursive: true });
 	removeOldSubsetFiles(outputBase, outputPath);
 	rmSync(outputPath, { force: true });
 	writeFileSync(outputPath, readFileSync(tempOutputPath));

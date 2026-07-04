@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to Cloudflare Workers
 
 on:
   push:
@@ -9,14 +9,13 @@ permissions:
   contents: read
 
 env:
-  CLOUDFLARE_PAGES_PROJECT_NAME: manjio
   R2_ASSET_BUCKET: manjio-assets
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
-      name: cloudflare-pages
+      name: cloudflare-workers
       url: https://www.manj.io
     steps:
       - name: Checkout repository
@@ -54,8 +53,20 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Deploy Pages
-        run: pnpm exec wrangler pages deploy dist --project-name="$CLOUDFLARE_PAGES_PROJECT_NAME"
+      - name: Assemble Worker assets
+        run: pnpm --filter site-worker run assemble
+
+      - name: Build Slidev decks
+        run: pnpm --filter slides run build
+
+      - name: Generate Worker types
+        run: pnpm --filter site-worker run types
+
+      - name: Type check
+        run: pnpm --filter site-worker run check
+
+      - name: Deploy Worker
+        run: pnpm --filter site-worker run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

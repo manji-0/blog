@@ -1,13 +1,19 @@
 # build output
 dist/
+site-worker/public/
 public/search/
 public/cloudflare-platform-uptime.json
 public/github-pages-uptime.json
 public/fediverse-statuses.json
 public/cloudflare-status.json
+
+# generated font subsets (pnpm run fonts:subset)
+public/fonts/fonts.css
+public/fonts/**/*.woff2
 # generated types
 .astro/
 .wrangler/
+**/worker-configuration.d.ts
 
 # dependencies
 node_modules/
