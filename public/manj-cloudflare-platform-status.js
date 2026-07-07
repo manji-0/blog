@@ -109,7 +109,7 @@
 
 			const uptime = document.createElement('section');
 			uptime.className = 'manj-uptime-window';
-			uptime.setAttribute('aria-label', 'Cloudflare Pages and Workers uptime from Cloudflare Status');
+			uptime.setAttribute('aria-label', 'Cloudflare global infrastructure uptime from Cloudflare Status');
 
 			const heading = document.createElement('div');
 			heading.className = 'manj-uptime-window__title';
@@ -121,7 +121,7 @@
 			bars.setAttribute('role', 'img');
 			bars.setAttribute(
 				'aria-label',
-				'Cloudflare Pages and Workers daily status for the past ' + DAY_COUNT + ' days',
+				'Cloudflare global infrastructure daily status for the past ' + DAY_COUNT + ' days',
 			);
 			uptime.appendChild(bars);
 
@@ -148,7 +148,7 @@
 
 		renderBars(footer.querySelector('.manj-uptime-bars'), data);
 		footer.querySelector('.manj-uptime-legend').textContent =
-			'Pages/Workers  ' +
+			'Global infra  ' +
 			statusLabel(data.status) +
 			'       ' +
 			DAY_COUNT +

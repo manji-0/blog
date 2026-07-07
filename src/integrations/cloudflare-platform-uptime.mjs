@@ -8,7 +8,7 @@ import {
 const OUTPUT_PATH = path.join(process.cwd(), 'public', 'cloudflare-platform-uptime.json');
 
 /**
- * Fetch Cloudflare Pages/Workers uptime from Cloudflare Status at build/dev start.
+ * Fetch Cloudflare global infrastructure uptime from Cloudflare Status at build/dev start.
  *
  * @returns {import('astro').AstroIntegration}
  */
@@ -35,7 +35,7 @@ async function writeUptimeSnapshot(logger) {
 		await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
 		await fs.writeFile(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 		logger.info(
-			`Cloudflare platform uptime: ${data.percent}% over ${data.days.length} days (${data.status}).`,
+			`Cloudflare global infrastructure uptime: ${data.percent}% over ${data.days.length} days (${data.status}).`,
 		);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);

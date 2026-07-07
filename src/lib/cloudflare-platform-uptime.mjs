@@ -4,6 +4,10 @@ export const CLOUDFLARE_WORKERS_COMPONENT_ID = '57srcl8zcn7c';
 
 export const CLOUDFLARE_STATUS_SUMMARY_URL = 'https://cloudflare-status-proxy.manji.app/summary';
 export const CLOUDFLARE_STATUS_INCIDENTS_URL = 'https://cloudflare-status-proxy.manji.app/incidents';
+export const CLOUDFLARE_STATUS_URL = 'https://cloudflare-status-proxy.manji.app/status';
+
+/** Incidents below this impact level are excluded from uptime (build/deploy noise, etc.). */
+const GLOBAL_INFRASTRUCTURE_IMPACTS = new Set(['critical', 'major', 'maintenance']);
 
 const STATE_TO_FILL = {
 	ok: '#28a745',
@@ -19,11 +23,12 @@ const DAY_COUNT = 90;
  * @returns {{ percent: string, days: { fill: string, state: string }[], status: string, pagesStatus: string, workersStatus: string, fetchedAt: string }}
  */
 export async function fetchCloudflarePlatformUptime() {
-	const [summary, incidents] = await Promise.all([
+	const [summary, incidents, status] = await Promise.all([
 		fetchJson(CLOUDFLARE_STATUS_SUMMARY_URL),
 		fetchJson(CLOUDFLARE_STATUS_INCIDENTS_URL),
+		fetchJson(CLOUDFLARE_STATUS_URL),
 	]);
-	return buildCloudflarePlatformUptimeSnapshot(summary, incidents);
+	return buildCloudflarePlatformUptimeSnapshot(summary, incidents, status);
 }
 
 export function createFallbackCloudflarePlatformUptime() {
@@ -45,7 +50,7 @@ async function fetchJson(url) {
 	return response.json();
 }
 
-function buildCloudflarePlatformUptimeSnapshot(summary, incidentsPayload) {
+function buildCloudflarePlatformUptimeSnapshot(summary, incidentsPayload, statusPayload) {
 	const pagesComponent = findComponent(summary, CLOUDFLARE_PAGES_COMPONENT_ID);
 	const workersComponent = findComponent(summary, CLOUDFLARE_WORKERS_COMPONENT_ID);
 	if (!pagesComponent || !workersComponent) {
@@ -55,7 +60,7 @@ function buildCloudflarePlatformUptimeSnapshot(summary, incidentsPayload) {
 	const days = createRecentUtcDays();
 	const stateByDate = new Map(days.map((date) => [date, 'ok']));
 	for (const incident of incidentsPayload.incidents ?? []) {
-		if (!incidentAffectsCloudflarePlatform(incident)) continue;
+		if (!isGlobalInfrastructureIncident(incident)) continue;
 		const state = stateFromImpact(incident.impact);
 		for (const date of datesBetweenUtc(incident.started_at ?? incident.created_at, incident.resolved_at ?? incident.updated_at)) {
 			if (!stateByDate.has(date)) continue;
@@ -72,7 +77,7 @@ function buildCloudflarePlatformUptimeSnapshot(summary, incidentsPayload) {
 	return {
 		percent: ((okDays / renderedDays.length) * 100).toFixed(2),
 		days: renderedDays,
-		status: worstStatus(pagesComponent.status, workersComponent.status),
+		status: statusPayload.status?.indicator ?? 'unknown',
 		pagesStatus: pagesComponent.status ?? 'unknown',
 		workersStatus: workersComponent.status ?? 'unknown',
 		fetchedAt: new Date().toISOString(),
@@ -83,17 +88,8 @@ function findComponent(summary, id) {
 	return summary.components?.find((component) => component.id === id);
 }
 
-function incidentAffectsCloudflarePlatform(incident) {
-	if (incident.components?.some((component) => isCloudflarePlatformComponent(component.id))) {
-		return true;
-	}
-	return incident.incident_updates?.some((update) =>
-		update.affected_components?.some((component) => isCloudflarePlatformComponent(component.code)),
-	);
-}
-
-function isCloudflarePlatformComponent(id) {
-	return id === CLOUDFLARE_PAGES_COMPONENT_ID || id === CLOUDFLARE_WORKERS_COMPONENT_ID;
+function isGlobalInfrastructureIncident(incident) {
+	return GLOBAL_INFRASTRUCTURE_IMPACTS.has(incident.impact);
 }
 
 function stateFromImpact(impact) {
@@ -103,8 +99,6 @@ function stateFromImpact(impact) {
 			return 'bad';
 		case 'maintenance':
 			return 'maint';
-		case 'minor':
-			return 'warn';
 		default:
 			return 'warn';
 	}
@@ -113,19 +107,6 @@ function stateFromImpact(impact) {
 function worstState(left, right) {
 	const rank = { ok: 0, unknown: 1, maint: 2, warn: 3, bad: 4 };
 	return rank[right] > rank[left] ? right : left;
-}
-
-function worstStatus(left, right) {
-	const rank = {
-		operational: 0,
-		none: 0,
-		unknown: 1,
-		under_maintenance: 2,
-		degraded_performance: 3,
-		partial_outage: 4,
-		major_outage: 5,
-	};
-	return (rank[right] ?? rank.unknown) > (rank[left] ?? rank.unknown) ? right : left;
 }
 
 function createRecentUtcDays() {
