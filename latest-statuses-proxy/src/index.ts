@@ -6,8 +6,8 @@ const STATUS_LIMIT = 5;
 const UPSTREAM_LIMIT = 20;
 const CACHE_TTL_SECONDS = 60 * 5;
 const STALE_WHILE_REVALIDATE_SECONDS = 60 * 5;
-const CACHE_STORAGE_TTL_SECONDS = CACHE_TTL_SECONDS + STALE_WHILE_REVALIDATE_SECONDS;
-const CACHE_CREATED_AT_HEADER = "X-Proxy-Cache-Created-At";
+
+const cacheControl = `public, max-age=${CACHE_TTL_SECONDS}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}`;
 
 type StatusSource = "fediverse" | "bluesky";
 
@@ -53,14 +53,6 @@ type BlueskyFeedResponse = {
   feed?: unknown;
 };
 
-const cacheHeaders = {
-  "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}`,
-} as const;
-
-const cacheStorageHeaders = {
-  "Cache-Control": `public, max-age=${CACHE_STORAGE_TTL_SECONDS}`,
-} as const;
-
 function corsHeaders(): HeadersInit {
   return {
     "Access-Control-Allow-Origin": "*",
@@ -69,44 +61,26 @@ function corsHeaders(): HeadersInit {
   };
 }
 
-function jsonResponse(request: Request, body: unknown, init: ResponseInit = {}): Response {
+function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(body), {
     ...init,
     headers: {
       ...corsHeaders(),
       "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
       ...init.headers,
     },
   });
 }
 
-function withResponseHeaders(request: Request, response: Response): Response {
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
+function cachedJsonResponse(body: unknown): Response {
+  return new Response(JSON.stringify(body), {
     headers: {
       ...corsHeaders(),
-      ...cacheHeaders,
       "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": cacheControl,
     },
   });
-}
-
-function cacheableResponse(response: Response): Response {
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: {
-      ...Object.fromEntries(response.headers),
-      ...cacheStorageHeaders,
-      [CACHE_CREATED_AT_HEADER]: String(Date.now()),
-    },
-  });
-}
-
-function isStale(response: Response): boolean {
-  const createdAt = Number(response.headers.get(CACHE_CREATED_AT_HEADER));
-  return !Number.isFinite(createdAt) || Date.now() - createdAt >= CACHE_TTL_SECONDS * 1000;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -224,61 +198,37 @@ async function fetchLatestStatuses() {
   };
 }
 
-async function refreshStatusesCache(request: Request, cache: Cache, cacheKey: Request): Promise<void> {
-  const body = await fetchLatestStatuses();
-  if (body.statuses.length === 0) return;
-
-  const response = jsonResponse(request, body, { headers: cacheHeaders });
-  await cache.put(cacheKey, cacheableResponse(response));
-}
-
-async function handleStatuses(request: Request, ctx: ExecutionContext): Promise<Response> {
-  const url = new URL(request.url);
-  const cacheKey = new Request(new URL("/statuses", url.origin), { method: "GET" });
-  const cache = caches.default;
-  const cachedResponse = await cache.match(cacheKey);
-
-  if (cachedResponse) {
-    if (isStale(cachedResponse)) {
-      ctx.waitUntil(refreshStatusesCache(request, cache, cacheKey).catch(() => undefined));
-    }
-
-    return withResponseHeaders(request, cachedResponse);
-  }
-
+async function handleStatuses(): Promise<Response> {
   const body = await fetchLatestStatuses();
   if (body.statuses.length === 0) {
-    return jsonResponse(request, { error: "statuses_unavailable", errors: body.errors ?? [] }, { status: 502 });
+    return jsonResponse({ error: "statuses_unavailable", errors: body.errors ?? [] }, { status: 502 });
   }
 
-  const response = jsonResponse(request, body, { headers: cacheHeaders });
-  ctx.waitUntil(cache.put(cacheKey, cacheableResponse(response.clone())));
-
-  return response;
+  return cachedJsonResponse(body);
 }
 
-async function handleRequest(request: Request, ctx: ExecutionContext): Promise<Response> {
+async function handleRequest(request: Request): Promise<Response> {
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: corsHeaders(),
+      headers: { ...corsHeaders(), "Cache-Control": "no-store" },
     });
   }
 
   if (request.method !== "GET" && request.method !== "HEAD") {
-    return jsonResponse(request, { error: "method_not_allowed" }, { status: 405 });
+    return jsonResponse({ error: "method_not_allowed" }, { status: 405 });
   }
 
   const { pathname } = new URL(request.url);
   if (pathname === "/" || pathname === "/statuses") {
-    return handleStatuses(request, ctx);
+    return handleStatuses();
   }
 
-  return jsonResponse(request, { error: "not_found" }, { status: 404 });
+  return jsonResponse({ error: "not_found" }, { status: 404 });
 }
 
 export default {
-  fetch(request: Request, _env: Env, ctx: ExecutionContext): Promise<Response> {
-    return handleRequest(request, ctx);
+  fetch(request: Request): Promise<Response> {
+    return handleRequest(request);
   },
 } satisfies ExportedHandler<Env>;

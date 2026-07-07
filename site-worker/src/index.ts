@@ -58,23 +58,13 @@ function responseFromR2Object(object: R2ObjectBody, request: Request): Response 
 	return new Response(object.body, { headers });
 }
 
-async function handleR2Asset(
-	request: Request,
-	env: Env,
-	ctx: ExecutionContext,
-): Promise<Response> {
+async function handleR2Asset(request: Request, env: Env): Promise<Response> {
 	const key = getR2AssetKey(new URL(request.url).pathname);
 	if (!key) {
 		return new Response('Not Found', {
 			status: 404,
 			headers: { 'Cache-Control': CACHE_CONTROL.r2Miss },
 		});
-	}
-
-	const cache = caches.default;
-	const cached = await cache.match(request);
-	if (cached) {
-		return cached;
 	}
 
 	const object = await env.R2_ASSETS.get(key);
@@ -85,12 +75,7 @@ async function handleR2Asset(
 		});
 	}
 
-	const response = responseFromR2Object(object, request);
-	if (request.method === 'GET') {
-		ctx.waitUntil(cache.put(request, response.clone()));
-	}
-
-	return response;
+	return responseFromR2Object(object, request);
 }
 
 async function readSlidesManifest(env: Env): Promise<DeckManifest | null> {
@@ -105,7 +90,10 @@ async function readSlidesManifest(env: Env): Promise<DeckManifest | null> {
 async function serveSlidesManifest(env: Env): Promise<Response> {
 	const manifest = await readSlidesManifest(env);
 	if (!manifest) {
-		return Response.json({ error: 'manifest_unavailable' }, { status: 503 });
+		return Response.json({ error: 'manifest_unavailable' }, {
+			status: 503,
+			headers: { 'Cache-Control': 'no-store' },
+		});
 	}
 
 	return Response.json(manifest, {
@@ -127,7 +115,10 @@ async function serveDeckSpaFallback(
 
 	const response = await env.ASSETS.fetch(indexRequest);
 	if (!response.ok) {
-		return Response.json({ error: 'deck_not_found', deckId }, { status: 404 });
+		return Response.json({ error: 'deck_not_found', deckId }, {
+			status: 404,
+			headers: { 'Cache-Control': 'no-store' },
+		});
 	}
 
 	return withCache(response, CACHE_CONTROL.html);
@@ -142,36 +133,35 @@ async function handleAssetMiss(request: Request, env: Env): Promise<Response> {
 
 	const match = url.pathname.match(DECK_PATH);
 	if (!match) {
-		return new Response('Not Found', { status: 404 });
+		return new Response('Not Found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
 	}
 
 	const [, deckId, rest] = match;
 	if (isAssetPath(rest)) {
-		return new Response('Not Found', { status: 404 });
+		return new Response('Not Found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
 	}
 
 	return serveDeckSpaFallback(request, env, deckId);
 }
 
-async function handleRequest(
-	request: Request,
-	env: Env,
-	ctx: ExecutionContext,
-): Promise<Response> {
+async function handleRequest(request: Request, env: Env): Promise<Response> {
 	if (request.method !== 'GET' && request.method !== 'HEAD') {
-		return new Response('Method Not Allowed', { status: 405 });
+		return new Response('Method Not Allowed', {
+			status: 405,
+			headers: { 'Cache-Control': 'no-store' },
+		});
 	}
 
 	const { pathname } = new URL(request.url);
 	if (pathname.startsWith(R2_ROUTE_PREFIX)) {
-		return handleR2Asset(request, env, ctx);
+		return handleR2Asset(request, env);
 	}
 
 	return handleAssetMiss(request, env);
 }
 
 export default {
-	fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return handleRequest(request, env, ctx);
+	fetch(request: Request, env: Env): Promise<Response> {
+		return handleRequest(request, env);
 	},
 } satisfies ExportedHandler<Env>;
