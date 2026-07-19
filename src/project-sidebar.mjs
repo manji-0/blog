@@ -65,3 +65,31 @@ export function getRdraIshSidebarItems() {
 		group('rdra-ish', '開発', ['development']),
 	];
 }
+
+/** @returns {Array<{ label: string; link: string } | SidebarGroup>} */
+export function getTrackSidebarItems() {
+	return [
+		{ label: 'はじめに', link: '/projects/track/' },
+		group(
+			'track',
+			'ガイド',
+			['installation', 'quickstart', 'cli-reference', 'jj-integration', 'webui'],
+			false,
+		),
+		group('track', '開発', ['development']),
+	];
+}
+
+/** @returns {Array<{ label: string; link: string } | SidebarGroup>} */
+export function getBmdSidebarItems() {
+	return [
+		{ label: 'はじめに', link: '/projects/bmd/' },
+		group(
+			'bmd',
+			'ガイド',
+			['installation', 'quickstart', 'keybindings', 'configuration'],
+			false,
+		),
+		group('bmd', '開発', ['development']),
+	];
+}

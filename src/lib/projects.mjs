@@ -9,6 +9,8 @@ export const projectsContentDir = join(rootDir, 'src/content/docs/projects');
 export const PROJECT_ORDER = [
 	'dagayn',
 	'rdra-ish',
+	'track',
+	'bmd',
 	'kamae-model-translator',
 	'kamae-rs',
 	'kamae-py',

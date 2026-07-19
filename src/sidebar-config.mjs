@@ -7,7 +7,12 @@ import {
 	getKamaeRustSidebarItems,
 	getKamaeScalaSidebarItems,
 } from './kamae-sidebar.mjs';
-import { getDagaynSidebarItems, getRdraIshSidebarItems } from './project-sidebar.mjs';
+import {
+	getBmdSidebarItems,
+	getDagaynSidebarItems,
+	getRdraIshSidebarItems,
+	getTrackSidebarItems,
+} from './project-sidebar.mjs';
 import { listProjectSlugs, projectsContentDir } from './lib/projects.mjs';
 
 const rootDir = process.cwd();
@@ -17,6 +22,8 @@ const blogContentDir = join(rootDir, 'src/content/docs/blog');
 const PROJECT_TREES = {
 	dagayn: getDagaynSidebarItems,
 	'rdra-ish': getRdraIshSidebarItems,
+	track: getTrackSidebarItems,
+	bmd: getBmdSidebarItems,
 	'kamae-rs': getKamaeRustSidebarItems,
 	'kamae-py': getKamaePythonSidebarItems,
 	'kamae-scala': getKamaeScalaSidebarItems,
