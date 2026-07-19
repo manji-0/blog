@@ -1,6 +1,6 @@
 ---
 title: "言語リファレンス"
-description: "rdra-ish DSL（.rdra）の構文概要"
+description: "rdra-ish DSL（.rdra）の構文概要（v0.2.0）"
 sidebar:
   order: 6
 ---
@@ -59,7 +59,8 @@ creates(PlaceOrder, Order)
 | `concept` / `domain_object` | 概念モデル（DB前） |
 | `requirement` / `nfr` / `constraint` | 要件・非機能 |
 | `adr` | アーキテクチャ決定記録 |
-| `event` / `state` | ライフサイクル |
+| `event` | ライフサイクルイベント |
+| `state` | 任意の図用ラベル（Enum バリアントの糖衣。遷移端点には使わない） |
 | `permission` / `medium` / `location` / `timing` | 制約語彙 |
 
 ## エンティティ本体
@@ -96,7 +97,7 @@ entity Order "Order" {
 | `reads(Usecase, Entity)` | 参照 |
 | `updates(Usecase, Entity)` | 更新 |
 | `deletes(Usecase, Entity)` | 削除 |
-| `relate(Entity, Entity, cardinality)` | エンティティ間関連 |
+| `relate(Entity, Entity, N:1)` など | エンティティ間関連（カーディナリティは **非クォート**、例: `N:1`。`N:M` は未対応で中間エンティティを使う） |
 
 ### 相互作用
 
@@ -107,23 +108,35 @@ entity Order "Order" {
 | `requires_permission(Usecase\|Api, Permission)` | 必要権限 |
 | `requires_medium(Screen, Medium)` | 媒体制約 |
 
-### ライフサイクル
+### ライフサイクル（v0.2.0）
 
 | 述語 | 意味 |
 |---|---|
 | `raises(Usecase, Event)` | イベント発行 |
-| `sets(Event\|Usecase, Entity, State)` | 状態設定 |
-| `transitions(State, Event, State)` | 遷移定義 |
+| `sets(Event\|Usecase, Entity, col == val)` 等 | 列への代入（比較式） |
+| `transitions(Entity.col, Event, from -> to)` | Enum 列上の遷移（グローバル `state` ラベルは端点に使わない） |
 | `outbox(Event)` | 意図的な外部公開（未消費 warning 抑制） |
 
-### ルール
+```rdra
+transitions(Order.status, event::Capture, pending -> paid)
+sets(CapturePayment, Order, status == paid)
+```
+
+### ルール（v0.2.0）
+
+条件は比較式のみ（`col == val`、`stock < selling`）。タプルや平坦な `col, val` は不可。
 
 | 述語 | 意味 |
 |---|---|
-| `forbidden(Entity, State)` | 到達禁止状態 |
-| `invariant(Entity, expr)` | 不変条件 |
+| `forbidden(Entity, conditions...)` | 到達禁止（局所） |
+| `forbidden(A, B, conditions...).along(A, B)` | マルチエンティティ禁止（旧 `cross_*` / `forbidden_when` は削除） |
+| `invariant(Entity).when(...).then(...)` | 含意形の不変条件 |
+| `when(...).none/has(...)` | 有限インスタンス上の量化 |
 | `required(Entity, field, condition)` | 必須条件 |
-| `exclusive(Entity, states...)` | 排他状態 |
+| `exclusive(Entity, ...)` | 排他 |
+| `property Name always/eventually/leads_to(...)` | 時間性質（`states` では未評価。TLA 向け） |
+
+時間結合子は `and` / `or` / `not` を推奨（`/\` `\/` `~` はエイリアス）。詳細と形式検証は [形式検証](/projects/rdra-ish/formal-verification/) を参照。
 
 ## ビジネスフロー
 
@@ -149,6 +162,9 @@ contains(BucOrder, OrderFlow)
 ```bash
 rdra-ish check src/
 rdra-ish fmt src/ --check
+rdra-ish states src/ --entity Order
+# 形式検証（TLC が PATH にある場合）
+rdra-ish verify src/ --backend tlc -o /tmp/rdra-tla
 ```
 
 ## 関連ページ
@@ -156,3 +172,4 @@ rdra-ish fmt src/ --check
 - [段階的モデリング](/projects/rdra-ish/incremental-modeling/)
 - [CLI リファレンス](/projects/rdra-ish/cli-reference/)
 - [図表とエクスポート](/projects/rdra-ish/diagram-and-export/)
+- [形式検証](/projects/rdra-ish/formal-verification/)

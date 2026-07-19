@@ -45,6 +45,17 @@ rdra-ish csv samples/clinic-ops --kind actor-permission-audit
 rdra-ish states samples/clinic-ops --entity Appointment
 ```
 
+## 6. 形式検証（任意・v0.2.0）
+
+TLCがPATHにある場合：
+
+```bash
+rdra-ish export samples/formal-verification/order.rdra --kind tla -o /tmp/rdra-tla
+rdra-ish verify samples/formal-verification/order.rdra --backend tlc -o /tmp/rdra-tla
+```
+
+詳細は [形式検証](/projects/rdra-ish/formal-verification/)。
+
 ## 最小モデルの例
 
 新規プロジェクトでは次の配置から始める。
@@ -100,5 +111,6 @@ warningはレビュー信号、errorはブロッカーとして扱う。
 | やりたいこと | ページ |
 | --- | --- |
 | Stage 0–6 の進め方 | [段階的モデリング](/projects/rdra-ish/incremental-modeling/) |
+| TLA+/TLC | [形式検証](/projects/rdra-ish/formal-verification/) |
 | 全サブコマンド | [CLI リファレンス](/projects/rdra-ish/cli-reference/) |
 | エディタ連携 | [VS Code / LSP](/projects/rdra-ish/vscode-lsp/) |

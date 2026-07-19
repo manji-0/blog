@@ -18,12 +18,14 @@ crates/
   rdra-ish-cli/      # rdra-ish コマンド
   rdra-ish-lsp/      # Language Server
 samples/
+  incremental-order/
   ec-site/
   clinic-ops/
-  incremental-order/
   personal-info/
+  formal-verification/   # TLA+/TLC サンプル（skill 同梱への symlink）
 editors/vscode/      # VS Code 拡張
 docs/                # upstream 詳細ドキュメント
+skills/              # エージェント skill（rdra-ish-write / review / verify 等）
 ```
 
 `syntax` → `core` → `emit` の一方向依存。CLIとLSPは同じ意味論を共有する。
@@ -52,6 +54,7 @@ cargo test
 ```bash
 cargo run --bin rdra-ish -- check samples/ec-site
 cargo run --bin rdra-ish -- diagram samples/ec-site --kind rdra --format mermaid
+cargo run --bin rdra-ish -- export samples/formal-verification/order.rdra --kind tla -o /tmp/rdra-tla
 ```
 
 ## 公開（maintainers）
@@ -72,8 +75,10 @@ uvx maturin publish
 | `cli-reference.md` | CLI全オプション |
 | `incremental-modeling.md` | Stage 0–6 詳細 |
 | `state-derivation.md` | 状態導出アルゴリズム |
+| `formal-verification.md` | TLA+/TLC（v0.2.0） |
 | `diagram-sample-review.md` | 図表レビューガイド |
 | `rdra-ish-interpretation.md` | RDRA-ish 用語解釈 |
+| `CHANGELOG.md` | リリースノート |
 
 ## ライセンス
 
@@ -83,3 +88,4 @@ MIT（リポジトリ `LICENSE` 参照）。
 
 - [VS Code / LSP](/projects/rdra-ish/vscode-lsp/)
 - [CLI リファレンス](/projects/rdra-ish/cli-reference/)
+- [形式検証](/projects/rdra-ish/formal-verification/)

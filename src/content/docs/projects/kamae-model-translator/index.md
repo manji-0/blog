@@ -152,7 +152,7 @@ npx @anthropic-ai/skills add manji-0/agent-skill-modelconverter
 | --- | --- |
 | **kamae / kamae-py / kamae-rs / kamae-scala** | 各言語での idiomatic なドメイン設計（単一言語） |
 | **kamae-model-translator** | 言語横断の写像・wire 規約（ポリグロット） |
-| **rdra-ish**（任意） | 要件モデルから UC・API・状態をレビュー（上流） |
+| **rdra-ish**（任意） | 要件モデルから UC・API・状態レビュー、必要なら TLA+/TLC（上流） |
 
 移植前にソース言語のkamaeスキルでモデル構造を把握し、port / bridgeスキルで写像ルールを当てる、という読み方が自然である。
 

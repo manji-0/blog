@@ -54,7 +54,7 @@ export function getRdraIshSidebarItems() {
 		group(
 			'rdra-ish',
 			'ガイド',
-			['installation', 'quickstart', 'incremental-modeling', 'diagram-and-export'],
+			['installation', 'quickstart', 'incremental-modeling', 'diagram-and-export', 'formal-verification'],
 			false,
 		),
 		group('rdra-ish', 'リファレンス', [
