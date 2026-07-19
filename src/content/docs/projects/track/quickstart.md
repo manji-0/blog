@@ -23,17 +23,18 @@ track todo add "Design database schema"
 track todo add "Compare auth providers" --no-workspace   # 調査用（jjワークスペースなし）
 ```
 
-## 3. JJワークスペースで実装（任意）
+## 3. JJワークスペースで実装（推奨）
 
-リポジトリルートで一度だけ初期化し、タスクslugでワークスペースを開始します。
+リポジトリルート（メイン）で一度だけ初期化し、**タスクワークスペース**へ移動してから実装します。ルートでは機能編集しません。
 
 ```bash
 jj-task repo init
-jj-task start auth-456
+jj-task start auth-456          # slugは alias / ticket から導出
 cd "$(jj-task path auth-456)"
+# ここで実装・jj commit・draft PR…
 ```
 
-slugの導出は [JJ連携](/projects/track/jj-integration/) を参照。コミット操作は `$jj` skill側の責務です。
+Draftではsquash自由、レビュー依頼後は積み上げコミットのみ、といった二段階PRの詳細は [JJ連携](/projects/track/jj-integration/) を厚めに書いてあります。コミット操作は `$jj` skill側の責務です。
 
 ## 4. メモと完了
 
@@ -64,5 +65,5 @@ track webui --open
 | やりたいこと | ページ |
 | --- | --- |
 | 全サブコマンド | [CLIリファレンス](/projects/track/cli-reference/) |
-| エージェント二層スタック | [JJ連携](/projects/track/jj-integration/) |
+| jj開発ワークフロー（二層・二段階PR） | [JJ連携](/projects/track/jj-integration/) |
 | ブラウザUI | [Web UI](/projects/track/webui/) |

@@ -23,7 +23,7 @@ sidebar:
 1. [インストール](/projects/track/installation/)
 2. [クイックスタート](/projects/track/quickstart/)
 3. [CLIリファレンス](/projects/track/cli-reference/)
-4. [JJ連携](/projects/track/jj-integration/) — エージェント二層スタック
+4. [JJ連携](/projects/track/jj-integration/) — タスクWS・二段階PR・エージェントループ（厚め）
 5. [Web UI](/projects/track/webui/)
 6. [開発環境](/projects/track/development/)
 
