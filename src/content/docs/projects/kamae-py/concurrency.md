@@ -111,23 +111,7 @@ async def lifespan(app: FastAPI):
 
 ポート配線は [アプリケーション配線](/projects/kamae-py/application-wiring/)、遅いワーカー周りのタイムアウトとリトライは [インフラの耐障害性](/projects/kamae-py/infrastructure-resilience/) を読む。
 
-## レビュー観点
+## レビューで見るところ
 
-### CPU バウンドのドメイン処理はイベントループ外か — High
-
-`asyncio.to_thread`、エグゼキューター、明示的同期境界なしに、`async def` ハンドラやユースケース内のブロックORM、ファイルI/O、重いパース、CPUバウンドループを指摘する。
-
-### ロックとセッションは正しくスコープされているか — High
-
-所有権やトランザクション境界が不明瞭なまま、並行タスク間で共有されるDBセッション、ORMアイデンティティマップ、ロックを指摘する。
-
-await/ロック相互作用は [エラーハンドリング](/projects/kamae-py/error-handling/) と [永続化、集約、イベント](/projects/kamae-py/persistence-events/) と照合する。
-
-### ドメインコードで共有可変状態を避けているか — Medium
-
-明示引数やポートでテスト可能にできるのに、遷移やユースケースが使うモジュールレベルの可変キャッシュ、グローバル、シングルトンを指摘する。
-
-### プロセス/スレッドプールはスコープが適切で正当化されているか — Medium
-
-小さな純粋遷移への広い `ProcessPoolExecutor`、ライフサイクル管理なしのリクエストごとプール作成を指摘する。
+`async def` 内のブロックORM・ファイルI/O・CPUバウンドが `asyncio.to_thread` やエグゼキューター外に出ていないか。共有DBセッションやロックの所有が不明瞭でないかも見る（[エラーハンドリング](/projects/kamae-py/error-handling/)・[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。モジュール級の可変キャッシュやシングルトンがないか、小さな遷移への広い `ProcessPoolExecutor` やリクエストごとプール作成がないかも確認する。
 

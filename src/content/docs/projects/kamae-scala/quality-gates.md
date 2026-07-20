@@ -130,26 +130,6 @@ def assignDriver(...): Either[AssignDriverError, Transition[EnRouteRequest, Taxi
 
 レビューでは、未フォーマットの変更、新規compiler/scalafix警告、広いlint抑制、ドメイン安全性リスクを隠す抑制、CIに表れないフォーマット / lintゲートを指摘する。
 
-## レビュー観点
+## レビューで見るところ
 
-### 抑制された lint がドメイン安全性リスクを隠していないか — High
-
-`throw`、`???`、安全でない `.get`/`.head`、非網羅 `match`、`Double` 金額算術、広い `@nowarn`、blocking呼び出し、PIIの `toString`、境界デシリアライズに関する抑制や無視された警告を指摘する。
-
-### lint 抑制は狭く正当化されているか — Medium
-
-広いmodule-level `@nowarn`、`// scalafix:off`、説明のないドメイン、境界、PII、JNI、永続化、エラーハンドリング周辺の抑制を指摘する。
-
-生成、ベンダー、互換コードでソースが文書化され隔離されている場合は格下げする。
-
-### 関連モジュールの lint 結果はクリーンか — Medium
-
-リポジトリが通常 `sbt compile`、`scalafixAll --check`、または同等のCIを触ったモジュールで走らせるのに、新しい警告やスキップされたlintゲートがある場合は指摘する。
-
-### フォーマット / lint ゲートは CI またはパッケージ検証に表れているか — Low
-
-Scalaソース変更があるのにフォーマットとlintチェックの実行方法が文書化されていないパッケージを指摘する。`scalafmtCheckAll` とプロジェクトの関連 `scalafix` コマンドを提案する。
-
-### 触った Scala コードはフォーマットされているか — Low
-
-生成コードやベンダーコードを除き、`scalafmtCheckAll` に失敗する触ったScalaファイルを指摘する。
+`throw` / `???` / unsafe `.get`、非網羅`match`、金額の`Double`、PIIの`toString`まわりのlint抑制が安全性を隠していないか。広い`@nowarn`や説明のない抑制、触ったモジュールの新しい警告がないかも見る。Scala変更があるのに`scalafmtCheckAll`や関連`scalafix`の実行が文書化・通過していないか確認する。

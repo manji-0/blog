@@ -109,25 +109,7 @@ macro_rules! domain_event_match {
 
 レビューでは、不変条件を隠すマクロ、ログ非安全な生成 `Debug` / `Display`、少数型向けの過剰な内部proc-macro、バージョン欠如の永続イベント、ドメイン型へのマクロ生成serde / ORM deriveを指摘する。
 
-## レビュー観点
+## レビューで見るところ
 
-### マクロはドメイン不変条件を隠していないか — High
-
-publicフィールド、`Default`、黙示的な強制、手書きドメインルールと異なる検証を追加するproc-macroやderiveを指摘する。
-
-### 生成された Debug / Display はログに安全か — High
-
-[ロギングとメトリクス](/projects/kamae-rs/logging-metrics/) も照合する。PIIやシークレットを露出しうるID、イベント、ペイロードへの生成 `Debug` / `Display` を指摘する。
-
-### イベントマクロはバージョンメタデータを保持しているか — Medium
-
-デプロイをまたいで永続化、キューイング、消費されるドメインイベントに、安定した `name` / `version`（または同等）がない場合は指摘する。
-
-### マクロ生成ドメイン型では Deserialize / FromRow derive を避けているか — Medium
-
-[境界防御](/projects/kamae-rs/boundary-defense/) も照合する。プロジェクトが明示的なリーフ検証慣習を文書化していない限り、不変条件を持つドメイン型へのマクロ生成serdeやORM deriveを指摘する。
-
-### マクロは繰り返しで正当化されているか — Low
-
-1〜2型のために `nutype`、`TryFrom`、明示implの方がレビューで明確なのに、新しい内部proc-macroクレートを導入する箇所を指摘する。
+proc-macroやderiveがpublicフィールド、`Default`、手書きと違う検証で不変条件を隠していないか。生成 `Debug` / `Display` がPIIを漏らさないか（[ロギングとメトリクス](/projects/kamae-rs/logging-metrics/)）。永続化されるイベントに安定した `name` / `version` があり、不変条件付きドメイン型へマクロ生成の `Deserialize` / `FromRow` を付けていないか（[境界防御](/projects/kamae-rs/boundary-defense/)）。1〜2型なら `nutype` や `TryFrom` の方が明確でないかも見る。
 
