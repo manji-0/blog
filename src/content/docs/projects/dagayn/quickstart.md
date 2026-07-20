@@ -5,20 +5,18 @@ sidebar:
   order: 2
 ---
 
-このページはdagaynを初めて使うときの最短パスである。詳細は各リファレンスページへリンクする。
+## インストール
 
-## 1. インストール
-
-[インストール](/projects/dagayn/installation/) の手順に従い、CLIとMCP登録を済ませる。
+CLIとMCP登録の詳細は [インストール](/projects/dagayn/installation/) にあります。最短ではこうです。
 
 ```bash
 uv tool install dagayn
 dagayn install --platform all --mode fts-only -y
 ```
 
-## 2. グラフを構築
+## グラフを構築する
 
-対象リポジトリのルートで実行する。
+対象リポジトリのルートで：
 
 ```bash
 cd your-repo
@@ -26,53 +24,37 @@ dagayn build
 dagayn status
 ```
 
-初回の `build` はリポジトリ規模に比例して時間がかかる。完了後、`.dagayn/graph.db` にグラフが保存される。
+初回の `build` は規模に比例して時間がかかります。終わると `.dagayn/graph.db` に載ります。`status` ではノード数や最終更新、埋め込みがあればそのカバレッジ、鮮度（`complete` / `partial` / `stale` など）が見えます。
 
-## 3. 状態を確認
+## 変更を反映する
 
-```bash
-dagayn status
-```
-
-ノード数、最終更新時刻、埋め込みカバレッジ（有効な場合）が表示される。`complete` / `partial` / `stale` / `empty` / `not_indexed` のいずれかで鮮度が分かる。
-
-## 4. 変更を反映
-
-日常開発ではhookまたは手動でインクリメンタル更新する。
+日常はhookか手動のインクリメンタル更新です。
 
 ```bash
 dagayn update
-# フロー再計算を省略して高速化（hook の既定）
+# フロー再計算を省略（hookの既定に近い）
 dagayn update --skip-flows
 ```
 
-フル再構築が必要な場合：
+フルでやり直したいときだけ：
 
 ```bash
 dagayn build --force-full-build
 ```
 
-## 5. MCP 経由でレビュー
+## エージェントから見る
 
-AIエージェント（Cursor / Claude Code / Codex等）からMCPツールを呼ぶ。エージェントに次のような指示を出すとよい。
+CursorやClaude Code、CodexなどからMCPツールを呼びます。たとえば「変更の影響を `review_tool` で」「`FooBar` のcallerを `query_graph_tool` で」「認証まわりを `semantic_search_nodes_tool` で」といった指示が通りやすいです。ツール一覧は [MCP ツール](/projects/dagayn/mcp-tools/) へ。
 
-- 「変更の影響を `review_tool` で分析して」
-- 「`FooBar` のcallerを `query_graph_tool` で調べて」
-- 「`semantic_search_nodes_tool` で認証関連のシンボルを探して」
-
-代表的なツールは [MCP ツール](/projects/dagayn/mcp-tools/) を参照。
-
-## 6. CLI で差分レビュー
-
-MCPを使わずCLIだけでも変更検出ができる。
+MCPなしでも差分は取れます。
 
 ```bash
 dagayn detect-changes --base HEAD~1
 ```
 
-tracked diffに加え、staged / unstaged / untrackedファイルもまとめて検出する。
+trackedに加えてstaged / unstaged / untrackedもまとめて見ます。
 
-## 典型的な日常運用
+## 日常のイメージ
 
 ```mermaid
 flowchart LR
@@ -83,14 +65,6 @@ flowchart LR
   D -->|No| A
 ```
 
-- **hook**: `dagayn install` がファイル保存時の更新を登録する。フロー再計算はコストが高いため `--skip-flows` が既定。
-- **週次または大規模変更後**: `dagayn build` でフル再構築、または `dagayn update` でフロー込み更新。
+hookは `dagayn install` が登録します。フロー再計算は重いので `--skip-flows` が既定寄りです。週次や大きなrefactorのあとだけ、フロー込みの `update` かフル `build` を走らせると安心です。
 
-## 次のステップ
-
-| やりたいこと | ページ |
-| --- | --- |
-| 全CLIコマンド | [CLI リファレンス](/projects/dagayn/cli-reference/) |
-| グラフの語彙 | [グラフモデル](/projects/dagayn/graph-model/) |
-| 設計書をグラフに載せる | [Markdown / Terraform 連携](/projects/dagayn/integrations/) |
-| 意味検索を有効化 | [セマンティック検索](/projects/dagayn/semantic-search/) |
+コマンド全般は [CLI リファレンス](/projects/dagayn/cli-reference/)、語彙は [グラフモデル](/projects/dagayn/graph-model/)、設計書を載せる話は [Markdown / Terraform 連携](/projects/dagayn/integrations/)、意味検索は [セマンティック検索](/projects/dagayn/semantic-search/) です。

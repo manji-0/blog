@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-既定のキーマップです。上書きは [設定](/projects/bmd/configuration/) の `[keymap.*]` で行います。
+上書きは [設定](/projects/bmd/configuration/) の `[keymap.*]` で行います。
 
 ## Normalモード
 

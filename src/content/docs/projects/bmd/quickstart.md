@@ -41,16 +41,4 @@ BMD_CHECKLIST_STYLE=emoji bmd notes.md
 | `h` | ヘルプオーバーレイ |
 | `q` | 終了 |
 
-キー一覧は [キーバインド](/projects/bmd/keybindings/)。
-
-## サンプル
-
-リポジトリの `sample.md` / `sample-gfm.md` / `sample.adoc` / `sample.rst` で描画を試せます（主な対象はMarkdown）。
-
-## 次のステップ
-
-| やりたいこと | ページ |
-| --- | --- |
-| 全キー | [キーバインド](/projects/bmd/keybindings/) |
-| テーマ / keymap | [設定](/projects/bmd/configuration/) |
-| ビルド・アーキテクチャ | [開発環境](/projects/bmd/development/) |
+キー一覧は [キーバインド](/projects/bmd/keybindings/)、テーマやkeymapは [設定](/projects/bmd/configuration/)、ビルドは [開発環境](/projects/bmd/development/) です。

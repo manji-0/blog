@@ -45,7 +45,7 @@ rdra-ish csv samples/clinic-ops --kind actor-permission-audit
 rdra-ish states samples/clinic-ops --entity Appointment
 ```
 
-## 6. 形式検証（任意・v0.2.0）
+## 6. 形式検証（任意）
 
 TLCがPATHにある場合：
 
@@ -104,13 +104,4 @@ rdra-ish diagram src/ --kind rdra --format mermaid --buc BucOrder
 3. `--buc` フィルタ付きdiagram / csvでその段階の関心だけレビュー
 4. 次の段階へ
 
-warningはレビュー信号、errorはブロッカーとして扱う。
-
-## 次のステップ
-
-| やりたいこと | ページ |
-| --- | --- |
-| Stage 0–6 の進め方 | [段階的モデリング](/projects/rdra-ish/incremental-modeling/) |
-| TLA+/TLC | [形式検証](/projects/rdra-ish/formal-verification/) |
-| 全サブコマンド | [CLI リファレンス](/projects/rdra-ish/cli-reference/) |
-| エディタ連携 | [VS Code / LSP](/projects/rdra-ish/vscode-lsp/) |
+warningはレビュー信号、errorはブロッカーとして扱います。Stageの進め方は [段階的モデリング](/projects/rdra-ish/incremental-modeling/)、TLAは [形式検証](/projects/rdra-ish/formal-verification/)、コマンド一覧は [CLI リファレンス](/projects/rdra-ish/cli-reference/)、エディタは [VS Code / LSP](/projects/rdra-ish/vscode-lsp/) です。
