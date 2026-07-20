@@ -57,6 +57,7 @@ export function getRdraIshSidebarItems() {
 			['installation', 'quickstart', 'incremental-modeling', 'diagram-and-export', 'formal-verification'],
 			false,
 		),
+		group('rdra-ish', '実践例', ['examples/store-restock'], false),
 		group('rdra-ish', 'リファレンス', [
 			'cli-reference',
 			'language-reference',
