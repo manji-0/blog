@@ -9,112 +9,20 @@ sidebar:
 
 _Kamae（構え）— 備えの姿勢。_
 
-Kamae Rustは、サーバーサイドのドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集である。[kamae-ts](https://github.com/iwasa-kosui/kamae-ts) のRust向け兄弟プロジェクトで、同じ思想をRustのイディオムに落とし込んでいる。
+Kamae Rustは、サーバーサイドのドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集です。[kamae-ts](https://github.com/iwasa-kosui/kamae-ts) のRust向け兄弟で、同じ思想を列挙型・newtype・`TryFrom`・`Result` といったRustのイディオムに落としています。
 
-すべてのリファレンスを通読する必要はない。今のタスクに関係するトピックだけを開けばよい。各リファレンス末尾の **レビュー観点** に、そのトピックのコードレビューで確認すべき項目がある。
+守りたいのは、文字列のまま混ざるドメイン概念、`status` とOptionalで表せてしまう無効状態、想定内失敗での `unwrap` / `panic!`、API JSONやDB行のドメイン直使い、観測経路へのPII、状態とイベントの非アトミックな永続化、といったあたりです。全部を通読する必要はなく、いま触っているトピックだけ開けば足ります。各ページ末尾の **レビュー観点** は、そのトピックのレビュー用チェックです。
 
-## 何を目指すか
+強い既定であって絶対ではありません。既存の慣習とぶつかったら慣習を優先し、ドメイン安全性に効く逸脱だけ短く残してください。
 
-Kamaeが守りたいのは、次のような失敗である。
+## どこから読むか
 
-- 文字列や数値のまま混在するドメイン概念
-- `status` フィールドとオプショナル列で表せてしまう無効な状態
-- `unwrap` や `panic!` に頼る想定内の失敗処理
-- API JSONやDB行をそのままドメイン型として使う境界の曖昧さ
-- ログ・メトリクス・エラーへのPII漏洩
-- 状態変更とドメインイベントの非アトミックな永続化
+新規ドメインなら [ドメインモデリング](/projects/kamae-rs/domain-modeling/) → [状態遷移](/projects/kamae-rs/state-transitions/) → [境界防御](/projects/kamae-rs/boundary-defense/) と [エラーハンドリング](/projects/kamae-rs/error-handling/) → [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) の順が素直です。一通りの流れは [タクシー配車の例](/projects/kamae-rs/examples/taxi-request/) で追えます。仕上げ前に [品質ゲート](/projects/kamae-rs/quality-gates/) を見てください。
 
-Rustでは、列挙型・newtype・プライベートフィールド・`TryFrom` といった型機能で、実用的な範囲でこれらをコンパイル時または構築時に弾く。
+既存コードへ段階的に入れるなら [段階的導入](/projects/kamae-rs/adoption/) から入り、触った境界を先に締めてから上のパスへ合流します。PIIと観測だけなら [PII 保護](/projects/kamae-rs/pii-protection/) と [ロギングとメトリクス](/projects/kamae-rs/logging-metrics/) で足ります。
 
-## コア原則
-
-- **意味を型で表す** — 列挙型、構造体、newtype、検証付きコンストラクタでドメイン概念をモデル化する。
-- **無効な遷移を型で封じる** — ソース状態ごとに遷移メソッドや型を分け、網羅的な `match` で分岐を閉じる。
-- **`Result` で失敗を明示する** — ドメイン固有のエラー列挙型とともに `Result<T, E>` を使い、ドメインコードでは `panic!`・`unwrap()`・`expect()` を避ける。
-- **境界で一度パースする** — 外部データはDTO / 行 / 設定構造体に入れてから `TryFrom` でドメイン型へ変換する。
-- **ユースケースは小さく配線する** — ポート（トレイト）経由で依存を受け取り、アダプタはコンポジションルートで注入する。
-- **集約の変更はトランザクション内に** — 実用的な範囲で、ユースケースごとに集約の変更を1つのトランザクション境界に収める。
-- **PII とシークレットは内側に** — マスキング用ラッパーの内側に置き、観測経路ではデフォルトでマスクする。
-- **`unsafe` は境界に閉じる** — ドメインロジックからは排除し、必要なら文書化された安全性不変条件を持つ小さな安全APIの背後に隠す。
-- **品質ゲートを揃える** — `rustfmt`・`clippy`・テスト・rustdocをクリーンに保ち、CIをレビュー前提と一致させる。
-
-これらは強い既定であり、絶対ではない。既存のプロジェクト慣習と矛盾する場合は慣習に従い、ドメイン安全性に影響する逸脱は短い説明を残す。
-
-## 状況別の読み方
-
-### 新規ドメインを設計するとき
-
-1. [ドメインモデリング](/projects/kamae-rs/domain-modeling/)
-2. [状態遷移](/projects/kamae-rs/state-transitions/)
-3. [境界防御](/projects/kamae-rs/boundary-defense/) と [エラーハンドリング](/projects/kamae-rs/error-handling/)
-4. [永続化、集約、イベント](/projects/kamae-rs/persistence-events/)
-5. [タクシー配車の例](/projects/kamae-rs/examples/taxi-request/)
-6. 仕上げ前に [品質ゲート](/projects/kamae-rs/quality-gates/)
-
-### 既存コードベースへ段階的に導入するとき
-
-1. [段階的導入](/projects/kamae-rs/adoption/)
-2. [境界防御](/projects/kamae-rs/boundary-defense/)
-3. 移行したワークフローごとに、上記「新規ドメイン」のパスを続ける
-
-### オブザーバビリティと PII だけ見るとき
-
-1. [PII 保護](/projects/kamae-rs/pii-protection/)
-2. [ロギングとメトリクス](/projects/kamae-rs/logging-metrics/)
-
-### インフラ・開発環境の整備
-
-| 関心 | リファレンス |
-| --- | --- |
-| ユースケース配線、DI | [アプリケーション配線](/projects/kamae-rs/application-wiring/) |
-| サービス間契約、gRPC | [サービス境界](/projects/kamae-rs/service-boundaries/) |
-| ストリーム、継続クエリ | [ストリームと継続クエリ](/projects/kamae-rs/stream-continuous-queries/) |
-| マクロ、derive | [ドメインマクロ](/projects/kamae-rs/domain-macros/) |
-| `unsafe`、FFI | [unsafe 境界](/projects/kamae-rs/unsafe-boundaries/) |
-| テスト、フィクスチャ | [テストデータ](/projects/kamae-rs/test-data/) |
-| プロパティベーステスト | [プロパティベーステスト](/projects/kamae-rs/property-based-tests/) |
-| フォーマット、lint、品質ゲート | [品質ゲート](/projects/kamae-rs/quality-gates/) |
-| 公開 API の rustdoc | [公開 API のドキュメント](/projects/kamae-rs/rustdoc/) |
-| ローカル開発・ブートストラップ | [開発環境](/projects/kamae-rs/dev-environment/) |
-| スキルリポジトリの開発 | [スキルリポジトリの開発](/projects/kamae-rs/development-setup/) |
-| CI | [CI セットアップ](/projects/kamae-rs/ci-setup/) |
+配線やDIは [アプリケーション配線](/projects/kamae-rs/application-wiring/)、サービス間契約は [サービス境界](/projects/kamae-rs/service-boundaries/)、ストリームは [ストリームと継続クエリ](/projects/kamae-rs/stream-continuous-queries/)、マクロは [ドメインマクロ](/projects/kamae-rs/domain-macros/)、`unsafe` は [unsafe 境界](/projects/kamae-rs/unsafe-boundaries/) です。テストまわりは [テストデータ](/projects/kamae-rs/test-data/) と [プロパティベーステスト](/projects/kamae-rs/property-based-tests/)、公開APIのrustdocは [公開 API のドキュメント](/projects/kamae-rs/rustdoc/)、ローカルとCIは [開発環境](/projects/kamae-rs/dev-environment/) と [CI セットアップ](/projects/kamae-rs/ci-setup/) へ。スキル本体の開発は [スキルリポジトリの開発](/projects/kamae-rs/development-setup/) です。
 
 ## 依存クレート
 
-プロジェクトの `Cargo.toml` に応じて、必要なときだけ [クレートガイド](/projects/kamae-rs/crate-guides/) を参照する。
-
-| 用途 | ガイド付きクレート | 検出のみ（ローカル慣習の参考） |
-| --- | --- | --- |
-| エラー | `thiserror`、`anyhow`、`eyre` | `snafu` |
-| シリアライズ | `serde` | `serde_json`、`toml`、`config` |
-| 検証 / newtype | `validator`、`garde`、`nutype` | `derive_more` |
-| PII / シークレット | `secrecy` | `zeroize` |
-| ログ / トレース | `tracing`、`log`、`metrics` | `opentelemetry`、`prometheus` |
-| テスト | `proptest` | `quickcheck`、`trybuild` |
-
-## リファレンス一覧
-
-- [アプリケーション配線](/projects/kamae-rs/application-wiring/)
-- [段階的導入](/projects/kamae-rs/adoption/)
-- [ドメインモデリング](/projects/kamae-rs/domain-modeling/)
-- [状態遷移](/projects/kamae-rs/state-transitions/)
-- [エラーハンドリング](/projects/kamae-rs/error-handling/)
-- [境界防御](/projects/kamae-rs/boundary-defense/)
-- [PII 保護](/projects/kamae-rs/pii-protection/)
-- [ロギングとメトリクス](/projects/kamae-rs/logging-metrics/)
-- [unsafe 境界](/projects/kamae-rs/unsafe-boundaries/)
-- [品質ゲート](/projects/kamae-rs/quality-gates/)
-- [公開 API のドキュメント](/projects/kamae-rs/rustdoc/)
-- [CI セットアップ](/projects/kamae-rs/ci-setup/)
-- [開発環境](/projects/kamae-rs/dev-environment/)
-- [スキルリポジトリの開発](/projects/kamae-rs/development-setup/)
-- [永続化、集約、イベント](/projects/kamae-rs/persistence-events/)
-- [ストリームと継続クエリ](/projects/kamae-rs/stream-continuous-queries/)
-- [ドメインマクロ](/projects/kamae-rs/domain-macros/)
-- [サービス境界](/projects/kamae-rs/service-boundaries/)
-- [テストデータ](/projects/kamae-rs/test-data/)
-- [プロパティベーステスト](/projects/kamae-rs/property-based-tests/)
-
-## 実践例
-
-[タクシー配車の例](/projects/kamae-rs/examples/taxi-request/) で、状態遷移とドメインイベントの流れを一通り追える。
+`Cargo.toml` に応じて、必要なときだけ [クレートガイド](/projects/kamae-rs/crate-guides/) を見てください。エラーは `thiserror` / `anyhow`、シリアライズは `serde`、検証やnewtypeは `validator` / `garde` / `nutype`、シークレットは `secrecy`、観測は `tracing` / `metrics`、テストは `proptest` あたりがガイド付きです。

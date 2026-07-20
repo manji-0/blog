@@ -59,15 +59,15 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 ## レガシー移行の段階的ロードマップ
 
-例： axum + sqlxのモノリスサービスで `POST /requests/{id}/assign` を移行する。
+例：axum + sqlxのモノリスサービスで `POST /requests/{id}/assign` を移行する。Phaseは完了条件の並びであり、カレンダー週ではない。
 
-### Phase 1 — 挙動を固定し、テストを追加（1 週目）
+### Phase 1 — 挙動を固定し、テストを追加
 
 1. 統合テストで現行HTTP契約を記録する（ステータスコード、JSON形状）。
 2. レガシーパス周辺にlogging/metricsを追加し、トラフィックを計測する。
 3. まだ挙動は変えない。
 
-### Phase 2 — 境界 DTO（1〜2 週目）
+### Phase 2 — 境界 DTO
 
 1. `api` モジュールに `AssignDriverBody` と `AssignDriverDto` を導入する。
 2. ハンドラの直接フィールドアクセスを `AssignDriverCommand::try_from(dto)` に置き換える。
@@ -76,7 +76,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 [境界防御](/projects/kamae-rs/boundary-defense/) を参照。
 
-### Phase 3 — 触った ID の newtype（2 週目）
+### Phase 3 — 触った ID の newtype
 
 1. `domain` crateまたはmoduleに `RequestId`, `DriverId` newtypeを追加する。
 2. `TryFrom` をnewtype構築に変更する。レガシーサービスは境界で `.as_str()` を受け取る。
@@ -84,7 +84,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 [ドメインモデリング](/projects/kamae-rs/domain-modeling/) を参照。
 
-### Phase 4 — ユースケース抽出（3 週目）
+### Phase 4 — ユースケース抽出
 
 1. レガシー SQLをprivateメソッドにインラインした `AssignDriverUseCase` を作成する。
 2. ハンドラは `use_case.execute(cmd)` のみ呼ぶ。
@@ -92,7 +92,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 [エラーハンドリング](/projects/kamae-rs/error-handling/) を参照。
 
-### Phase 5 — 1 集約の型付き状態（3〜4 週目）
+### Phase 5 — 1 集約の型付き状態
 
 1. `WaitingRequest` と `EnRouteRequest` をモデル化し、割当ロジックを `WaitingRequest::assign_driver(self, ...)` に移す。
 2. DBのレガシー `status: String` は残す。adapterがrow <-> state structをマップする。
@@ -100,7 +100,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 [状態遷移](/projects/kamae-rs/state-transitions/) を参照。
 
-### Phase 6 — リポジトリポート（4〜5 週目）
+### Phase 6 — リポジトリポート
 
 1. `RequestResolver` と `RequestStore` traitを定義する。
 2. ユースケースからSQLを `SqlxRequestStore` に移す。
@@ -108,7 +108,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) と [アプリケーション配線](/projects/kamae-rs/application-wiring/) を参照。
 
-### Phase 7 — トランザクション、バージョン、outbox（5〜6 週目）
+### Phase 7 — トランザクション、バージョン、outbox
 
 1. `version` 列と条件付き `UPDATE` を追加する。
 2. state saveとoutbox insertを1トランザクションに包む。
@@ -116,7 +116,7 @@ new handler    -> AssignDriver use case -> port -> adapter -> DB
 
 [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) を参照。
 
-### Phase 8 — レガシーパス削除（6 週目以降）
+### Phase 8 — レガシーパス削除
 
 1. feature flagまたはルートトラフィックが新パス100% であることを確認する。
 2. レガシーサービス関数と死んだ `status` 文字列チェックを削除する。
