@@ -5,20 +5,7 @@ sidebar:
   order: 5
 ---
 
-dagaynはリポジトリ内のソース、ドキュメント、インフラ定義を統一されたグラフ語彙で表現する。エッジkindは **意味分類** であると同時に **探索時の index selector** でもある。
-
-## パイプライン概要
-
-```mermaid
-flowchart LR
-  A[ソースファイル] --> B[Tree-sitter パース]
-  B --> C[ノード / エッジ抽出]
-  C --> D[(SQLite グラフ)]
-  D --> E[後処理<br/>FTS / コミュニティ / フロー]
-  E --> F[MCP / CLI クエリ]
-```
-
-グラフは `.dagayn/graph.db` に保存される。
+dagaynはリポジトリ内のソース、ドキュメント、インフラ定義を統一されたグラフ語彙で表現する。エッジkindは **意味分類** であると同時に **探索時の index selector** でもある。取り込みからクエリまでの流れは [アーキテクチャ](/projects/dagayn/architecture/) を参照。
 
 ## 対応アーティファクト
 
