@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /projects/kamae-rs/dev-environment/
+redirect: /projects/kamae-rs/local-validation/
 sidebar:
   hidden: true
 ---

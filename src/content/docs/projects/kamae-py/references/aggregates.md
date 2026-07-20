@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /projects/kamae-py/persistence-events/
+redirect: /projects/kamae-py/aggregates/
 sidebar:
   hidden: true
 ---
 
-このページは統合のため移動しました。自動的に転送されます。
+このページは [集約とトランザクション境界](/projects/kamae-py/aggregates/) に移動しました。

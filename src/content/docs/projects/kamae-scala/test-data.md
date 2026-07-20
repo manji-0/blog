@@ -11,28 +11,72 @@ sidebar:
 <!-- constrained-by ./state-transitions.md -->
 <!-- constrained-by ./boundary-defense.md -->
 <!-- constrained-by ./pii-protection.md -->
+<!-- constrained-by ./property-based-tests.md -->
 
-## 正当なフィクスチャを使う
+## 公開経路でフィクスチャを組み立てる
 
-テストhelperは本番と同じfactoryで有効なIDとstateを構築する。
+フィクスチャは本番と同じコンストラクタ・遷移関数を通す。opaque type factoryを迂回する生case classリテラルは避ける。破損入力や移行互換を明示的に試すテストを除く。
 
 ```scala
 def requestId(value: String = "req-1"): RequestId =
-  RequestId(value).fold(err => throw new IllegalArgumentException(err.toString), identity)
+  RequestId(value).fold(
+    err => throw new IllegalArgumentException(s"fixture request id: $err"),
+    identity
+  )
 ```
 
-失敗経路を検証するときは `.get` より `Either` アサーションを優先する。
+fixture helperが固定値を使うなら、helperまたはアサーションメッセージで不変条件を名指す。失敗経路では`.get`より`Either`アサーションを優先する。
 
-helperは `src/test/scala/.../support/` やモジュールローカル `test` パッケージで共有する。fake portパターンは [開発環境](/projects/kamae-scala/dev-environment/) を参照。
+helperは`src/test/scala/.../support/`またはパッケージローカルtestオブジェクトで共有する。fake portパターンは [開発環境](/projects/kamae-scala/dev-environment/) を参照。
 
-## コンパイル時安全性テスト
+## 状態機械のエッジをカバーする
 
-別state型が遷移ソースを強制するとき、munit `compileErrors` テストで非法stateがコンパイルできないことを確認する：
+重要ワークフローでは次を試す：
+
+- 成功する遷移
+- 拒否される遷移または前提条件
+- 遷移前の認可とテナント拒否
+- ハンドラまたはユースケース境界での網羅的errorマッピング
+- 期待event typeとaggregate IDを持つドメインeventの発行
+
+```scala
+test("assignDriver rejects non-waiting state"):
+  val err = enRouteFixture.assignDriver(driverId("d1"))
+  assertEquals(err, Left(DomainError.InvalidState))
+```
+
+コンパイル時state安全性が中核なら`compileErrors`テストを追加する（下記参照）。
+
+## 境界と観測可能性をテストする
+
+境界テストには未知フィールドや不正DTOを含める。必須欠落、default付きフィールド、DB行の再水和も試す。
+
+観測可能性テストではredacted log、安全errorメッセージ、安全metrics label、敏感データがあるときのresponse DTOエンコードを検証する。[ロギングとメトリクス](/projects/kamae-scala/logging-metrics/)のtierルール：
+
+- Tier A/B値はlog、trace、error、metric labelに出さない
+- Tier C/D値は構造化フィールドのみ。logメッセージ文字列内に入れない
+- metric exportはTier E labelのみ
+
+```scala
+test("api error does not echo email"):
+  val body = mapDomainError(DomainError.DuplicateEmail(emailFixture)).render
+  assert(!body.contains("user@example.com"))
+```
+
+## 永続化とリトライ挙動をテストする
+
+永続化を変更するときはDB制約失敗や楽観的ロック競合をカバーする。重複コマンド、idempotency key、outbox insertも試す。
+
+純粋ユースケースはfake repositoryで十分。トランザクションと制約はadapter統合テストで確認する。ドメインとユースケーステストからDockerを外し、コンテナはインフラモジュール向けに留める（[開発環境](/projects/kamae-scala/dev-environment/)のtest層参照）。
+
+## コンパイル時state安全性をテストする
+
+重要な状態機械保証には、munit`compileErrors`テストを追加する。プロジェクトがすでにmunitを使うか、不変条件が中核なら正当化できる。
 
 ```scala
 test("EnRouteRequest is not WaitingRequest"):
   val errors = compileErrors("""
-    import example.domain.*
+    import kamae.examples.*
     def onlyWaiting(request: WaitingRequest): Unit = ()
     onlyWaiting(enRouteFixture)
   """)
@@ -41,26 +85,58 @@ test("EnRouteRequest is not WaitingRequest"):
 
 例： [`CompileTimeSafetySuite.scala`](https://github.com/manji-0/kamae-scala/blob/main/skills/kamae-scala/examples/src/test/scala/kamae/examples/CompileTimeSafetySuite.scala)。
 
-## フィクスチャから PII を除外する
-
-コミット済みフィクスチャには合成identifierを使う。本番exportをリポジトリにコピーしない。
-
-redacted log、安全errorメッセージ、安全metrics label、敏感データがあるときのresponse DTOシリアライズをobservabilityテストでassertする。識別子ポリシーは [ロギングとメトリクス](/projects/kamae-scala/logging-metrics/) のtierルールに従う。
-
-## 単体と統合フィクスチャを分離する
-
-単体テストはDBや外部サービスを要求しない。統合テストはより豊かな行/DTOを組み立てても、境界parser経由で変換する。
-
-永続化の実装を変更するときは、正常系に加えてDB制約失敗、楽観的ロック競合、トランザクションロールバック、重複コマンド、idempotency key、outbox insert、event version互換もテストする。純粋なユースケースはフェイクリポジトリで十分。トランザクションと制約に依存する挙動はアダプター統合テストで確認する。
+成功遷移、errorマッピング、DTO変換、PII redactionは通常の単体テストで扱う。
 
 ## 安定した不変条件にはプロパティベーステストを使う
 
-多入力で成り立つ不変条件にはScalaCheck（[プロパティベーステスト](/projects/kamae-scala/property-based-tests/) 参照）。遷移が純関数で不変条件が明示的なKamae Scalaに合う。
+多入力で成り立つ不変条件にはScalaCheck（またはmunit-scalacheck）を使う。Kamae Scalaでは遷移が純関数であり、不変条件も明示的なので相性がよい。
+
+向いている対象：
+
+- 値オブジェクトコンストラクタと検証ルール
+- parser/formatterとDTO往復
+- 状態機械遷移法則（[プロパティベーステスト](/projects/kamae-scala/property-based-tests/)参照）
+- 金額算術、単位変換、タイムスタンプ境界ルール
+- redaction helperと安全`Show`/`toString`契約
+
+生成値も公開コンストラクタまたは境界adapterを通す。無効なopaque type内部を埋めるgeneratorは、本番が構築できない状態を誤って試す。
+
+### 状態遷移の法則
+
+| 法則 | 例 |
+| --- | --- |
+| 同一性の保持 | `result.requestId == source.requestId` |
+| discriminatorの正しい変化 | `assignDriver(waiting, ...)`が`EnRouteRequest`を返す |
+| 拒否経路は到達不能 | 非法source stateが遷移に到達しない |
+| event数と形状 | eventは1つでaggregate IDがstateと一致 |
+
+### 往復とadapterのproperty
+
+```scala
+property("waiting request round trip"):
+  forAll(waitingRequestGen): state =>
+    val dto = WaitingRequestDto.from(state)
+    WaitingRequestDto.toDomain(dto) == Right(state)
+```
+
+明示generatorを公開コンストラクタから組み立てる。shrinking、regression file、CI予算は [プロパティベーステスト](/projects/kamae-scala/property-based-tests/) を参照。
+
+## フィクスチャからPIIを除外する
+
+コミット済みフィクスチャには合成identifierを使う。本番exportをリポジトリにコピーしない。[PII保護](/projects/kamae-scala/pii-protection/)を参照。
+
+## テスト層
+
+| 層 | 試すこと | I/O |
+| --- | --- | --- |
+| Domain unit | コンストラクタ、遷移、ドメインerror | なし |
+| Use case | fake portでのオーケストレーション | なし |
+| Adapter unit | SQLマッピング、DTO変換、redaction | fakeまたはin-memory |
+| API/integration | handler → ユースケース → adapter | test DBまたはコンテナ任意 |
+| Property | 入力全体の法則 | property本体にI/Oなし |
 
 PR前に [品質ゲート](/projects/kamae-scala/quality-gates/) のテストコマンドを実行する。
 
-レビューでは、public経路を迂回する無効状態の構築、非法遷移テストの欠如、フィクスチャへの本番PII、境界変更の検証不足を指摘する。
-
 ## レビューで見るところ
 
-publicフィールドや生リテラルで無効なドメイン状態を作るテストがないか（マイグレーション互換・破損行・コンパイル失敗カバレッジなど目的が明確なら除く）。拒否される遷移、DTO変換失敗、マスキングされたログやエラーのテストがあるか。フィクスチャに実メール・電話・政府ID・本番identifierがないかも見る。値オブジェクト検証や遷移法則に例表がなく公開コンストラクタを使えるならプロパティテストを提案し、コンパイル時安全性を中核にするなら`compileErrors`も検討する。
+public経路を迂回する無効状態の構築はないか。拒否遷移とDTO失敗のテストはあるか。フィクスチャに本番PIIはないか。永続化リトライとidempotencyのテストはあるか。境界変更に未知フィールドや破損行のカバレッジはあるか。

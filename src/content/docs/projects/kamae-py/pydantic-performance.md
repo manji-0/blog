@@ -6,7 +6,7 @@ sidebar:
 
 Pydantic v2は境界とドメイン状態のデフォルトとして妥当だが、大きなモデルや高頻度エンドポイントでは検証に実コストがある。パフォーマンス改善は不変条件を弱める口実ではなく、**どこで何を再検証するか**を絞るための設計判断である。
 
-型の選び方は [ドメインモデリング](/projects/kamae-py/domain-modeling/)、検証を飛ばしてよい経路は [unsafe 境界](/projects/kamae-py/unsafe-boundaries/)、受信データの入口は [境界防御](/projects/kamae-py/boundary-defense/) と整合させる。
+型の選び方は [ドメインモデリング](/projects/kamae-py/domain-modeling/)、検証を飛ばしてよい経路は [unsafe 境界](/projects/kamae-py/unsafe-boundaries/)、受信データの入口は [境界防御](/projects/kamae-py/boundary-defense/) と整合させる。GILやバッチ、event loop全体のホットパスは [Python のパフォーマンス](/projects/kamae-py/python-performance/) を参照する。
 
 ## コストが現れる場所
 

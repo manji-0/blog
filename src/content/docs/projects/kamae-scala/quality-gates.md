@@ -123,6 +123,7 @@ def assignDriver(...): Either[AssignDriverError, Transition[EnRouteRequest, Taxi
 | --- | --- | --- |
 | フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-scala/test-data/) |
 | 入力全体の不変条件 | ScalaCheck property | [プロパティベーステスト](/projects/kamae-scala/property-based-tests/) |
+| アサーション強度 / 静かなギャップ | ドメインモジュールへのStryker | [ミューテーションテスト](/projects/kamae-scala/mutation-testing/) |
 | コンパイル時 state 安全性 | munit `compileErrors` | [テストデータ](/projects/kamae-scala/test-data/#コンパイル時安全性テスト) |
 | fake port とユースケース | application tests | [開発環境](/projects/kamae-scala/dev-environment/) |
 

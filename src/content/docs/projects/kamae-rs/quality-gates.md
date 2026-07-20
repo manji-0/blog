@@ -186,6 +186,7 @@ toolchainが `reason` 非対応なら近くにコメント。
 | --- | --- | --- |
 | フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-rs/test-data/) |
 | 入力全体の不変条件 | `proptest!` または `quickcheck!` | [プロパティベーステスト](/projects/kamae-rs/property-based-tests/) |
+| アサーション強度 / 静かなギャップ | ドメインパッケージへの `cargo mutants` | [ミューテーションテスト](/projects/kamae-rs/mutation-testing/) |
 | コンパイル時 state 安全性 | `trybuild` | [テストデータ](/projects/kamae-rs/test-data/#test-compile-time-state-safety) |
 | fake port とユースケース | `application` tests | [開発環境](/projects/kamae-rs/dev-environment/#fake-ports-and-test-fixtures) |
 

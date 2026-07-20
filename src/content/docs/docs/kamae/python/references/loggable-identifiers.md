@@ -1,6 +1,6 @@
 ---
 title: "（移動しました）"
-redirect: /projects/kamae-py/references/loggable-identifiers/
+redirect: /projects/kamae-py/loggable-identifiers/
 sidebar:
   hidden: true
 ---
