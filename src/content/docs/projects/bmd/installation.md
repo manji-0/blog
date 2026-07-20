@@ -35,5 +35,4 @@ devbox run build-release
 
 ## 次のステップ
 
-- [クイックスタート](/projects/bmd/quickstart/)
-- [キーバインド](/projects/bmd/keybindings/)
+[クイックスタート](/projects/bmd/quickstart/) で一度開き、操作は [キーバインド](/projects/bmd/keybindings/) を参照。

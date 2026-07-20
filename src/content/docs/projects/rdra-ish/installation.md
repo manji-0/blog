@@ -44,5 +44,4 @@ cargo build --release
 
 ## 次のステップ
 
-- [クイックスタート](/projects/rdra-ish/quickstart/)
-- [段階的モデリング](/projects/rdra-ish/incremental-modeling/)
+[クイックスタート](/projects/rdra-ish/quickstart/) でサンプルを一度回し、書き方は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) へ。

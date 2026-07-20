@@ -82,6 +82,4 @@ dagayn install --platform all --mode fts-only -y
 
 ## 次のステップ
 
-- [クイックスタート](/projects/dagayn/quickstart/) — グラフ構築からMCP利用まで
-- [セマンティック検索](/projects/dagayn/semantic-search/) — 埋め込みモードの選び方
-- [トラブルシューティング](/projects/dagayn/troubleshooting/) — `dagayn._core` 不足など
+[クイックスタート](/projects/dagayn/quickstart/) でグラフ構築からMCPまで一気に通す。埋め込みの選び方は [セマンティック検索](/projects/dagayn/semantic-search/)、`dagayn._core` 不足などは [トラブルシューティング](/projects/dagayn/troubleshooting/)。

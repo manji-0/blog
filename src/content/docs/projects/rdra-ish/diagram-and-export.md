@@ -112,15 +112,9 @@ TLA+ を書いてTLCを走らせる。手順と制約は [形式検証](/project
 
 `lint` は `coverage-score`（0–100）と `stage-readiness`（どのrefinement stageが揃っているか）をinfo行で返す。
 
-## レビュー観点
+## レビューで見るところ
 
-- **構造整合性**: `check` でerrorゼロ
-- **カバレッジ**: `csv --kind matrix` でUC–entity CRUD
-- **境界設計**: `diagram --kind sequence` でAPI/UC境界
-- **アクセス**: `csv --kind actor-permission-audit`
-- **ライフサイクル**: `states` + `diagram --kind event-flow`
-- **形式検証**: `export --kind tla` / `verify --backend tlc`
-- **トレーサビリティ**: `list --kind requirement`, `lint`
+構造は `check` でerrorゼロを前提にし、カバレッジは `csv --kind matrix`、境界は `diagram --kind sequence`、アクセスは `csv --kind actor-permission-audit` で見る。ライフサイクルは `states` と `diagram --kind event-flow`、厳密な比較・時間性質は `export --kind tla` / `verify --backend tlc`。トレーサビリティは `list --kind requirement` と `lint`。段階ごとの足し方は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) を参照。
 
 ## 関連ページ
 

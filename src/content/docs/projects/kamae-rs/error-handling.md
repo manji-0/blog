@@ -107,39 +107,7 @@ pub enum RepositoryError {
 
 構造化ログと統合するとき、操作を所有する層で一度だけエラーを記録し、`{error}` / `%error` フォーマットで全連鎖を出力する（[構造化ログとエラーチェーンの統合](/projects/kamae-rs/logging-metrics/#構造化ログとエラーチェーン統合) 参照）。
 
-## レビュー観点
+## レビューで見るところ
 
-### エラーメッセージは PII とシークレットを避けているか — High
-
-[PII 保護](/projects/kamae-rs/pii-protection/) も照合する。メール、電話、トークン、生のSQL / HTTPボディを埋め込むエラーの `Display` テキストを指摘する。
-
-### ドメインとユースケースコードでパニックは避けているか — High
-
-テスト、フィクスチャ、起動コード、真に到達不能な分岐以外での `panic!`、`todo!`、`unimplemented!`、`unwrap()`、`expect()` を指摘する。
-
-起動 / 設定のフェイルファストパニック、テスト / フィクスチャのパニック、マイグレーションアサーション、同一式で既に証明された不変条件を守る `expect` メッセージには指摘しない。
-
-### ロックは await 点をまたいで保持されていないか — High
-
-プロジェクトが明示的に設計していない限り、ユースケースやアダプタでmutexガード、DB行ロック、その他の排他リソースを `.await` をまたいで保持する箇所を指摘する。
-
-### async ユースケースは正しく層分けされているか — Medium
-
-I/Oを伴うasyncドメイン遷移、`Result<impl Future<...>, E>` 型API、マッピングなしに `async fn` 境界を通過するインフラエラー型を指摘する。
-
-### インフラエラーは意図的に変換されているか — Medium
-
-`sqlx::Error`、`diesel::result::Error`、HTTPクライアントエラー、設定エラーを公開ドメイン / ユースケースAPIへそのまま漏らす箇所を指摘する。
-
-### エラーは `#[source]` / `#[from]` でチェーンされているか — Medium
-
-内部失敗を `format!` で文字列化し、`thiserror` のソースチェーンを失うユースケースエラーを指摘する。
-
-### ドメインエラーは具体的な列挙型か — Medium
-
-ドメインコンストラクタやユースケースから `anyhow::Result`、`eyre::Result`、`Box<dyn Error>`、`String`、不透明なcatch-allエラーを返す箇所を指摘する。
-
-### エラーバリアントは呼び出し元にとって意味があるか — Low
-
-呼び出し元が網羅的に分岐する必要があるのに `Other(String)` や `InvalidInput(String)` のような曖昧なバリアントを指摘する。
+エラーの `Display` にメール・電話・トークン・生ボディが入っていないか（[PII 保護](/projects/kamae-rs/pii-protection/)）。ドメインやユースケースで `panic!` / `unwrap` / `expect` が常態化していないか。mutexや行ロックを `.await` またいで持っていないか。asyncドメイン遷移やインフラエラーの素通しがないか。`sqlx` / HTTPクライアント失敗を公開APIへそのまま出していないか。`format!` でソースチェーンを消していないか。ドメインエラーが `anyhow` / `Box<dyn Error>` / `String` になっていないか。呼び出し元が分岐すべきなのに `Other(String)` のような曖昧バリアントになっていないか。
 
