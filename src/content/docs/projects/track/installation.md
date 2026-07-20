@@ -5,9 +5,7 @@ sidebar:
   order: 1
 ---
 
-trackはRust製CLIです。現状の主な入手方法はソースからのビルドです。
-
-## ソースからビルド
+trackはRust製のCLIで、いまのところソースからビルドして入れるのが主な入手経路です。
 
 ```bash
 git clone https://github.com/manji-0/track.git
@@ -16,33 +14,21 @@ cargo build --release
 cargo install --path .
 ```
 
-バイナリ名は `track`（Cargoパッケージ名は `task-track`）。
-
-## 確認
+動くバイナリの名前は `track` です。Cargo上のパッケージ名だけ `task-track` になっています。
 
 ```bash
 track --help
 track list
 ```
 
-## JJ連携（任意・推奨）
+タスクワークスペースまで使うなら、[agent-skill-jj](https://github.com/manji-0/agent-skill-jj) と `jj-task` も入れます。手順は [JJ連携](/projects/track/jj-integration/) にあります。
 
-タスクワークスペースを使う場合は [agent-skill-jj](https://github.com/manji-0/agent-skill-jj) と `jj-task` を入れます。手順は [JJ連携](/projects/track/jj-integration/) を参照。
-
-## シェル補完
-
-bash / zsh / fish / PowerShell向けの補完を生成できます。
+シェル補完はbash / zsh / fish / PowerShell向けに出せます。zshなら例えばこうです。
 
 ```bash
-# zsh（動的・推奨）
 mkdir -p ~/.zsh/completions
 track completion zsh --dynamic > ~/.zsh/completions/_track
-# ~/.zshrc に fpath=(~/.zsh/completions $fpath) を追加し、exec zsh
+# ~/.zshrc に fpath=(~/.zsh/completions $fpath) を足してから exec zsh
 ```
 
-詳細はupstreamの `completions/README.md` を参照。
-
-## 次のステップ
-
-- [クイックスタート](/projects/track/quickstart/)
-- [CLIリファレンス](/projects/track/cli-reference/)
+ほかのシェルやトラブルシュートはupstreamの `completions/README.md` を見てください。動かし始めたら [クイックスタート](/projects/track/quickstart/)、コマンドを探すなら [CLIリファレンス](/projects/track/cli-reference/) へ。

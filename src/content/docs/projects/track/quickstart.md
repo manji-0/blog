@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-## 1. タスクを作る
+## タスクを作る
 
 ```bash
 track new "Implement User Authentication" \
@@ -13,30 +13,32 @@ track new "Implement User Authentication" \
   --ticket-url https://jira.example.com/browse/AUTH-456
 ```
 
-作成したタスクがアクティブになります。
+作った瞬間、そのタスクがアクティブになります。TODOやスクラップは、切り替えるまでここに付きます。
 
-## 2. リポジトリとTODOを登録
+## リポジトリとTODO
 
 ```bash
 track repo add .
 track todo add "Design database schema"
-track todo add "Compare auth providers" --no-workspace   # 調査用（jjワークスペースなし）
+track todo add "Compare auth providers" --no-workspace
 ```
 
-## 3. JJワークスペースで実装（推奨）
+調べものだけでワークスペースが要らない項目は、`--no-workspace` を付けておきます。
 
-リポジトリルート（メイン）で一度だけ初期化し、**タスクワークスペース**へ移動してから実装します。ルートでは機能編集しません。
+## タスクワークスペースで実装する
+
+メイン（リポジトリルート）で登録し、ワークスペースへ移ってからコードを書きます。ルートで機能を触らない方が安全です。
 
 ```bash
 jj-task repo init
-jj-task start auth-456          # slugは alias / ticket から導出
+jj-task start auth-456
 cd "$(jj-task path auth-456)"
-# ここで実装・jj commit・draft PR…
+# ここで実装して jj commit、draft PR まで進める
 ```
 
-Draftではsquash自由、レビュー依頼後は積み上げコミットのみ、といった二段階PRの詳細は [JJ連携](/projects/track/jj-integration/) を厚めに書いてあります。コミット操作は `$jj` skill側の責務です。
+slugの決まり方や、DraftとIn reviewで何が違うか、`status --json` の読み方は [JJ連携](/projects/track/jj-integration/) にまとめてあります。コミットまわりは `$jj` skillの仕事です。
 
-## 4. メモと完了
+## メモと完了
 
 ```bash
 track scrap add "Using bcrypt for password hashing"
@@ -50,7 +52,7 @@ track status --json
 track switch today
 ```
 
-前日の未完了TODOを引き継ぐ日次タスクです。Googleカレンダー表示は `track config set-calendar <calendar-id>`。
+前日に残ったTODOを引き継ぐ日次用のタスクです。カレンダーを出すなら `track config set-calendar <calendar-id>` を先に。
 
 ## Web UI
 
@@ -58,12 +60,6 @@ track switch today
 track webui --open
 ```
 
-ブラウザでタスク・TODO・スクラップを操作できます。[Web UI](/projects/track/webui/) 参照。
+ブラウザからタスクやTODO、スクラップを触りたいとき用です。細かい機能は [Web UI](/projects/track/webui/) へ。
 
-## 次のステップ
-
-| やりたいこと | ページ |
-| --- | --- |
-| 全サブコマンド | [CLIリファレンス](/projects/track/cli-reference/) |
-| jj開発ワークフロー（二層・二段階PR） | [JJ連携](/projects/track/jj-integration/) |
-| ブラウザUI | [Web UI](/projects/track/webui/) |
+コマンド一覧は [CLIリファレンス](/projects/track/cli-reference/)、jjの手順は [JJ連携](/projects/track/jj-integration/) です。

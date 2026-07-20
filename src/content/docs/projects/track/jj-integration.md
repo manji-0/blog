@@ -1,62 +1,63 @@
 ---
 title: "JJ連携"
-description: "track と jj-task / $jj による開発ワークフロー"
+description: "track と jj-task / $jj による開発ワークフロー（現行仕様）"
 sidebar:
   order: 4
 ---
 
-trackと[agent-skill-jj](https://github.com/manji-0/agent-skill-jj)は、エージェント向けに役割を分けた **二層スタック** です。このページでは「タスクを作ってからマージしてアーカイブするまで」のjj開発ワークフローを、人間の手作業とエージェントの両方の視点で説明します。
+trackと[agent-skill-jj](https://github.com/manji-0/agent-skill-jj)を一緒に使うときの、いまの開発の進め方です。手作業とエージェント経由で、辿る骨格は共通です。実装の細部はupstreamの [JJ_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/JJ_INTEGRATION.md) とagent-skill-jj側のドキュメントを見てください。
 
-| レイヤ | ツール | 責務 |
-|---|---|---|
-| **Task** | `track` + track skills | 何をやるか — タスク、TODO、スクラップ、チケット、`status --json` |
-| **JJ / PR** | `$jj` skill + `jj-task` | どうコミットするか — ワークスペース、squash、二段階PR、prek、push |
+## どう分かれているか
 
-完全な仕様はupstreamの [JJ_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/JJ_INTEGRATION.md) と [agent-skill-jj](https://github.com/manji-0/agent-skill-jj) を参照。
+ざっくり言うと、trackは「何をやるか」、`$jj` と `jj-task` は「どうコミットしてPRするか」を持ちます。
 
-## なぜこのモデルか
+track側ではタスクやTODO、スクラップ、チケット、そして `track status --json` が中心です。jj側ではワークスペースの作成、履歴の整形、prek、push、GitHubのPR操作が中心になります。
 
-Gitのブランチ＋worktreeをそのまま真似するのではなく、jjの **bookmark** と **workspace** を前提にしています。
+作業ディレクトリも役割が分かれています。リポジトリのルート（メインワークスペース）では `jj git fetch` と `jj-task` の管理だけをして、機能の実装は置きません。実装は `<repo>/.worktrees/<slug>/` のタスクワークスペースで進めます。どのタスクがどのディレクトリに対応するかは、だいたい `~/.config/jj/task-workspaces.json`（環境変数 `JJ_TASK_MAP` で差し替え可）に書いてあります。phaseやPRのURLもここに残ります。
 
-| 原則 | 意味 |
-|---|---|
-| **メインは同期専用** | リポジトリルート（メインワークスペース）では機能実装しない。`jj git fetch` と `jj-task` の管理だけ |
-| **タスク＝1ワークスペース** | 1つのtrackタスクに対し `.worktrees/<slug>/` を1つ。TODOごとには切らない |
-| **調査TODOはWSなし** | `track todo add "…" --no-workspace` は計画・調査用。実装はタスクWSで行う |
-| **コミットは `$jj`** | 素の `jj describe` だけでPRフェーズを進めない。DraftとIn reviewで操作が変わる |
+対応関係は単純です。trackの1タスクに対してタスクワークスペースが1つ、bookmarkもだいたいslugと同名で1つ、PRも既定では1本です。TODOはtrack上のチェックリストで、調べものや計画だけなら `track todo add "…" --no-workspace` にしてワークスペースを要求しません。コードを書く作業は、例外なくタスクワークスペースの中でやります。
 
-旧来の「TODOごとにworktree」「`track sync` してからルートで編集」は **レガシー** です（後述）。
+Gitに慣れている人向けの読み替えだけ書いておくと、branchにあたるのがbookmark、worktreeにあたるのがworkspace、機能ブランチで触っていた作業コピーがタスクワークスペース内の `@` です。
 
-## 用語対応
+## セットアップ
 
-| Git感覚 | jj / track |
-|---|---|
-| branch | bookmark（通常はslugと同名） |
-| worktree | workspace（`.worktrees/<slug>/`） |
-| 機能ブランチ上の作業 | タスクワークスペース内の `@` |
-| force pushで履歴整形 | Draftフェーズのみ許可 |
-
-## インストール
+jjが使えるリポジトリであること（多くの場合は `jj git init --colocate`）、trackが入っていること（[インストール](/projects/track/installation/)）、エージェント経由ならスキルと `jj-task` があること、が前提です。
 
 ```bash
-# Track側スキル（WHAT）
 npx skills add manji-0/track \
   -s track -s track-task-setup -s track-task-execute -s track-advanced -g -y
 
-# JJ / PR側スキル（HOW）
 npx skills add manji-0/agent-skill-jj -s jj -g -y
 
-# jj-task を PATH に
 ln -s /path/to/agent-skill-jj/skills/jj/scripts/jj-task.sh ~/.local/bin/jj-task
 ```
 
-前提： 対象リポジトリでjjが使えること（多くは `jj git init --colocate`）。パスは環境に合わせて調整してください。
+symlinkのパスは自分のclone位置に合わせてください。
 
-## 全体像（人間向けウォークスルー）
+リポジトリごと、メインで一度だけ登録します。
 
-典型的な機能開発は次の順です。
+```bash
+cd /path/to/example-service
+jj-task repo init
+```
 
-### 1. trackでタスクを立てる
+何も指定しなければ `tasks_root` は `<main>/.worktrees`、trunkは `main@origin` です。
+
+## slugの決まり方
+
+ワークスペース名やbookmarkの種になる `jj.slug` は、アクティブなtrackタスクから次の順で決まります。エイリアスがあればそれを使い、なければチケットIDを小文字化した文字列（`PROJ-123` なら `proj-123`）、それも無ければ `task-{id}` です。
+
+```bash
+track alias set fix-rate-limit-42
+```
+
+`track status --json` を見れば、同じ値が `jj.slug` や `start_command` / `path_command` に載っています。
+
+## いち通りの流れ
+
+機能を1本仕上げるときのおおまかな順番です。
+
+まずタスクとTODOを用意します。
 
 ```bash
 track new "Fix rate limit edge cases" \
@@ -69,48 +70,17 @@ track todo add "Implement validation"
 track todo add "Check existing rate-limit docs" --no-workspace
 ```
 
-- 実装TODOは通常どおり追加
-- 調査・読書だけの項目は `--no-workspace`
-- アクティブタスクの `jj.slug` は後述の規則で決まる（例：チケットなら `proj-123`）
-
-必要なら読みやすいslugを明示：
+次にメインでワークスペースを起こして移動します。
 
 ```bash
-track alias set fix-rate-limit-42
-```
-
-### 2. リポジトリを一度だけjj-taskに登録
-
-**メインワークスペース（リポジトリルート）** で：
-
-```bash
-cd /path/to/example-service
-jj git init --colocate    # 未設定のときだけ
-jj-task repo init         # グローバルマップにリポジトリを登録
-```
-
-`jj-task repo init` は既定で `tasks_root = <main>/.worktrees`、trunkは `main@origin` を想定します。
-
-### 3. タスクワークスペースを開始して移動する
-
-```bash
-# まだメインにいる
 jj git fetch
-jj-task start fix-rate-limit-42   # または track が返す slug
+jj-task start fix-rate-limit-42
 cd "$(jj-task path fix-rate-limit-42)"
 ```
 
-`jj-task start` が行うこと：
+`jj-task start` は、なければ `.worktrees/<slug>/` を作り、マップに `phase: draft` で登録し、bookmark名をslugに揃えます（既にあるなら再利用、`--bookmark` で名前だけ変えられます）。ここから先の編集とcommit、pushは、このディレクトリの外に出ない方が安全です。
 
-1. `jj workspace add` で `.worktrees/<slug>/` を作る（既存なら再利用）
-2. グローバルマップ `~/.config/jj/task-workspaces.json` に登録（初期 `phase: draft`）
-3. bookmark名をslugに揃える（オプションで変更可）
-
-**ここから先の編集・コミット・pushはすべてこのディレクトリ内** で行います。ルートに戻って機能コードを触らない。
-
-### 4. Draftフェーズで実装と履歴整形
-
-タスクWS内：
+Draftのうちに実装し、履歴もここで整えます。
 
 ```bash
 jj new main@origin
@@ -119,7 +89,6 @@ jj new main@origin
 jj commit -m 'feat(api): add rate limit validation'
 jj commit -m 'test(api): cover limit edge cases'
 
-# bookmark を用意して draft PR
 jj bookmark create fix-rate-limit-42 -r @-
 jj bookmark track fix-rate-limit-42
 jj git push --bookmark fix-rate-limit-42
@@ -128,104 +97,85 @@ gh pr create --draft --base main
 jj-task set fix-rate-limit-42 --pr 'https://github.com/acme/example/pull/N'
 ```
 
-**レビュー依頼前（Draft）** は履歴を自由に直せます。
+PRがDraftで、まだレビューを頼んでいないあいだは履歴をかなり自由にいじって構いません。`jj squash` や `jj split -i`、`jj rebase -b fix-rate-limit-42 -d main@origin` のあとbookmarkを動かしてpushする、という流れです。force pushもこの段階なら想定内です。
+
+リポジトリに `.pre-commit-config.yaml` か `prek.toml` があるなら、`jj commit` の直前に **`prek`** を走らせてください。コマンド名は `pre-commit` ではありません。メッセージはConventional Commits（typeと、必要ならscope、あとはWhat。本文にWhy）に寄せます。プロセスだけの件名は避けた方がいいです。細かい規則はagent-skill-jjの `conventional-commits` にあります。
+
+自分でも見てCIも通ったら、レビュー可能な状態へ進めます。
 
 ```bash
-jj squash                 # WIPを親に畳む
-jj squash --into REV
-jj split -i               # 大きすぎるchangeを分割
-jj rebase -b fix-rate-limit-42 -d main@origin
-jj bookmark move fix-rate-limit-42 --to @-
-jj git push --bookmark fix-rate-limit-42   # force push可
-```
-
-`.pre-commit-config.yaml` または `prek.toml` があるリポジトリでは、`jj commit` の前に **`prek`** を実行します（`pre-commit` コマンドは使わない）。
-
-### 5. In reviewへ移る
-
-自己レビューとCIが通ったら：
-
-```bash
-# Conventional Commitsで件名を整えた最終スタックをpush
 jj bookmark move fix-rate-limit-42 --to @-
 jj git push --bookmark fix-rate-limit-42
 gh pr ready
 jj-task set fix-rate-limit-42 --phase in_review
 ```
 
-**ここからフェーズが変わります。** レビュー済みベースへのsquashやforce pushは原則禁止。
-
-### 6. レビュー対応は積み上げコミットのみ
+レビューが始まったあとはルールが変わります。指摘対応は先端に積み上げるだけにして、すでに見られたコミットへsquashで戻したり、force pushで積み直したりはしません。
 
 ```bash
 jj new fix-rate-limit-42
 # フィードバック反映…
-prek run … -a             # 設定がある場合
+prek run … -a
 jj commit -m 'fix(api): validate token expiry edge case'
 jj bookmark move fix-rate-limit-42 --to @-
-jj git push               # force なし
+jj git push
 ```
 
-GitHub上ではコミットハッシュ（または `jj log` のchange ID）を返信し、再レビュー依頼します。
+GitHubではコミットハッシュか、`jj log` のchange IDを添えて返信し、再レビューを頼みます。レビュー中にmainが進んだときは、チームがGitHubの「Update branch」を使うならそちらを優先するのが無難です。
 
-レビュー中にmainが進んだ場合の既定は **force pushを避ける** こと。チームがGitHubの「Update branch」を使うならそちらを優先。どうしてもrebase＋forceが必要なときはレビュアと合意してから。
-
-### 7. track側の進捗とメモ
-
-実装の合間にtrackへ記録します（どのディレクトリからでも可。アクティブタスクに紐づく）:
+実装の合間にtrackへメモを残すのは、どのディレクトリからでも大丈夫です。アクティブタスクに載ります。
 
 ```bash
 track scrap add "Chose sliding window over fixed window for burst traffic"
 track todo done 1
-track status --json       # 次アクション確認
+track status --json
 ```
 
-`track todo done` は **track DB上の完了** です。jjのマージやワークスペース削除はしません。
+`track todo done` はあくまでtrack DB上の完了です。マージやワークスペースの破棄まではやりません。
 
-### 8. マージ後のクローズ
-
-PRがマージされたら：
+PRがマージされたら閉じます。
 
 ```bash
 jj-task done fix-rate-limit-42
-# ディスク上のWSも片付けるなら:
+# ディスク上も片付けるなら:
 # jj-task done fix-rate-limit-42 --forget
 
 track archive
 ```
 
-`track archive` はjj-taskの `phase` が `merged`（またはレガシーの `done`）であることを完了条件として扱います。
+`track archive` は、jj-task側のphaseが `merged` になっていること（互換で `done` も見ます）を完了の目安にしています。
 
-## 二段階PR（チートシート）
+## DraftとIn reviewで何が違うか
 
-| | **Phase 1 — Draft** | **Phase 2 — In review** |
-|---|---|---|
-| GitHub | Draft、レビュー未依頼 | Ready / レビュー依頼済み |
-| 履歴 | squash / split / rebase自由 | 古いコミットへのsquash禁止 |
-| push | force push可 | 追記のみ（force禁止が既定） |
-| 目的 | レビュー前に論理的なスタックへ整える | 差分を積み上げてレビュアが追いやすくする |
+PRの見え方に合わせて、jjでやってよいことが分かれます。
+
+Draft（レビュー未依頼）のうちは、squashやsplit、rebaseで履歴を整え、必要ならforce pushして構いません。人に見せる前の段階で、コミット列を論理的にしておくのが目的です。
+
+Readyになってレビュー依頼を出したあとは、既存コミットへのsquashは止め、先端への `jj commit` と通常のpushだけにします。指摘ごとの差分が追いやすくなるように、というのが意図です。
+
+マップ上のphaseは `draft` / `in_review` / `merged` のどれかです。GitHub側の状態が変わったら `jj-task set` で揃えておくと、エージェントも迷いにくいです。
 
 ```text
-Draft, no review yet          Open / review requested
+Draft                         In review
 ─────────────────────         ─────────────────────────
-jj squash ✓                   jj squash into old commits ✗
-jj split ✓                    only jj commit on top ✓
+jj squash ✓                   squash into old commits ✗
+jj split ✓                    jj commit on tip ✓
 prek before jj commit ✓       prek before jj commit ✓
-jj rebase + force push ✓      force push ✗
+rebase + force push ✓         force push ✗
 gh pr create --draft          gh pr ready + re-request
 ```
 
-既定は **タスクあたり1PR**。レイヤが独立にレビュー・CI可能で依存が明確なときだけstacked PRを検討します（agent-skill-jjの `stacked-prs` 参照）。
+タスクあたりPRは1本が既定です。レイヤがちゃんと分かれていて、それぞれ単体でレビューとCIが通るときに限ってstacked PRを検討してください。判断材料はagent-skill-jjの `stacked-prs` にあります。
 
-## エージェント向けループ
+## エージェントが読むJSON
 
-エージェントは毎回まずコンテキストを読みます。
+エージェントは作業を始めるたび、だいたいこれを見ます。
 
 ```bash
 track status --json
 ```
 
-代表的なフィールド：
+だいたいこんな形です。
 
 ```json
 {
@@ -260,117 +210,60 @@ track status --json
 }
 ```
 
-### workflow.phaseごとの動き
-
-| Phase | track側 | jj側 |
-|---|---|---|
-| `setup` | `track repo add`、`track todo add` | `jj-task repo init`（リポジトリごと1回） |
-| `sync_required` | `workflow.checklist` に従う | `jj-task start <slug>`（登録済みrepoごと） |
-| `execute` | `scrap add`、`todo done` | `$jj` でsquash / commit / PR / push（**タスクWS内**） |
-| `task_complete` | `track archive`（`jj-task done` → `merged` のあと） | 未マージなら `$jj` でクローズ処理 |
-
-ループの要約：
+`workflow.phase` が `setup` ならrepoやTODOを足し、未登録なら `jj-task repo init` です。`sync_required` ならchecklistどおりに `jj-task start` します。`execute` に入ったらスクラップや `todo done` を進めつつ、タスクWSの中で `$jj` にコミットとPRを任せます。`task_complete` になったら、必要なら `jj-task done` のあと `track archive` です。
 
 ```text
 track status --json
         ↓
-jj-task start <slug>     （sync_requiredのとき）
+jj-task start <slug>     （sync_required のとき）
         ↓
 cd "$(jj-task path <slug>)"
         ↓
-$jj skill                （Draft整形 → Ready → In review積み上げ）
+$jj                      （Draft → Ready → In review）
         ↓
 track scrap / todo done
         ↓
-（繰り返し）→ jj-task done → track archive
+jj-task done → track archive
 ```
 
-`guardrails.must_use_jj_skill` がtrueのときは、コミット操作を `$jj` に任せます。マップに無いパスを推測して新規WSを二重に作らないこと。
+`guardrails.must_use_jj_skill` がtrueなら、コミット系は `$jj` に寄せてください。マップを見ずにパスを当てずっぽうで作ると、ワークスペースが二重になります。機能の編集はメインではなくタスクワークスペースで、というのも同じ約束です。
 
-## グローバルタスクマップ
+## マップとjj-task
 
-既定パス： `~/.config/jj/task-workspaces.json`（上書きは `JJ_TASK_MAP`）。
+マップの既定パスは `~/.config/jj/task-workspaces.json` です。リポジトリごとにメインのパス、`tasks_root`、各タスクのworkspace / bookmark / phase / pr_urlが入ります。作業前に `jj-task list` や `jj-task show <slug>` を一度見る癖をつけると安心です。
 
-リポジトリごとに `main_workspace`・`tasks_root`・各タスクの `workspace` / `bookmark` / `phase` / `pr_url` を保持します。`phase` は `draft` | `in_review` | `merged`。エージェントは作業前に `jj-task list` / `jj-task show <slug>` で状態を確認します。
-
-## jj.slugの導出
-
-trackが現在タスクから導出します。
-
-1. `track alias` があればそれ
-2. なければ `ticket_id`（例：`PROJ-123` → `proj-123`）
-3. なければ `task-{id}`
-
-チケットIDがslugに向かないとき：
-
-```bash
-track alias set fix-oauth-refresh
-```
-
-## jj-taskコマンド一覧
+よく使うサブコマンドは次のとおりです。
 
 | コマンド | 用途 |
 |---|---|
-| `jj-task repo init [--tasks-root PATH] [--trunk REV]` | リポジトリをマップに登録 |
-| `jj-task start <slug> [--bookmark NAME]` | タスクWS作成/再利用（メインから実行） |
-| `jj-task list [--all]` | タスク一覧 |
+| `jj-task repo init [--tasks-root PATH] [--trunk REV]` | リポジトリをマップに登録する |
+| `jj-task start <slug> [--bookmark NAME]` | タスクWSを作る、または既存を使う（メインから） |
+| `jj-task list [--all]` | 一覧 |
 | `jj-task show <slug>` | 詳細 |
-| `jj-task path <slug>` | WSパスを表示（`cd`用） |
-| `jj-task set <slug> [--phase PHASE] [--pr URL]` | phase / PR URLを同期 |
-| `jj-task done <slug> [--forget]` | マージ後に `merged`。`--forget`でWS忘れ |
+| `jj-task path <slug>` | パスを出す（`cd` 用） |
+| `jj-task set <slug> [--phase PHASE] [--pr URL]` | phaseやPR URLを更新する |
+| `jj-task done <slug> [--forget]` | マージ後に `merged` にする。`--forget` でWSも忘れる |
 
-## コミットメッセージ
-
-Conventional Commits（type + 任意scope + What、本文にWhy）。プロセスだけの件名（`fix ci`、`address review` のみ等）は避けます。詳細はagent-skill-jjの `conventional-commits` 参照。
-
-## メインワークスペースの衛生
+メイン側はこうしておくのが無難です。
 
 ```bash
 cd "$MAIN_REPO"
 jj git fetch
-jj new main@origin    # 空の作業コピーに戻す（任意）。ここで機能をコミットしない
+jj new main@origin
 ```
 
-誤ってルートで編集してしまったら、正しいタスクWSへ `jj squash --into` / `jj rebase` で移します。
+メインの `@` は、同期用の空に近い作業コピーとして保ちます。うっかりルートで編集してしまったら、正しいタスクWSへ `jj squash --into` や `jj rebase` で移してください。
 
-## 旧ワークフローからの移行
+## 誰が何を持つか
 
-| 旧（track単独jj想定） | 新（jj-first） |
-|---|---|
-| `track sync` してからコーディング | `jj-task start <slug>` |
-| ルート（sync後）で実装 | `.worktrees/<slug>/` だけで実装 |
-| `jj describe` してから `todo done` | `$jj` がPRフェーズに応じてsquash/commit |
-| TODOごとのworktree | タスクにつき1WS |
-| `task/PROJ-123` bookmark（ルート） | タスクWS内の `<slug>` bookmark |
+trackはタスクとTODOの寿命、スクラップ、リンク、チケット、エイリアス、それから `status --json` とWeb UIの `GET /api/status`、最後の `archive` を持ちます。
 
-`track todo add --worktree` は **削除済み** です。古いDB行が残っている場合：
-
-```bash
-track migrate legacy-worktrees --dry-run
-track migrate legacy-worktrees
-# ダーティでも消すなら --force
-jj-task start <slug>
-```
-
-JJモードの `track sync` は、レガシーTODOが残っているとき、または明示的に `--legacy` を付けたときだけ動きます。
-
-## 責務の境界（再掲）
-
-**track**
-
-- タスク / TODOライフサイクル、スクラップ、リンク、チケット、エイリアス
-- `track status --json` / WebUIの `GET /api/status`
-- `track archive`
-
-**`$jj` / jj-task**
-
-- メイン＝同期専用、タスクWS＝実装
-- グローバルマップ、Conventional Commits、prek、二段階PR、push / `gh pr`
+`$jj` と `jj-task` は、メインとタスクWSの分離、グローバルマップ、Conventional Commits、prek、Draft / In reviewの切り替え、pushと `gh pr` を持ちます。線引きが曖昧な操作は、だいたい後者に寄せると事故りにくいです。
 
 ## 関連ページ
 
 - [クイックスタート](/projects/track/quickstart/)
 - [CLIリファレンス](/projects/track/cli-reference/)
 - [Web UI](/projects/track/webui/)
-- upstream: [JJ_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/JJ_INTEGRATION.md)
-- upstream: [agent-skill-jj](https://github.com/manji-0/agent-skill-jj)
+- [JJ_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/JJ_INTEGRATION.md)
+- [agent-skill-jj](https://github.com/manji-0/agent-skill-jj)

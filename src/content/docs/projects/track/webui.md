@@ -6,32 +6,19 @@ sidebar:
 ---
 
 ```bash
-track webui              # 既定: ポート 3000
+track webui              # 既定ポート 3000
 track webui --port 8080
-track webui --open       # 起動してブラウザを開く
+track webui --open       # 起動してブラウザも開く
 ```
 
-Axum + MiniJinja + HTMX + SSEによるリアルタイムUIです。CLIと同じSQLite（`~/.local/share/track/track.db`）を共有します。
+AxumとMiniJinja、HTMX、SSEで動くリアルタイムUIです。裏のデータはCLIと同じ `~/.local/share/track/track.db` です。
 
-## 主な機能
+Todayタスクのビューでは、前日に終わらなかったTODOを持ち越せます（CLIの `track switch today` と同じ考え方）。カレンダーを出したければ `track config set-calendar <calendar-id>` を設定してください。
 
-- **Todayタスク** — 前日の未完了TODOを引き継ぐ日次ビュー（`track switch today` と同等）
-- **カレンダー連携** — `track config set-calendar <calendar-id>` でTodayビューにGoogleカレンダーを表示
-- **Todo–Scrapリンク** — メモボタンから関連スクラップへジャンプ。スクラップ作成時はアクティブTODOに自動紐づけ
-- **Todo並べ替え** —「Make Next」で作業キュー先頭へ
-- **リアルタイム更新** — SSEで接続ブラウザ間に即時反映
-- **Focusモード** — 概要と集中表示の切替
-- **テーマ** — ダーク / ライト（カレンダー色にも追従）
-- **安全なMarkdown** — サニタイズし生HTMLは除去。リンクは新しいタブで開く
+TODOのメモボタンから関連スクラップへ飛べます。スクラップを足したときは、そのときのアクティブTODOに勝手に紐づきます。「Make Next」でキューの先頭に上げたり、Focusモードで表示を絞ったりもできます。接続しているブラウザ同士はSSEでほぼ即時に揃います。テーマはダークとライトがあり、カレンダーの色にも追従します。
 
-## エージェントAPI
+Markdownはサニタイズされ、生のHTMLは落ちます。リンクは新しいタブで開きます。
 
-Webサーバー経由でもステータスを取れます（詳細はupstreamのLLM連携ドキュメント）。
+エージェント向けの状態は、CLIなら `track status --json`、webui起動中なら `GET /api/status` でも取れます。フィールドの意味はupstreamのLLM連携ドキュメントと [JJ連携](/projects/track/jj-integration/) を見てください。
 
-- CLI: `track status --json`
-- HTTP: `GET /api/status`（webui起動中）
-
-## 関連ページ
-
-- [クイックスタート](/projects/track/quickstart/)
-- [JJ連携](/projects/track/jj-integration/)
+ほかは [クイックスタート](/projects/track/quickstart/) か [JJ連携](/projects/track/jj-integration/) へどうぞ。

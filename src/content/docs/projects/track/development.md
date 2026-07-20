@@ -5,9 +5,7 @@ sidebar:
   order: 6
 ---
 
-利用者向け [インストール](/projects/track/installation/) とは別の、ソース開発向け情報です。
-
-## ビルドとテスト
+利用者向けの [インストール](/projects/track/installation/) とは別に、ソースをいじる人向けのメモです。
 
 ```bash
 git clone https://github.com/manji-0/track.git
@@ -17,34 +15,8 @@ cargo test
 cargo build --release
 ```
 
-## 技術スタック
+言語はRust（Edition 2021）、CLIはclap、DBはbundledのrusqliteです。Web UIはAxumにMiniJinja、HTMX、SSEを載せています。日時はchronoです。
 
-| 領域 | 技術 |
-|---|---|
-| 言語 | Rust（Edition 2021） |
-| CLI | clap |
-| DB | SQLite（rusqlite bundled） |
-| Web UI | Axum、MiniJinja、HTMX、SSE |
-| 日時 | chrono |
+設計や機能の詳細はリポジトリ内のドキュメントを見てください。`DESIGN.md` と `docs/FUNCTIONAL_SPEC.md`、jjまわりの `docs/JJ_INTEGRATION.md`、Todayタスクの `docs/TODAY_TASK.md` があります。利用例は `docs/USAGE_EXAMPLES.md`、エージェント連携は `docs/LLM_INTEGRATION.md`、構成は `PROJECT_STRUCTURE.md`、変更履歴は `CHANGELOG.md` です。
 
-## upstreamドキュメント
-
-| ファイル | 内容 |
-|---|---|
-| `DESIGN.md` | 設計 |
-| `docs/FUNCTIONAL_SPEC.md` | 機能仕様 |
-| `docs/JJ_INTEGRATION.md` | JJ二層スタック |
-| `docs/TODAY_TASK.md` | Todayタスク |
-| `docs/USAGE_EXAMPLES.md` | 利用例 |
-| `docs/LLM_INTEGRATION.md` | LLM / エージェント連携 |
-| `PROJECT_STRUCTURE.md` | ディレクトリ構成 |
-| `CHANGELOG.md` | リリースノート |
-
-## ライセンス
-
-MIT
-
-## 関連ページ
-
-- [はじめに](/projects/track/)
-- [CLIリファレンス](/projects/track/cli-reference/)
+ライセンスはMITです。サイト側の入口は [はじめに](/projects/track/) と [CLIリファレンス](/projects/track/cli-reference/) です。

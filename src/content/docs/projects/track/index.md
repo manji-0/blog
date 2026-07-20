@@ -8,52 +8,32 @@ sidebar:
 
 > ソースリポジトリ: [track](https://github.com/manji-0/track) · 対象バージョン: **v0.7.0**
 
-**track** は、開発タスクをコンテキストとして扱い、TODO・スクラップ・チケット・リポジトリ登録を一箇所にまとめる軽量CLIです。Jujutsu（jj）のタスクワークスペース（`jj-task`）と組み合わせると、エージェント向けの「何をやるか」と「どうコミットするか」を層に分けて回せます。Web UIも同梱しています。
+**track** は、いま着手している開発タスクを「コンテキスト」として持つための軽いCLIです。TODOやスクラップ、チケットURL、作業対象のリポジトリをタスク単位でまとめておき、`track switch` で切り替えれば以降の操作はそのタスクに乗っかります。
 
-## 何をするか
+Jujutsu（jj）側では [agent-skill-jj](https://github.com/manji-0/agent-skill-jj) の `jj-task` と組むのが前提に近い使い方です。trackが「何をやるか」を抱え、コミットやPRの進め方は `$jj` に任せる、という分担になります。ブラウザから触りたい人向けにWeb UIも同梱しています。
 
-- **コンテキスト型タスク管理** — `track switch` でアクティブタスクを切り替えると、以降のTODO・スクラップ・repo操作がそのタスクに紐づく
-- **チケット連携** — Jira / GitHub Issues / GitLab IssuesなどのURLをタスクに紐づけられる
-- **JJワークスペース** — [agent-skill-jj](https://github.com/manji-0/agent-skill-jj) の `jj-task` と組み合わせ、並列開発用の作業ディレクトリをタスク単位で扱う
-- **Web UI** — Axum + HTMX + SSEによるブラウザUI（Todayタスク、カレンダー連携など）
-- **エージェント向けJSON** — `track status --json` でworkflow / next_actionを返す
+エージェント向けには `track status --json` があります。いまのphaseや次に打つコマンドがJSONで返るので、スキルやCIの入口にしやすいです。
 
-## ドキュメントの読み方
+## どこから読むか
 
-1. [インストール](/projects/track/installation/)
-2. [クイックスタート](/projects/track/quickstart/)
-3. [CLIリファレンス](/projects/track/cli-reference/)
-4. [JJ連携](/projects/track/jj-integration/) — タスクWS・二段階PR・エージェントループ（厚め）
-5. [Web UI](/projects/track/webui/)
-6. [開発環境](/projects/track/development/)
+まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で一通り動かしてみるのが早いです。コマンドを引きたいときは [CLIリファレンス](/projects/track/cli-reference/)、jjまわりの手順は [JJ連携](/projects/track/jj-integration/) に寄せています。UIの話は [Web UI](/projects/track/webui/)、ソースを触る人は [開発環境](/projects/track/development/) へ。
 
-## 他プロジェクトとの関係
+## まわりのツールとの関係
 
-| レイヤ | 役割 |
-| --- | --- |
-| **track** | タスク・TODO・スクラップ・チケット（WHAT） |
-| **[agent-skill-jj](https://github.com/manji-0/agent-skill-jj)** | jjワークスペース・コミット・PR（HOW） |
-| **[dagayn](/projects/dagayn/)**（任意） | コード構造グラフでのレビュー支援 |
-| **[rdra-ish](/projects/rdra-ish/)**（任意） | 要件モデル |
+track単体でもタスク管理はできますが、並列にコードを書くならjjのタスクワークスペースとセットで考えると筋が通ります。コードレビューの構造クエリが欲しければ [dagayn](/projects/dagayn/)、要件モデルなら [rdra-ish](/projects/rdra-ish/) が近くにあります。どれも必須ではありません。
 
-## 使うべき場面 / 使わない場面
+## 向いていること / 向いていないこと
 
-**向いているケース**
+チケットと手元のTODOを同じコンテキストで追いたいとき、あるいはエージェントに「次はこれ」を機械可読で渡したいときに効きます。Todayタスクで前日の未完了を持ち越す使い方も想定しています。
 
-- チケットとローカルTODOを同じコンテキストで追いたい
-- jjのタスクワークスペースで並列に実装したい
-- エージェントに `status --json` で次アクションを渡したい
-- Todayタスクで日次の未完了TODOを引き継ぎたい
+一方で、スプリント計画やガント、権限付きのプロジェクト管理の代替にはなりません。jjを使わずGitだけで回している環境でもCLI自体は動きますが、ワークスペース連携のうまみは薄いです。
 
-**向いていないケース**
+## データの置き場
 
-- フル機能のプロジェクト管理（スプリント計画・ガント・権限管理）の代替
-- Git専用フローでjjを使わない場合でもCLIは使えるが、ワークスペース連携の価値は薄い
-
-## データ保存先
+SQLiteはだいたいここです。
 
 ```text
 $HOME/.local/share/track/track.db
 ```
 
-XDG Base Directoryに準拠。ライセンスはMIT。
+XDG Base Directoryに従います。ライセンスはMITです。

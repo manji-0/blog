@@ -9,7 +9,7 @@ sidebar:
 track <SUBCOMMAND> [OPTIONS]
 ```
 
-多くの操作は **現在のアクティブタスク** に対して行われます。タスク切替は `track switch`。
+多くの操作は、いまアクティブなタスクに対して走ります。切り替えるときは `track switch` です。
 
 ## タスク
 
@@ -58,14 +58,14 @@ track <SUBCOMMAND> [OPTIONS]
 | `track scrap add <content>` | 作業メモ追加 |
 | `track scrap list` | メモ一覧 |
 
-## リポジトリ / sync
+## リポジトリ
 
 | コマンド | 説明 |
 |---|---|
 | `track repo add [path]` | 現タスクにリポジトリ登録 |
 | `track repo add --base <bookmark>` | ベースbookmark指定で登録 |
 | `track repo list` / `track repo remove <id>` | 一覧 / 解除 |
-| `track sync` | リポジトリ同期とタスクbookmark準備 |
+| `track sync` | 登録リポジトリの同期（通常の実装フローでは [JJ連携](/projects/track/jj-integration/) の `jj-task start` を使う） |
 
 ## Web UI / 補完
 
