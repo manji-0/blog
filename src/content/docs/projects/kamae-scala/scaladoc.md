@@ -94,7 +94,7 @@ opaque type RequestId = String
 
 Scaladocに実secretやメール、個人データ、本番IDを入れない。合成値を使い、必要ならredaction挙動を示す。
 
-型が意図的に`toString` / `Show`をredactするなら、型docsで契約を述べる。[PII保護](/projects/kamae-scala/pii-protection/)を参照。
+型が意図的に`toString` / `Show`をredactするなら、型docsで契約を述べる。[PII 保護](/projects/kamae-scala/pii-protection/)を参照。
 
 ## スコープとCI
 

@@ -6,7 +6,7 @@ sidebar:
 
 Scala / JVMドメインコードはJNI、JNA、`sun.misc.Unsafe`、ネイティブライブラリを直接呼ばない。必要なときはインフラadapterに閉じ、狭いScala APIの背後にネイティブ実装を隠す。
 
-境界パースは [境界防御](/projects/kamae-scala/boundary-defense/)、エラー層は [エラーハンドリング](/projects/kamae-scala/error-handling/)、PIIは [PII保護](/projects/kamae-scala/pii-protection/)、文書化は [公開 API のドキュメント](/projects/kamae-scala/scaladoc/)、CIは [CI セットアップ](/projects/kamae-scala/ci-setup/) と整合させる。
+境界パースは [境界防御](/projects/kamae-scala/boundary-defense/)、エラー層は [エラーハンドリング](/projects/kamae-scala/error-handling/)、PIIは [PII 保護](/projects/kamae-scala/pii-protection/)、文書化は [公開 API のドキュメント](/projects/kamae-scala/scaladoc/)、CIは [CI セットアップ](/projects/kamae-scala/ci-setup/) と整合させる。
 
 <!-- constrained-by ./boundary-defense.md -->
 <!-- constrained-by ./error-handling.md -->
@@ -61,7 +61,7 @@ object NativeLookup:
 
 ネイティブコードがコンストラクタを迂回してドメイン値を作らない。生bytes / 文字列をDTOに入れ、安全コードと同じ検証factoryを使う。[境界防御](/projects/kamae-scala/boundary-defense/)を参照。
 
-ネイティブコードがlog、例外メッセージ、metrics label、生メモリダンプでPIIを漏らさない。敏感データはネイティブ境界を越える前にwrapまたはredactする。[PII保護](/projects/kamae-scala/pii-protection/)を参照。
+ネイティブコードがlog、例外メッセージ、metrics label、生メモリダンプでPIIを漏らさない。敏感データはネイティブ境界を越える前にwrapまたはredactする。[PII 保護](/projects/kamae-scala/pii-protection/)を参照。
 
 ## ネイティブ境界でのエラーハンドリング
 

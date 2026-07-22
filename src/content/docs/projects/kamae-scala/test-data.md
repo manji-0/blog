@@ -123,7 +123,7 @@ property("waiting request round trip"):
 
 ## フィクスチャからPIIを除外する
 
-コミット済みフィクスチャには合成identifierを使う。本番exportをリポジトリにコピーしない。[PII保護](/projects/kamae-scala/pii-protection/)を参照。
+コミット済みフィクスチャには合成identifierを使う。本番exportをリポジトリにコピーしない。[PII 保護](/projects/kamae-scala/pii-protection/)を参照。
 
 ## テスト層
 

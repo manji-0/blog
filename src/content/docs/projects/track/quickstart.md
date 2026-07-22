@@ -66,4 +66,4 @@ cd "$(jj-task path auth-456)"
 
 slugの決まり方や、DraftとIn reviewで何が違うか、`status --json` の読み方は [JJ連携](/projects/track/jj-integration/) にまとめてあります。コミットまわりは `$jj` skillの仕事です。
 
-コマンド一覧は [CLIリファレンス](/projects/track/cli-reference/) です。
+コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/) です。

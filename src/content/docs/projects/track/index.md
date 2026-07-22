@@ -1,6 +1,6 @@
 ---
 title: "はじめに"
-description: "JJワークスペース連携付きの開発タスク管理CLI track の概要"
+description: "開発タスクをコンテキストとして管理するCLI track の概要"
 sidebar:
   order: 0
   label: "はじめに"
@@ -16,7 +16,7 @@ Jujutsu（jj）側では [agent-skill-jj](https://github.com/manji-0/agent-skill
 
 ## どこから読むか
 
-まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で、track単体のタスク管理を一通り動かしてください。コマンド一覧は [CLIリファレンス](/projects/track/cli-reference/)、ブラウザUIは [Web UI](/projects/track/webui/) です。
+まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で、track単体のタスク管理を一通り動かしてください。コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/)、ブラウザUIは [Web UI](/projects/track/webui/) です。
 
 jjのタスクワークスペースまで使う場合だけ、[JJ連携](/projects/track/jj-integration/) に進みます。ソースを触る人は [開発環境](/projects/track/development/) へ。
 

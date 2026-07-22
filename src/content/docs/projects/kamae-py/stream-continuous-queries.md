@@ -101,7 +101,7 @@ async def bridge(
         await queue.put(None)  # sentinel: producer finished or cancelled
 ```
 
-event loopをブロックするCPUバウンド投影はコンポジションルートでオフロード — [並行処理](/projects/kamae-py/concurrency/) を参照。
+event loopをブロックするCPUバウンド投影はコンポジションルートでオフロード — [並行性と非同期](/projects/kamae-py/concurrency/) を参照。
 
 ## 投影は決定的かつ冪等
 

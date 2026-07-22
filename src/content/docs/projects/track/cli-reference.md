@@ -1,5 +1,5 @@
 ---
-title: "CLIリファレンス"
+title: "CLI リファレンス"
 description: "track CLI サブコマンド一覧"
 sidebar:
   order: 3

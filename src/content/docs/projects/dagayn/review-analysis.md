@@ -56,7 +56,7 @@ flowchart TD
 - アーキテクチャ上の注意
 - 影響を受ける実行フロー
 
-## Impact radius（blast radius）
+## Impact radius（影響範囲 / blast radius）
 
 「このシンボルを変えたら、グラフ上で何に届くか」を調べる。
 

@@ -13,7 +13,7 @@ rdra-ish <SUBCOMMAND> <INPUTS...> [OPTIONS]
 
 診断はstderrに `error:` / `warning:` 形式で出力。`check` はerrorがあると非ゼロ終了。
 
-v0.2.0では生成系サブコマンド（`diagram` / `csv` / `list` / `export` / `states` / `verify`）は **fail-closed** — モデルにerrorがあるとき成果物を出さない。`fmt` はパース可能なら意味解析なしで動く。
+v0.2.0では生成系サブコマンド（`diagram` / `csv` / `list` / `export` / `states` / `verify`）は **fail-closed**（モデルにerrorがあるとき成果物を出さず失敗する）。`fmt` はパース可能なら意味解析なしで動く。
 
 ## check
 
@@ -40,7 +40,7 @@ rdra-ish check src/
 rdra-ish lint src/ [--format table|json|csv]
 ```
 
-追加finding: orphan node、未トレースrequirement、empty BUC、未マップscreen field、命名規約warning等。
+追加finding: orphan node（参照されない孤立ノード）、未トレースrequirement、empty BUC、未マップscreen field、命名規約warning等。
 
 ## fmt
 

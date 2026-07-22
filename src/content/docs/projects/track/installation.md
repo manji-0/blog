@@ -35,4 +35,4 @@ track completion zsh --dynamic > ~/.zsh/completions/_track
 # ~/.zshrc に fpath=(~/.zsh/completions $fpath) を足してから exec zsh
 ```
 
-ほかのシェルやトラブルシュートはupstreamの [completions/README.md](https://github.com/manji-0/track/blob/main/completions/README.md) を見てください。コマンドを探すなら [CLIリファレンス](/projects/track/cli-reference/) へ。
+ほかのシェルやトラブルシュートはupstreamの [completions/README.md](https://github.com/manji-0/track/blob/main/completions/README.md) を見てください。コマンドを探すなら [CLI リファレンス](/projects/track/cli-reference/) へ。

@@ -61,7 +61,7 @@ async def assign_driver(
 
 ### lifespanとworker
 
-プロセスプール、DBプール、OpenTelemetry exporterはFastAPI lifespan（または同等のアプリファクトリー）で配線する。ドメインモジュールのimport時にグローバルクライアントを作らない。外向きHTTPは [並行処理](/projects/kamae-py/concurrency/)、[サービス境界](/projects/kamae-py/service-boundaries/) も併せて読む。
+プロセスプール、DBプール、OpenTelemetry exporterはFastAPI lifespan（または同等のアプリファクトリー）で配線する。ドメインモジュールのimport時にグローバルクライアントを作らない。外向きHTTPは [並行性と非同期](/projects/kamae-py/concurrency/)、[サービス境界](/projects/kamae-py/service-boundaries/) も併せて読む。
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |

@@ -6,7 +6,7 @@ sidebar:
 
 Pythonは正しくて静かに高コストなコードを書きやすい。Kamae Pythonではドメイン遷移は安価で同期のままにし、パフォーマンス作業は計測後に境界・リポジトリ・バッチジョブへ寄せる。
 
-検証コストの詳細は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/)、event loopの停滞は [並行処理](/projects/kamae-py/concurrency/)、遷移の形は [状態遷移](/projects/kamae-py/state-transitions/) を参照する。
+検証コストの詳細は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/)、event loopの停滞は [並行性と非同期](/projects/kamae-py/concurrency/)、遷移の形は [状態遷移](/projects/kamae-py/state-transitions/) を参照する。
 
 <!-- constrained-by ./pydantic-performance.md -->
 <!-- constrained-by ./concurrency.md -->
@@ -19,7 +19,7 @@ Pythonは正しくて静かに高コストなコードを書きやすい。Kamae
 2. ボトルネックがPython実行か、SQL往復・ネットワーク・過大ログかを確認
 3. まずアルゴリズムとI/Oを直す。索引改善やクエリ1本削減は高速ループより効くことが多い
 
-検証が支配的なら [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/)。event loopがCPU作業で止まるなら [並行処理](/projects/kamae-py/concurrency/)。
+検証が支配的なら [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/)。event loopがCPU作業で止まるなら [並行性と非同期](/projects/kamae-py/concurrency/)。
 
 ## Kamae コードでスタイルが効く層
 

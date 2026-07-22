@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-rdra-ishは同じ `.rdra` モデルから、レビュー用の図表・表・機械可読の成果物を生成する。生成系はモデルにerrorがあると **fail-closed**（成果物を出さない）。
+rdra-ishは同じ `.rdra` モデルから、レビュー用の図表・表・機械可読の成果物を生成する。生成系はモデルにerrorがあると **fail-closed**（成果物を出さず失敗する）で動く。
 
 ## diagram
 
@@ -107,7 +107,7 @@ TLA+ を書いてTLCを走らせる。手順と制約は [形式検証](/project
 | コマンド | 用途 |
 |---|---|
 | `list --kind <kind>` | 要素一覧（requirement, usecase 等） |
-| `lint` | カバレッジ監査、orphan、stage-readiness |
+| `lint` | カバレッジ監査、orphan（孤立ノード）、stage-readiness |
 | `fmt --write` / `--check` | ASTベースフォーマット |
 
 `lint` は `coverage-score`（0–100）と `stage-readiness`（どのrefinement stageが揃っているか）をinfo行で返す。
