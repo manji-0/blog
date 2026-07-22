@@ -36,11 +36,11 @@ type AssignDriverError = Annotated[
 
 ## ドメインフローには Result 値を優先する
 
-プロジェクトがすでにResultライブラリを使うなら、期待されるビジネス失敗についてユースケースから `Result[Success, Error]` を返す。よくある選択肢：
+新規プロジェクトの既定は、小さなローカル `Ok` / `Err` 型（または同等の判別共用体）とする。既存プロジェクトがすでにResultライブラリを使うなら、それに合わせる。よくある選択肢：
 
-- dry-pythonの `returns`（`Success` / `Failure`）
-- rustedpyの `result`（`Ok` / `Err`。採用前にメンテナンス状況を確認）
-- 小さなローカル `Ok` / `Err` 型
+- **既定（新規）**: ローカル `Ok` / `Err`（依存を増やさない）
+- dry-pythonの `returns`（`Success` / `Failure`）— 既存採用時
+- rustedpyの `result`（`Ok` / `Err`）— 採用前にメンテナンス状況を確認
 
 以下の例は `Ok` / `Err` を使う。コンストラクタとパターンマッチの名前はプロジェクトのライブラリに合わせる。
 

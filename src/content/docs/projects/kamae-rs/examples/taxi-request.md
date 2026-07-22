@@ -5,7 +5,7 @@ sidebar:
   label: "タクシー配車例"
 ---
 
-本例はKamae Rustのエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/projects/kamae-rs/domain-modeling/) と [状態遷移](/projects/kamae-rs/state-transitions/) の原則を、ひと続きのコードで追える。
+本例はKamae Rustのドメイン実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/projects/kamae-rs/domain-modeling/) と [状態遷移](/projects/kamae-rs/state-transitions/) の原則を、ひと続きのコードで追える。永続化や配線までは含めない。
 
 ```rust
 use std::fmt;
@@ -263,3 +263,14 @@ mod tests {
     }
 }
 ```
+
+## 次に読む
+
+この例はドメイン状態と遷移・テストまでである。本番相当に広げるときは次へ進む。
+
+| 次の関心 | 参照 |
+| --- | --- |
+| 集約境界とロック | [集約とトランザクション境界](/projects/kamae-rs/aggregate-transactions/) |
+| リポジトリとoutbox | [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
+| ポート配線 | [アプリケーション配線](/projects/kamae-rs/application-wiring/) |
+| 品質ゲート | [品質ゲート](/projects/kamae-rs/quality-gates/) |

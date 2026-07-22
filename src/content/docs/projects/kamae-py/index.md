@@ -20,7 +20,7 @@ Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタン
 | --- | --- |
 | 新規ドメインを型で起こす | [ドメインモデリング](/projects/kamae-py/domain-modeling/) → [状態遷移](/projects/kamae-py/state-transitions/) → [境界防御](/projects/kamae-py/boundary-defense/) → [エラーハンドリング](/projects/kamae-py/error-handling/) |
 | 保存とイベントを揃える | [集約とトランザクション境界](/projects/kamae-py/aggregates/) → [永続化、集約、イベント](/projects/kamae-py/persistence-events/) |
-| 端から端まで追う | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/) |
+| 端から端まで追う | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/)（ドメインまで） |
 | 既存コードへ入れる | [移行戦略](/projects/kamae-py/migration-strategy/)（ORMなら [ORM アダプター](/projects/kamae-py/orm-adapters/)） |
 | 仕上げのゲート | [品質ゲート](/projects/kamae-py/quality-gates/) |
 
@@ -33,6 +33,6 @@ Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタン
 | 薄いユースケース | [状態遷移](/projects/kamae-py/state-transitions/#ユースケースは薄く保つ) |
 | 永続化エラー | [エラーハンドリング](/projects/kamae-py/error-handling/#推奨パターン-早期リターン) |
 | リポジトリポート | [永続化](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) / [ドメインモデリング](/projects/kamae-py/domain-modeling/#プロトコルでリポジトリポートを定義する) |
-| E2E | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/) |
+| E2E（ドメイン） | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/) |
 | mypy | [ドメインモデリング](/projects/kamae-py/domain-modeling/#pydantic-プラグイン付きで-mypy-を設定する) |
 | 品質ゲートコマンド | [品質ゲート](/projects/kamae-py/quality-gates/#ベースラインコマンド) |

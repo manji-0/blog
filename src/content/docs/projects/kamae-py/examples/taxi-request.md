@@ -5,7 +5,7 @@ sidebar:
   label: "タクシー配車の例"
 ---
 
-この例は、タクシー配車リクエストを題材に、Pydantic v2の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで示す。[ドメインモデリング](/projects/kamae-py/domain-modeling/) と [状態遷移](/projects/kamae-py/state-transitions/) の原則を、実装に落とし込んだ読み物として使える。
+この例は、タクシー配車リクエストを題材に、Pydantic v2の判別共用体、凍結状態モデル、純粋遷移、ドメインイベント、境界パースをひと続きのコードで示す。[ドメインモデリング](/projects/kamae-py/domain-modeling/) と [状態遷移](/projects/kamae-py/state-transitions/) の原則を、実装に落とし込んだ読み物として使える。永続化や配線までは含めない。続きは末尾の「次に読む」へ。
 
 ## 凍結状態と判別共用体
 
@@ -190,3 +190,15 @@ def example() -> str:
 if __name__ == "__main__":
     print(example())
 ```
+
+## 次に読む
+
+この例はドメイン状態と遷移までである。本番相当に広げるときは次へ進む。
+
+| 次の関心 | 参照 |
+| --- | --- |
+| 集約境界とロック | [集約とトランザクション境界](/projects/kamae-py/aggregates/) |
+| `RequestStore` の原子的保存・outbox | [永続化、集約、イベント](/projects/kamae-py/persistence-events/) |
+| ポート配線とユースケース | [アプリケーション配線](/projects/kamae-py/application-wiring/) |
+| エラーマッピング | [エラーハンドリング](/projects/kamae-py/error-handling/) |
+| 品質ゲート | [品質ゲート](/projects/kamae-py/quality-gates/) |

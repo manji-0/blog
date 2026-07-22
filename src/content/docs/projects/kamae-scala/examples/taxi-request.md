@@ -5,7 +5,7 @@ sidebar:
   label: "タクシー配車例"
 ---
 
-本例はKamae Scalaのエンドツーエンド実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/projects/kamae-scala/domain-modeling/) と [状態遷移](/projects/kamae-scala/state-transitions/) の原則を、ひと続きのコードで追える。
+本例はKamae Scalaのドメイン実装である。待機中のリクエストにドライバーを割り当て、状態遷移とドメインイベントを返す典型的なパターンを示す。[ドメインモデリング](/projects/kamae-scala/domain-modeling/) と [状態遷移](/projects/kamae-scala/state-transitions/) の原則を、ひと続きのコードで追える。永続化やエフェクト配線までは含めない。本文のユースケース例はCats Effect前提なので、ZIOを使う場合は先に [エフェクトシステム](/projects/kamae-scala/effect-systems/) でスタックを選ぶ。
 
 opaque typeでIDをモジュール外から抽象化し、`WaitingRequest` にのみ `assignDriver` をextensionとして付けることで、コンパイル時に誤った状態への操作を防ぐ。
 
@@ -255,3 +255,15 @@ class CompileTimeSafetySuite extends FunSuite:
 ```
 
 リポジトリルートから `sbt "project taxiRequest" test` で実行できる。ローカル環境のセットアップは [開発環境](/projects/kamae-scala/dev-environment/) を参照する。
+
+## 次に読む
+
+この例はドメイン状態と遷移・テストまでである。本番相当に広げるときは次へ進む。
+
+| 次の関心 | 参照 |
+| --- | --- |
+| エフェクトスタック選定 | [エフェクトシステム](/projects/kamae-scala/effect-systems/) |
+| 集約境界とロック | [集約とトランザクション境界](/projects/kamae-scala/aggregate-transactions/) |
+| リポジトリとoutbox | [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) |
+| ポート配線 | [アプリケーション配線](/projects/kamae-scala/application-wiring/) |
+| 品質ゲート | [品質ゲート](/projects/kamae-scala/quality-gates/) |

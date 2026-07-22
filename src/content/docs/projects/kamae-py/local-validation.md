@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-スキルテンプレートから新規プロジェクトを立ち上げるとき、`pyproject.toml`、Ruff、pytest、ポリシーチェッカーを揃えてからドメインコードに入る。既存リポジトリの日常開発は [開発セットアップ](/projects/kamae-py/development-setup/) を優先する。
+スキルテンプレートから新規プロジェクトを立ち上げるとき、`pyproject.toml`、Ruff、pytest、ポリシーチェッカーを揃えてからドメインコードに入る。既存リポジトリの日常開発・初回ブートストラップは [開発環境とセットアップ](/projects/kamae-py/development-setup/) を優先する。
 
 チェックコマンドの正本は [品質ゲート](/projects/kamae-py/quality-gates/)、CIの形は [CI セットアップ](/projects/kamae-py/ci-setup/) を参照する。
 

@@ -31,7 +31,7 @@ def waiting_request(now: datetime) -> Waiting:
 - 拒否される遷移または前提条件。
 - 遷移前の認可とテナント拒否。
 - コントローラー境界での網羅的エラーマッピング。
-- 期待されるイベントバージョンとアグリゲートIDを持つドメインイベント。
+- 期待されるイベントバージョンと集約IDを持つドメインイベント。
 
 ## 境界と可観測性をテストする
 
@@ -78,7 +78,7 @@ PBTに適した対象：
 | アイデンティティ保持 | `result.request_id == source.request_id` |
 | 判別子の正しい変化 | `assign_driver(waiting, ...).kind == "en_route"` |
 | 拒否経路は到達不能 | 無効ソース状態は遷移関数に到達しない |
-| イベント数/形状 | `len(outcome.events) == 1` かつイベントアグリゲート ID が状態と一致 |
+| イベント数/形状 | `len(outcome.events) == 1` かつイベント集約 ID が状態と一致 |
 
 ```python
 from datetime import datetime, timezone

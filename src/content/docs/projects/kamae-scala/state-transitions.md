@@ -6,7 +6,7 @@ sidebar:
 
 閉じた状態集合はenumと遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
 
-状態のデータ構造は [ドメインモデリング](/projects/kamae-scala/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) に委ねる。
+状態のデータ構造は [ドメインモデリング](/projects/kamae-scala/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) に委ねる。後段のユースケース例はCats Effect前提である。ZIOや`Future`を使う場合は、先に [エフェクトシステム](/projects/kamae-scala/effect-systems/) でプライマリスタックを1つ選ぶ。
 
 ## ソース型で遷移を制約する
 

@@ -183,7 +183,7 @@ def publish_in_chunks(events: Sequence[DomainEvent], size: int) -> None:
 1. **N+1:** 関連行を1クエリまたは有界な少数で読み、Pythonで1回マップ
 2. **行ごとのアダプタ:** モジュール級アダプタとマッパーを再利用（[ORM アダプター](/projects/kamae-py/orm-adapters/)）
 3. **再検証:** 行DTOは1回。信頼経路だけ `model_construct`（[Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/)）
-4. **大きなリストendpoint:** 狭いread DTO。テーブル表示に完全アグリゲート共用体を水和しない
+4. **大きなリストendpoint:** 狭いread DTO。テーブル表示に完全な集約共用体を水和しない
 
 ```python
 class RequestReader(Protocol):
