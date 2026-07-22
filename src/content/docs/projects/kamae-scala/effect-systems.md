@@ -32,7 +32,7 @@ final class AssignDriver[F[_]: Monad](
   def execute(command: AssignDriverCommand): F[Either[AssignDriverError, Unit]]
 ```
 
-完全なCats Effect例は [状態遷移](/projects/kamae-scala/state-transitions/#keep-use-cases-thin) を参照。
+完全なCats Effect例は [状態遷移](/projects/kamae-scala/state-transitions/#ユースケースを薄く保つ) を参照。
 
 インフラ失敗は `.flatMap` サイトでマップする：
 
@@ -44,7 +44,7 @@ requests.findWaiting(id).attempt.flatMap:
 
 プロジェクトがすでに標準化している場合のみ `MonadError` / `ApplicativeError` を使う。明示的ビジネスエラーには `F[Either[E, A]]` がKamaeの既定形状である。
 
-[ライブラリガイド（cats）](/projects/kamae-scala/library-guides/cats/) を参照。
+[ライブラリガイド（cats）](/projects/kamae-scala/library-guides/#cats) を参照。
 
 ## ZIO パターン
 
@@ -64,7 +64,7 @@ final class AssignDriver(
 
 ビジネス失敗には `ZIO` の型付きエラーチャネルを使う。プロジェクトがエッジで明示的に許可しない限り、公開use-caseエラーに `Throwable` を使わない。
 
-[ライブラリガイド（zio）](/projects/kamae-scala/library-guides/zio/) を参照。
+[ライブラリガイド（zio）](/projects/kamae-scala/library-guides/#zio) を参照。
 
 ## レイヤリングルール
 
@@ -83,4 +83,4 @@ final class AssignDriver(
 - ユースケーステスト： `Identity` / `StateT` fake、またはZIOレイヤーのstub interpreter。
 - 統合テスト： adapter境界だけで実ランタイム（`IOSuite`、`ZIOSpecDefault`）。
 
-[ライブラリガイド（cats）](/projects/kamae-scala/library-guides/cats/) と [ライブラリガイド（zio）](/projects/kamae-scala/library-guides/zio/) を参照。
+[ライブラリガイド（cats）](/projects/kamae-scala/library-guides/#cats) と [ライブラリガイド（zio）](/projects/kamae-scala/library-guides/#zio) を参照。

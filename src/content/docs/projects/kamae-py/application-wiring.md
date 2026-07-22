@@ -25,7 +25,7 @@ async def assign_driver_use_case(
     ...
 ```
 
-依存関係は型付きポートとしてユースケース境界に入る。純粋遷移関数はインフラに依存しないまま保たれる。完全なオーケストレーション例は [状態遷移](/projects/kamae-py/state-transitions/#keep-use-cases-thin) を参照する。
+依存関係は型付きポートとしてユースケース境界に入る。純粋遷移関数はインフラに依存しないまま保たれる。完全なオーケストレーション例は [状態遷移](/projects/kamae-py/state-transitions/#ユースケースは薄く保つ) を参照する。
 
 リポジトリがすでに標準化していない限り、新規コードのためにDIコンテナを採用しない。
 
@@ -44,7 +44,7 @@ async def assign_driver_use_case(
 
 ## ポートとアダプター
 
-**ポート**はユースケースが必要とするものを表す `typing.Protocol` 型である。**正規**の `RequestResolver` と `RequestStore` の形状： [永続化、集約、イベント](/projects/kamae-py/persistence-events/#keep-repository-protocols-small)。入門的なポート概念： [ドメインモデリング](/projects/kamae-py/domain-modeling/#define-repository-ports-with-protocols)。
+**ポート**はユースケースが必要とするものを表す `typing.Protocol` 型である。**正規**の `RequestResolver` と `RequestStore` の形状： [永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ)。入門的なポート概念： [ドメインモデリング](/projects/kamae-py/domain-modeling/#プロトコルでリポジトリポートを定義する)。
 
 **アダプター**はインフラモジュール内の具象実装である。
 
@@ -100,7 +100,7 @@ def build_assign_driver_use_case(session: AsyncSession) -> AssignDriverUseCase:
 
 ## フェイクでのテスト
 
-テストは本番と同じポート型でインメモリまたはフェイクアダプターを渡すべきだ。フェイクは [永続化、集約、イベント](/projects/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポートを実装する。
+テストは本番と同じポート型でインメモリまたはフェイクアダプターを渡すべきだ。フェイクは [永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規**ポートを実装する。
 
 ```python
 class FakeRequestStore:

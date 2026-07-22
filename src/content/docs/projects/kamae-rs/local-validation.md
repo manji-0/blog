@@ -14,7 +14,7 @@ sidebar:
 
 ## 同梱テンプレートを使う
 
-`gh skill` または `npx skills` でインストールしたとき、リポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/workflows/ci.yml`、`scripts/validate_package.py` などはスキルと一緒には入らない。ブートストラップでは [`../assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) を使う。
+`gh skill` または `npx skills` でインストールしたとき、リポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/workflows/ci.yml`、`scripts/validate_package.py` などはスキルと一緒には入らない。ブートストラップでは [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) を使う。
 
 最短経路：
 

@@ -72,7 +72,7 @@ HTTP/queue command
 
 **リポジトリアダプター**が `save(...)` のデータベーストランザクションを所有すべきだ。ユースケースはビジネス上の順序を所有し、アダプターはコミット/ロールバックを所有する。
 
-ポートメソッドにトランザクションの所有権を文書化する。パラメータは [永続化、集約、イベント](/projects/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポートと一致する：
+ポートメソッドにトランザクションの所有権を文書化する。パラメータは [永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規**ポートと一致する：
 
 ```python
 class RequestStore(Protocol):
@@ -87,7 +87,7 @@ class RequestStore(Protocol):
 
 テストが依然として原子性セマンティクスを強制するインメモリフェイクを使う場合を除き、`save_state` と `insert_events` を別々の公開リポジトリメソッドに分割しない。
 
-`VersionConflict` をユースケースで `Err` にマップする — [エラーハンドリング](/projects/kamae-py/error-handling/#preferred-pattern-early-return) を参照。
+`VersionConflict` をユースケースで `Err` にマップする — [エラーハンドリング](/projects/kamae-py/error-handling/#推奨パターン-早期リターン) を参照。
 
 ## 楽観的 vs 悲観的並行性
 

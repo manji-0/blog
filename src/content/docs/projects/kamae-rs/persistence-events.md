@@ -300,7 +300,7 @@ if result.rows_affected() == 0 {
 }
 ```
 
-`ConcurrentModification` を型付きユースケースエラーとして公開し、HTTPが409、queue consumerがfresh loadでリトライできるようにする。[永続化、集約、イベント](/projects/kamae-rs/persistence-events/#optimistic-concurrency-is-the-default) 参照。
+`ConcurrentModification` を型付きユースケースエラーとして公開し、HTTPが409、queue consumerがfresh loadでリトライできるようにする。[永続化、集約、イベント](/projects/kamae-rs/persistence-events/#楽観的並行性がデフォルト) 参照。
 
 ## リトライ向け idempotency key
 
@@ -345,7 +345,7 @@ pub async fn execute_with_retry(
 
 ## 行マッピングと境界防御
 
-persistence adapterもHTTPやキューと同様に、DTO → ドメイン変換のルールに従う（[境界防御](/projects/kamae-rs/boundary-defense/#database-rows-sqlxfromrow) 参照）。たとえば `en_route` 行に `driver_id` がNULLのまま読み込まれた場合、無効な `EnRouteRequest` を組み立てて遷移に渡すのではなく、adapterで `RepositoryError::CorruptRow` として返す。破損行を黙って通すと、後続のユースケースが「ありえない状態」で動き続け、原因の特定が難しくなる。
+persistence adapterもHTTPやキューと同様に、DTO → ドメイン変換のルールに従う（[境界防御](/projects/kamae-rs/boundary-defense/#データベース行sqlxfromrow) 参照）。たとえば `en_route` 行に `driver_id` がNULLのまま読み込まれた場合、無効な `EnRouteRequest` を組み立てて遷移に渡すのではなく、adapterで `RepositoryError::CorruptRow` として返す。破損行を黙って通すと、後続のユースケースが「ありえない状態」で動き続け、原因の特定が難しくなる。
 
 ## よくある crate 組み合わせ
 

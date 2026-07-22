@@ -12,11 +12,11 @@ CIはローカルで再現できる品質ゲートを、マージ前に機械的
 
 `uv sync --locked` でロックファイルのドリフトを検知し、依存の再現性を保つ。
 
-このスキルをインストールしたときは、同梱テンプレート [`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) を使う：
+このスキルをインストールしたときは、同梱テンプレート [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) を使う：
 
-- [`../assets/templates/github-ci.yml`](../assets/templates/github-ci.yml) -> 通常のPythonバックエンドリポジトリ向け `.github/workflows/ci.yml`。
-- [`../assets/templates/github-ci-skill-package.yml`](../assets/templates/github-ci-skill-package.yml) -> スキル/プラグインリポジトリ向け `.github/workflows/ci.yml`。
-- [`../assets/templates/validate_package.py`](../assets/templates/validate_package.py) -> スキルパッケージワークフロー使用時の `scripts/validate_package.py`。
+- [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/github-ci.yml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/github-ci.yml) -> 通常のPythonバックエンドリポジトリ向け `.github/workflows/ci.yml`。
+- [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/github-ci-skill-package.yml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/github-ci-skill-package.yml) -> スキル/プラグインリポジトリ向け `.github/workflows/ci.yml`。
+- [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/validate_package.py`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/validate_package.py) -> スキルパッケージワークフロー使用時の `scripts/validate_package.py`。
 
 同梱スクリプトでコピーできる：
 
@@ -93,7 +93,7 @@ jobs:
 
 `uv python install` は `.python-version` を尊重するため、ジョブはローカル開発と同じPythonパッチバージョンを使う。`uv sync --locked` は `pyproject.toml` と `uv.lock` がずれたときCIを失敗させる。
 
-スキルパッケージではない通常のバックエンドリポジトリでは `Validate skill package` ステップを省略するか、[`../assets/templates/github-ci.yml`](../assets/templates/github-ci.yml) を使う。
+スキルパッケージではない通常のバックエンドリポジトリでは `Validate skill package` ステップを省略するか、[`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/github-ci.yml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/github-ci.yml) を使う。
 
 ## CI が保護すべきもの
 

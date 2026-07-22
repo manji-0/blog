@@ -99,7 +99,7 @@ def assign_driver_response(result: Result[EnRoute, AssignDriverError]) -> JSONRe
 
 ### 推奨パターン: 早期リターン
 
-長いモナドチェーンより読みやすい早期リターンを優先する。[状態遷移](/projects/kamae-py/state-transitions/#keep-use-cases-thin) の**正規**ユースケースから始め、`save_en_route` 周辺に永続化エラーマッピングを追加する：
+長いモナドチェーンより読みやすい早期リターンを優先する。[状態遷移](/projects/kamae-py/state-transitions/#ユースケースは薄く保つ) の**正規**ユースケースから始め、`save_en_route` 周辺に永続化エラーマッピングを追加する：
 
 ```python
     en_route = assign_driver(waiting, driver_id, now)

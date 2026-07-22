@@ -203,7 +203,7 @@ def save_en_route_django(
 
 ## リポジトリポート形状
 
-ポートはORMインスタンスや生の行オブジェクトではなく、検証済みのドメイン状態を返す。[永続化、集約、イベント](/projects/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**ポート定義に合わせる。
+ポートはORMインスタンスや生の行オブジェクトではなく、検証済みのドメイン状態を返す。[永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規**ポート定義に合わせる。
 
 `save(request: TaxiRequest)` のような広いメソッドは、たとえば `Waiting` のまま保存する非法操作を型では防げない。`find_waiting` と `save_en_route` のように、操作ごとに有効なライフサイクル状態をメソッド名と引数型で表す。
 

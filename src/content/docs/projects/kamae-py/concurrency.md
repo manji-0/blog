@@ -27,7 +27,7 @@ await store.save_en_route(en_route, ...)
 return Ok(en_route)
 ```
 
-完全なユースケースは [状態遷移](/projects/kamae-py/state-transitions/#keep-use-cases-thin) を参照。
+完全なユースケースは [状態遷移](/projects/kamae-py/state-transitions/#ユースケースは薄く保つ) を参照。
 
 遷移は呼び出し元スレッドのイベントループ上で実行される。処理が軽ければ問題ないが、重いCPU処理を同期で走らせるとイベントループを塞ぐ。
 

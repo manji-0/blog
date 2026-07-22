@@ -4,7 +4,7 @@ sidebar:
   order: 10
 ---
 
-状態変更とドメインイベントを別操作で保存すると、リトライや障害のたびに不整合が残る。Kamaeでは集約境界・楽観的ロック・アウトボックスをセットで設計し、1コマンドの作業単位をユースケースが所有する。
+状態変更とドメインイベントを別々に保存すると、リトライや障害のたびに不整合が残ります。Kamaeでは集約境界・楽観的ロック・アウトボックスをまとめて設計し、1コマンドの作業単位をユースケースが所有します。
 
 状態型と遷移は [状態遷移](/projects/kamae-scala/state-transitions/) と [ドメインモデリング](/projects/kamae-scala/domain-modeling/)、境界変換は [境界防御](/projects/kamae-scala/boundary-defense/)、ストリーム消費は [ストリームと継続クエリ](/projects/kamae-scala/stream-continuous-queries/)、配線は [アプリケーション配線](/projects/kamae-scala/application-wiring/) を参照する。
 
@@ -29,11 +29,11 @@ trait TaxiRequestStore[F[_]]:
   ): F[Either[RepositoryError, Unit]]
 ```
 
-portにはCats`IO`、ZIO task type、またはプロジェクトのeffectを使う。`ConnectionIO`、`DBIO`、Quill context、JDBCハンドルはadapter内に閉じる。[エフェクトシステム](/projects/kamae-scala/effect-systems/)と[ORMアダプタ](/projects/kamae-scala/orm-adapters/)を参照。
+ポートにはCatsの`IO`、ZIOのタスク型、またはプロジェクトで採用しているエフェクト型を使います。`ConnectionIO`、`DBIO`、Quillのコンテキスト、JDBCハンドルはアダプター内に閉じ込めます。[エフェクトシステム](/projects/kamae-scala/effect-systems/)と[ORMアダプター](/projects/kamae-scala/orm-adapters/)を参照してください。
 
-## stateとeventを原子的に永続化する
+## 状態とイベントを原子的に永続化する
 
-遷移がdomain eventを出すとき、state変更とoutbox行は**同一トランザクション**でsaveする。呼び出し側がstateとeventを別メソッドで保存できるAPIは避ける。
+遷移がドメインイベントを出すとき、状態変更とoutbox行は**同一トランザクション**で保存します。呼び出し側が状態とイベントを別メソッドで保存できるAPIは避けてください。
 
 集約ルートの楽観的version、悲観的ロック、ユースケースのトランザクション境界は [状態遷移](/projects/kamae-scala/state-transitions/) と整合させる。
 

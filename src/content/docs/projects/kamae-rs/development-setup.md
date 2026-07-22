@@ -78,7 +78,7 @@ python3 skills/kamae-rs/scripts/apply_templates.py --target /tmp/kamae-rs-test -
 
 ## トラブルシューティング
 
-- **パッケージ検証が新リンクで失敗**: 対象ファイルが存在し、`#anchor` スラッグが見出しと一致すること（[`../../../DEVELOPMENT.md`](/projects/kamae-rs/../../../DEVELOPMENT/#cross-references) 参照）。
+- **パッケージ検証が新リンクで失敗**: 対象ファイルが存在し、`#anchor` スラッグが見出しと一致すること（[`../../../DEVELOPMENT.md`](https://github.com/manji-0/kamae-rs/blob/main/DEVELOPMENT.md#cross-references) 参照）。
 - **review probe が example で多数の lead を出す**: taxi例は意図的に本番契約の一部を省略している。probe変更の検証には実ドメインコードでprobeを使う。
 - **インストール後にテンプレート CI パスが誤る**: 生成workflowの `path/to/kamae-rs` をvendoredスクリプトパスまたは絶対インストール先に置き換える。
 

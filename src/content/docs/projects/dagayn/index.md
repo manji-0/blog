@@ -22,7 +22,7 @@ CursorやClaude Codeのようなエージェントは、タスクのたびにフ
 
 ## どこから読むか
 
-[インストール](/projects/dagayn/installation/) と [クイックスタート](/projects/dagayn/quickstart/) で一度グラフを建ててみるのが早いです。エージェントから触るなら次に [MCP ツール](/projects/dagayn/mcp-tools/)。CLIを引きたいときは [CLI リファレンス](/projects/dagayn/cli-reference/)、語彙は [グラフモデル](/projects/dagayn/graph-model/)、設計書やTerraformは [Markdown / Terraform 連携](/projects/dagayn/integrations/)、埋め込み検索は [セマンティック検索](/projects/dagayn/semantic-search/) です。
+[インストール](/projects/dagayn/installation/) と [クイックスタート](/projects/dagayn/quickstart/) で一度グラフを構築してみるのが近道です。エージェントから利用する場合は、次に [MCP ツール](/projects/dagayn/mcp-tools/) を参照してください。CLIの使い方は [CLI リファレンス](/projects/dagayn/cli-reference/)、用語は [グラフモデル](/projects/dagayn/graph-model/)、設計書やTerraformとの連携は [Markdown / Terraform 連携](/projects/dagayn/integrations/)、埋め込み検索は [セマンティック検索](/projects/dagayn/semantic-search/) にまとめています。
 
 パイプライン全体は [アーキテクチャ](/projects/dagayn/architecture/)、SQLiteまわりは [ストレージ](/projects/dagayn/storage/)、メトリクスは [構造メトリクス](/projects/dagayn/metrics/)、差分レビューは [レビューと影響分析](/projects/dagayn/review-analysis/) にあります。ソースを触る人は [開発環境](/projects/dagayn/development/)、詰まったら [トラブルシューティング](/projects/dagayn/troubleshooting/) へ。
 

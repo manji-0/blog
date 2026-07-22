@@ -10,7 +10,7 @@ sidebar:
 
 ## プロジェクトのブートストラップ（テンプレートから）
 
-このスキルを `gh skill` または `npx skills` でインストールしたとき、リポジトリルートの `pyproject.toml`、`.github/workflows/ci.yml`、`scripts/validate_package.py` などはスキルと一緒にはインストールされない。プロジェクトをブートストラップするときは [`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) のテンプレートを使う。
+このスキルを `gh skill` または `npx skills` でインストールしたとき、リポジトリルートの `pyproject.toml`、`.github/workflows/ci.yml`、`scripts/validate_package.py` などはスキルと一緒にはインストールされない。プロジェクトをブートストラップするときは [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) のテンプレートを使う。
 
 最も手早い方法は、同梱スクリプトを使うことである。
 
@@ -38,9 +38,9 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target .
 
 推奨ローカルファイル：
 
-- [`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) -> `pyproject.toml` または既存ファイルへマージ。
-- [`../assets/templates/gitignore`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/gitignore/) -> `.gitignore` または既存ファイルへマージ。
-- [`../assets/templates/validate_package.py`](../assets/templates/validate_package.py) -> スキル/プラグインリポジトリのみ `scripts/validate_package.py`。
+- [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml) -> `pyproject.toml` または既存ファイルへマージ。
+- [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/gitignore`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/gitignore/) -> `.gitignore` または既存ファイルへマージ。
+- [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/validate_package.py`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/validate_package.py) -> スキル/プラグインリポジトリのみ `scripts/validate_package.py`。
 
 コミット前に `project.name`、`description`、`[tool.mypy].files` を調整する。アプリケーションリポジトリでは `[tool.mypy].files` は通常 `src` と `tests` を指す。スキルリポジトリでは `scripts`、examples、testsを含める。
 
@@ -114,7 +114,7 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target . --include-tests
 
 チームがコミット前の自動フォーマットを望むなら、[品質ゲート](/projects/kamae-py/quality-gates/#pre-commit-integration) からpre-commitフックをインストールする。
 
-mypyとPydanticプラグイン設定については、[`../assets/templates/pyproject.toml`](../assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/projects/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin) に従う。
+mypyとPydanticプラグイン設定については、[`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/projects/kamae-py/domain-modeling/#pydantic-プラグイン付きで-mypy-を設定する) に従う。
 
 ## Docker を追加するタイミング
 
@@ -131,7 +131,7 @@ mypyとPydanticプラグイン設定については、[`../assets/templates/pypr
 ## 前提条件
 
 - [uv](https://docs.astral.sh/uv/) がインストールされ `PATH` で利用可能であること。
-- プロジェクトの範囲に合うPythonバージョン。このリポジトリは [`.python-version`](/projects/kamae-py/../../../.python-version/) でローカルPythonをピン留めしている。
+- プロジェクトの範囲に合うPythonバージョン。このリポジトリは [`.python-version`](https://github.com/manji-0/kamae-py/blob/main/.python-version) でローカルPythonをピン留めしている。
 
 ## クローンとブートストラップ
 

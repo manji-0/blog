@@ -42,7 +42,7 @@ pub struct PaymentGatewayCredentials {
 | --- | --- | --- |
 | API key、password、token、private key | `secrecy::SecretString` / `SecretBox` | drop 時 zeroize。`Debug` はデフォルト非表示 |
 | 氏名、メール、電話、住所、政府 ID | `Redacted<T>` または domain newtype | PII は crypto 意味の secret ではないが log に出してはならない |
-| ops log で安全な opaque surrogate ID | safe `Display` 付き plain newtype | [ロギングとメトリクス](/projects/kamae-rs/logging-metrics/#which-ids-belong-in-logs) 参照 |
+| ops log で安全な opaque surrogate ID | safe `Display` 付き plain newtype | [ロギングとメトリクス](/projects/kamae-rs/logging-metrics/#どの-id-を-log-に載せるか) 参照 |
 | UI または audit export に表示する値 | domain 型 + 明示 `expose_for_*` | 露出は意図的かつ命名される |
 
 `secrecy` は資格情報処理とメモリ衛生向け。`Redacted<T>` は個人データのaccidental log防止向け。すべてのメールを `SecretString` に包まない。長寿命PIIを `Debug` deriveだけで守らない。
@@ -61,7 +61,7 @@ domain errorやlogにsensitive値をformatしない。
 
 ## ログ前に識別子を分類
 
-`user_id` や `passenger_id` というフィールド名がsafeを決めない。[ロギングとメトリクス](/projects/kamae-rs/logging-metrics/#which-ids-belong-in-logs) のルール：
+`user_id` や `passenger_id` というフィールド名がsafeを決めない。[ロギングとメトリクス](/projects/kamae-rs/logging-metrics/#どの-id-を-log-に載せるか) のルール：
 
 - **デフォルト safe**: opaque surrogate集約ID、correlation ID、内部job/transaction ID、有界domain enum
 - **ログ禁止**: secret、政府ID、支払識別子、連絡先identity、人物記述、健康データ、精密位置、ネットワークtracking ID

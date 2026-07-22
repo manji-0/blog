@@ -63,7 +63,7 @@ Rustサーバーコードでは慣用的な形は `async fn -> Result<T, E>` で
 
 可能ならドメイン遷移は同期かつ純粋に保つ。asyncはI/Oを伴うユースケースとアダプタに属する。
 
-[アプリケーション配線](/projects/kamae-rs/application-wiring/#model-use-cases-as-structs-with-dependencies) に正規の `AssignDriver` 非同期ユースケース形状がある。パターンはport経由のロード、純粋ドメイン遷移、別portへのpersistであり、各 `.await` ではインフラエラーをマップする。
+[アプリケーション配線](/projects/kamae-rs/application-wiring/#依存を持つ-struct-としてユースケースをモデル化する) に正規の `AssignDriver` 非同期ユースケース形状がある。パターンはport経由のロード、純粋ドメイン遷移、別portへのpersistであり、各 `.await` ではインフラエラーをマップする。
 
 ガイドライン：
 

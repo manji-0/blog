@@ -29,7 +29,7 @@ cargo test -p domain -p application
 
 CIでは `cargo fmt --check` を使う。ローカルでフォーマットチェックが失敗したら `cargo fmt --all` で適用する。
 
-初回ローカルセットアップは [開発環境](/projects/kamae-rs/dev-environment/#テンプレートからの初回ブートストラップ) を読み、[`../assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ配下のファイルが含まれるが、このリポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/`、`scripts/` は確実にはインストールされない。
+初回ローカルセットアップは [開発環境](/projects/kamae-rs/dev-environment/#テンプレートからの初回ブートストラップ) を読み、[`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ配下のファイルが含まれるが、このリポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/`、`scripts/` は確実にはインストールされない。
 
 ## スキルパッケージと review probe チェック
 
@@ -187,8 +187,8 @@ toolchainが `reason` 非対応なら近くにコメント。
 | フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-rs/test-data/) |
 | 入力全体の不変条件 | `proptest!` または `quickcheck!` | [プロパティベーステスト](/projects/kamae-rs/property-based-tests/) |
 | アサーション強度 / 静かなギャップ | ドメインパッケージへの `cargo mutants` | [ミューテーションテスト](/projects/kamae-rs/mutation-testing/) |
-| コンパイル時 state 安全性 | `trybuild` | [テストデータ](/projects/kamae-rs/test-data/#test-compile-time-state-safety) |
-| fake port とユースケース | `application` tests | [開発環境](/projects/kamae-rs/dev-environment/#fake-ports-and-test-fixtures) |
+| コンパイル時 state 安全性 | `trybuild` | [テストデータ](/projects/kamae-rs/test-data/#compile-time-state-安全性をテストする) |
+| fake port とユースケース | `application` tests | [開発環境](/projects/kamae-rs/dev-environment/#fake-port-とテストフィクスチャ) |
 
 生成バインディング、vendoredコード、外部維持スナップショットはフルlintバーから免除してよいが、それらを包むsafe wrapperは境界検証、PII、unsafe-boundaryガイダンスに従う。
 

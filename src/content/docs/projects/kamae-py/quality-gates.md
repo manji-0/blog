@@ -21,7 +21,7 @@ uv run pytest
 
 狭い変更では、触れたファイルと状態をカバーする最小コマンドを実行し、制限を述べる。
 
-初回ローカルセットアップは [開発環境とセットアップ](/projects/kamae-py/development-setup/) を読み、[`../assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ下のファイルが含まれるが、このリポジトリルートの `pyproject.toml`、`uv.lock`、`.github/`、`scripts/` は確実にはインストールされない。
+初回ローカルセットアップは [開発環境とセットアップ](/projects/kamae-py/development-setup/) を読み、[`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ下のファイルが含まれるが、このリポジトリルートの `pyproject.toml`、`uv.lock`、`.github/`、`scripts/` は確実にはインストールされない。
 
 ## スキルパッケージとポリシーチェック
 
@@ -51,7 +51,7 @@ uv run python path/to/kamae-py/scripts/check_kamae_policy.py --include-tests --s
 
 ## 型チェック
 
-プロジェクトに設定があればmypyまたはpyrightを実行する。Pydantic v2プロジェクトでは `plugins = ["pydantic.mypy"]` とstrictプラグインフラグ（`init_forbid_extra`、`init_typed`、`warn_required_dynamic_aliases`）付きmypyを優先する。完全な `[tool.mypy]` と `[tool.pydantic-mypy]` 例： [ドメインモデリング](/projects/kamae-py/domain-modeling/#configure-mypy-with-the-pydantic-plugin)。
+プロジェクトに設定があればmypyまたはpyrightを実行する。Pydantic v2プロジェクトでは `plugins = ["pydantic.mypy"]` とstrictプラグインフラグ（`init_forbid_extra`、`init_typed`、`warn_required_dynamic_aliases`）付きmypyを優先する。完全な `[tool.mypy]` と `[tool.pydantic-mypy]` 例： [ドメインモデリング](/projects/kamae-py/domain-modeling/#pydantic-プラグイン付きで-mypy-を設定する)。
 
 プラグインは素のmypyが見逃しうるPydantic固有リスクを検出する： 型なしモデルフィールド、frozenモデル変更、誤った `model_construct`、無効フィールドデフォルト、余分なコンストラクタキーワード、必須動的エイリアス。
 

@@ -195,7 +195,7 @@ class AccountId(SemanticId):
 
 ドメイン向けポートには `typing.Protocol` を使う。メソッドシグネチャは狭く保ち、ドメイン状態または明示的な結果型を返す。
 
-これはプロトコル導入のための**最小**ポート形状である。楽観的ロック、冪等性キー、イベントタプルを持つ本番ストアには、[永続化、集約、イベント](/projects/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規**定義を使う。
+これはプロトコル導入のための**最小**ポート形状である。楽観的ロック、冪等性キー、イベントタプルを持つ本番ストアには、[永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規**定義を使う。
 
 ```python
 from typing import Protocol

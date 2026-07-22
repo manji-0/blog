@@ -67,7 +67,7 @@ class TaxiRequestService:
 
 ### フェーズ 3: ユースケースを抽出
 
-サービスメソッドをポートを受け取る非同期関数にする。完全実装： [状態遷移](/projects/kamae-py/state-transitions/#keep-use-cases-thin)。
+サービスメソッドをポートを受け取る非同期関数にする。完全実装： [状態遷移](/projects/kamae-py/state-transitions/#ユースケースは薄く保つ)。
 
 ```python
 async def assign_driver_use_case(

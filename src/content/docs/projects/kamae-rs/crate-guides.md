@@ -77,8 +77,8 @@ ID、メール、スラッグ、有界数量などのリーフ値オブジェク
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `serde` + `thiserror` | DTO `Deserialize`、`TryFrom` が型付き error enum を返す | [境界防御](/projects/kamae-rs/boundary-defense/) |
-| `serde` + `sqlx` | row struct のみ `FromRow`、ドメインへ `TryFrom` | [境界防御](/projects/kamae-rs/boundary-defense/#database-rows-sqlxfromrow)、[永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
-| `serde` + events | ドメイン event enum に `#[serde(tag = "event_type")]` | [永続化、集約、イベント](/projects/kamae-rs/persistence-events/#event-serde-representation) |
+| `serde` + `sqlx` | row struct のみ `FromRow`、ドメインへ `TryFrom` | [境界防御](/projects/kamae-rs/boundary-defense/#データベース行sqlxfromrow)、[永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
+| `serde` + events | ドメイン event enum に `#[serde(tag = "event_type")]` | [永続化、集約、イベント](/projects/kamae-rs/persistence-events/#event-の-serde-表現) |
 | `serde` + `garde` | `TryFrom` 前に DTO を `garde` で検証 | [garde](#garde) |
 
 ## validator
@@ -103,7 +103,7 @@ pub struct CreateUserDto {
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
-| `garde` + `serde` + axum | `Json<Dto>` -> `dto.validate()` -> `Command::try_from(dto)` | [境界防御](/projects/kamae-rs/boundary-defense/#http-extractors-axum--actix-web) |
+| `garde` + `serde` + axum | `Json<Dto>` -> `dto.validate()` -> `Command::try_from(dto)` | [境界防御](/projects/kamae-rs/boundary-defense/#http-extractoraxum--actix-web) |
 | `garde` + `thiserror` | adapter で `garde` report を境界 error enum にマップ | [エラーハンドリング](/projects/kamae-rs/error-handling/) |
 | `garde` + leaf newtypes | DTO フィールド検証 + ドメイン newtype 向け `TryFrom` | [ドメインモデリング](/projects/kamae-rs/domain-modeling/) |
 
@@ -128,7 +128,7 @@ secretは `SecretString` または `SecretBox` 周りのプロジェクト固有
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `secrecy` + adapter | payment/auth モジュールのみ `ExposeSecret` | [PII 保護](/projects/kamae-rs/pii-protection/) |
-| `secrecy` + `tracing` | `SecretString` をログしない。資格情報 struct は `skip` | [PII 保護](/projects/kamae-rs/pii-protection/#tracing-and-span-fields) |
+| `secrecy` + `tracing` | `SecretString` をログしない。資格情報 struct は `skip` | [PII 保護](/projects/kamae-rs/pii-protection/#tracing-と-span-フィールド) |
 | PII vs secrets | 個人データは `Redacted<T>`、資格情報は `secrecy` | [PII 保護](/projects/kamae-rs/pii-protection/#secrecy-vs-redactedt--when-to-use-which) |
 
 ## proptest

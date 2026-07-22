@@ -25,7 +25,7 @@ fn request_id(value: &str) -> RequestId {
 
 フィクスチャhelperが固定値を使うなら、helperまたはassertionメッセージで不変条件に名前を付ける。
 
-helperは `tests/support/`、`#[cfg(test)] mod test_support`、crateローカル `mod tests` で共有。fake portパターンは [開発環境](/projects/kamae-rs/dev-environment/#fake-ports-and-test-fixtures) 参照。
+helperは `tests/support/`、`#[cfg(test)] mod test_support`、crateローカル `mod tests` で共有。fake portパターンは [開発環境](/projects/kamae-rs/dev-environment/#fake-port-とテストフィクスチャ) 参照。
 
 ## state machine のエッジをカバーする
 
@@ -74,7 +74,7 @@ fn api_error_does_not_echo_email() {
 
 永続化の実装を変更するときは、正常系に加えて次の失敗や競合のケースもテストでカバーする。DB制約失敗、楽観的ロック競合、トランザクションロールバック、重複コマンド、idempotency key、outbox insert、event version互換が対象である。
 
-純粋なユースケースはフェイクリポジトリで十分である。トランザクションと制約に依存する挙動は、アダプター統合テストで確認する。ドメインとユースケースのテストにDockerは不要である。コンテナはインフラストラクチャcrate向けである（[開発環境](/projects/kamae-rs/dev-environment/#test-layers) を参照）。
+純粋なユースケースはフェイクリポジトリで十分である。トランザクションと制約に依存する挙動は、アダプター統合テストで確認する。ドメインとユースケースのテストにDockerは不要である。コンテナはインフラストラクチャcrate向けである（[開発環境](/projects/kamae-rs/dev-environment/#テスト層) を参照）。
 
 ## compile-time state 安全性をテストする
 
@@ -117,7 +117,7 @@ proptest = "1"
 
 - 値オブジェクトconstructorと検証ルール
 - parser/formatterとDTO `TryFrom` 往復
-- state machine遷移法則（[プロパティベーステスト](/projects/kamae-rs/property-based-tests/#model-state-machines-as-strategies) 参照）
+- state machine遷移法則（[プロパティベーステスト](/projects/kamae-rs/property-based-tests/#state-machine-を-strategy-としてモデル化する) 参照）
 - 金額算術、単位変換、タイムスタンプ境界
 - redaction helperと安全 `Display`/`Debug`
 

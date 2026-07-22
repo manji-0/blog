@@ -18,12 +18,12 @@ CIはレビュアが依存する安全シグナルを強制する。フォーマ
 
 CIは [品質ゲート](/projects/kamae-rs/quality-gates/) と同じチェックを実行する。`rust-toolchain.toml` または `dtolnay/rust-toolchain@...` でRust toolchainをpinし、ローカルとCIが同じcomponentを使う。
 
-スキルインストール時は [`../assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) 配下の同梱テンプレート：
+スキルインストール時は [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) 配下の同梱テンプレート：
 
-- [`../assets/templates/github-ci.yml`](../assets/templates/github-ci.yml) -> 通常Rust backend向け `.github/workflows/ci.yml`
-- [`../assets/templates/github-ci-skill-package.yml`](../assets/templates/github-ci-skill-package.yml) -> スキル/プラグイン向け `.github/workflows/ci.yml`
-- [`../assets/templates/validate_package.py`](../assets/templates/validate_package.py) -> skill-package workflow使用時 `scripts/validate_package.py`
-- [`../assets/templates/github-ci-mutants.yml`](../assets/templates/github-ci-mutants.yml) + [`../assets/templates/mutants.toml`](../assets/templates/mutants.toml) -> 任意のアサーション強度ジョブ（`--mutants`）
+- [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci.yml`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci.yml) -> 通常Rust backend向け `.github/workflows/ci.yml`
+- [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci-skill-package.yml`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci-skill-package.yml) -> スキル/プラグイン向け `.github/workflows/ci.yml`
+- [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/validate_package.py`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/validate_package.py) -> skill-package workflow使用時 `scripts/validate_package.py`
+- [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci-mutants.yml`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci-mutants.yml) + [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/mutants.toml`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/mutants.toml) -> 任意のアサーション強度ジョブ（`--mutants`）
 
 同梱スクリプトでコピー:
 
@@ -103,7 +103,7 @@ jobs:
         run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
 ```
 
-スキルパッケージでない通常backendでは `Validate skill package` を省略するか [`../assets/templates/github-ci.yml`](../assets/templates/github-ci.yml) を使用。
+スキルパッケージでない通常backendでは `Validate skill package` を省略するか [`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci.yml`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/github-ci.yml) を使用。
 
 ## 最小 Rust チェック
 
@@ -128,7 +128,7 @@ cargo clippy --all-targets -- -D warnings
 cargo test --all-targets
 ```
 
-例crate `kamae-rs-taxi-request` は [`skills/kamae-rs/examples/Cargo.toml`](../examples/Cargo.toml) で `path = "taxi-request.rs"` とし、ソース重複なしでCIでコンパイル・テスト。
+例crate `kamae-rs-taxi-request` は [`skills/kamae-rs/examples/Cargo.toml`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/examples/Cargo.toml) で `path = "taxi-request.rs"` とし、ソース重複なしでCIでコンパイル・テスト。
 
 ## CI が守るべきもの
 

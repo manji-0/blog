@@ -111,7 +111,7 @@ async def assign_driver_use_case(
 
 2つのコマンドが競合しうるとき、ライフサイクルと残高の遷移には並行性保護が必要である。システムのアーキテクチャに応じて、楽観的バージョンフィールド、条件付き更新、一意制約、冪等性キー、行ロック、シリアライザブルトランザクション、または単一ライターキューを使う。
 
-リポジトリプロトコルは並行性の期待を明示すべきだ。[永続化、集約、イベント](/projects/kamae-py/persistence-events/#keep-repository-protocols-small) の**正規** `RequestStore` シグネチャ（`expected_version`、`idempotency_key`、イベントタプル）を使う。
+リポジトリプロトコルは並行性の期待を明示すべきだ。[永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規** `RequestStore` シグネチャ（`expected_version`、`idempotency_key`、イベントタプル）を使う。
 
 ## ドメインイベントを不変レコードとしてモデル化する
 

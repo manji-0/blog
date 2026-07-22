@@ -81,7 +81,7 @@ def saveAssigned(
 
 楽観的ロックとoutbox insertはadapterトランザクション内に置く。ユースケースは `expectedVersion` を明示的に渡す。
 
-[ライブラリガイド（doobie）](/projects/kamae-scala/library-guides/doobie/) を参照。
+[ライブラリガイド（doobie）](/projects/kamae-scala/library-guides/#doobie) を参照。
 
 ## Slick パターン
 
@@ -99,7 +99,7 @@ class Requests(tag: Tag) extends Table[RequestRow](tag, "requests"):
 
 ユースケースへ返す前にrepository adapterで `RequestRow` をドメイン型へマップする。ドメインportから `DBIO` や `Query` 型を公開しない。
 
-[ライブラリガイド（slick）](/projects/kamae-scala/library-guides/slick/) を参照。
+[ライブラリガイド（slick）](/projects/kamae-scala/library-guides/#slick) を参照。
 
 ## リポジトリ port の形
 

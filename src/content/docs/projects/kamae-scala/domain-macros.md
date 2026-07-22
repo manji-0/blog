@@ -31,8 +31,8 @@ derivation向きでない：
 
 | ニーズ | 推奨 | 備考 |
 | --- | --- | --- |
-| 検証付きプリミティブ | [ライブラリガイド（refined）](/projects/kamae-scala/library-guides/refined/)、`iron` | 不変条件をソースで可視に保つ |
-| 境界での JSON | [ライブラリガイド（circe）](/projects/kamae-scala/library-guides/circe/) と明示 codec | ドメイン ID に `derives Decoder` を避ける |
+| 検証付きプリミティブ | [ライブラリガイド（refined）](/projects/kamae-scala/library-guides/#refined)、`iron` | 不変条件をソースで可視に保つ |
+| 境界での JSON | [ライブラリガイド（circe）](/projects/kamae-scala/library-guides/#circe) と明示 codec | ドメイン ID に `derives Decoder` を避ける |
 | 単純ボイラープレート | Scala 3 `derives Eq, Show`（**境界** DTO のみ） | 不変条件を持つ domain state には使わない |
 | 繰り返し event メタデータ | `domain` モジュール内の internal `inline given` または小さなマクロ | event が同一形状を共有するときのみ |
 

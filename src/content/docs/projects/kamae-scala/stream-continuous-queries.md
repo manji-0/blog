@@ -97,4 +97,4 @@ write側のトランザクション、versioning、outboxの原子性は [永続
 
 `build.sbt` に `fs2`、`pekko-stream`、`zio-streams` があるとき、手動sleep / pollループより型付きstream portを優先する。subscription、projection、outbox processorに触れるdiffではpersistenceおよびservice-boundaryガイドも併せて読み込む。
 
-classpathにFS2があるときは [ライブラリガイド（FS2）](/projects/kamae-scala/library-guides/fs2/) を参照する。
+classpathにFS2があるときは [ライブラリガイド（FS2）](/projects/kamae-scala/library-guides/#fs2) を参照する。

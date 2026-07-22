@@ -229,7 +229,7 @@ pub fn assign_driver(
 ## typestate と集約との関係
 
 - **State struct + `self` 消費**: ライフサイクルが明確なサーバー側ドメイン層では、こちらをデフォルトとする
-- **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる。[ドメインモデリング](/projects/kamae-rs/domain-modeling/#typestate-with-phantom-types) を参照
+- **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる。[ドメインモデリング](/projects/kamae-rs/domain-modeling/#phantom-型による-typestate-パターン) を参照
 - **集約トランザクション**: ユースケースがversion付き集約をload、純粋遷移、原子的save; [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) 参照
 
 
