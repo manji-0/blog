@@ -27,15 +27,15 @@ sidebar:
 
 ルートだけが集約不変条件を変えてよい。子はルートメソッドや消費する状態遷移経由で更新し、外部から直接変異しない。
 
-## ユースケースがトランザクション境界を所有する
+## ユースケースが作業単位の境界を決める
 
-ユースケースが次の並びを所有する：
+ユースケースが次の並びを**作業単位**として所有する：
 
 ```text
 begin/load -> authorize -> transition (pure) -> save state + events -> commit
 ```
 
-ドメインコードはトランザクションを開始・コミットしない。ポートが操作を公開し、adapterがアトミックに実装する。
+ドメインコードはトランザクションを開始・コミットしない。ポートが原子的な `save_*` を公開し、adapterがBEGIN/COMMITを実装する。境界の決め方はユースケース、DBハンドルの寿命はadapter、という分担である。
 
 ```rust
 pub async fn execute(&self, cmd: AssignDriverCommand) -> Result<(), AssignDriverError> {

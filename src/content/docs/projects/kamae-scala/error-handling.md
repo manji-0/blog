@@ -6,7 +6,7 @@ sidebar:
 
 ドメインコードで `throw` やunsafe `.get` に頼ると、想定内のビジネス失敗とバグの区別がつかなくなる。Kamaeではドメイン固有のエラー ADTと `Either` で失敗を明示し、インフラエラーはアダプター境界で変換する。
 
-ユースケースの流れは [状態遷移](/projects/kamae-scala/state-transitions/) とセット。エフェクト型の選び方はスキルリポジトリの `references/effect-systems.md` を参照する。
+ユースケースの流れは [状態遷移](/projects/kamae-scala/state-transitions/) とセット。エフェクト型の選び方は [エフェクトシステム](/projects/kamae-scala/effect-systems/) を参照する。
 
 ## ドメイン固有のエラー ADT を使う
 
@@ -113,7 +113,7 @@ def execute(command: AssignDriverCommand): Either[AssignDriverError, Unit] =
 
 上記の同期ポートは制御フローを読みやすく保つ。エフェクトを伴うコードでは各ステップを `F[_]` に持ち上げ、返却前にリポジトリ失敗をマップする。[状態遷移](/projects/kamae-scala/state-transitions/#ユースケースを薄く保つ) のCats例を参照する。
 
-ユースケースの配線はスキルリポジトリの `references/application-wiring.md` を参照する。
+ユースケースの配線は [アプリケーション配線](/projects/kamae-scala/application-wiring/) を参照する。
 
 ## レビューで見るところ
 

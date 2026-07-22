@@ -16,7 +16,9 @@ Jujutsu（jj）側では [agent-skill-jj](https://github.com/manji-0/agent-skill
 
 ## どこから読むか
 
-まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で一通り動かしてみるのが早いです。コマンドを引きたいときは [CLIリファレンス](/projects/track/cli-reference/)、jjまわりの手順は [JJ連携](/projects/track/jj-integration/) に寄せています。UIの話は [Web UI](/projects/track/webui/)、ソースを触る人は [開発環境](/projects/track/development/) へ。
+まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で、track単体のタスク管理を一通り動かしてください。コマンド一覧は [CLIリファレンス](/projects/track/cli-reference/)、ブラウザUIは [Web UI](/projects/track/webui/) です。
+
+jjのタスクワークスペースまで使う場合だけ、[JJ連携](/projects/track/jj-integration/) に進みます。ソースを触る人は [開発環境](/projects/track/development/) へ。
 
 ## まわりのツールとの関係
 

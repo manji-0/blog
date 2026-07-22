@@ -21,7 +21,11 @@ track --help
 track list
 ```
 
-タスクワークスペースまで使うなら、[agent-skill-jj](https://github.com/manji-0/agent-skill-jj) と `jj-task` も入れます。手順は [JJ連携](/projects/track/jj-integration/) にあります。
+ここまでで [クイックスタート](/projects/track/quickstart/) の前半（タスク・TODO・スクラップ）は使えます。
+
+### タスクワークスペースまで使うなら
+
+jj連携が必要です。[agent-skill-jj](https://github.com/manji-0/agent-skill-jj) と `jj-task` を入れたうえで、手順は [JJ連携](/projects/track/jj-integration/) を見てください。`jj-task` 未導入のままクイックスタート後半に進むと失敗します。
 
 シェル補完はbash / zsh / fish / PowerShell向けに出せます。zshなら例えばこうです。
 
@@ -31,4 +35,4 @@ track completion zsh --dynamic > ~/.zsh/completions/_track
 # ~/.zshrc に fpath=(~/.zsh/completions $fpath) を足してから exec zsh
 ```
 
-ほかのシェルやトラブルシュートはupstreamの `completions/README.md` を見てください。動かし始めたら [クイックスタート](/projects/track/quickstart/)、コマンドを探すなら [CLIリファレンス](/projects/track/cli-reference/) へ。
+ほかのシェルやトラブルシュートはupstreamの [completions/README.md](https://github.com/manji-0/track/blob/main/completions/README.md) を見てください。コマンドを探すなら [CLIリファレンス](/projects/track/cli-reference/) へ。

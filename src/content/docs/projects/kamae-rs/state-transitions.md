@@ -48,6 +48,7 @@ impl WaitingRequest {
     pub fn assign_driver(
         self,
         driver: DriverAssignment,
+        occurred_at: OccurredAt,
     ) -> Result<Transition<EnRouteRequest, TaxiRequestEvent>, DomainError> {
         if self.requires_accessible_vehicle && !driver.accepts_accessibility_requests {
             return Err(DomainError::DriverCannotServeAccessibilityRequest);
@@ -62,12 +63,14 @@ impl WaitingRequest {
             events: vec![TaxiRequestEvent::DriverAssigned {
                 request_id: self.request_id,
                 driver_id: driver.driver_id,
-                occurred_at: OccurredAt::now(),
+                occurred_at,
             }],
         })
     }
 }
 ```
+
+時刻は引数で受け取る。遷移内で `OccurredAt::now()` を呼ばない（後述の「時刻と乱数は注入する」）。
 
 `panic!`、`unwrap()`、「呼び出し側が先にチェック」コメントの裏に隠さない。コンパイラが前提を強制できないなら、失敗可能性をシグネチャに示す。
 

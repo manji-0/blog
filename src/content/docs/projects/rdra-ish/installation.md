@@ -31,6 +31,10 @@ rdra-ish diagram --help
 
 `diagram --format plantuml` でPNG/SVGを生成する場合、Javaと `plantuml.jar` が必要になる。Mermaid出力（`--format mermaid`）なら追加依存なし。
 
+## 形式検証（任意）
+
+`export --kind tla` と `verify --backend tlc` を使う場合は、別途TLA+/TLCをPATHへ入れてください。手順は [形式検証](/projects/rdra-ish/formal-verification/) です。CLIを入れても、TLCは別途必要です。
+
 ## 開発版（maintainers）
 
 ```bash

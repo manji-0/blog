@@ -22,9 +22,14 @@ CursorやClaude Codeのようなエージェントは、タスクのたびにフ
 
 ## どこから読むか
 
-[インストール](/projects/dagayn/installation/) と [クイックスタート](/projects/dagayn/quickstart/) で一度グラフを構築してみるのが近道です。エージェントから利用する場合は、次に [MCP ツール](/projects/dagayn/mcp-tools/) を参照してください。CLIの使い方は [CLI リファレンス](/projects/dagayn/cli-reference/)、用語は [グラフモデル](/projects/dagayn/graph-model/)、設計書やTerraformとの連携は [Markdown / Terraform 連携](/projects/dagayn/integrations/)、埋め込み検索は [セマンティック検索](/projects/dagayn/semantic-search/) にまとめています。
+| 目的 | 読む順 |
+| --- | --- |
+| まず動かす | [インストール](/projects/dagayn/installation/) → [クイックスタート](/projects/dagayn/quickstart/) |
+| エージェントから使う | [MCP ツール](/projects/dagayn/mcp-tools/) |
+| 語彙・グラフ構造 | [グラフモデル](/projects/dagayn/graph-model/) |
+| 差分レビュー | [レビューと影響分析](/projects/dagayn/review-analysis/) |
 
-パイプライン全体は [アーキテクチャ](/projects/dagayn/architecture/)、SQLiteまわりは [ストレージ](/projects/dagayn/storage/)、メトリクスは [構造メトリクス](/projects/dagayn/metrics/)、差分レビューは [レビューと影響分析](/projects/dagayn/review-analysis/) にあります。ソースを触る人は [開発環境](/projects/dagayn/development/)、詰まったら [トラブルシューティング](/projects/dagayn/troubleshooting/) へ。
+CLIは [CLI リファレンス](/projects/dagayn/cli-reference/)、設計書連携は [Markdown / Terraform 連携](/projects/dagayn/integrations/)、意味検索は [セマンティック検索](/projects/dagayn/semantic-search/)（最短手順の `fts-only` では埋め込みなし）。パイプライン全体は [アーキテクチャ](/projects/dagayn/architecture/)、詰まったら [トラブルシューティング](/projects/dagayn/troubleshooting/) へ。
 
 ## まわりのツールとの関係
 
@@ -34,9 +39,9 @@ CursorやClaude Codeのようなエージェントは、タスクのたびにフ
 
 エージェントが同じファイルを何度も読み直しているときや、caller・import・テスト対応といった構造クエリがボトルネックのときに効きます。
 
-設計書やTerraformまで同じグラフで追いたい用途にも向いています。差分からblast radiusを機械的に出したいときも同様です。`fts-only` なら、ソースを外部へ送らずに運用できます。
+設計書やTerraformまで同じグラフで追いたい用途にも向いています。差分からblast radiusを機械的に出したいときも同様です。`fts-only` なら、ソースを外部へ送らずに運用できます（意味検索を本格利用するときは [セマンティック検索](/projects/dagayn/semantic-search/) を参照）。
 
-grepとLSPで足りる小さな単一言語リポジトリには過剰です。初回の `dagayn build` とhookによる更新のコストを許容できないとき、ローカルMCPが使えないクラウドIDEだけ、といった環境でもうまみは薄いです。
+grepとLSPで足りる小さな単一言語リポジトリには過剰です。初回の `dagayn build` とhookによる更新のコストを許容できないとき、ローカルMCPが使えないクラウドIDEだけ、といった環境でも利点は小さくなります。
 
 ## もう少し深い話
 

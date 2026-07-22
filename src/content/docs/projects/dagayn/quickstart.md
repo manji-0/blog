@@ -44,7 +44,9 @@ dagayn build --force-full-build
 
 ## エージェントから見る
 
-CursorやClaude Code、CodexなどからMCPツールを呼びます。たとえば「変更の影響を `review_tool` で」「`FooBar` のcallerを `query_graph_tool` で」「認証まわりを `semantic_search_nodes_tool` で」といった指示が通りやすいです。ツール一覧は [MCP ツール](/projects/dagayn/mcp-tools/) へ。
+CursorやClaude Code、CodexなどからMCPツールを呼びます。まずIDE側でMCPが登録されているかを確認し、ツール一覧は [MCP ツール](/projects/dagayn/mcp-tools/)（または `dagayn tool --list`）で見てください。
+
+この最短手順の `--mode fts-only` では埋め込みを作りません。最初に試すなら、変更の影響を `review_tool`、callerを `query_graph_tool` といった構造クエリが向いています。意味検索（`semantic_search_nodes_tool`）を本格的に使うときは、埋め込みモードで入れ直すか [セマンティック検索](/projects/dagayn/semantic-search/) を読んでください。fts-onlyのままだと意味検索はFTSに落ちます。
 
 MCPなしでも差分は取れます。
 

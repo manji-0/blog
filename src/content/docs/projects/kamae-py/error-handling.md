@@ -152,5 +152,12 @@ async def assign_driver_endpoint(...) -> JSONResponse:
 
 ## レビューで見るところ
 
-エラーテキストにメール・電話・トークン・生ボディが入っていないか（[PII と観測経路の保護](/projects/kamae-py/pii-protection/)）。広い `except Exception` やインフラ例外の素通し、本番のビジネス `assert` がないか。mutexや行ロックを `await` またいで持っていないか（[並行性と非同期](/projects/kamae-py/concurrency/)）。SQLAlchemy / HTTP失敗を公開APIへそのまま出していないか。ドメインエラーが裸の `Exception` / `ValueError` / 文字列になっていないか。`raise ... from` でチェーンを保っているか。asyncドメイン遷移やインフラエラーの素通しがないか。呼び出し元が分岐すべきなのに曖昧なバリアントになっていないか。
+- エラーテキストにメール・電話・トークン・生ボディが入っていないか（[PII と観測経路の保護](/projects/kamae-py/pii-protection/)）
+- 広い `except Exception` やインフラ例外の素通し、本番のビジネス `assert` がないか
+- mutexや行ロックを `await` またいで持っていないか（[並行性と非同期](/projects/kamae-py/concurrency/)）
+- SQLAlchemy / HTTP失敗を公開APIへそのまま出していないか
+- ドメインエラーが裸の `Exception` / `ValueError` / 文字列になっていないか
+- `raise ... from` でチェーンを保っているか
+- asyncドメイン遷移やインフラエラーの素通しがないか
+- 呼び出し元が分岐すべきなのに曖昧なバリアントになっていないか
 

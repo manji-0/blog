@@ -58,24 +58,13 @@ rdra-ish verify samples/formal-verification/order.rdra --backend tlc -o /tmp/rdr
 
 ## 最小モデルの例
 
-新規プロジェクトでは次の配置から始める。
-
-```text
-src/
-  shared/
-    actors.rdra
-    biz.rdra
-    entities.rdra
-  buc/
-    buc_order.rdra
-```
+新規プロジェクトでは、まず **1ファイルで通る最小モデル** から始める。`Customer` と `Commerce` は述語で参照する前に宣言する。
 
 ```rdra
 module buc.order
 
-import shared.actors
-import shared.biz
-
+actor Customer "Customer"
+business Commerce "Commerce"
 buc BucOrder "Process Order"
 usecase PlaceOrder "Place Order"
 
@@ -91,11 +80,13 @@ creates(PlaceOrder, Order)
 ```
 
 ```bash
+mkdir -p src/buc
+# 上記を src/buc/order.rdra に保存してから
 rdra-ish check src/
 rdra-ish diagram src/ --kind rdra --format mermaid --buc BucOrder
 ```
 
-構文の詳細は [言語リファレンス](/projects/rdra-ish/language-reference/) を参照。
+ファイルを分けたくなったら、`shared/actors.rdra` や `shared/biz.rdra` に切り出し、`import` でつなぐ（配置の目安は [段階的モデリング](/projects/rdra-ish/incremental-modeling/)）。構文の詳細は [言語リファレンス](/projects/rdra-ish/language-reference/) を参照。
 
 ## 推奨ループ
 

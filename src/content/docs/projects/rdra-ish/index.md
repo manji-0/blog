@@ -16,7 +16,15 @@ sidebar:
 
 ## どこから読むか
 
-[インストール](/projects/rdra-ish/installation/) と [クイックスタート](/projects/rdra-ish/quickstart/) でサンプルを一度回すのが早いです。書き方の進め方は [段階的モデリング](/projects/rdra-ish/incremental-modeling/)。要求分析からデータモデリング・ルールまで一気に追うなら [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/)。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、図表とexportは [図表とエクスポート](/projects/rdra-ish/diagram-and-export/)、CLIは [CLI リファレンス](/projects/rdra-ish/cli-reference/)、エディタは [VS Code / LSP](/projects/rdra-ish/vscode-lsp/)、ソース開発は [開発環境](/projects/rdra-ish/development/) へ。
+| 目的 | 読む順 |
+| --- | --- |
+| まず動かす | [インストール](/projects/rdra-ish/installation/) → [クイックスタート](/projects/rdra-ish/quickstart/) |
+| 書き方を段階的に学ぶ | [段階的モデリング](/projects/rdra-ish/incremental-modeling/) |
+| 要求からルールまで追う | [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) |
+| 構文を引く | [言語リファレンス](/projects/rdra-ish/language-reference/) |
+| 図表・export | [図表とエクスポート](/projects/rdra-ish/diagram-and-export/) |
+
+CLIは [CLI リファレンス](/projects/rdra-ish/cli-reference/)、エディタは [VS Code / LSP](/projects/rdra-ish/vscode-lsp/)、ソース開発は [開発環境](/projects/rdra-ish/development/) へ。
 
 ## BUC・フロー・ユースケース
 

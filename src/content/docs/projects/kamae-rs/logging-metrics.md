@@ -199,7 +199,7 @@ tracing::info!(
 );
 ```
 
-domainレベルlogはトランザクションを所有するユースケース近く。getterやvalidation helper各所に散らさない。
+domainレベルlogは作業単位を決めるユースケース近く。getterやvalidation helper各所に散らさない。
 
 ## error を actionable に
 

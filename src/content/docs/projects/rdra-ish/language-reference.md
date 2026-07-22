@@ -12,11 +12,9 @@ sidebar:
 ```rdra
 module buc.order
 
-import shared.actors
-import shared.biz
-
-// インスタンス宣言
+// インスタンス宣言（述語で参照する前に宣言する）
 actor Customer "Customer"
+business Commerce "Commerce"
 buc BucOrder "Process Order"
 usecase PlaceOrder "Place Order"
 

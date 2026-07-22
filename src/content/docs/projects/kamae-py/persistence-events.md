@@ -6,126 +6,7 @@ sidebar:
 
 1コマンドで一貫させるべき状態変更とドメインイベントを別トランザクションで保存すると、障害やリトライのたびに「状態だけ進んだ」「イベントだけ二重に出た」が起きうる。Kamaeでは集約境界・楽観的ロック・アウトボックスをセットで設計する。
 
-状態の型と純粋遷移は [状態遷移](/projects/kamae-py/state-transitions/) と [ドメインモデリング](/projects/kamae-py/domain-modeling/) が前提。ORMへの落とし込みは [ORM アダプター](/projects/kamae-py/orm-adapters/)、外部呼び出しのリトライは [インフラの耐障害性](/projects/kamae-py/infrastructure-resilience/) と整合させる。
-
-## ここでの集約の定義
-
-DDDの用語をそのまま全テーブルに当てはめるのではなく、**1 コマンドで一貫させたい不変条件**の単位として集約を切る。
-
-Kamae Pythonにおける**集約**は、次の単位である：
-
-- 1つの判別状態共用体（`TaxiRequest = Waiting | EnRoute | ...`）
-- その共用体を変更する純粋遷移関数
-- それらの遷移が発行するドメインイベント
-- コマンドごとの1つの一貫性境界
-
-**集約ルート**は状態共用体を所有するアイデンティティである。タクシーの例では、`request_id` が `TaxiRequest` 集約ルートを識別する。
-
-すべてのデータベーステーブルを集約としてモデル化しない。1コマンドで一貫性を保つ必要があるビジネス不変条件ごとに1ルートを優先する。
-
-## 境界の内側と外側
-
-| 1 集約内 | 外側 / 別集約 |
-| --- | --- |
-| 同一ルートの状態バリアント | 独立したライフサイクルを持つ `Passenger`、`Driver`、`Payment`、`Invoice` |
-| ルート状態が参照する値オブジェクト | ルックアップにのみ使われ、同一コマンドで変更されない外部キー |
-| ルートの遷移が発行するイベント | 別ルートの状態変化を記述するイベント |
-
-2つのルートがすべてのコマンドで一緒に変わる必要があるなら、境界を小さくモデル化しすぎている可能性がある。その場合はマージするか、結果整合性を受け入れる。
-
-```python
-# Inside TaxiRequest aggregate
-type TaxiRequest = Annotated[
-    Waiting | EnRoute | InTrip | Completed | Cancelled,
-    Field(discriminator="kind"),
-]
-
-# Separate aggregate: do not mutate inside assign_driver_use_case
-class DriverAvailability(DomainModel):
-    driver_id: UUID
-    is_available: bool
-```
-
-集約横断ルールは、アプリケーションレイヤーのオーケストレーション、サガ、またはリアクティブハンドラーに属する。単一ルートの純粋遷移の内側には置かない。
-
-## 1 ユースケース、1 集約、1 一貫性境界
-
-デフォルトルール：
-
-```text
-HTTP/queue command
-  -> use case (application)
-       -> load one aggregate state
-       -> authorize
-       -> pure transition
-       -> build domain events
-       -> repository.save(state, events)   # single TX
-```
-
-ユースケースは、プロジェクトに明示的で文書化された例外がない限り、1トランザクションで2つの集約ルートを更新してはならない。2つのルートを整合させる必要があるときは、次を優先する：
-
-1. 第2集約向けの**ドメインイベント + ハンドラー**（結果整合性）
-2. 補償ステップ付きの**プロセスマネージャー / サガ**
-3. 真の不変条件が原子性を要求するときの**単一集約の再設計**
-
-## トランザクションの所有者
-
-**リポジトリアダプター**が `save(...)` のデータベーストランザクションを所有すべきだ。ユースケースはビジネス上の順序を所有し、アダプターはコミット/ロールバックを所有する。
-
-ポートメソッドにトランザクションの所有権を文書化する。パラメータは [永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規**ポートと一致する：
-
-```python
-class RequestStore(Protocol):
-    async def save_en_route(...) -> None:
-        """Persist state and outbox rows atomically.
-
-        Opens the transaction, writes aggregate state, inserts events/outbox
-        records, and commits. Raises on infrastructure failure or version conflict.
-        """
-        ...
-```
-
-テストが依然として原子性セマンティクスを強制するインメモリフェイクを使う場合を除き、`save_state` と `insert_events` を別々の公開リポジトリメソッドに分割しない。
-
-`VersionConflict` をユースケースで `Err` にマップする — [エラーハンドリング](/projects/kamae-py/error-handling/#推奨パターン-早期リターン) を参照。
-
-## 楽観的 vs 悲観的並行性
-
-| 戦略 | 使うとき | リポジトリシグナル |
-| --- | --- | --- |
-| **楽観的**（デフォルト） | ほとんどのライフサイクル遷移。競合は稀またはリトライ可能 | `expected_version`、条件付き `UPDATE`、一意制約 |
-| **悲観的** | 在庫、残高、座席ホールド、強い競合 | `SELECT ... FOR UPDATE`、行ロック、シリアライザブル分離 |
-
-楽観的ロックはfrozen状態モデルと相性が良い。バージョンを読み込み、純粋遷移を適用し、`expected_version` で保存する。
-
-悲観的ロックはアダプターに属する。SQLロックの詳細を純粋遷移関数に漏らさない。
-
-## 不変条件: アプリケーション vs データベース
-
-両方のレイヤーを維持する：
-
-- **純粋遷移**は型と関数が明確に表現できるルールを強制する。
-- **データベース制約**は並行性下でも存続すべきルールを強制する（`UNIQUE`、`CHECK`、外部キー、非負金額）。
-
-アプリケーションチェックは良い `Err` 値を生成する。2つのコマンドが競合するとき、データベース制約はバックストップである。
-
-## 集約サイズの指針
-
-小さく始める。良い集約は：
-
-- 明確なルートIDを持つ
-- 小さな状態共用体を持つ
-- 1回のリポジトリ呼び出しで読み込み・保存できる
-- 自身の履歴を記述するイベントを発行する
-
-次のときに集約を分割する：
-
-- 読み込み/保存が重くなりすぎる
-- 無関係なライフサイクルが1つのblobモデルを共有している
-- 異なるコマンドが異なる一貫性戦略を必要とする
-
-アウトボックスと冪等性の詳細は、後述の「アウトボックスリレーとat-least-once配信」および「リトライを冪等にする」を参照する。
-
+集約の切り方・1ユースケース1境界・ロック方針は [集約とトランザクション境界](/projects/kamae-py/aggregates/) が正規である。このページは、リポジトリポート、アウトボックス、冪等性、イベントスキーマなど、永続化側の詳細に絞る。状態の型と純粋遷移は [状態遷移](/projects/kamae-py/state-transitions/) と [ドメインモデリング](/projects/kamae-py/domain-modeling/) が前提。ORMへの落とし込みは [ORM アダプター](/projects/kamae-py/orm-adapters/)、外部呼び出しのリトライは [インフラの耐障害性](/projects/kamae-py/infrastructure-resilience/) と整合させる。
 
 ## リポジトリプロトコルは小さく保つ
 
@@ -495,5 +376,8 @@ def parse_driver_assigned(raw: dict[str, object]) -> DriverAssigned:
 
 ## レビューで見るところ
 
-1つのユースケースがトランザクションを所有し、状態とイベントがアウトボックス等でアトミックに永続化されているか。冪等キーなしの二重適用、version/CASなしの競合書き込み、集約ルート迂回の変更はないか（[テストデータ](/projects/kamae-py/test-data/)）。DB制約・狭いリポジトリ `Protocol`・イベント版管理・明示的な集約横断調整が足りているかも見る。楽観性で足りるのに `await` をまたぐ広い悲観ロックがないかも確認する。
+- ユースケースが作業単位（load〜save）を決め、`save` が状態とイベントを原子的に書いているか
+- 冪等キーなしの二重適用、version/CASなしの競合書き込み、集約ルート迂回の変更はないか（[テストデータ](/projects/kamae-py/test-data/)）
+- DB制約・狭いリポジトリ `Protocol`・イベント版管理・明示的な集約横断調整が足りているか
+- 楽観性で足りるのに `await` をまたぐ広い悲観ロックがないか
 
