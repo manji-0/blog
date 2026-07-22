@@ -347,9 +347,11 @@ READMEまたは `CONTRIBUTING.md` に差分を明示：
 
 どの失敗がマージをブロックし、どれがスケジュール実行の助言（advisory）にとどまるのかを、開発者がREADMEや `CONTRIBUTING.md` で確認できるようにする（[CI セットアップ](/projects/kamae-rs/ci-setup/) を参照）。
 
-レビューでは、ドメインcrateのインフラ依存、fake portで足りるのに実DB必須のテスト、不変条件を迂回するテストヘルパ、文書化されていないローカル品質ゲート、コミットされた秘密や生PIIログ、ドメインテストのHTTP / DB直結を指摘する。
-
 ## レビューで見るところ
 
-コミット済み `.env` や例の実認証情報、生PIIをログするよう促すセットアップはないか（[PII 保護](/projects/kamae-rs/pii-protection/)）。`domain` が `sqlx` / `axum` / `tonic` に依存し、ドメインテストがHTTPやDBプールを直接引き込んでいないかも見る。フェイクポートで足りるのにライブDB必須になっていないか。フィクスチャがコンストラクタを迂回していないか（[テストデータ](/projects/kamae-rs/test-data/)）。[CI セットアップ](/projects/kamae-rs/ci-setup/) と揃ったローカル高速パスはあるか。
+- コミット済み `.env` や例の実認証情報、生PIIをログするよう促すセットアップはないか（[PII 保護](/projects/kamae-rs/pii-protection/)）。
+- `domain` が `sqlx` / `axum` / `tonic` に依存し、ドメインテストがHTTPやDBプールを直接引き込んでいないかも見る。
+- フェイクポートで足りるのにライブDB必須になっていないか。
+- フィクスチャがコンストラクタを迂回していないか（[テストデータ](/projects/kamae-rs/test-data/)）。
+- [CI セットアップ](/projects/kamae-rs/ci-setup/) と揃ったローカル高速パスはあるか。
 

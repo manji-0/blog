@@ -241,4 +241,9 @@ object AssignDriverCommand:
 
 ## レビューで見るところ
 
-ハンドラが`String`IDをユースケースへ直接渡していないか。ドメインstructにCirce codecやdoobie`Read`/`Write`が付いていないか。インバウンドDTOの手数料・同意・所有権に関わるdefaultはないか。認証コンテキストと照合しないテナントIDやactor IDはないか。`Json`やprotobufメッセージ型がドメイン遷移に到達していないか。
+- ハンドラが`String`IDをユースケースへ直接渡していないか。
+- ドメインstructにCirce codecやdoobie`Read`/`Write`が付いていないか。
+- インバウンドDTOの手数料・同意・所有権に関わるdefaultはないか。
+- 認証コンテキストと照合しないテナントIDやactor IDはないか。
+- `Json`やprotobufメッセージ型がドメイン遷移に到達していないか。
+

@@ -228,5 +228,8 @@ Stranglerマイグレーション中、レガシーサービスはまだdictやO
 
 ## レビューで見るところ
 
-ドメインやユースケースがSQLAlchemy / Djangoモデルやセッション束縛エンティティをimportしていないか。行→ドメインが未検証属性や `model_construct` / `cast` ではなく検証付きコンストラクタか。version/etagが一貫してマッピングされているかも見る（[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。セッション所有がアダプター側か、遅延読み込みやN+1が遷移経路に入っていないかも確認する。
+- ドメインやユースケースがSQLAlchemy / Djangoモデルやセッション束縛エンティティをimportしていないか。
+- 行→ドメインが未検証属性や `model_construct` / `cast` ではなく検証付きコンストラクタか。
+- version/etagが一貫してマッピングされているかも見る（[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。
+- セッション所有がアダプター側か、遅延読み込みやN+1が遷移経路に入っていないかも確認する。
 

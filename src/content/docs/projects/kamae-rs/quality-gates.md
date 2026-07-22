@@ -169,9 +169,6 @@ toolchainが `reason` 非対応なら近くにコメント。
 | domain crate のみ厳格 | `booking-domain/Cargo.toml` で `unwrap_used = "deny"` 上書き |
 | 生成 prost/FFI | 生成 module に `#[allow(...)]`; safe wrapper crate を lint |
 
-レビューでは、未フォーマットの変更、新規clippy警告、広いlint抑制、ドメイン安全性リスクを隠す抑制、CIに表れないフォーマット / lintゲートを指摘する。
-
-
 ## Rustdoc と型契約
 
 公開ドメインAPIを変更したら `-D warnings` 付きで `cargo doc` を実行する。公開コンストラクタ、遷移、repositoryポート、unsafe周りのsafe wrapperには、不変条件、エラー、panic、安全義務を文書化する。
@@ -194,5 +191,8 @@ toolchainが `reason` 非対応なら近くにコメント。
 
 ## レビューで見るところ
 
-パニック、境界チェックなしインデックス、`await_holding_lock`、unsafe、PIIの `Debug`、境界デシリアライズまわりのlint抑制がリスクを隠していないか。広い `#![allow(warnings)]` や説明のない `#[allow(...)]` はないか。触ったパッケージで `cargo clippy` / `cargo check` の警告が増え、`cargo fmt --check` に失敗していないかも見る。フォーマットとlintの走らせ方が文書化されているか。
+- パニック、境界チェックなしインデックス、`await_holding_lock`、unsafe、PIIの `Debug`、境界デシリアライズまわりのlint抑制がリスクを隠していないか。
+- 広い `#![allow(warnings)]` や説明のない `#[allow(...)]` はないか。
+- 触ったパッケージで `cargo clippy` / `cargo check` の警告が増え、`cargo fmt --check` に失敗していないかも見る。
+- フォーマットとlintの走らせ方が文書化されているか。
 

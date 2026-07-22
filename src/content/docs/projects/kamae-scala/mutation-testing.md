@@ -147,4 +147,7 @@ python3 path/to/kamae-scala/skills/kamae-scala/scripts/apply_templates.py \
 
 ## レビューで見るところ
 
-`sbt-stryker4s` やCIの `sbt stryker` があるとき、このガイドと [品質ゲート](/projects/kamae-scala/quality-gates/) を読んでいるか。コンストラクタや遷移のsurvived mutantを非法状態や静かな成功経路の欠落テストとして扱っているか。ドメイン入口への広い除外よりテスト修正を選んでいるかも見る。
+- `sbt-stryker4s` やCIの `sbt stryker` があるとき、このガイドと [品質ゲート](/projects/kamae-scala/quality-gates/) を読んでいるか。
+- コンストラクタや遷移のsurvived mutantを非法状態や静かな成功経路の欠落テストとして扱っているか。
+- ドメイン入口への広い除外よりテスト修正を選んでいるかも見る。
+

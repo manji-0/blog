@@ -334,8 +334,11 @@ prost型をドメインモジュールに持ち込まない。`.proto` にフィ
 | `tonic` + `prost` | 生成メッセージ -> `TryFrom` -> ユースケース |
 
 
-レビューでは、ハンドラが `String` IDをユースケースへ直接渡すことや、ドメインstructの `Deserialize` / `FromRow` / 無制限 `Serialize` deriveを指摘する。インバウンドDTOの意味を変える `default`、認証コンテキストと照合しないtenant / actor ID、ドメイン遷移に到達する `serde_json::Value` や `prost` 型も同様である。
-
 ## レビューで見るところ
 
-非空や正の金額などドメイン不変条件を `Deserialize` だけに頼っていないか。HTTP・キュー・DB行・設定・CLIが検証付き `TryFrom` / コンストラクタなしに生データをドメインへ渡していないか。パスやボディのテナントIDを認証コンテキストと比較せず信頼していないかも見る。欠落で意味が変わるDTOに広い `Default` や未知フィールド許容はないか。不変条件付きエンティティに不要な `Deserialize` / `Serialize` / `FromRow` がなく、クロスフィールド集約と検証済みリーフの `#[serde(try_from = "...")]` を区別しているか。
+- 非空や正の金額などドメイン不変条件を `Deserialize` だけに頼っていないか。
+- HTTP・キュー・DB行・設定・CLIが検証付き `TryFrom` / コンストラクタなしに生データをドメインへ渡していないか。
+- パスやボディのテナントIDを認証コンテキストと比較せず信頼していないかも見る。
+- 欠落で意味が変わるDTOに広い `Default` や未知フィールド許容はないか。
+- 不変条件付きエンティティに不要な `Deserialize` / `Serialize` / `FromRow` がなく、クロスフィールド集約と検証済みリーフの `#[serde(try_from = "...")]` を区別しているか。
+

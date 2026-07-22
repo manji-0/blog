@@ -154,4 +154,10 @@ outbound呼び出しとqueueメッセージに `correlation_id`、OpenTelemetry 
 
 ## レビューで見るところ
 
-破壊的なフィールド改名や `schema_version` 欠落はないか。未知イベント版で未処理例外を投げていないか。冪等キーなしに副作用を適用するコンシューマはないか（[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。protobuf / JSON / キューペイロードを `TypeAdapter` なしにドメインへ渡していないか。リトライやブレーカがドメイン内になく、生成クライアント型がドメインパッケージに漏れていないか。入口の `correlation_id` やトレースは外向き呼び出しへ伝播しているか。
+- 破壊的なフィールド改名や `schema_version` 欠落はないか。
+- 未知イベント版で未処理例外を投げていないか。
+- 冪等キーなしに副作用を適用するコンシューマはないか（[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。
+- protobuf / JSON / キューペイロードを `TypeAdapter` なしにドメインへ渡していないか。
+- リトライやブレーカがドメイン内になく、生成クライアント型がドメインパッケージに漏れていないか。
+- 入口の `correlation_id` やトレースは外向き呼び出しへ伝播しているか。
+

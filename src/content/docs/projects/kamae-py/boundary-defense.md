@@ -362,5 +362,8 @@ async def handle_message(body: bytes) -> None:
 
 ## レビューで見るところ
 
-ドメイン不変条件を `model_validate` だけに頼り、コンストラクタや遷移前提を飛ばしていないか。境界で `cast`、`# type: ignore`、未検証 `dict`、`model_construct` を使っていないかも見る。HTTP・キュー・DB・設定・CLIが検証なしでドメインへ渡していないか、認可・テナント確認前にパス/ボディを信頼していないかも確認する。受信DTOの広いデフォルトや `extra="allow"`、ドメイン状態へのORM結合がないかも見る。
+- ドメイン不変条件を `model_validate` だけに頼り、コンストラクタや遷移前提を飛ばしていないか。
+- 境界で `cast`、`# type: ignore`、未検証 `dict`、`model_construct` を使っていないかも見る。
+- HTTP・キュー・DB・設定・CLIが検証なしでドメインへ渡していないか、認可・テナント確認前にパス/ボディを信頼していないかも確認する。
+- 受信DTOの広いデフォルトや `extra="allow"`、ドメイン状態へのORM結合がないかも見る。
 

@@ -216,9 +216,11 @@ RUSTFLAGS="-Zsanitizer=thread" cargo +nightly test -p my_adapter_crate -Zbuild-s
 package名とtargetはリポジトリに合わせ調整。non-trivial unsafeならadapter crate READMEに正確なコマンドを文書化。safe domain crateは自前 `unsafe` がなければsanitizer不要なことが多い。
 
 
-レビューでは、ドメイン・ユースケース・遷移モジュール内の `unsafe` や `TryFrom` なしのFFI戻り値のドメイン変換を指摘する。証明済み `write` 前の `MaybeUninit` read、self-referential structのmove、redactionなしのPII / secretのplain `*const c_char` FFIも同様である。
-
 ## レビューで見るところ
 
-通常の `TryFrom` / コンストラクタを迂回するドメイン構築や、ログ・FFI経由のPII露出をunsafeが許していないか。公開APIが文書化されていないエイリアシング前提を呼び出し元に押し付けず、安全関数の背後に封じ込めているかも見る。ドメイン遷移やPIIラッパ内に `unsafe` / `transmute` はないか。unsafeラッパに境界・拒否経路のテストと、必要ならMiriやファジはあるか。各unsafeブロックに不変条件を説明する `SAFETY:` コメントがあるか。
+- 通常の `TryFrom` / コンストラクタを迂回するドメイン構築や、ログ・FFI経由のPII露出をunsafeが許していないか。
+- 公開APIが文書化されていないエイリアシング前提を呼び出し元に押し付けず、安全関数の背後に封じ込めているかも見る。
+- ドメイン遷移やPIIラッパ内に `unsafe` / `transmute` はないか。
+- unsafeラッパに境界・拒否経路のテストと、必要ならMiriやファジはあるか。
+- 各unsafeブロックに不変条件を説明する `SAFETY:` コメントがあるか。
 

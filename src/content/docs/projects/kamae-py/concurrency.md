@@ -113,5 +113,7 @@ async def lifespan(app: FastAPI):
 
 ## レビューで見るところ
 
-`async def` 内のブロックORM・ファイルI/O・CPUバウンドが `asyncio.to_thread` やエグゼキューター外に出ていないか。共有DBセッションやロックの所有が不明瞭でないかも見る（[エラーハンドリング](/projects/kamae-py/error-handling/)・[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。モジュール級の可変キャッシュやシングルトンがないか、小さな遷移への広い `ProcessPoolExecutor` やリクエストごとプール作成がないかも確認する。
+- `async def` 内のブロックORM・ファイルI/O・CPUバウンドが `asyncio.to_thread` やエグゼキューター外に出ていないか。
+- 共有DBセッションやロックの所有が不明瞭でないかも見る（[エラーハンドリング](/projects/kamae-py/error-handling/)・[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。
+- モジュール級の可変キャッシュやシングルトンがないか、小さな遷移への広い `ProcessPoolExecutor` やリクエストごとプール作成がないかも確認する。
 

@@ -211,4 +211,9 @@ async def save(
 
 ## レビューで見るところ
 
-`domain` がFastAPIやSQLAlchemyをimportしていないか。ルートがドメインモデルをそのまま返していないか。Hypothesisが `model_construct` やprivate属性で無効状態を作っていないか。SQLAlchemyの `Session` がユースケース引数に漏れていないか。Pydanticのホットパス議論は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) と矛盾していないか。
+- `domain` がFastAPIやSQLAlchemyをimportしていないか。
+- ルートがドメインモデルをそのまま返していないか。
+- Hypothesisが `model_construct` やprivate属性で無効状態を作っていないか。
+- SQLAlchemyの `Session` がユースケース引数に漏れていないか。
+- Pydanticのホットパス議論は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) と矛盾していないか。
+

@@ -189,4 +189,7 @@ cargo mutants --in-diff /tmp/pr.diff -p domain
 
 ## レビューで見るところ
 
-`mutants` 依存やCIの `cargo mutants` があるとき、このガイドと [品質ゲート](/projects/kamae-rs/quality-gates/) を読んでいるか。コンストラクタや遷移のsurviving mutantを非法状態や静かな成功経路の欠落テストとして扱っているか。ドメイン入口への広い `#[mutants::skip]` よりテスト修正を選んでいるかも見る。
+- `mutants` 依存やCIの `cargo mutants` があるとき、このガイドと [品質ゲート](/projects/kamae-rs/quality-gates/) を読んでいるか。
+- コンストラクタや遷移のsurviving mutantを非法状態や静かな成功経路の欠落テストとして扱っているか。
+- ドメイン入口への広い `#[mutants::skip]` よりテスト修正を選んでいるかも見る。
+

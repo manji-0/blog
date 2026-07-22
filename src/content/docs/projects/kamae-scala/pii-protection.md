@@ -152,10 +152,13 @@ test("api token toString is hidden"):
 | Circe + response DTOs | domain `Encoder` ではなく別 `PatientResponse` |
 | `Either` error + PII | error variant は field 名のみ、raw 値なし |
 
-レビューでは、errorメッセージ文字列へのraw email / phone / 政府ID、PII付きcase classのデフォルト `derives Codec` や未チェック `toString`、redaction方針なしのuser/patient DTO structured logを指摘する。非資格情報PIIへの一律credential wrapperやdomain entityへの無制限encoderも同様である。
-
 [ライブラリガイド（secrets）](/projects/kamae-scala/library-guides/#secrets) でcredential固有パターンも照合する。
 
 ## レビューで見るところ
 
-生の機密値が`toString`やtracing、エラー表示、ログやメトリクスに出ていないか。メール・電話・住所・氏名・政府ID・決済・健康・トークンなどを素の`String`で運んでいないか（opaque secretかマスキングラッパへ。非シークレット識別子はマスキングか意図的公開ならドメインnewtypeでよい）。根拠なしに`userId`など人物紐づきIDをログしていないか。マスキング方針なしの汎用ログヘルパや広い平文ゲッターがないかも見る。
+- 生の機密値が`toString`やtracing、エラー表示、ログやメトリクスに出ていないか
+- メール・電話・住所・氏名・政府ID・決済・健康・トークンなどを素の`String`で運んでいないか（opaque secretかマスキングラッパへ）
+- 非シークレット識別子はマスキングか、意図的公開ならドメインnewtypeでよいか
+- 根拠なしに`userId`など人物紐づきIDをログしていないか
+- マスキング方針なしの汎用ログヘルパや広い平文ゲッターがないか
+

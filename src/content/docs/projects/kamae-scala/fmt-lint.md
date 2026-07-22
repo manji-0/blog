@@ -87,4 +87,7 @@ sbt test
 
 ## レビューで見るところ
 
-触ったモジュールで `scalafmtCheckAll` やscalafix方針に失敗していないか。正しさやPIIに効く `@nowarn` / `scalafix:off` へ理由を付けているか。広い抑制でリスクを隠していないかも見る。
+- 触ったモジュールで `scalafmtCheckAll` やscalafix方針に失敗していないか。
+- 正しさやPIIに効く `@nowarn` / `scalafix:off` へ理由を付けているか。
+- 広い抑制でリスクを隠していないかも見る。
+

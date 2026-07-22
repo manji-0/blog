@@ -107,9 +107,10 @@ macro_rules! domain_event_match {
 - state machine遷移 — state struct上の明示メソッドとして保つ
 - インフラマッピング（`FromRow`、gRPCメッセージ）— 境界ルールをレビューで読めるよう明示DTO `TryFrom` を使う
 
-レビューでは、不変条件を隠すマクロ、ログ非安全な生成 `Debug` / `Display`、少数型向けの過剰な内部proc-macro、バージョン欠如の永続イベント、ドメイン型へのマクロ生成serde / ORM deriveを指摘する。
-
 ## レビューで見るところ
 
-proc-macroやderiveがpublicフィールド、`Default`、手書きと違う検証で不変条件を隠していないか。生成 `Debug` / `Display` がPIIを漏らさないか（[ロギングとメトリクス](/projects/kamae-rs/logging-metrics/)）。永続化されるイベントに安定した `name` / `version` があり、不変条件付きドメイン型へマクロ生成の `Deserialize` / `FromRow` を付けていないか（[境界防御](/projects/kamae-rs/boundary-defense/)）。1〜2型なら `nutype` や `TryFrom` の方が明確でないかも見る。
+- proc-macroやderiveがpublicフィールド、`Default`、手書きと違う検証で不変条件を隠していないか。
+- 生成 `Debug` / `Display` がPIIを漏らさないか（[ロギングとメトリクス](/projects/kamae-rs/logging-metrics/)）。
+- 永続化されるイベントに安定した `name` / `version` があり、不変条件付きドメイン型へマクロ生成の `Deserialize` / `FromRow` を付けていないか（[境界防御](/projects/kamae-rs/boundary-defense/)）。
+- 1〜2型なら `nutype` や `TryFrom` の方が明確でないかも見る。
 

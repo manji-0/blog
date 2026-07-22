@@ -225,4 +225,9 @@ class RequestReader(Protocol):
 
 ## レビューで見るところ
 
-プロファイルなしのマイクロ最適化や、ホットパスでの `TypeAdapter` 再生成はないか。ループ内のN+1クエリや `list.pop(0)`、行ごとの `json.dumps` はないか。信頼できない入力への `model_construct` や、ログ用の大きな `model_dump()` はないか。バッチ意図を表すportがあるのに1件ずつ読み書きしていないか。Pydantic検証コストの議論は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) と整合しているか。
+- プロファイルなしのマイクロ最適化や、ホットパスでの `TypeAdapter` 再生成はないか。
+- ループ内のN+1クエリや `list.pop(0)`、行ごとの `json.dumps` はないか。
+- 信頼できない入力への `model_construct` や、ログ用の大きな `model_dump()` はないか。
+- バッチ意図を表すportがあるのに1件ずつ読み書きしていないか。
+- Pydantic検証コストの議論は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) と整合しているか。
+

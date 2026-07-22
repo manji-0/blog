@@ -80,4 +80,7 @@ crateレイアウト、fake port、テスト層、高速/フルのpre-pushルー
 
 ## レビューで見るところ
 
-テンプレ適用後に `package.name` とworkspaceがプロジェクト実態とずれていないか。`rustfmt` / `clippy` componentと品質ゲートコマンドがローカルで再現できるか。review probeを必須ゲートに誤ってしていないかも確認する。
+- テンプレ適用後に `package.name` とworkspaceがプロジェクト実態とずれていないか。
+- `rustfmt` / `clippy` componentと品質ゲートコマンドがローカルで再現できるか。
+- review probeを必須ゲートに誤ってしていないかも確認する。
+

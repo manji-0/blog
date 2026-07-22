@@ -129,8 +129,9 @@ def assignDriver(...): Either[AssignDriverError, Transition[EnRouteRequest, Taxi
 
 生成バインディング、vendoredコード、外部維持スナップショットはフルlintバーから免除してよいが、それらを包むsafe wrapperは境界検証、PII、JNI境界ガイダンスに従う。
 
-レビューでは、未フォーマットの変更、新規compiler/scalafix警告、広いlint抑制、ドメイン安全性リスクを隠す抑制、CIに表れないフォーマット / lintゲートを指摘する。
-
 ## レビューで見るところ
 
-`throw` / `???` / unsafe `.get`、非網羅`match`、金額の`Double`、PIIの`toString`まわりのlint抑制が安全性を隠していないか。広い`@nowarn`や説明のない抑制、触ったモジュールの新しい警告がないかも見る。Scala変更があるのに`scalafmtCheckAll`や関連`scalafix`の実行が文書化・通過していないか確認する。
+- `throw` / `???` / unsafe `.get`、非網羅`match`、金額の`Double`、PIIの`toString`まわりのlint抑制が安全性を隠していないか。
+- 広い`@nowarn`や説明のない抑制、触ったモジュールの新しい警告がないかも見る。
+- Scala変更があるのに`scalafmtCheckAll`や関連`scalafix`の実行が文書化・通過していないか確認する。
+

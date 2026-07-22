@@ -118,4 +118,8 @@ jobs:
 
 ## レビューで見るところ
 
-パッケージ検証、`ruff format --check`、`ruff check`、mypy/pyright、pytestなしにドメインがマージできないか。挙動がバージョンやDBで変わるのにデフォルト環境だけになっていないかも見る。ネイティブ/PII敏感パッケージに監査やファズの計画があるか、`continue-on-error` が必須に見えていないかも確認する。コアチェックのローカル再現手順はあるか（[開発環境とセットアップ](/projects/kamae-py/development-setup/)）。
+- パッケージ検証、`ruff format --check`、`ruff check`、mypy/pyright、pytestなしにドメインがマージできないか。
+- 挙動がバージョンやDBで変わるのにデフォルト環境だけになっていないかも見る。
+- ネイティブ/PII敏感パッケージに監査やファズの計画があるか、`continue-on-error` が必須に見えていないかも確認する。
+- コアチェックのローカル再現手順はあるか（[開発環境とセットアップ](/projects/kamae-py/development-setup/)）。
+

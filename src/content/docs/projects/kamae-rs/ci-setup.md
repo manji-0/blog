@@ -208,8 +208,9 @@ cargo test --all-targets --all-features
 
 フルparityが遅すぎるならfast pathとfull pathを分けて文書化。[開発環境](/projects/kamae-rs/dev-environment/) と [品質ゲート](/projects/kamae-rs/quality-gates/) でtoolchain、test層、推奨ローカルcheck loop。
 
-レビューでは、必須チェックの欠如、偏ったfeature / パッケージ行列、unsafeクレート向け追加検証の未計画、`continue-on-error` による必須チェックの無効化、ローカル再現困難なCIを指摘する。
-
 ## レビューで見るところ
 
-ドメイン変更なのにパッケージ検証、`cargo fmt --check`、関連 `cargo clippy`、関連テスト、必要なrustdocが必須になっていないか。挙動がfeatureやメンバーをまたぐのにデフォルトだけを試し、unsafe / FFI / PII敏感クレートにMiriや監査の計画がないワークフローはないか。`continue-on-error` が必須に見えたり、[品質ゲート](/projects/kamae-rs/quality-gates/) や [開発環境](/projects/kamae-rs/dev-environment/) と揃ったローカル再現手段がないCIになっていないかも見る。
+- ドメイン変更なのにパッケージ検証、`cargo fmt --check`、関連 `cargo clippy`、関連テスト、必要なrustdocが必須になっていないか。
+- 挙動がfeatureやメンバーをまたぐのにデフォルトだけを試し、unsafe / FFI / PII敏感クレートにMiriや監査の計画がないワークフローはないか。
+- `continue-on-error` が必須に見えたり、[品質ゲート](/projects/kamae-rs/quality-gates/) や [開発環境](/projects/kamae-rs/dev-environment/) と揃ったローカル再現手段がないCIになっていないかも見る。
+

@@ -118,4 +118,9 @@ billingClient.charge(request).attempt.map:
 
 ## レビューで見るところ
 
-生成protobuf型がドメインパッケージに入っていないか。queue handlerが冪等でないか。タイムアウトやリトライがドメイン遷移内にあるか。未知`schemaVersion`でpanicしていないか。テナントコンテキストがoutbound呼び出しへ伝播しているか。
+- 生成protobuf型がドメインパッケージに入っていないか。
+- queue handlerが冪等でないか。
+- タイムアウトやリトライがドメイン遷移内にあるか。
+- 未知`schemaVersion`でpanicしていないか。
+- テナントコンテキストがoutbound呼び出しへ伝播しているか。
+

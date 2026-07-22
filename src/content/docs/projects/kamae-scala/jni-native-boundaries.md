@@ -87,4 +87,9 @@ object NativeStatus:
 
 ## レビューで見るところ
 
-ドメインまたは遷移コードがJNI / JNA / `Unsafe`を直接呼んでいないか。wrapperがHTTPやキュー由来の未検証`String` / `Array[Byte]`を受けていないか。ネイティブ失敗が裸`RuntimeException`文字列になっていないか。安全wrapperに前提とリソース所有のScaladocはあるか。変更したnative多めモジュールにCI jobはあるか。
+- ドメインまたは遷移コードがJNI / JNA / `Unsafe`を直接呼んでいないか。
+- wrapperがHTTPやキュー由来の未検証`String` / `Array[Byte]`を受けていないか。
+- ネイティブ失敗が裸`RuntimeException`文字列になっていないか。
+- 安全wrapperに前提とリソース所有のScaladocはあるか。
+- 変更したnative多めモジュールにCI jobはあるか。
+

@@ -105,4 +105,7 @@ python3 path/to/kamae-scala/skills/kamae-scala-review/scripts/review_probe.py \
 
 ## レビューで見るところ
 
-テンプレ適用後に `organization` / サブプロジェクトが実態とずれていないか。品質ゲートコマンドがローカルで再現できるか。review probeやStrykerを必須ゲートに誤ってしていないかも確認する。
+- テンプレ適用後に `organization` / サブプロジェクトが実態とずれていないか。
+- 品質ゲートコマンドがローカルで再現できるか。
+- review probeやStrykerを必須ゲートに誤ってしていないかも確認する。
+

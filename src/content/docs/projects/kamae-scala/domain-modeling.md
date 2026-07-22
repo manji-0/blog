@@ -94,4 +94,10 @@ trait TaxiRequestRepository[F[_]]:
 
 ## レビューで見るところ
 
-不変条件のある型でpublicフィールドやpublicな `copy`、ミュータブルフィールドが残っていないか。ID・金額・メールなどが素の `String` / 整数 / `Double` のまま混ざっていないかも見る（opaque typeや検証付き `apply` へ）。codec deriveがドメインエンティティに張り付いていないか。`status: String` ＋ Optionalの巨大case classより状態ごとの型の方が明確でないかも確認する。単位・通貨・タイムゾーンが型で分かれているか。`models` / `domain` パッケージに無関係な概念が溜まっていないかも見る。
+- 不変条件のある型でpublicフィールドやpublicな `copy`、ミュータブルフィールドが残っていないか。
+- ID・金額・メールなどが素の `String` / 整数 / `Double` のまま混ざっていないかも見る（opaque typeや検証付き `apply` へ）。
+- codec deriveがドメインエンティティに張り付いていないか。
+- `status: String` ＋ Optionalの巨大case classより状態ごとの型の方が明確でないかも確認する。
+- 単位・通貨・タイムゾーンが型で分かれているか。
+- `models` / `domain` パッケージに無関係な概念が溜まっていないかも見る。
+

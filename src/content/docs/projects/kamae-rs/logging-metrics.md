@@ -344,8 +344,12 @@ tracing::Span::current().record("correlation_id", correlation_id.as_str());
 
 spanはinternal call各所ではなくユースケース境界。操作名とaggregate identifier。実行thread詳細ではない。
 
-レビューでは、意味のないログメッセージ、ドメイン文脈の欠如、遷移ログの不足、非構造化ログ、ドメイン次元のないメトリクス、高カーディナリティラベル、PII漏洩、誤分類ID、重複エラーログを指摘する。
-
 ## レビューで見るところ
 
-マスキングは [PII 保護](/projects/kamae-rs/pii-protection/) も参照。ログ・スパン・メトリクスに生の機密値や人物紐づきIDがないか。同一失敗の重複 `tracing::error!` や `%error` なしの文字列化はないか。メトリクスラベルに生IDや無制限文字列を載せ、関数名だけのログや状態・`from` / `to` のない遷移ログになっていないかも見る。エラーメトリクスは列挙や `error_code` か。ドメイン結果に結びつき、構造化されてレベルが適切か。
+- マスキングは [PII 保護](/projects/kamae-rs/pii-protection/) も参照。
+- ログ・スパン・メトリクスに生の機密値や人物紐づきIDがないか。
+- 同一失敗の重複 `tracing::error!` や `%error` なしの文字列化はないか。
+- メトリクスラベルに生IDや無制限文字列を載せ、関数名だけのログや状態・`from` / `to` のない遷移ログになっていないかも見る。
+- エラーメトリクスは列挙や `error_code` か。
+- ドメイン結果に結びつき、構造化されてレベルが適切か。
+

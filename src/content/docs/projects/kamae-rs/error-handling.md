@@ -109,5 +109,12 @@ pub enum RepositoryError {
 
 ## レビューで見るところ
 
-エラーの `Display` にメール・電話・トークン・生ボディが入っていないか（[PII 保護](/projects/kamae-rs/pii-protection/)）。ドメインやユースケースで `panic!` / `unwrap` / `expect` が常態化していないか。mutexや行ロックを `.await` またいで持っていないか。asyncドメイン遷移やインフラエラーの素通しがないか。`sqlx` / HTTPクライアント失敗を公開APIへそのまま出していないか。`format!` でソースチェーンを消していないか。ドメインエラーが `anyhow` / `Box<dyn Error>` / `String` になっていないか。呼び出し元が分岐すべきなのに `Other(String)` のような曖昧バリアントになっていないか。
+- エラーの `Display` にメール・電話・トークン・生ボディが入っていないか（[PII 保護](/projects/kamae-rs/pii-protection/)）。
+- ドメインやユースケースで `panic!` / `unwrap` / `expect` が常態化していないか。
+- mutexや行ロックを `.await` またいで持っていないか。
+- asyncドメイン遷移やインフラエラーの素通しがないか。
+- `sqlx` / HTTPクライアント失敗を公開APIへそのまま出していないか。
+- `format!` でソースチェーンを消していないか。
+- ドメインエラーが `anyhow` / `Box<dyn Error>` / `String` になっていないか。
+- 呼び出し元が分岐すべきなのに `Other(String)` のような曖昧バリアントになっていないか。
 

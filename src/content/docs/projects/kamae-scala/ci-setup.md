@@ -151,4 +151,7 @@ sbt scalafmtCheckAll "scalafixAll --check" test doc
 
 ## レビューで見るところ
 
-ドメイン変更なのに`scalafmtCheckAll`、関連`scalafix`、関連テスト、必要なScaladocが必須になっていないか。JNI / nativeモジュールにOS matrixの計画はあるか。`continue-on-error`が必須に見えたり、ローカル再現手段がないCIになっていないか。
+- ドメイン変更なのに`scalafmtCheckAll`、関連`scalafix`、関連テスト、必要なScaladocが必須になっていないか。
+- JNI / nativeモジュールにOS matrixの計画はあるか。
+- `continue-on-error`が必須に見えたり、ローカル再現手段がないCIになっていないか。
+

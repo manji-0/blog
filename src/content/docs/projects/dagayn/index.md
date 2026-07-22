@@ -16,9 +16,9 @@ sidebar:
 
 CursorやClaude Codeのようなエージェントは、タスクのたびにファイルを開き、全文検索で関連箇所を探します。リポジトリが大きくなるほど、その反復がトークンと待ち時間の両方を食います。
 
-「この関数のcallerは誰か」「この変更のblast radiusはどこまでか」「この設計書はどの実装を指しているか」は、毎回ファイルを読み直すより、一度パースした構造に聞く方が合理的です。
+「この関数のcallerは誰か」「この変更の影響範囲（blast radius）はどこまでか」「この設計書はどの実装を指しているか」は、毎回ファイルを読み直すより、一度パースした構造に聞く方が合理的です。
 
-コアの着想は [tirth8205/code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはそこにTerraform、Markdown directive、`CROSS_ARTIFACT`、ADP / SDP / SAP、複数ツール向けの `dagayn install` などを足しています。経緯の長めの話は [ブログ記事](/blog/2026/dagayn-knowledge-graph-for-code-review/) へ。
+コアの着想は [tirth8205/code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはそこにTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、パッケージ健全性のADP / SDP / SAP、複数ツール向けの `dagayn install` などを足しています。経緯の長めの話は [ブログ記事](/blog/2026/dagayn-knowledge-graph-for-code-review/) へ。用語の定義は [グラフモデル](/projects/dagayn/graph-model/) と [構造メトリクス](/projects/dagayn/metrics/) にあります。
 
 ## どこから読むか
 

@@ -231,4 +231,10 @@ persistence adapterもHTTPやキューと同様に、DTO/row → ドメイン変
 
 ## レビューで見るところ
 
-stateとoutboxの非原子的な別メソッド書き込みはないか。SQLマッピング内でeventを構築していないか。条件付き`version`なしのincrementはないか。idempotency / versionなしのリトライ再適用はないか。event payloadに裸`Double`や型なし`String`はないか。repository portが`ConnectionIO` / `DBIO`をユースケースへ漏らしていないか。
+- stateとoutboxの非原子的な別メソッド書き込みはないか。
+- SQLマッピング内でeventを構築していないか。
+- 条件付き`version`なしのincrementはないか。
+- idempotency / versionなしのリトライ再適用はないか。
+- event payloadに裸`Double`や型なし`String`はないか。
+- repository portが`ConnectionIO` / `DBIO`をユースケースへ漏らしていないか。
+
