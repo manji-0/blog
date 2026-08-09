@@ -3,6 +3,11 @@ title: manj.io
 description: profile/blog by Wataru Manji
 type: website
 tableOfContents: false
+head:
+  - tag: script
+    attrs:
+      src: /manj-fediverse-statuses.js
+      defer: true
 ---
 
 ## Recent Notes

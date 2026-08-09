@@ -21,3 +21,9 @@
 
 /og/*
   Cache-Control: public, max-age=86400
+
+/cloudflare-platform-uptime.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/cloudflare-status.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600

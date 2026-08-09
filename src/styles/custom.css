@@ -910,6 +910,8 @@ h1#_top {
 	border-radius: 0.5rem;
 	padding: 0.75rem;
 	background: var(--manj-panel);
+	content-visibility: auto;
+	contain-intrinsic-size: auto 24rem;
 }
 
 .beautiful-mermaid svg {

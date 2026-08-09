@@ -158,13 +158,13 @@
 	}
 
 	async function loadSnapshot() {
-		const response = await fetch(SNAPSHOT_URL, { cache: 'no-cache' });
+		const response = await fetch(SNAPSHOT_URL);
 		if (!response.ok) throw new Error('snapshot ' + response.status);
 		return response.json();
 	}
 
 	async function loadCloudflareStatus() {
-		const response = await fetch(CLOUDFLARE_STATUS_URL, { cache: 'no-cache' });
+		const response = await fetch(CLOUDFLARE_STATUS_URL);
 		if (!response.ok) throw new Error('cloudflare status ' + response.status);
 		return response.json();
 	}
@@ -189,9 +189,41 @@
 			});
 	}
 
+	function scheduleMount() {
+		const sidebar = document.querySelector('.right-sidebar');
+		if (!sidebar) return;
+
+		const run = function () {
+			mount();
+		};
+
+		if (typeof IntersectionObserver === 'function') {
+			const observer = new IntersectionObserver(
+				function (entries) {
+					if (!entries.some((entry) => entry.isIntersecting)) return;
+					observer.disconnect();
+					if (typeof requestIdleCallback === 'function') {
+						requestIdleCallback(run, { timeout: 2000 });
+					} else {
+						setTimeout(run, 1);
+					}
+				},
+				{ rootMargin: '100px' },
+			);
+			observer.observe(sidebar);
+			return;
+		}
+
+		if (typeof requestIdleCallback === 'function') {
+			requestIdleCallback(run, { timeout: 2000 });
+		} else {
+			setTimeout(run, 1);
+		}
+	}
+
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', mount);
+		document.addEventListener('DOMContentLoaded', scheduleMount);
 	} else {
-		mount();
+		scheduleMount();
 	}
 })();

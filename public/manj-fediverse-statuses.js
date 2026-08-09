@@ -82,9 +82,41 @@
 			.catch(() => showError(container));
 	}
 
+	function scheduleMount() {
+		const container = document.querySelector('[data-fediverse-statuses]');
+		if (!container) return;
+
+		const run = function () {
+			mount();
+		};
+
+		if (typeof IntersectionObserver === 'function') {
+			const observer = new IntersectionObserver(
+				function (entries) {
+					if (!entries.some((entry) => entry.isIntersecting)) return;
+					observer.disconnect();
+					if (typeof requestIdleCallback === 'function') {
+						requestIdleCallback(run, { timeout: 2000 });
+					} else {
+						setTimeout(run, 1);
+					}
+				},
+				{ rootMargin: '200px' },
+			);
+			observer.observe(container);
+			return;
+		}
+
+		if (typeof requestIdleCallback === 'function') {
+			requestIdleCallback(run, { timeout: 2000 });
+		} else {
+			setTimeout(run, 1);
+		}
+	}
+
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', mount);
+		document.addEventListener('DOMContentLoaded', scheduleMount);
 	} else {
-		mount();
+		scheduleMount();
 	}
 })();

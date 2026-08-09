@@ -19,10 +19,10 @@ const fontFaceCss = readFileSync(new URL('./public/fonts/fonts.css', import.meta
 export default defineConfig({
 	site: 'https://www.manj.io',
 	build: {
-		inlineStylesheets: 'always',
+		inlineStylesheets: 'auto',
 	},
 	prefetch: {
-		prefetchAll: true,
+		prefetchAll: false,
 		defaultStrategy: 'viewport',
 	},
 	vite: {
@@ -72,10 +72,6 @@ export default defineConfig({
 				{
 					tag: 'script',
 					attrs: { src: '/manj-cloudflare-platform-status.js', defer: true },
-				},
-				{
-					tag: 'script',
-					attrs: { src: '/manj-fediverse-statuses.js', defer: true },
 				},
 			],
 			social: [
