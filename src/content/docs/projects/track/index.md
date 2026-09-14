@@ -18,11 +18,11 @@ sidebar:
 
 まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で、タスク管理とワークスペース作成を一通り動かしてください。コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/)、ブラウザUIは [Web UI](/projects/track/webui/) です。
 
-git / jj のどちらでワークスペースを切るか、aggressive mode（空のマーカーrevisionと git notes）、エージェントの読み方は [VCS連携](/projects/track/jj-integration/) にまとめています。ソースを触る人は [開発環境](/projects/track/development/) へ。
+git / jjのどちらでワークスペースを切るか、aggressive mode（空のマーカーrevisionとgit notes）、エージェントの読み方は [VCS連携](/projects/track/jj-integration/) にまとめています。ソースを触る人は [開発環境](/projects/track/development/) へ。
 
 ## まわりのツールとの関係
 
-trackが「何をやるか」と「どこで書くか」を抱え、コミットやPRの作り方はワークスペース内の git / jj に任せます。コードレビューの構造クエリが欲しければ [dagayn](/projects/dagayn/)、要件モデルなら [rdra-ish](/projects/rdra-ish/) が近くにあります。どれも必須ではありません。
+trackが「何をやるか」と「どこで書くか」を抱え、コミットやPRの作り方はワークスペース内のgit / jjに任せます。コードレビューの構造クエリが欲しければ [dagayn](/projects/dagayn/)、要件モデルなら [rdra-ish](/projects/rdra-ish/) が近くにあります。どれも必須ではありません。
 
 ## 向いていること / 向いていないこと
 

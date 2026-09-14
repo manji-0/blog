@@ -10,7 +10,7 @@ sidebar:
 
 **DAG is All You Need** — dagaynは、リポジトリをローカルの有向グラフとして持ち、AIコーディングアシスタントが構造クエリでコードベースを辿れるようにするツールです。
 
-対応言語のソースやMarkdown、Terraform、ノートブック（`.ipynb` と marimo の `.py` / `.md`）をTree-sitterでパースし、ノードとエッジにしてSQLiteに載せます。グラフエンジン、フロー、コミュニティ、FTSはRustコア（`dagayn._core`）です。その上で日本語向けFTS（Lindera IPADIC + CJKバイグラム）、実行フロー、各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。ファイルを開き直してgrepする代わりに、callerやimport、テスト対応、設計書とコードの橋、ヒットしたノードのソース断片（`source_of`）をグラフから取れる、というのが狙いです。
+対応言語のソースやMarkdown、Terraform、ノートブック（`.ipynb` とmarimoの `.py` / `.md`）をTree-sitterでパースし、ノードとエッジにしてSQLiteに載せます。グラフエンジン、フロー、コミュニティ、FTSはRustコア（`dagayn._core`）です。その上で日本語向けFTS（Lindera IPADIC + CJKバイグラム）、実行フロー、各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。ファイルを開き直してgrepする代わりに、callerやimport、テスト対応、設計書とコードの橋、ヒットしたノードのソース断片（`source_of`）をグラフから取れる、というのが狙いです。
 
 ## なぜ必要か
 

@@ -35,7 +35,7 @@ flowchart TB
 
 拡張子、shebang、設定ファイルに基づいてパーサを割り当てる。拡張子なしスクリプトはshebangからBash / Python等を推定する。
 
-対応はポリグロット：アプリコード、Markdown、Terraform、Notebook（`.ipynb` と marimo）を同一リポジトリ内で混在可能。
+対応はポリグロット：アプリコード、Markdown、Terraform、Notebook（`.ipynb` とmarimo）を同一リポジトリ内で混在可能。
 
 ### 2. パーサ抽出
 

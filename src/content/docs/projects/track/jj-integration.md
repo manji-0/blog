@@ -6,7 +6,7 @@ sidebar:
   label: "VCS連携"
 ---
 
-trackはコーディング用ワークスペースを自分で作ります。エージェントも人も `git worktree`、`jj workspace add`、`jj-task` を手で叩きません。実装の細部はupstreamの [JJ_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/JJ_INTEGRATION.md) を見てください。
+trackはコーディング用ワークスペースを自分で作ります。エージェントと人間はいずれも `git worktree`、`jj workspace add`、`jj-task` を手で叩きません。実装の細部はupstreamの [JJ_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/JJ_INTEGRATION.md) を見てください。
 
 ## どう分かれているか
 
@@ -75,7 +75,7 @@ track scrap add "Chose sliding window over fixed window for burst traffic"
 track todo done 1 --json
 ```
 
-`track todo done` はtrack DB上の完了です。aggressive modeがonなら、未公開のWIPをTODO 1件あたり1コミットに畳み、共有スクラップはそのSHAの git notes になります。公開済みSHAの書き換えはしません。続きは新しいTODOです。
+`track todo done` はtrack DB上の完了です。aggressive modeがonなら、未公開のWIPをTODO 1件あたり1コミットに畳み、共有スクラップはそのSHAのgit notesになります。公開済みSHAの書き換えはしません。続きは新しいTODOです。
 
 PRがマージされたら閉じます。
 
@@ -93,7 +93,7 @@ track archive
 
 ### jj（`vcs-mode=jj`）
 
-パスがgit-onlyなら `jj git init --colocate` したうえで `jj workspace add` します。Gitのcolocateは有効のままなので、`gh` と git remoteは使えます。trackは `~/.config/jj/task-workspaces.json` を読みません。
+パスがgit-onlyなら `jj git init --colocate` したうえで `jj workspace add` します。Gitのcolocateは有効のままなので、`gh` とgit remoteは使えます。trackは `~/.config/jj/task-workspaces.json` を読みません。
 
 ### aggressive mode
 
@@ -135,7 +135,7 @@ track status --json
 }
 ```
 
-jjモードでは `git` がなく `jj` があります。`start_command` は `track sync`、`path_command` は `cd "<path>"` です。`must_use_jj_skill` は常に `false` です。
+jjモードでは `git` キーを省略し、`jj` キーを返します。`start_command` は `track sync`、`path_command` は `cd "<path>"` です。`must_use_jj_skill` は常に `false` です。
 
 | Phase | Track側の次の手 |
 | --- | --- |

@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-このページは、タスク管理からコーディング用ワークスペースまで、track単体で一通り触る手順です。git / jj の切り替えや aggressive mode は [VCS連携](/projects/track/jj-integration/) を読んでください。
+このページは、タスク管理からコーディング用ワークスペースまで、track単体で一通り触る手順です。git / jjの切り替えやaggressive modeは [VCS連携](/projects/track/jj-integration/) を読んでください。
 
 ## タスクを作る
 
@@ -63,6 +63,6 @@ track webui --open
 
 ## 仕上げ
 
-実装が終わったら `track/<slug>` をpushしてPRを出し、マージ後に `track archive` します。確認プロンプトはTTY以外では失敗するので、エージェントは待たずにhintに従います。`todo delete` だけは常に `--force` が要ります。
+実装が終わったら `track/<slug>` をpushしてPRを出します。マージ後は `track archive` です。確認プロンプトはTTY以外では失敗するので、エージェントは待たずにhintへ従ってください。`todo delete` だけは常に `--force` が要ります。
 
 コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/) です。
