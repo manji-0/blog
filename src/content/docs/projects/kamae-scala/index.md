@@ -10,41 +10,77 @@ sidebar:
 
 _Kamae（構え）— 備えの姿勢。_
 
-Kamae Scalaは、サーバーサイドのScala 3ドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集です。[kamae-rs](https://github.com/manji-0/kamae-rs) や [kamae-ts](https://github.com/iwasa-kosui/kamae-ts) と同じ思想を、opaque types・sealed traits・`Either`・エフェクト型など、Scala 3のイディオムに落とし込みます。
+## 目的
 
-守りたいのは、文字列のまま混ざるドメイン概念、`status` とOptionalで表せてしまう無効状態、想定内失敗での `throw` / `.get`、APIやDB行のドメイン直使い、観測経路へのPII、状態とイベントの非アトミックな永続化です。全部を通読する必要はなく、いまのトピックだけ開けば十分です。各ページ末尾の **レビュー観点** はレビュー用の確認項目です。
+Kamae Scalaは、サーバーサイドのScala 3ドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集です。opaque types・sealed traits・`Either`・エフェクト型などScala 3のイディオムに、同じ思想を落とし込みます。
 
-既定はScala 3.3以降、sbt 1.10以降、Java 17以降です。フォーマットにはscalafmt、lintにはscalafix（採用している場合）を使います。既存リポジトリではまず慣習を確認してください。ここで示すのは強い既定であり、絶対的な規則ではありません。慣習と衝突する場合は慣習を優先し、ドメインの安全性に影響する逸脱だけを短く記録します。
+## 背景
 
-## どこから読むか
+文字列のまま混ざるドメイン概念、`status`とOptionalで表せる無効状態、想定内失敗での`throw`/`.get`、APIやDB行のドメイン直使い、観測経路へのPII、状態とイベントの非アトミックな永続化が、変更のたびにレビュー負荷を上げます。[kamae-rs](https://github.com/manji-0/kamae-rs)や[kamae-ts](https://github.com/iwasa-kosui/kamae-ts)と同じ防波堤を共有します。
 
-| 目的 | 読む順 |
+## 関連文書
+
+| 文書 | 役割 |
 | --- | --- |
-| 新規ドメインを型で起こす | [ドメインモデリング](/projects/kamae-scala/domain-modeling/) → [状態遷移](/projects/kamae-scala/state-transitions/) → [境界防御](/projects/kamae-scala/boundary-defense/) → [エラーハンドリング](/projects/kamae-scala/error-handling/) |
-| 端から端まで追う | [タクシー配車の例](/projects/kamae-scala/examples/taxi-request/)（ドメインまで） |
-| 保存とイベントを揃える | [集約とトランザクション境界](/projects/kamae-scala/aggregate-transactions/) → [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) |
-| エフェクトを選ぶ | 先に [エフェクトシステム](/projects/kamae-scala/effect-systems/)（本文例はCats。ZIOは同ページ） |
-| 既存コードへ入れる | [段階的導入](/projects/kamae-scala/adoption/)（ORMなら [ORM アダプター](/projects/kamae-scala/orm-adapters/)） |
-| 仕上げのゲート | [品質ゲート](/projects/kamae-scala/quality-gates/) |
+| [kamae-rs](/projects/kamae-rs/) | Rust向けの同系ガイド |
+| [kamae-py](/projects/kamae-py/) | Python向けの同系ガイド |
+| [kamae-model-translator](/projects/kamae-model-translator/) | 言語間移植・wire連携のAgent Skill |
+| [kamae-scala リポジトリ](https://github.com/manji-0/kamae-scala) | スキル本体・テンプレート・review probe |
 
-それ以外はサイドバーから必要なトピックだけ開いてください。
+## 目標
 
-## スキルとして入れる
+- 無効状態を型で表現できないようにする
+- 遷移を純粋関数に寄せ、副作用はユースケースとアダプターへ集約する
+- 外部データはDTO経由でだけドメインへ入る
+- ローカルとCIで同じ品質ゲートを回せる
 
-実装時は `kamae-scala`、差分レビュー時は `kamae-scala-review` です。
+## 対象外
+
+フレームワーク選定の一般論、ORMの入門、インフラ全体の設計、コード生成器としての利用は対象外です。単一言語内で足りる作業は各ページを通読する必要はありません。
+
+## シナリオ
+
+| 状況 | 読む順 |
+| --- | --- |
+| 新規ドメインを型で起こす | [ドメインモデリング](/projects/kamae-scala/domain-modeling/) → [状態遷移](/projects/kamae-scala/state-transitions/) → [境界防御](/projects/kamae-scala/boundary-defense/) |
+| スキルを入れて実装を始める | [使い方](/projects/kamae-scala/usage/) → 上記実装3本 |
+| ライブラリの置き方を確認する | [ライブラリガイド](/projects/kamae-scala/library-guides/) |
+| PR前のチェックを揃える | [品質ゲート](/projects/kamae-scala/quality-gates/) |
+
+## 構成
+
+| 層 | ページ |
+| --- | --- |
+| 設計（トップ） | はじめに |
+| 実装 | ドメインモデリング、状態遷移、境界防御 |
+| リファレンス | 使い方、ライブラリガイド、品質ゲート |
+
+旧トピックURLは移動先へリダイレクトします。`references/`配下はすでにリダイレクト済みです。
+
+## 制約
+
+既定はScala 3.3以降、sbt 1.10以降、Java 17以降です。フォーマットにはscalafmt、lintにはscalafix（採用している場合）を使います。ここで示すのは強い既定です。慣習と衝突する場合は慣習を優先し、ドメインの安全性に影響する逸脱だけを短く記録してください。
+
+## インタフェース
+
+エージェント向けの入口はAgent Skillです。実装時は`kamae-scala`、差分レビュー時は`kamae-scala-review`を使います。
 
 ```bash
 npx skills add manji-0/kamae-scala -s kamae-scala -s kamae-scala-review -g -y
 ```
 
-チームの命名やライブラリ好みは `.claude/rules/` / `.codex/rules/` で上書きできます。
+チームの命名やライブラリ好みは`.claude/rules/` / `.codex/rules/`で上書きできます。詳細は[使い方](/projects/kamae-scala/usage/)です。
 
-## よく参照する節
+## 依存
 
-| トピック | 正規リファレンス |
-| --- | --- |
-| 薄いユースケース | [状態遷移](/projects/kamae-scala/state-transitions/#ユースケースを薄く保つ) |
-| 永続化エラー | [エラーハンドリング](/projects/kamae-scala/error-handling/#推奨パターン-either-による早期リターン) |
-| リポジトリ | [永続化](/projects/kamae-scala/persistence-events/#責務でリポジトリを分離する) |
-| E2E | [タクシー配車の例](/projects/kamae-scala/examples/taxi-request/) |
-| 品質ゲートコマンド | [品質ゲート](/projects/kamae-scala/quality-gates/#ベースラインコマンド) |
+`build.sbt`に応じて[ライブラリガイド](/projects/kamae-scala/library-guides/)を参照してください。エフェクトはCats/ZIO、JSONはCirce、HTTPはhttp4s/sttp、SQLはdoobie/slickが中心です。
+
+## 検討して捨てた案
+
+- エフェクトライブラリごとに実装ガイドを分割する案（サイドバーと重複が増える）
+- 単一の「手順だけ」クイックスタート（設計判断の文脈が欠ける）
+- 旧URLを削除する案（ブックマークと外部リンクを壊す）
+
+## 次に読む
+
+初めてなら[使い方](/projects/kamae-scala/usage/)でスキルとテンプレートを入れ、[ドメインモデリング](/projects/kamae-scala/domain-modeling/)から実装3本を読んでください。仕上げは[品質ゲート](/projects/kamae-scala/quality-gates/)です。

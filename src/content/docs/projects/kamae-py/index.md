@@ -8,41 +8,112 @@ sidebar:
 
 > ソースリポジトリ: [kamae-py](https://github.com/manji-0/kamae-py)
 
-Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタンスとガイド集です。依存管理には **uv**、ドメインモデルには **Pydantic v2** の判別共用体と凍結モデル、状態変更には **純粋関数**を使う構成を基本とします。
+_Kamae（構え）— 備えの姿勢。_
 
-防ぎたいのは、`status: str` とOptionalだらけで表せる無効状態、`typing.cast` や未検証dictの穴、想定内ビジネス失敗の例外依存、ORMエンティティとドメインの混同、観測経路へのPII、状態とイベントの非アトミックな保存です。全部を通読する必要はありません。いまのトピックだけ開けば十分です。各ページ末尾の **レビュー観点** はレビュー用の確認項目です。
+Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタンスとガイド集です。依存管理は**uv**、ドメイン状態は**Pydantic v2**の凍結モデルと`kind`判別共用体、状態変更は**純粋関数**を基本にします。
 
-既定のツールチェーンはPython 3.12/3.13、uv、Pydantic v2（ジェネリックを使うなら2.11以降を推奨）、Ruff、**pyrefly**（Pydantic v2サポート組み込み）です。既存リポジトリでは、まずそのリポジトリの慣習を確認してください。
+## 目的
 
-## どこから読むか
+`status: str`とOptionalだらけの無効状態、未検証dictや`typing.cast`の穴、想定内失敗の例外依存、ORMとドメインの混同、観測経路へのPII、状態とイベントの非アトミック保存を防ぎます。全部を通読する必要はなく、いま触っているトピックだけ開けば足ります。
 
-| 目的 | 読む順 |
+## 背景
+
+Pythonのサービスは境界が曖昧だと型チェッカーが「正しい」とみなし、ランタイムだけ不変条件が壊れます。KamaeはPydantic v2とpyreflyでモデルを固め、遷移を関数に閉じ、ポートで永続化を隠します。[kamae-rs](/projects/kamae-rs/)や[kamae-scala](/projects/kamae-scala/)と同系の骨格を、Pythonのイディオムに落とし込んだものです。
+
+## 関連文書
+
+| 文書 | 内容 |
 | --- | --- |
-| 新規ドメインを型で起こす | [ドメインモデリング](/projects/kamae-py/domain-modeling/) → [状態遷移](/projects/kamae-py/state-transitions/) → [境界防御](/projects/kamae-py/boundary-defense/) → [エラーハンドリング](/projects/kamae-py/error-handling/) |
-| 保存とイベントを揃える | [集約とトランザクション境界](/projects/kamae-py/aggregates/) → [永続化、集約、イベント](/projects/kamae-py/persistence-events/) |
-| 端から端まで追う | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/)（ドメインまで） |
-| 既存コードへ入れる | [移行戦略](/projects/kamae-py/migration-strategy/)（ORMなら [ORM アダプター](/projects/kamae-py/orm-adapters/)） |
-| 仕上げのゲート | [品質ゲート](/projects/kamae-py/quality-gates/) |
+| [使い方](/projects/kamae-py/usage/) | uv・pyrefly・スキル導入とテンプレート適用 |
+| [ドメインモデリング](/projects/kamae-py/domain-modeling/) | 凍結state・ID・集約・配線・永続化の型 |
+| [状態遷移](/projects/kamae-py/state-transitions/) | 純粋遷移・ユースケース・明示的エラー |
+| [境界防御](/projects/kamae-py/boundary-defense/) | DTO・認可・PII・unsafe境界 |
+| [ライブラリガイド](/projects/kamae-py/library-guides/) | FastAPI・Pydantic・SQLAlchemy・Hypothesis |
+| [品質ゲート](/projects/kamae-py/quality-gates/) | Ruff・pyrefly・pytest・CI |
+| upstream [SKILL.md](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/SKILL.md) | エージェント向けディスパッチ |
 
-それ以外はサイドバーから必要なトピックだけ開いてください。
+## 目標
 
-## スキルとして入れる
+- ライフサイクル状態を判別共用体で表し、非法遷移を型で落とす
+- 境界でだけ未知データをパースし、ドメイン深部へ未検証値を流さない
+- 1コマンドで状態とドメインイベントを同じ整合境界に載せる
+- ローカルとCIで同じ`uv run`コマンドを回せる
 
-実装時は `kamae-py`、差分レビュー時は `kamae-py-review` です。
+## 対象外
+
+フロントエンド、スクリプト単発、インフラだけの変更、Pydantic v1の新規採用は対象外です。IDLからの機械生成だけが目的なら[kamae-model-translator](/projects/kamae-model-translator/)を見てください。
+
+## シナリオ
+
+1. 新規ワークフローで凍結stateと純粋遷移から始め、薄いユースケースとポート実装を足す
+2. 既存の`status + Optional` blobをワークフロー単位で判別共用体へ置き換える
+3. エージェントに`kamae-py`スキルを入れ、差分レビューで`kamae-py-review`を使う
+
+## 構成
+
+| 層 | 担当 |
+| --- | --- |
+| **Domain** | 凍結モデル・値オブジェクト・純粋遷移・エラーバリアント |
+| **Application** | 非同期ユースケース・認可順序・オーケストレーション |
+| **Infrastructure** | DB/HTTP/キュー/SDKアダプター（`Protocol`実装） |
+| **Interface** | コントローラー・コンシューマー・CLI・コンポジションルート |
+
+```mermaid
+flowchart LR
+  edge[HTTP_queue_DB] --> dto[DTO_parse]
+  dto --> domain[frozen_state]
+  domain --> trans[pure_transition]
+  trans --> uc[use_case]
+  uc --> port[Protocol_port]
+  port --> adapter[infra_adapter]
+```
+
+ブログ側は実装3本（モデリング・遷移・境界）とリファレンス3本（使い方・ライブラリ・品質）に集約しています。旧URLはリダイレクトで新ページへ誘導します。
+
+## 制約
+
+- Python **3.12+**、`pydantic>=2,<3`（ジェネリックモデルなら**2.11+**推奨）
+- 型チェック既定は**pyrefly**（mypyではない）。厳しさはモデルの`ConfigDict`に書く
+- パッケージ管理は**uv**。`pip`/`Poetry`/`requirements.txt`は既存規約がない限り導入しない
+- ドメインパッケージはFastAPI・SQLAlchemy・boto3をimportしない
+
+## インタフェース
+
+- 人向け： 本サイトの`/projects/kamae-py/`配下
+- エージェント： スキル`kamae-py`（実装）と`kamae-py-review`（レビュー）
+- テンプレート： [skills/kamae-py/assets/templates/](https://github.com/manji-0/kamae-py/tree/main/skills/kamae-py/assets/templates/)
+- ポリシー: `check_kamae_policy.py`（凍結モデル・`kind`・純粋遷移・危険パターン）
+
+## 依存
+
+| 種別 | 既定 |
+| --- | --- |
+| ランタイム | Pydantic v2 |
+| ツール | uv、Ruff、pyrefly、pytest |
+| HTTP例 | FastAPI（インターフェース層のみ） |
+| 永続化例 | SQLAlchemy 2.0（アダプター内） |
+| 観測例 | OpenTelemetry（任意のプルエンドポイントは別） |
+
+## 検討して捨てた案
+
+1. **ページをトピックごとに細分化** — 読み順が散らばるため、実装3本＋リファレンス3本に統合しました
+2. **mypy＋Pydanticプラグインを既定** — pyreflyの組み込みサポートに一本化しました
+3. **重いDIコンテナを既定** — プレーンな関数引数とコンポジションルートを優先しました
+4. **ドメインモデルをAPI JSONと共通化** — 迷ったときはDTO分離を選びます
+
+## 次に読む
+
+| 目的 | ページ |
+| --- | --- |
+| 環境とスキルを入れる | [使い方](/projects/kamae-py/usage/) |
+| 型でstateを起こす | [ドメインモデリング](/projects/kamae-py/domain-modeling/) → [状態遷移](/projects/kamae-py/state-transitions/) |
+| 境界とPII | [境界防御](/projects/kamae-py/boundary-defense/) |
+| 仕上げのチェック | [品質ゲート](/projects/kamae-py/quality-gates/) |
+
+実装時は次でスキルを入れられます。
 
 ```bash
 npx skills add manji-0/kamae-py -s kamae-py -s kamae-py-review -g -y
 ```
 
-Claude Codeなら `/plugin marketplace add manji-0/kamae-py` のあと `/plugin install kamae-py@kamae-py` でも入れられます。チームの命名やライブラリ好みは `.claude/rules/` / `.codex/rules/` で上書きできます。
-
-## よく参照する節
-
-| トピック | 正規リファレンス |
-| --- | --- |
-| 薄いユースケース | [状態遷移](/projects/kamae-py/state-transitions/#ユースケースは薄く保つ) |
-| 永続化エラー | [エラーハンドリング](/projects/kamae-py/error-handling/#推奨パターン-早期リターン) |
-| リポジトリポート | [永続化](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) / [ドメインモデリング](/projects/kamae-py/domain-modeling/#プロトコルでリポジトリポートを定義する) |
-| E2E（ドメイン） | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/) |
-| pyrefly | [ドメインモデリング](/projects/kamae-py/domain-modeling/#pyrefly-で-pydantic-モデルを検査する) |
-| 品質ゲートコマンド | [品質ゲート](/projects/kamae-py/quality-gates/#ベースラインコマンド) |
+チームの命名やライブラリ好みは`.claude/rules/` / `.codex/rules/`で上書きできます。

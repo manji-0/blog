@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-dagayn CLIはグラフのライフサイクル、分析、MCPサーバ起動、AIツール統合を担う。MCPツール側の詳細は [MCP ツール](/projects/dagayn/mcp-tools/) を参照。
+このページは、dagayn CLIのグラフライフサイクル、分析、MCP起動、AIツール統合コマンドを扱います。MCPツール側の詳細は [MCP ツール](/projects/dagayn/mcp-tools/) へ。初回セットアップは [使い方](/projects/dagayn/usage/) へ。
 
 ## グラフライフサイクル
 
@@ -27,7 +27,7 @@ dagayn build --local-embedding    # ビルド後にローカル埋め込み生�
 
 ### update
 
-`update` はtracked diff、staged、unstaged、untrackedをまとめて検出する。新規ファイルはステージしなくてもパース対象になる。
+`update` はtracked diff、staged、unstaged、untrackedをまとめて検出します。新規ファイルはステージしなくてもパース対象になります。
 
 ```bash
 dagayn update
@@ -37,11 +37,11 @@ dagayn update --local-embedding
 
 ### status
 
-グラフ合計、embedding coverage、provider別ベクトル数、`complete` / `partial` / `stale` / `empty` / `not_indexed` の状態を表示する。
+グラフ合計、embedding coverage、provider別ベクトル数、`complete` / `partial` / `stale` / `empty` / `not_indexed` の状態を表示します。
 
 ## dagayn install
 
-AIツール向けMCP設定、hooks、skills、instructionファイルを書き込む。
+AIツール向けMCP設定、hooks、skills、instructionファイルを書き込みます。
 
 ```bash
 dagayn install [--platform <name>] [--mode <mode>] [--dry-run] [-y]
@@ -53,7 +53,7 @@ dagayn install [--platform <name>] [--mode <mode>] [--dry-run] [-y]
 | codex | `~/.codex/config.toml`, `~/.codex/hooks.json` |
 | claude | `~/.claude/settings.json`, `~/.claude/CLAUDE.md` |
 
-hookは `dagayn update --skip-flows` をファイル保存後やセッション開始時に実行する。`DAGAYN_HOOK_UPDATE=1` が設定され、重複実行は抑制される。
+hookは `dagayn update --skip-flows` をファイル保存後やセッション開始時に実行します。`DAGAYN_HOOK_UPDATE=1` が設定され、重複実行は抑制されます。
 
 ## 分析・レビュー
 
@@ -71,19 +71,19 @@ hookは `dagayn update --skip-flows` をファイル保存後やセッション�
 dagayn detect-changes --base HEAD~1
 ```
 
-レスポンスには `change_file_sources`（base_diff / worktree / staged / unstaged / untracked）と、ノード・エッジの `change_status`（existing / added / unknown）が含まれる。
+レスポンスには `change_file_sources`（base_diff / worktree / staged / unstaged / untracked）と、ノード・エッジの `change_status`（existing / added / unknown）が含まれます。
 
-## MCP サーバ
+## MCPサーバ
 
 ```bash
 dagayn serve
 ```
 
-MCPクライアントはstdioまたは設定ファイル経由で `dagayn serve` を起動する。`dagayn install` が各ツール向けの起動引数を書き込む。
+MCPクライアントはstdioまたは設定ファイル経由で `dagayn serve` を起動します。`dagayn install` が各ツール向けの起動引数を書き込みます。
 
 ## ローカル埋め込み
 
-`build` / `update` に `--local-embedding` を付けると、グラフ更新後に埋め込みを生成する。
+`build` / `update` に `--local-embedding` を付けると、グラフ更新後に埋め込みを生成します。
 
 ```bash
 dagayn build --local-embedding
@@ -93,21 +93,17 @@ dagayn build --local-embedding none                 # 埋め込みなし（明�
 
 関連オプション： `--local-embedding-timeout`, `--local-embedding-request-timeout`, `--local-embedding-batch-size`, `--local-embedding-bin auto`
 
-詳細は [セマンティック検索](/projects/dagayn/semantic-search/) を参照。
-
 ## マルチリポジトリ
 
-複数リポジトリを登録して横断検索する場合は `dagayn` のレジストリ機能と `cross_repo_search_tool`（MCP）を使う。daemon設定はupstreamの `docs/DAEMON-CONFIG.md` を参照。
+複数リポジトリを登録して横断検索する場合は `dagayn` のレジストリ機能と `cross_repo_search_tool`（MCP）を使います。daemon設定はupstreamの `docs/DAEMON-CONFIG.md` を参照してください。
 
-## 環境変数（hook 関連）
+## 環境変数
 
 | 変数 | 意味 |
 | --- | --- |
-| `DAGAYN_HOOK_UPDATE=1` | hook 経由の更新中であることを示す |
+| `DAGAYN_HOOK_UPDATE=1` | hook 経由の更新中を示す |
 | `CRG_OPENAI_BATCH_SIZE` | リモート埋め込みAPIのバッチサイズ（sidecar 既定は1） |
 
-## 関連ページ
+## 次に読む
 
-- [クイックスタート](/projects/dagayn/quickstart/)
-- [MCP ツール](/projects/dagayn/mcp-tools/)
-- [トラブルシューティング](/projects/dagayn/troubleshooting/)
+日常運用の手順は [使い方](/projects/dagayn/usage/) です。レビューフローは [レビューと影響分析](/projects/dagayn/review-analysis/) へ。

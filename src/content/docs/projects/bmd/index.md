@@ -6,20 +6,91 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [bmd](https://github.com/manji-0/bmd) · 対象バージョン: **v0.5.0**
+> ソースリポジトリ: [bmd](https://github.com/manji-0/bmd) · 対象バージョン: **v0.5.0** · ライセンス: Apache-2.0
 
-**bmd** は、ターミナルのままMarkdownを読むためのTUIです。ブラウザも外部のJSランタイムも要りません。差が出やすいのは、vim風の操作感と、[merman](https://crates.io/crates/merman)によるネイティブなMermaid描画です。KittyやiTerm2、WezTerm、Ghosttyなどグラフィックス対応端末では図や画像をインラインに出し、未対応ならUnicodeハーフブロックに落ちます。
+**bmd** は、ターミナルのままMarkdownを読むためのTUIです。ブラウザも外部のJSランタイムも要りません。
 
-見出しからテーブル、コードハイライト、タスクリスト（セッション内のトグルのみ）、文書内検索、リンクまわり（Web / アンカー / 相対 `.md` / プレビュー）まで、読むのに必要な一式は入っています。v0.5.0からは見出しアウトライン（`t`）、スクロールマーク（`ma` / `'a`）、yank（選択・リンク・見出しslug・コードブロック）もあります。編集やチェックボックスのファイル書き戻しはしません。
+## 目的
 
-## どこから読むか
+READMEや設計メモをエディタと別ウィンドウに出さず、ターミナル内で読めるようにします。
 
-[インストール](/projects/bmd/installation/) のあと [クイックスタート](/projects/bmd/quickstart/) で一度開けば十分です。キーは [キーバインド](/projects/bmd/keybindings/)、テーマやkeymapは [設定](/projects/bmd/configuration/)、ソースを触る人は [開発環境](/projects/bmd/development/) へ。
+## 背景
 
-## 向いていること / 向いていないこと
+開発中のドキュメントはエディタ横にブラウザを置く運用が多いですが、SSH先やタイル型端末ではウィンドウ分割が煩雑になります。Mermaid図の確認だけのためにHTMLを生成する手間も避けたい場面があります。
 
-READMEや設計メモをエディタと別ウィンドウに出さず読みたいとき、Mermaidをブラウザなしで確認したいときに向いています。長い文書を `j`/`k` と検索で辿る使い方も想定しています。
+## 関連文書
 
-WYSIWYGのMarkdown編集や、タスクリストの永続化が欲しい用途には向きません。グラフィックス非対応の端末でも読めますが、図の見た目は落ちます。
+| 種別 | リンク |
+| --- | --- |
+| upstream | [PLAN.md](https://github.com/manji-0/bmd/blob/main/PLAN.md)（設計メモ、日本語） |
+| upstream | `docs/func-check/`（機能確認用Markdown） |
 
-設計メモをターミナルで読む用途が中心です。ライセンスはApache-2.0です。
+## 目標
+
+vim風の操作で長文を `j`/`k` と検索で辿れるようにします。[merman](https://crates.io/crates/merman) によるネイティブMermaid描画で、ブラウザなしに図を確認できるようにします。KittyやiTerm2等のグラフィックス端末では図や画像をインライン表示し、未対応端末ではUnicodeハーフブロックにフォールバックします。
+
+## 対象外
+
+WYSIWYGのMarkdown編集、タスクリストのファイル書き戻し、Webアプリのレンダリング代替には向きません。グラフィックス非対応端末でも読めますが、図の見た目は落ちます。
+
+## シナリオ
+
+1. 開発者がSSH先のリポジトリで `bmd docs/design.md` を起動する。
+2. `t` で見出しアウトラインを開き、該当セクションへジャンプする。
+3. 文中のMermaidブロックで `o` を押し、mermanがKittyプロトコルで図をインライン表示する。
+4. 相対リンク `./api.md` を `Enter` で開き、ファイルスタックで戻る。
+5. `/` で用語を検索し、該当箇所へ移動する。
+
+## 構成
+
+```mermaid
+flowchart LR
+  Input[Markdown入力] --> Parse[pulldown-cmark]
+  Parse --> Domain[ドメインモデル]
+  Domain --> Render[ratatui描画]
+  Domain --> Mermaid[merman]
+  Mermaid --> Gfx{グラフィックス端末?}
+  Gfx -->|Yes| Inline[Kitty/iTerm等]
+  Gfx -->|No| HalfBlock[Unicodeハーフブロック]
+  Render --> TUI[TUI表示]
+  Inline --> TUI
+  HalfBlock --> TUI
+```
+
+見出し、テーブル、コードハイライト（syntect）、タスクリスト（セッション内トグルのみ）、文書内検索、リンク（Web / アンカー / 相対 `.md` / プレビュー）を備えます。v0.5.0から見出しアウトライン（`t`）、スクロールマーク（`ma` / `'a`）、yank（選択・リンク・見出しslug・コードブロック）もあります。
+
+## 制約
+
+編集やチェックボックスの永続化は行いません。WebリンクはmacOSで `open`、Linuxで `xdg-open` に依存します。アンカーと文書ナビのスタックは各最大64層です。
+
+## インタフェース
+
+| 面 | 入口 |
+| --- | --- |
+| CLI | `bmd README.md`、`bmd < file.md`、パイプ |
+| キー操作 | Normal / Search / Preview モード（[キーバインド](/projects/bmd/keybindings/)） |
+| 設定 | `~/.config/bmd/config.toml`（[設定](/projects/bmd/configuration/)） |
+
+## 依存
+
+| 依存 | 役割 |
+| --- | --- |
+| ratatui / crossterm | TUI描画・入力 |
+| pulldown-cmark | Markdownパース |
+| syntect | コードハイライト |
+| merman | Mermaidラスター描画 |
+| ratatui-image / image | 画像プレビュー |
+
+Rust 1.92以上が必要です（パッケージの `rust-version` に準拠）。
+
+## 検討して捨てた案
+
+**ブラウザプレビュー必須**：オフラインとSSH先での即読を優先し、TUI内完結にしました。
+
+**Mermaidを外部CLI（mmdc等）に委譲**：Node依存と起動コストを避け、mermanによるネイティブ描画にしました。
+
+**編集モード**：スコープを読む体験に絞り、ファイル書き戻しは載せませんでした。
+
+## 次に読む
+
+インストールと起動は [使い方](/projects/bmd/usage/) です。Mermaid描画の詳細は [レンダリング](/projects/bmd/rendering/) へ。

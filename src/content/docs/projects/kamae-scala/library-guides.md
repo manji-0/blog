@@ -5,21 +5,9 @@ sidebar:
   label: "ライブラリガイド（参照）"
 ---
 
-Cats、Circe、doobieなどはKamaeのドメイン規約を**補助**するライブラリである。トピック別リファレンス（エラーハンドリング、境界防御など）と矛盾する場合は、そちらを優先する。
+## 範囲
 
-ここでは「よくある組み合わせ」とデフォルトの置き場所をまとめる。個別の設計判断は [エラーハンドリング](/projects/kamae-scala/error-handling/)、[境界防御](/projects/kamae-scala/boundary-defense/)、[ドメインモデリング](/projects/kamae-scala/domain-modeling/)、[PII 保護](/projects/kamae-scala/pii-protection/) を参照する。
-
-| 用途 | ガイド付きライブラリ | 検出のみ（ローカル慣習の参考） |
-| --- | --- | --- |
-| エフェクト | `cats-core`、`cats-effect`、`zio` | `monix`、`scalaz` |
-| JSON | `circe` | Play JSON、`jsoniter-scala` |
-| HTTP | `http4s`、`sttp` | Pekko HTTP、Play |
-| 設定 | `pureconfig` | `caliban` config、Typesafe Config 直読み |
-| SQL / ORM | `doobie`、`slick` | Quill、skunk |
-| ストリーム | `fs2` | Akka Streams、Pekko Streams |
-| 検証 / newtype | `refined` | `newtype`、手書き opaque type |
-| PII / シークレット | opaque credential wrapper（本ガイド [secrets](#secrets)） | `vault` 連携、環境変数直読み |
-| テスト | `scalacheck`、`munit` | `ScalaTest`、`specs2` |
+`build.sbt`に応じた依存ライブラリの置き方です。トピック別の設計判断は実装3本を優先してください。
 
 ## cats
 
@@ -34,8 +22,8 @@ Cats、Circe、doobieなどはKamaeのドメイン規約を**補助**するラ�
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
-| `cats-effect` + ポート | リポジトリ trait は `F[_]`、実装は `IO` | [アプリケーション配線](/projects/kamae-scala/application-wiring/) |
-| `ApplicativeError` + ユースケース | ビジネス失敗を型付きエラーで表現 | [エラーハンドリング](/projects/kamae-scala/error-handling/) |
+| `cats-effect` + ポート | リポジトリ trait は `F[_]`、実装は `IO` | [アプリケーション配線](/projects/kamae-scala/domain-modeling/) |
+| `ApplicativeError` + ユースケース | ビジネス失敗を型付きエラーで表現 | [状態遷移](/projects/kamae-scala/state-transitions/) |
 | `Either` + ドメイン | 遷移は純粋 `Either`、ユースケースが `fromEither` | [状態遷移](/projects/kamae-scala/state-transitions/) |
 
 ## zio
@@ -45,13 +33,13 @@ ZIOがあるとき：
 - ユースケースを `ZIO[Env, UseCaseError, A]` でモデルする
 - ドメイン遷移は純粋に保ち、`ZIO.fromEither` で呼ぶ
 - レイヤーはcomposition rootのみで提供する
-- ビジネス失敗には `Throwable` ではなく型付きエラーをエラーチャネルに使う
+- ビジネス失敗には型付きエラーをエラーチャネルに使う
 
 ドメインパッケージは、プロジェクトがエフェクト型をアプリケーションコードと明示的に同居させない限り `zio` に依存しない。
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
-| `ZLayer` + ポート | アダプター実装のみレイヤー化 | [アプリケーション配線](/projects/kamae-scala/application-wiring/) |
+| `ZLayer` + ポート | アダプター実装のみレイヤー化 | [アプリケーション配線](/projects/kamae-scala/domain-modeling/) |
 | `ZIO` + `Either` 遷移 | `fromEither` でドメインを呼ぶ | [状態遷移](/projects/kamae-scala/state-transitions/) |
 
 ## circe
@@ -116,7 +104,7 @@ Play JSONを使うプロジェクトでも境界ルールは同じ： DTOに `Re
 | --- | --- | --- |
 | `circe` + DTO | `Decoder` → `Either` マッピング | [境界防御](/projects/kamae-scala/boundary-defense/) |
 | `circe` + http4s | `EntityDecoder` で DTO、ハンドラでドメイン変換 | [境界防御](/projects/kamae-scala/boundary-defense/) |
-| `circe` + イベント | 外向きイベント DTO のみ codec | [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) |
+| `circe` + イベント | 外向きイベント DTO のみ codec | [永続化とイベント](/projects/kamae-scala/state-transitions/) |
 
 ## doobie
 
@@ -128,13 +116,13 @@ doobieはSQLアダプター向けであり、ドメインモデリング向け�
 
 ### トランザクションはアダプターに属する
 
-ドメイン遷移内ではなく、アダプターまたはユースケース境界で `transact(xa)` を使う。1コマンドの状態変更とoutbox挿入は同一トランザクションを共有する。
+アダプターまたはユースケース境界で `transact(xa)` を使う。1コマンドの状態変更とoutbox挿入は同一トランザクションを共有する。
 
 ### ConnectionIO を漏らさない
 
 リポジトリtraitはポートレベルで `F[_]`（通常 `IO`）を使う。`ConnectionIO` はアダプター実装内に留める。
 
-詳細は [ORM アダプター](/projects/kamae-scala/orm-adapters/) を参照する。
+詳細は [ORM アダプター](/projects/kamae-scala/domain-modeling/) を参照する。
 
 ## slick
 
@@ -146,7 +134,7 @@ doobieはSQLアダプター向けであり、ドメインモデリング向け�
 
 ### 返す前にマップする
 
-`RequestRow`（相当）をアダプター内で、[ORM アダプター](/projects/kamae-scala/orm-adapters/) と同じ検証マッパーでドメイン状態に変換する。
+`RequestRow`（相当）をアダプター内で、[ORM アダプター](/projects/kamae-scala/domain-modeling/) と同じ検証マッパーでドメイン状態に変換する。
 
 ### セッションとトランザクション
 
@@ -170,7 +158,7 @@ FS2は読み取り側のストリームポート、outboxディスパッチ、�
 
 `interruptWhen` またはファイバキャンセルでストリームをコンパイルし、コンシューマ切断時にDBポーリングを止める。
 
-詳細は [ストリームと継続クエリ](/projects/kamae-scala/stream-continuous-queries/) を参照する。
+詳細は [ストリームと継続クエリ](/projects/kamae-scala/domain-modeling/) を参照する。
 
 ## refined
 
@@ -199,11 +187,11 @@ def parseRequestId(raw: String): Either[BoundaryError, NonEmptyString] =
   refineEither[NonEmpty](raw).left.map(_ => BoundaryError.EmptyId("request_id"))
 ```
 
-refined DTOフィールドを、アダプター境界で明示的エラー ADT付きopaqueドメインIDにマップする。[境界防御](/projects/kamae-scala/boundary-defense/)、[ドメインマクロ](/projects/kamae-scala/domain-macros/) も参照する。
+refined DTOフィールドを、アダプター境界で明示的エラー ADT付きopaqueドメインIDにマップする。[境界防御](/projects/kamae-scala/boundary-defense/)、[ドメインマクロ](/projects/kamae-scala/domain-modeling/) も参照する。
 
 ## secrets
 
-完全なパターンは [PII 保護](/projects/kamae-scala/pii-protection/) を優先する。本節は資格情報とAPIキー向けのScala固有デフォルトを扱う。
+完全なパターンは [PII 保護](/projects/kamae-scala/boundary-defense/) を優先する。本節は資格情報とAPIキー向けのScala固有デフォルトを扱う。
 
 ドメインまたはユースケース層に生の `String` でシークレットを置かない。`toString` を制限したopaque type、あるいは生値を決してログしない専用wrapperを優先する。
 
@@ -223,9 +211,9 @@ object ApiToken:
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
-| opaque secret + アダプター | auth モジュールのみ `expose` | [PII 保護](/projects/kamae-scala/pii-protection/) |
-| ログ | token フィールドをログしない。構造化 `***` プレースホルダ | [ロギングとメトリクス](/projects/kamae-scala/logging-metrics/) |
-| PII vs secrets | 個人データは redacted 型、資格情報は secret wrapper | [PII 保護](/projects/kamae-scala/pii-protection/) |
+| opaque secret + アダプター | auth モジュールのみ `expose` | [PII 保護](/projects/kamae-scala/boundary-defense/) |
+| ログ | token フィールドをログしない。構造化 `***` プレースホルダ | [ロギングとメトリクス](/projects/kamae-scala/quality-gates/) |
+| PII vs secrets | 個人データは redacted 型、資格情報は secret wrapper | [PII 保護](/projects/kamae-scala/boundary-defense/) |
 
 検出のみ： `pureconfig` のsecret loader — 境界で検証し、ドメインコード実行前にopaque型へマップする。
 
@@ -246,7 +234,7 @@ property("valid ids construct") {
 }
 ```
 
-generator設計、状態プロパティ、CI予算、regressionファイルは [プロパティベーステスト](/projects/kamae-scala/property-based-tests/) を参照する。
+generator設計、状態プロパティ、CI予算、regressionファイルは [プロパティベーステスト](/projects/kamae-scala/quality-gates/) を参照する。
 
 ## pureconfig
 
@@ -265,7 +253,7 @@ PureConfigは設定ファイルを読む。ドメインコマンドを読まな�
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `pureconfig` + 起動 | config case class → ドメイン検証 | [境界防御](/projects/kamae-scala/boundary-defense/) |
-| `pureconfig` + secrets | 読み込み後すぐ opaque 型へ | [PII 保護](/projects/kamae-scala/pii-protection/) |
+| `pureconfig` + secrets | 読み込み後すぐ opaque 型へ | [PII 保護](/projects/kamae-scala/boundary-defense/) |
 
 ## http4s
 
@@ -309,18 +297,18 @@ def assignDriverRoutes(useCase: AssignDriver[IO]): HttpRoutes[IO] =
 
 ### クライアントも adapter
 
-`Client[F]` wrapperはインフラに置く。タイムアウト、リトライ、サーキットブレーカはクライアント層。失敗は型付き `ClientError` / ユースケースエラーへ。冪等GETまたはキー付き書き込みだけリトライする。[サービス境界](/projects/kamae-scala/service-boundaries/) を参照。
+`Client[F]` wrapperはインフラに置く。タイムアウト、リトライ、サーキットブレーカはクライアント層。失敗は型付き `ClientError` / ユースケースエラーへ。冪等GETまたはキー付き書き込みだけリトライする。本ページを参照。
 
 ### ミドルウェア配置
 
-ログ、メトリクス、相関ID、トレースはcomposition rootでHTTPアプリを包む。アクセスログにTier A/B PIIを出さない。[ロギングとメトリクス](/projects/kamae-scala/logging-metrics/) と [PII 保護](/projects/kamae-scala/pii-protection/) を参照。
+ログ、メトリクス、相関ID、トレースはcomposition rootでHTTPアプリを包む。アクセスログにTier A/B PIIを出さない。[ロギングとメトリクス](/projects/kamae-scala/quality-gates/) と [PII 保護](/projects/kamae-scala/boundary-defense/) を参照。
 
 テストはfakeユースケース付きの `http4s-munit`（またはEmber/Blaze test client）を優先し、fake portで足りるなら実DBを避ける。
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `http4s` + circe | DTO codec、ハンドラでドメイン変換 | [境界防御](/projects/kamae-scala/boundary-defense/) |
-| `http4s` + ユースケース | 薄いルート、端でエラーマップ | [サービス境界](/projects/kamae-scala/service-boundaries/) |
+| `http4s` + ユースケース | 薄いルート、端でエラーマップ | 本ページ |
 
 ## sttp
 
@@ -351,19 +339,23 @@ final class SttpBillingGateway[F[_]: Sync](
 
 ### タイムアウトとリトライは backend 側
 
-read/connectタイムアウトとリトライ方針はbackendかリクエストオプションで設定する。冪等GET、もしくは冪等キー付き書き込みだけリトライする。timeout / 接続失敗は `BillingError.Timeout` / `Unavailable` など型付きエラーへ。[サービス境界](/projects/kamae-scala/service-boundaries/) を参照。
+read/connectタイムアウトとリトライ方針はbackendかリクエストオプションで設定する。冪等GET、もしくは冪等キー付き書き込みだけリトライする。timeout / 接続失敗は `BillingError.Timeout` / `Unavailable` など型付きエラーへ。本ページを参照。
 
 ### シークレットとヘッダ
 
-APIキーとbearerはopaque secret wrapperに置く。リクエスト構築時にadapterで注入し、AuthorizationをログやエラーADTに出さない。[secrets](#secrets) と [PII 保護](/projects/kamae-scala/pii-protection/) を参照。
+APIキーとbearerはopaque secret wrapperに置く。リクエスト構築時にadapterで注入し、AuthorizationをログやエラーADTに出さない。[secrets](#secrets) と [PII 保護](/projects/kamae-scala/boundary-defense/) を参照。
 
 ### 相関コンテキスト
 
-ingressの `correlation_id` / traceヘッダをoutboundへ伝播する。設定はadapter端。ドメインコードでは行わない。[ロギングとメトリクス](/projects/kamae-scala/logging-metrics/) を参照。
+ingressの `correlation_id` / traceヘッダをoutboundへ伝播する。設定はadapter端。ドメインコードでは行わない。[ロギングとメトリクス](/projects/kamae-scala/quality-gates/) を参照。
 
 ユースケーステストではポートをfakeする。adapterテストはライブ端点よりstub backendや記録フィクスチャを優先する。
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
-| `sttp` + ポート | gateway trait、adapter実装 | [アプリケーション配線](/projects/kamae-scala/application-wiring/) |
-| `sttp` + レジリエンス | backendでtimeout/retry | [サービス境界](/projects/kamae-scala/service-boundaries/) |
+| `sttp` + ポート | gateway trait、adapter実装 | [アプリケーション配線](/projects/kamae-scala/domain-modeling/) |
+| `sttp` + レジリエンス | backendでtimeout/retry | 本ページ |
+
+## 次に読む
+
+設計の正は[ドメインモデリング](/projects/kamae-scala/domain-modeling/)から実装3本。コマンドは[品質ゲート](/projects/kamae-scala/quality-gates/)です。

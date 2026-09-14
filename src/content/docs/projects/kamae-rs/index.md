@@ -10,44 +10,77 @@ sidebar:
 
 _Kamae（構え）— 備えの姿勢。_
 
-Kamae Rustは、サーバーサイドのドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集です。[kamae-ts](https://github.com/iwasa-kosui/kamae-ts) のRust向け兄弟で、同じ思想を列挙型・newtype・`TryFrom`・`Result` など、Rustのイディオムに落とし込みます。
+## 目的
 
-守りたいのは、文字列のまま混ざるドメイン概念、`status` とOptionalで表せてしまう無効状態、想定内失敗での `unwrap` / `panic!`、API JSONやDB行のドメイン直使い、観測経路へのPII、状態とイベントの非アトミックな永続化です。全部を通読する必要はなく、いま触っているトピックだけ開けば十分です。各ページ末尾の **レビュー観点** は、そのトピックのレビュー用チェックです。
+Kamae Rustは、サーバーサイドのドメインコードを型で守り、レビューしやすくするための設計スタンスとガイド集です。列挙型・newtype・`TryFrom`・`Result`などRustのイディオムに、同じ思想を落とし込みます。
 
-ここで示すのは強い既定であり、絶対的な規則ではありません。既存の慣習と衝突する場合は慣習を優先し、ドメインの安全性に影響する逸脱だけを短く記録してください。
+## 背景
 
-## どこから読むか
+文字列のまま混ざるドメイン概念、`status`とOptionalで表せる無効状態、想定内失敗での`unwrap`/`panic!`、API JSONやDB行のドメイン直使い、観測経路へのPII、状態とイベントの非アトミックな永続化が、変更のたびにレビュー負荷を上げます。[kamae-ts](https://github.com/iwasa-kosui/kamae-ts)のRust向け兄弟として、同じ防波堤を共有します。
 
-| 目的 | 読む順 |
+## 関連文書
+
+| 文書 | 役割 |
 | --- | --- |
-| 新規ドメインを型で起こす | [ドメインモデリング](/projects/kamae-rs/domain-modeling/) → [状態遷移](/projects/kamae-rs/state-transitions/) → [境界防御](/projects/kamae-rs/boundary-defense/) → [エラーハンドリング](/projects/kamae-rs/error-handling/) |
-| 端から端まで追う | [タクシー配車の例](/projects/kamae-rs/examples/taxi-request/)（ドメインまで） |
-| 保存とイベントを揃える | [集約とトランザクション境界](/projects/kamae-rs/aggregate-transactions/) → [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
-| 既存コードへ入れる | [段階的導入](/projects/kamae-rs/adoption/) |
-| 仕上げのゲート | [品質ゲート](/projects/kamae-rs/quality-gates/) |
+| [kamae-py](/projects/kamae-py/) | Python向けの同系ガイド |
+| [kamae-scala](/projects/kamae-scala/) | Scala 3向けの同系ガイド |
+| [kamae-model-translator](/projects/kamae-model-translator/) | 言語間移植・wire連携のAgent Skill |
+| [kamae-rs リポジトリ](https://github.com/manji-0/kamae-rs) | スキル本体・テンプレート・review probe |
 
-それ以外はサイドバーから必要なトピックだけ開いてください。
+## 目標
 
-## スキルとして入れる
+- 無効状態を型で表現できないようにする
+- 遷移を純粋関数に寄せ、副作用はユースケースとアダプターへ集約する
+- 外部データはDTO経由でだけドメインへ入る
+- ローカルとCIで同じ品質ゲートを回せる
 
-実装時は `kamae-rs`、差分レビュー時は `kamae-rs-review` です。
+## 対象外
+
+フレームワーク選定の一般論、ORMの入門、インフラ全体の設計、コード生成器としての利用は対象外です。単一言語内で足りる作業は各ページを通読する必要はありません。
+
+## シナリオ
+
+| 状況 | 読む順 |
+| --- | --- |
+| 新規ドメインを型で起こす | [ドメインモデリング](/projects/kamae-rs/domain-modeling/) → [状態遷移](/projects/kamae-rs/state-transitions/) → [境界防御](/projects/kamae-rs/boundary-defense/) |
+| スキルを入れて実装を始める | [使い方](/projects/kamae-rs/usage/) → 上記実装3本 |
+| 依存クレートの置き方を確認する | [クレートガイド](/projects/kamae-rs/crate-guides/) |
+| PR前のチェックを揃える | [品質ゲート](/projects/kamae-rs/quality-gates/) |
+
+## 構成
+
+| 層 | ページ |
+| --- | --- |
+| 設計（トップ） | はじめに |
+| 実装 | ドメインモデリング、状態遷移、境界防御 |
+| リファレンス | 使い方、クレートガイド、品質ゲート |
+
+旧トピックURLは移動先へリダイレクトします。`references/`配下はすでにリダイレクト済みです。
+
+## 制約
+
+ここで示すのは強い既定です。既存の慣習と衝突する場合は慣習を優先し、ドメインの安全性に影響する逸脱だけを短く記録してください。各実装ページ末尾のレビュー観点は、そのトピックの確認項目です。
+
+## インタフェース
+
+エージェント向けの入口はAgent Skillです。実装時は`kamae-rs`、差分レビュー時は`kamae-rs-review`を使います。
 
 ```bash
 npx skills add manji-0/kamae-rs -s kamae-rs -s kamae-rs-review -g -y
 ```
 
-チームの命名やクレート好みは `.claude/rules/` / `.codex/rules/` で上書きできます。
+チームの命名やクレート好みは`.claude/rules/` / `.codex/rules/`で上書きできます。詳細は[使い方](/projects/kamae-rs/usage/)です。
 
-## よく参照する節
+## 依存
 
-| トピック | 正規リファレンス |
-| --- | --- |
-| 薄いユースケース | [アプリケーション配線](/projects/kamae-rs/application-wiring/#依存を持つ-struct-としてユースケースをモデル化する) |
-| 楽観的並行性 | [集約とトランザクション境界](/projects/kamae-rs/aggregate-transactions/) |
-| リポジトリとイベント | [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
-| E2E（ドメイン） | [タクシー配車の例](/projects/kamae-rs/examples/taxi-request/) |
-| 品質ゲートコマンド | [品質ゲート](/projects/kamae-rs/quality-gates/) |
+`Cargo.toml`に応じて[クレートガイド](/projects/kamae-rs/crate-guides/)を参照してください。エラー処理は`thiserror`/`anyhow`、シリアライズは`serde`、検証やnewtypeは`validator`/`garde`/`nutype`が中心です。シークレットは`secrecy`、観測は`tracing`/`metrics`、テストは`proptest`のガイドがあります。
 
-## 依存クレートを調べる
+## 検討して捨てた案
 
-`Cargo.toml` に応じて、必要なときだけ [クレートガイド](/projects/kamae-rs/crate-guides/) を参照してください。エラー処理は `thiserror` / `anyhow`、シリアライズは `serde`、検証やnewtypeは `validator` / `garde` / `nutype` が中心です。シークレットは `secrecy`、観測は `tracing` / `metrics`、テストは `proptest` のガイドがあります。
+- トピックごとに独立した長文リファレンスをすべてブログに載せる案（メンテコストと重複が大きい）
+- 単一の「手順だけ」クイックスタート（設計判断の文脈が欠ける）
+- 旧URLを削除する案（ブックマークと外部リンクを壊す）
+
+## 次に読む
+
+初めてなら[使い方](/projects/kamae-rs/usage/)でスキルとテンプレートを入れ、[ドメインモデリング](/projects/kamae-rs/domain-modeling/)から実装3本を読んでください。仕上げは[品質ゲート](/projects/kamae-rs/quality-gates/)です。

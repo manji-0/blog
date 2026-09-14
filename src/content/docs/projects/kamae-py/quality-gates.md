@@ -4,13 +4,9 @@ sidebar:
   order: 10
 ---
 
-ドメイン方針は「レビューで気づく」だけでは再現性がない。触ったパッケージではフォーマット・リント・型チェック・焦点を絞ったテストをローカルとCIの両方で同じコマンドに揃える。ここが正規のコマンド一覧である。
-
-初回セットアップは [開発環境とセットアップ](/projects/kamae-py/development-setup/)、GitHub Actionsへの反映は [CI セットアップ](/projects/kamae-py/ci-setup/) を参照する。
+触ったパッケージでフォーマット・リント・型チェック・焦点を絞ったテストをローカルとCIで同じコマンドに揃える方法を扱います。初回セットアップは[使い方](/projects/kamae-py/usage/)、ポリシー詳細はリポジトリの`check_kamae_policy.py`を参照してください。
 
 ## ベースラインコマンド
-
-uvでプロジェクトツールを実行する。リポジトリに既存コマンドがあればそれを優先する。なければ触れたPythonコード向けに次のデフォルトを使う。
 
 ```bash
 uv run ruff format .
@@ -19,148 +15,76 @@ uv run pyrefly check .
 uv run pytest
 ```
 
-狭い変更では、触れたファイルと状態をカバーする最小コマンドを実行し、制限を述べる。
+狭い変更では触れたファイルと関連stateをカバーする最小コマンドを実行し、制限を述べます。リポジトリに既存の`make check`や`task check`があればそれを正とします。
 
-初回ローカルセットアップは [開発環境とセットアップ](/projects/kamae-py/development-setup/) を読み、[`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ下のファイルが含まれるが、このリポジトリルートの `pyproject.toml`、`uv.lock`、`.github/`、`scripts/` は確実にはインストールされない。
+## スキルパッケージとポリシー
 
-## スキルパッケージとポリシーチェック
-
-スキル/プラグインリポジトリではさらに実行する：
+スキル/プラグインリポジトリではさらに次を実行します。
 
 ```bash
 uv run python scripts/validate_package.py
-uv run python path/to/kamae-py/scripts/check_kamae_policy.py --include-tests --strict
+uv run python skills/kamae-py/scripts/check_kamae_policy.py --include-tests --strict
 ```
 
-**kamae-py** リポジトリ自体では `skills/kamae-py/scripts/check_kamae_policy.py` を使う。CIでは `ruff format --check` を使う。チェック失敗時はローカルで `ruff format .` で適用する。ワークフロー配線は [CI セットアップ](/projects/kamae-py/ci-setup/)、このリポジトリの開発ワークフローは [開発環境とセットアップ](/projects/kamae-py/development-setup/) を参照。
+CIでは`ruff format --check`を使い、失敗時はローカルで`uv run ruff format .`を適用します。[テンプレート](https://github.com/manji-0/kamae-py/tree/main/skills/kamae-py/assets/templates/)の`ci.yml`をマージしてGitHub Actionsへ載せます。
 
-## ドメイン安全性に重要な Ruff シグナル
+## Ruffで見るシグナル
 
-フォーマットは差分をレビューしやすくし、ドメイン、境界、PII、ネイティブ、永続化の変更を検査しやすくする。
+- 広い`except Exception`、飲み込まれた例外、無視されたawaitable
+- `print`、Pydanticモデルの生ログ、機密値の文字列フォーマット
+- ビジネス検証への`assert`、可変デフォルト、遷移内の暗黙的時刻/乱数
+- 境界付近の未検証`Any`、広い`dict`、`type: ignore`、`cast`
+- 浮動小数点の金額、単位のない量
 
-無効状態や運用失敗を隠しうるパターンに特に注意する：
+## 型チェック（pyrefly）
 
-- 広い `except Exception`、飲み込まれた例外、無視されたawaitable。
-- `print`、Pydanticモデルの生ログ、機密値の文字列フォーマット。
-- 実行時ビジネス検証に使われる `assert`。
-- 可変デフォルト、グローバル可変状態、遷移内の暗黙的時刻/乱数。
-- ドメイン境界付近の未検証 `Any`、広い `dict`、`type: ignore`、`cast`。
-- 浮動小数点の金額、損失のあるキャスト、単位のない量。
-
-すべてのリントをグローバルに有効化する必要はない。変更したコードやローカル設定に現れた警告は、レビュー時の判断材料として扱う。
-
-## 型チェック
-
-プロジェクトに設定があればpyreflyまたはpyrightを実行する。Pydantic v2プロジェクトではpyreflyを優先する。Pydanticサポートは組み込みで、`extra="forbid"`、`frozen=True`、フィールドの `strict=True` といったモデル設定を直接読む。完全な `[tool.pyrefly]` 例： [ドメインモデリング](/projects/kamae-py/domain-modeling/#pyrefly-で-pydantic-モデルを検査する)。
-
-Pyreflyは素の型チェッカーが見逃しうるPydantic固有リスクを検出する： frozenモデル変更、誤った `model_construct`、余分なコンストラクタキーワード、エイリアス不一致。
-
-判別共用体、リポジトリプロトコル、結果値、境界DTO、Pydanticモデル構築周りの型チェックを弱めない。
-
-抑制が必要なら狭く保ち、実行時検証またはアダプター契約が依然として不変条件を保つ理由を説明する。
+Pydantic v2プロジェクトではpyreflyを優先します。frozenモデル変更、誤った`model_construct`、余分なコンストラクタキーワードを検出します。抑制は狭く保ち、実行時検証かアダプター契約が不変条件を保つ理由を説明します。
 
 ## テスト
 
-ドメインコンストラクタ、遷移、DTO変換、PIIマスキング、ネイティブラッパー、リポジトリトランザクション、アウトボックス振る舞い、リトライ/冪等性経路向けに焦点を絞ったpytestを実行する。
+ドメインコンストラクタ、遷移、DTO変換、PIIマスキング、リポジトリTX、アウトボックス、リトライ/冪等経路に焦点を絞ります。値は公開コンストラクタとアダプタ経由で組み立て、HTTPやライブDBにユースケーステストを依存させません。Hypothesisは1プロパティ1不変条件で使い、generatorを本番パッケージへ置きません。
 
-生成、ベンダー、外部維持コードはフルリントバーから免除できるが、その周りの安全ラッパーは依然として境界検証、PII、ネイティブ境界ガイダンスに従う。
+## パフォーマンス
 
-## pre-commit 統合
+プロファイルしてから最適化します。純粋遷移はI/O・パース・隠れスキャンなしのO(fields)を保ち、ホットパス最適化は境界・リポジトリ・バッチジョブへ寄せます。検証コストが支配的なら`validate_json`の利用やDTOの`strict`設計を見直します。event loopを止めるCPU作業はコンポジションルートでオフロードします。
 
-コミット前に同じチェックをローカルで実行する。[pre-commit](https://pre-commit.com/) 設定フラグメント例：
+## 観測とAPI契約
+
+テレメトリ既定はOpenTelemetryです。ログは構造化フィールドで相関IDを載せ、メトリクスラベルにリクエストごとIDを載せません。公開APIのエラー形状とステータスコードは操作別に安定させ、生の`ValidationError` dictをクライアントへ返しません。詳細は[境界防御](/projects/kamae-py/boundary-defense/#piiと観測経路)です。
+
+## pre-commitとCIエントリポイント
 
 ```yaml
-# .pre-commit-config.yaml
+# .pre-commit-config.yaml（抜粋）
 repos:
   - repo: local
     hooks:
       - id: ruff-format
-        name: ruff format
         entry: uv run ruff format
         language: system
         types: [python]
-      - id: ruff-check
-        name: ruff check
-        entry: uv run ruff check --fix
-        language: system
-        types: [python]
       - id: pyrefly
-        name: pyrefly
         entry: uv run pyrefly check
         language: system
         types: [python]
         pass_filenames: false
-      - id: kamae-policy
-        name: kamae policy
-        entry: uv run python skills/kamae-py/scripts/check_kamae_policy.py --include-tests --strict
-        language: system
-        pass_filenames: false
 ```
-
-インストールと実行：
-
-```bash
-uv add --dev pre-commit
-uv run pre-commit install
-uv run pre-commit run --all-files
-```
-
-フックは高速に保つ。スイートが小さい場合を除き、すべてのコミットでフル `pytest` はCIで実行し、必ずしも毎コミットではない。高コストフックのスコープには `files:` パターンを使う。
-
-## Makefile と Taskfile パターン
-
-ローカルとCIが同じエントリポイントを共有するよう `uv run` コマンドを集約する。
-
-**Makefile:**
 
 ```makefile
-.PHONY: format lint typecheck test check
-
-format:
+.PHONY: check
+check:
 	uv run ruff format .
-
-lint:
 	uv run ruff check .
-
-typecheck:
 	uv run pyrefly check .
-
-test:
 	uv run pytest
-
-check: format lint typecheck test
 ```
 
-**Taskfile.yml**（[Task](https://taskfile.dev/)）:
+フックは高速に保ち、フル`pytest`はCIで毎コミット必須にしません。
 
-```yaml
-version: "3"
+## 次に読む
 
-tasks:
-  default:
-    deps: [format, lint, typecheck, test]
-
-  format:
-    cmds: [uv run ruff format .]
-
-  lint:
-    cmds: [uv run ruff check .]
-
-  typecheck:
-    cmds: [uv run pyrefly check .]
-
-  test:
-    cmds: [uv run pytest]
-
-  check:
-    deps: [format, lint, typecheck, test]
-```
-
-CIワークフローを `make check` または `task check` に向け、ローカルとパイプラインのドリフトを1か所で可視にする。GitHub Actions配線は [CI セットアップ](/projects/kamae-py/ci-setup/) を読む。
-
-## レビューで見るところ
-
-- 広い `# type: ignore` や説明のない `noqa` が、未検証 `Any`、ビジネス `assert`、PIIログ、境界デシリアライズのリスクを隠していないか。
-- 触れたコードのRuffとpyrefly/pyrightはクリーンか。
-- `uv run ruff format --check`・`ruff check`・pyrefly・pytestの実行方法が文書化され、触れたPythonはフォーマット済みかも確認する。
-
+| 目的 | ページ |
+| --- | --- |
+| uv・pyrefly導入 | [使い方](/projects/kamae-py/usage/) |
+| 境界とPII | [境界防御](/projects/kamae-py/boundary-defense/) |
+| 設計の全体像 | [はじめに](/projects/kamae-py/) |

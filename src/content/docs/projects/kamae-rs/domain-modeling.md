@@ -4,15 +4,15 @@ sidebar:
   order: 10
 ---
 
-意味の異なる値を同じ `String` や `i64` のまま置くと、コンパイラは区別できず、境界をすり抜けた値がドメイン深部まで届く。Kamaeではnewtype・enum・明示的なコンストラクタで意図を型に刻む。
+## 範囲
 
-ライフサイクル上の変化は [状態遷移](/projects/kamae-rs/state-transitions/)、外部データの取り込みは [境界防御](/projects/kamae-rs/boundary-defense/)、保存単位は [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) と揃える。
+newtype・enum・集約境界・ポートtraitなど、ドメイン型の置き方です。ライフサイクル上の変化は[状態遷移](/projects/kamae-rs/state-transitions/)、外部データの取り込みは[境界防御](/projects/kamae-rs/boundary-defense/)を参照してください。
 
 ## ドメイン概念を明示的に表現する
 
 プリミティブのままだと、単位の混同やIDの取り違えはコンパイル時に検出できない。newtypeのコストはボイラープレートより、誤った組み合わせを早く落とす効果の方が大きい。
 
-次の例は、空文字を拒否する `RequestId` による典型的なnewtypeである。
+次の例は、空文字を拒否する `RequestId` による典型的なnewtypeです。
 
 ```rust
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -56,7 +56,7 @@ pub enum TaxiRequest {
 
 集約は、まとめて原子的に変わる必要のある不変条件を所有する。ルールを所有する状態または集約に遷移メソッドを置き、他集約はIDで参照する。判断用に安定したスナップショットをロードするユースケースは除く。
 
-トランザクションスコープ・バージョニング・集約横断の調整は [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) を参照する。
+トランザクションスコープ・バージョニング・集約横断の調整は [永続化とイベント](/projects/kamae-rs/state-transitions/) を参照する。
 
 アクセス都合だけで無関係なエンティティを集めた「神」集約は避ける。2つの集約ルートをメモリ上で変更し、呼び出し側の両方のsaveに頼る遷移も避け、ユースケースと明示的なドメインイベントで集約をまたぐ変更する。
 
@@ -64,7 +64,7 @@ pub enum TaxiRequest {
 
 `new`、`try_new`、`TryFrom`、`FromStr` で構築時に不変条件を強制する。publicフィールドを公開すると、呼び出し元が検証を迂回して無効な組み合わせを作れてしまう。
 
-不変条件のない単純データ、または `#[cfg(test)]` 内のbuilderだけがstructリテラルを許容する。本番経路と同じコンストラクタをテストでも使う方針は [テストデータ](/projects/kamae-rs/test-data/) を参照する。
+不変条件のない単純データ、または `#[cfg(test)]` 内のbuilderだけがstructリテラルを許容する。本番経路と同じコンストラクタをテストでも使う方針は [テストデータ](/projects/kamae-rs/quality-gates/) を参照する。
 
 ## trait の derive は意図的に選ぶ
 
@@ -252,7 +252,7 @@ impl Hash for FareEstimate {
 }
 ```
 
-secretやPIIを含み、ログでmap keyとして誤用しうる型には `Hash` / `Eq` deriveしない。[PII 保護](/projects/kamae-rs/pii-protection/) を参照する。
+secretやPIIを含み、ログでmap keyとして誤用しうる型には `Hash` / `Eq` deriveしない。[PII 保護](/projects/kamae-rs/boundary-defense/) を参照する。
 
 ## テスト builder
 
@@ -306,14 +306,8 @@ builderはテストとフィクスチャ専用とする。テスト簡略化の�
 | `nutype` + `thiserror` | 生成 guard 付き検証 newtype（[クレートガイド（nutype）](/projects/kamae-rs/crate-guides/#nutype)） |
 | `rust_decimal` + newtypes | checked 算術の `Money`、`TaxRate` |
 | `serde(try_from)` + newtypes | JSON 境界のリーフ value object（[境界防御](/projects/kamae-rs/boundary-defense/)） |
-| `proptest` + builders | primitive に `Arbitrary` のあと `try_new`（[プロパティベーステスト](/projects/kamae-rs/property-based-tests/)） |
+| `proptest` + builders | primitive に `Arbitrary` のあと `try_new`（[プロパティベーステスト](/projects/kamae-rs/quality-gates/)） |
 
-## レビューで見るところ
+## 次に読む
 
-- 不変条件のある型にpublicフィールドや部分更新だけのミューテータがないか。
-- ID・金額・メールなど意味の違う値が素のプリミティブのまま混ざっていないか。
-- `Deserialize` / `FromRow` でドメイン不変条件がストレージ形状に張り付いていないかも見る。
-- `status` + Optionalの巨大structより状態ごとの型の方が明確でないか。
-- 単位・通貨・タイムゾーンが型や名前付きコンストラクタで分かれているか。
-- `types.rs` / `models.rs` に無関係な概念が溜まっていないかも確認する。
-
+遷移とエラーは[状態遷移](/projects/kamae-rs/state-transitions/)、境界は[境界防御](/projects/kamae-rs/boundary-defense/)。例のwalkthroughは[kamae-rs リポジトリのtaxi例](https://github.com/manji-0/kamae-rs/tree/main/skills/kamae-rs/examples)です。

@@ -1,26 +1,8 @@
 ---
-title: "開発環境"
-description: "track リポジトリの開発・コントリビュート"
+title: "（移動しました）"
+redirect: /projects/track/workspace/
 sidebar:
-  order: 7
+  hidden: true
 ---
 
-このページはtrack本体のソースをいじる人向けです。利用者向けの入れ方は [インストール](/projects/track/installation/) へ。
-
-```bash
-git clone https://github.com/manji-0/track.git
-cd track
-cargo build
-cargo test
-cargo build --release
-```
-
-言語はRust（Edition 2024、MSRV 1.88）、CLIはclap、DBはbundledのrusqliteです。Web UIはAxumにMiniJinja、HTMX 2、SSEを載せています。日時はchronoです。
-
-設計や機能の詳細はリポジトリ内のドキュメントを見てください。`DESIGN.md` と `docs/FUNCTIONAL_SPEC.md`、ワークスペースまわりの `docs/JJ_INTEGRATION.md`、Todayタスクの `docs/TODAY_TASK.md` があります。利用例は `docs/USAGE_EXAMPLES.md`、エージェント連携は `docs/LLM_INTEGRATION.md`、構成は `PROJECT_STRUCTURE.md`、変更履歴は `CHANGELOG.md` です。スキルは `skills/`（ルーター `track` とsetup / execute / advanced）。
-
-ライセンスはMITです。
-
-## 次に読む
-
-サイト側の入口は [はじめに](/projects/track/) です。ワークスペースの製品契約は [ワークスペース](/projects/track/workspace/) へ。
+このページは [ワークスペース](/projects/track/workspace/) へ移動しました。track本体のソースを触る人はupstreamの [DESIGN.md](https://github.com/manji-0/track/blob/main/DESIGN.md) を参照してください。

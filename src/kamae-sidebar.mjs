@@ -25,48 +25,8 @@ function group(root, label, paths, collapsed = true) {
 export function getKamaePythonSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/kamae-py/' },
-		{ label: 'ライブラリガイド（参照）', link: '/projects/kamae-py/library-guides/' },
-		group(
-			'kamae-py',
-			'ドメイン設計',
-			[
-				'domain-modeling',
-				'state-transitions',
-				'boundary-defense',
-				'error-handling',
-				'aggregates',
-				'persistence-events',
-			],
-			false,
-		),
-		group('kamae-py', 'アプリとインフラ', [
-			'application-wiring',
-			'migration-strategy',
-			'orm-adapters',
-			'service-boundaries',
-			'stream-continuous-queries',
-			'concurrency',
-			'infrastructure-resilience',
-			'unsafe-boundaries',
-		]),
-		group('kamae-py', '観測可能性', [
-			'pii-protection',
-			'loggable-identifiers',
-			'logging-metrics',
-		]),
-		group('kamae-py', 'テスト', ['test-data']),
-		group('kamae-py', '品質と公開 API', [
-			'python-performance',
-			'pydantic-performance',
-			'api-contracts',
-			'quality-gates',
-		]),
-		group('kamae-py', '開発環境', [
-			'development-setup',
-			'local-validation',
-			'ci-setup',
-		]),
-		group('kamae-py', '実践例', ['examples/taxi-request'], false),
+		group('kamae-py', '実装', ['domain-modeling', 'state-transitions', 'boundary-defense'], false),
+		group('kamae-py', 'リファレンス', ['usage', 'library-guides', 'quality-gates'], false),
 	];
 }
 
@@ -74,46 +34,8 @@ export function getKamaePythonSidebarItems() {
 export function getKamaeRustSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/kamae-rs/' },
-		{ label: 'クレートガイド（参照）', link: '/projects/kamae-rs/crate-guides/' },
-		group(
-			'kamae-rs',
-			'ドメイン設計',
-			[
-				'domain-modeling',
-				'state-transitions',
-				'boundary-defense',
-				'error-handling',
-				'aggregate-transactions',
-				'persistence-events',
-			],
-			false,
-		),
-		group('kamae-rs', 'アプリとインフラ', [
-			'application-wiring',
-			'adoption',
-			'service-boundaries',
-			'stream-continuous-queries',
-			'domain-macros',
-			'unsafe-boundaries',
-		]),
-		group('kamae-rs', '観測可能性', ['pii-protection', 'logging-metrics']),
-		group('kamae-rs', 'テスト', [
-			'test-data',
-			'property-based-tests',
-			'mutation-testing',
-		]),
-		group('kamae-rs', '品質と公開 API', [
-			'quality-gates',
-			'fmt-lint',
-			'rustdoc',
-		]),
-		group('kamae-rs', '開発環境', [
-			'dev-environment',
-			'local-validation',
-			'development-setup',
-			'ci-setup',
-		]),
-		group('kamae-rs', '実践例', ['examples/taxi-request'], false),
+		group('kamae-rs', '実装', ['domain-modeling', 'state-transitions', 'boundary-defense'], false),
+		group('kamae-rs', 'リファレンス', ['usage', 'crate-guides', 'quality-gates'], false),
 	];
 }
 
@@ -121,47 +43,12 @@ export function getKamaeRustSidebarItems() {
 export function getKamaeScalaSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/kamae-scala/' },
-		{ label: 'ライブラリガイド（参照）', link: '/projects/kamae-scala/library-guides/' },
 		group(
 			'kamae-scala',
-			'ドメイン設計',
-			[
-				'domain-modeling',
-				'state-transitions',
-				'boundary-defense',
-				'error-handling',
-				'aggregate-transactions',
-				'persistence-events',
-			],
+			'実装',
+			['domain-modeling', 'state-transitions', 'boundary-defense'],
 			false,
 		),
-		group('kamae-scala', 'アプリとインフラ', [
-			'application-wiring',
-			'adoption',
-			'effect-systems',
-			'orm-adapters',
-			'service-boundaries',
-			'stream-continuous-queries',
-			'domain-macros',
-			'jni-native-boundaries',
-		]),
-		group('kamae-scala', '観測可能性', ['pii-protection', 'logging-metrics']),
-		group('kamae-scala', 'テスト', [
-			'test-data',
-			'property-based-tests',
-			'mutation-testing',
-		]),
-		group('kamae-scala', '品質と公開 API', [
-			'quality-gates',
-			'fmt-lint',
-			'scaladoc',
-		]),
-		group('kamae-scala', '開発環境', [
-			'dev-environment',
-			'local-validation',
-			'development-setup',
-			'ci-setup',
-		]),
-		group('kamae-scala', '実践例', ['examples/taxi-request'], false),
+		group('kamae-scala', 'リファレンス', ['usage', 'library-guides', 'quality-gates'], false),
 	];
 }

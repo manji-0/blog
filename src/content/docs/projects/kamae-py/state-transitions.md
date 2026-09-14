@@ -4,13 +4,11 @@ sidebar:
   order: 10
 ---
 
-ライフサイクルは `status: str` とオプションフィールドの組み合わせではなく、許可された遷移ごとの純粋関数として表す。入力型をソース状態、戻り値型をターゲット状態に対応させると、コンパイラと型チェッカーが非法遷移を早期に落とせる。
+ライフサイクルを許可された遷移ごとの純粋関数として表し、想定内の失敗を明示的な戻り値に載せる方法を扱います。状態のデータ構造は[ドメインモデリング](/projects/kamae-py/domain-modeling/)、境界パースは[境界防御](/projects/kamae-py/boundary-defense/)が前提です。
 
-状態のデータ構造は [ドメインモデリング](/projects/kamae-py/domain-modeling/) で決める。永続化とイベント発行は遷移の外側（[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）に置き、失敗の型は [エラーハンドリング](/projects/kamae-py/error-handling/) と揃える。
+## 有効な遷移の関数表現
 
-## 有効な遷移を関数として表現する
-
-関数名はビジネスコマンド（`assign_driver` など）に合わせ、引数は遷移に必要なコンテキスト（アクター、時刻、外部ID）だけに絞る。戻り値は新しい状態と、必要ならドメインイベントをタプルで返す。
+関数名はビジネスコマンド（`assign_driver`など）に合わせ、引数は遷移に必要なコンテキストだけに絞ります。戻り値は新しい状態と、必要ならドメインイベントのタプルです。
 
 ```python
 from datetime import datetime
@@ -23,16 +21,15 @@ def assign_driver(waiting: Waiting, driver_id: UUID, now: datetime) -> EnRoute:
         passenger_id=waiting.passenger_id,
         driver_id=driver_id,
         assigned_at=now,
+        version=waiting.version + 1,
     )
 ```
 
-1つの状態だけが有効なときは、全体の共用体を受け入れない。`assign_driver(request: TaxiRequest, ...)` のように広い型を受け取ると、型チェックでは防げた無効状態を実行時に拒否する必要が生じる。
+ソース状態だけが有効なときは共用体全体を受け入れません。`assign_driver(request: TaxiRequest, ...)`のように広い型を取ると、型チェックで防げた無効状態を実行時拒否に戻します。共用体はAPI・リポジトリ・シリアライズの境界に置き、直ちに狭い状態型へ委譲します。
 
-集約全体の共用体はAPI、リポジトリ、シリアライズ、またはディスパッチの境界に置く。これらの境界では、直ちに狭い状態型を受け入れるハンドラーへ委譲する。
+## 部分共用体
 
-## 共有遷移には部分共用体を使う
-
-複数の状態から有効な遷移には、名前付きの部分共用体を定義する。
+複数状態から有効な遷移には名前付きの部分共用体を定義します。
 
 ```python
 type CancellableRequest = Waiting | EnRoute | InTrip
@@ -47,11 +44,9 @@ def cancel(request: CancellableRequest, reason: str, now: datetime) -> Cancelled
     )
 ```
 
-## 時刻、ID、乱数、副作用を注入する
+## 時刻・ID・副作用の注入
 
-遷移関数は `datetime.now()`、`uuid4()`、データベースクライアント、メッセージブローカー、ロギングを直接呼んではならない。テストで振る舞いを固定できるよう、これらの値はユースケースから引数として渡す。
-
-遷移がイベントを発行するときは、可変状態にイベントを隠すのではなく、小さな結果値を返すことを優先する。
+遷移関数は`datetime.now()`、`uuid4()`、DBクライアント、ブローカー、ロギングを直接呼びません。テストで固定できるよう、ユースケースから引数として渡します。イベントは可変状態に隠さず、小さな結果値で返します。
 
 ```python
 class TransitionOutcome[TState, TEvent](DomainModel):
@@ -59,11 +54,29 @@ class TransitionOutcome[TState, TEvent](DomainModel):
     events: tuple[TEvent, ...]
 ```
 
-PEP 695のジェネリックモデル構文にはPydantic 2.11以降が必要である。それより前の2.x系では、代わりに `typing.Generic` を継承する。
+PEP 695のジェネリックモデルにはPydantic 2.11以降が必要です。
 
-## ユースケースは薄く保つ
+## 期待される失敗の明示
 
-以下は**正規**のハッピーパス・ユースケース例である。ユースケースは読み込み、前提条件の確認、純粋遷移の呼び出し、イベント構築、状態とイベントの永続化をオーケストレーションする。ビジネスルールは単体テストしやすい名前付き関数に置く。
+想定内の拒否（見つからない、状態が違う、在庫不足）は戻り値のバリアントに載せます。ユースケースごとに失敗型を分け、catch-allの`AppError`は使いません。
+
+```python
+class RequestNotFound(DomainModel):
+    kind: Literal["request_not_found"] = "request_not_found"
+    request_id: UUID
+
+
+type AssignDriverError = Annotated[
+    RequestNotFound | InvalidState | DriverNotAvailable,
+    Field(discriminator="kind"),
+]
+```
+
+新規プロジェクトの既定はローカル`Ok`/`Err`です。既存で`returns`や`rustedpy`を使うなら名前を揃えます。ドメイン関数から広い`Exception`やHTTP例外は投げず、インフラ例外はアダプター境界でユースケースエラーにマップします。
+
+## 薄いユースケース
+
+ユースケースは読み込み、認可、純粋遷移、イベント構築、永続化の順でオーケストレーションします。ビジネスルールは単体テストしやすい名前付き関数に置きます。
 
 ```python
 async def assign_driver_use_case(
@@ -79,43 +92,28 @@ async def assign_driver_use_case(
 
     en_route = assign_driver(waiting, driver_id, now)
     event = driver_assigned_event(en_route, now)
-    await store.save_en_route(en_route, (event,))
+    await store.save_en_route(
+        en_route,
+        (event,),
+        expected_version=waiting.version,
+        idempotency_key=...,
+    )
     return Ok(en_route)
 ```
 
-`Ok` / `Err` の名前はプロジェクトがすでに使っている結果ライブラリに合わせる。プロジェクトがアプリケーションサービスに例外を使うなら、期待されるドメイン失敗は具体的に保ち、コントローラー境界で変換する。
+永続化エラーは早期リターンでユースケースエラーへ変換し、リトライ可能か補償かをここで決めます。遷移やユースケースは`ValidationError`を捕捉しません（信頼済みstate前提）。
 
-非同期 `Result` の合成とインフラエラーの境界については [エラーハンドリング](/projects/kamae-py/error-handling/) を読む。1コマンドのトランザクション範囲については [永続化、集約、イベント](/projects/kamae-py/persistence-events/) を読む。
+## 遷移前の認可
 
-## 遷移の前に認可する
+状態を変える前にアクター・テナント・能力を確認します。権限がドメインルールの一部なら遷移は認可値を受け入れてもよいですが、先にライフサイクルを進めてから認可しないでください。リソースの`tenant_id`は`ctx.tenant_id`と比較し、横断プローブには404か汎用拒否を返します。
 
-ユースケースは状態遷移を適用する前に、アクター、テナント、アカウント、または能力の認可を確認すべきだ。権限がドメインルールの一部なら遷移関数は認可値を受け入れてもよいが、ライフサイクル状態を先に変更してから認可を確認しない。
+## 並行遷移の保護
 
-```python
-async def assign_driver_use_case(
-    resolver: RequestResolver,
-    store: RequestStore,
-    authorizer: RequestAuthorizer,
-    actor: Actor,
-    request_id: UUID,
-    driver_id: UUID,
-    now: datetime,
-) -> Result[EnRoute, AssignDriverError]:
-    allowed = await authorizer.can_assign_driver(actor, request_id)
-    if not allowed:
-        return Err(Forbidden(request_id=request_id))
-    ...
-```
+競合しうるコマンドには楽観的`version`、条件付き更新、冪等キー、行ロック、シリアライザブルTX、単一ライターキューなどを選びます。リポジトリポートはその期待をシグネチャで明示します。
 
-## 並行遷移を保護する
+## ドメインイベント
 
-2つのコマンドが競合しうるとき、ライフサイクルと残高の遷移には並行性保護が必要である。システムのアーキテクチャに応じて、楽観的バージョンフィールド、条件付き更新、一意制約、冪等性キー、行ロック、シリアライザブルトランザクション、または単一ライターキューを使う。
-
-リポジトリプロトコルは並行性の期待を明示すべきだ。[永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規** `RequestStore` シグネチャ（`expected_version`、`idempotency_key`、イベントタプル）を使う。
-
-## ドメインイベントを不変レコードとしてモデル化する
-
-イベントモデルは、発行する集約またはユースケースの横に置く。集約のアイデンティティとタイムスタンプを含める。状態とイベントを1トランザクションで永続化する。
+イベントは凍結レコードとして集約の横に置き、`event_id`・`event_at`・`aggregate_id`を含めます。リポジトリがイベントを発明せず、ユースケースが新stateと一緒にストアへ渡します。
 
 ```python
 class DriverAssigned(DomainModel):
@@ -124,14 +122,11 @@ class DriverAssigned(DomainModel):
     event_at: datetime
     aggregate_id: UUID
     driver_id: UUID
-    passenger_id: UUID
 ```
 
-リポジトリは内部でドメインイベントを発明してはならない。起きたイベントはユースケースが決め、新しい状態とともにストアに渡す。
+## 網羅性のチェック
 
-## 網羅性をチェックする
-
-判別共用体を分岐するときは `typing.assert_never` を使う。Python 3.11+ では標準ライブラリにある。十分にstrictなモードでpyreflyまたはpyrightを実行する。
+判別共用体の`match`では`assert_never`を使います。型チェッカーが絞り込めない場合は`request.kind`で分岐し、フォールバックを維持します。
 
 ```python
 from typing import assert_never
@@ -143,25 +138,14 @@ def describe(request: TaxiRequest) -> str:
             return "waiting"
         case EnRoute():
             return "en route"
-        case InTrip():
-            return "in trip"
-        case Completed():
-            return "completed"
-        case Cancelled():
-            return "cancelled"
         case _:
             assert_never(request)
 ```
 
-プロジェクトのバージョンで型チェッカーがPydantic共用体を絞り込めない場合は、`request.kind` で分岐し、`assert_never` フォールバックを維持する。
+## 次に読む
 
-## レビューで見るところ
-
-- セッター、`model_copy(update=...)`、部分更新でクロスフィールド不変条件・ライフサイクルを壊していないか。
-- 楽観ロックや冪等キーなしの競合しやすい遷移がないか（[永続化、集約、イベント](/projects/kamae-py/persistence-events/)）。
-- 遷移内の `datetime.now` / `uuid4` / `random` を引数注入に寄せているか。
-- 認可・テナント確認の前に状態を変えていないか。
-- ドメイン共用体の `match` で裸の `_` / `else` が将来バリアントを隠していないか（到達不能は `assert_never`）。
-- 遷移が永続化やログまで抱え込んでいないか。
-- 特定の凍結状態型で受け取れるのに広い共用体や `dict` でランタイム検査していないか。
-
+| 目的 | ページ |
+| --- | --- |
+| 集約・ポート・永続化 | [ドメインモデリング](/projects/kamae-py/domain-modeling/) |
+| DTOと認可 | [境界防御](/projects/kamae-py/boundary-defense/) |
+| テストとCI | [品質ゲート](/projects/kamae-py/quality-gates/) |

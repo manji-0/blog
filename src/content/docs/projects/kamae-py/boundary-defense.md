@@ -4,15 +4,11 @@ sidebar:
   order: 10
 ---
 
-外部から入るデータは、ドメインに到達するまで**未知**として扱う。Pydanticは形状と宣言された制約を検証するが、ビジネス上の意味（テナント所有権、ライフサイクル上の前提、金額の単位など）は、ドメインコンストラクタや状態遷移の前提条件で守る必要がある。
+外部から入るデータのパース、認可、観測経路のPII、検証迂回の封じ込めを扱います。状態の型付けは[ドメインモデリング](/projects/kamae-py/domain-modeling/)、遷移と失敗の返し方は[状態遷移](/projects/kamae-py/state-transitions/)とセットで読みます。
 
-状態の型付けは [ドメインモデリング](/projects/kamae-py/domain-modeling/) を、検証コストと `model_construct` の境界は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) と [unsafe 境界](/projects/kamae-py/unsafe-boundaries/) を、DB行のマッピングは [ORM アダプター](/projects/kamae-py/orm-adapters/) を参照する。
+## エッジでのパース
 
-## 未知のデータはエッジでパースする
-
-根拠は単純だ。検証前の値をドメインに流すと、型チェッカーは「もう正しい」とみなすが、ランタイムの不変条件はまだ証明されていない。
-
-APIボディ、DB行、キューメッセージ、ファイル、環境変数、SDKレスポンスは、Pydanticが検証するまで未知として扱う。
+APIボディ、DB行、キューメッセージ、環境変数、SDKレスポンスは、Pydanticが検証するまで未知として扱います。
 
 ```python
 CreateRequestInputAdapter = TypeAdapter(CreateRequestInput)
@@ -22,348 +18,76 @@ def parse_create_request_input(raw: object) -> CreateRequestInput:
     return CreateRequestInputAdapter.validate_python(raw)
 ```
 
-判別共用体の場合は、共用体アダプター経由でパースする。
+判別共用体は共用体アダプター経由でパースします。生JSONには`validate_json`を優先し、`json.loads`のあと`validate_python`より`TypeAdapter.validate_json`を選びます。
 
-```python
-request = TaxiRequestAdapter.validate_python(raw_request)
-```
+## フレームワーク境界のDTO
 
-生のJSONバイトまたは文字列には `validate_json` を使う。
+FastAPIのリクエストモデルはDTOにできます。検証後にドメインコマンドへ変換し、フレームワーク専用の関心事をドメインへ漏らしません。Pydanticは形状と宣言バリデータを証明しますが、テナント所有権やライフサイクル前提は遷移かユースケースで守ります。
 
-```python
-def parse_queue_message(body: bytes) -> TaxiRequestEvent:
-    return TaxiRequestEventAdapter.validate_json(body)
-```
+## 外部DTOの設定
 
-ホットパスでは、`json.loads` のあとに `validate_python` するより、`model_validate_json` / `TypeAdapter.validate_json` を優先する。JSONのパースとスキーマ検証は、PydanticのRustコア側でまとめて処理できる。差が重要になる場合は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/#validate-python-vs-validate-json) を読む。
-
-## フレームワーク境界では DTO を優先する
-
-フレームワークのリクエストモデルはDTOにできる。検証後、ドメインコマンド値またはドメイン状態へ変換する。フレームワーク専用の関心事をドメインモデルへ漏らさない。
-
-```python
-class AssignDriverBody(BaseModel):
-    driver_id: UUID
-
-
-async def assign_driver_endpoint(body: AssignDriverBody) -> JSONResponse:
-    result = await assign_driver_use_case(..., driver_id=body.driver_id, ...)
-    return assign_driver_response(result)
-```
-
-Pydanticは形状と宣言されたバリデータを証明するが、すべてのドメイン意味は証明しない。HTTPの外でも適用されるビジネス不変条件については、ドメインコンストラクタ、コマンドビルダー、または遷移前提条件関数を権威の場所として保つ。
-
-## 外部 DTO の設定
-
-<!-- constrained-by ./domain-modeling.md -->
-
-ドメイン状態は `extra="forbid"` と `frozen=True` を使う。外部境界の**インバウンド DTO**には別の設定プロファイルが必要だ。
-
-### 外部 DTO の `strict=True`
-
-ワイヤ向けDTOでstrictパースを有効にし、強制変換がデータ品質の問題を隠さないようにする（`"123"` → `123`、`"true"` → `True`）。
-
-```python
-from pydantic import BaseModel, ConfigDict, Field
-
-
-class CreateRequestInput(BaseModel):
-    model_config = ConfigDict(strict=True, extra="forbid")
-
-    passenger_id: UUID
-    pickup_lat: float = Field(ge=-90, le=90)
-    pickup_lng: float = Field(ge=-180, le=180)
-```
-
-次のときに `strict=True` を使う：
-
-- ペイロードがHTTP、キュー、Webhook、サードパーティSDKから来る。
-- 黙って強制変換するとビジネス意味が変わる（金額、真偽値、列挙）。
-- 検証失敗を早く表面化し、上流のデータバグを見つけたい。
-
-両側がPythonコードで型がすでに一致する内部ハンドオフには `strict=True` を適用しない。安全性の利得なくコストが増える。[Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/#reduce-work-without-bypassing-invariants) を読む。
-
-`ConfigDict(strict=True)` はすべてのフィールドに `Strict*` 型（`StrictInt`、`StrictStr` など）を付けるのと等価である。DTOではモデルレベルフラグを優先し、1フィールドだけ強制変換が必要なときだけフィールド単位のstrict型を使う。
-
-### `extra="allow"` vs `extra="forbid"` 決定表
-
-| モデルの役割 | `extra` | `strict` | 根拠 |
-| --- | --- | --- | --- |
-| ドメイン状態 / イベント | `forbid` | default | 無効フィールドは永続化やログに入ってはならない |
-| インバウンド HTTP/コマンド DTO | `forbid` | `True` | ドメイン変換前に未知または typo キーを拒否 |
-| アウトバウンドレスポンス DTO | `forbid` | default | 意図しないフィールド漏洩を防ぐ |
-| Webhook / パートナーフィード（バージョン寛容な取り込み） | `allow` | `True` | ベンダーの前方互換フィールドを受け入れ。既知部分のみドメインにマップ |
-| ORM 行 / DB 投影 DTO | `forbid` | default | カラム集合は固定。余分なキーはマッパーバグの兆候 |
-| 設定 / フィーチャーフラグスナップショット | `ignore` | default | 古いデプロイの未知キーは安全に捨てられる |
-| 監査 / デバッグキャプチャ（非ドメイン） | `allow` | default | 生エンベロープは別保存。遷移には通さない |
-
-**チェックリスト対応（4.3、4.4）:** ドメイン状態の `extra="allow"` をフラグする。欠落フィールドが黙って振る舞いを変えるとき、インバウンドDTOの広いデフォルトをフラグする。互換性の理由を文書化しない限り、明示的な必須フィールドと `extra="forbid"` を優先する。
-
-`extra="allow"` が必要なときは、DTOをアダプターレイヤーに置き、宣言されたフィールドだけをドメインコンストラクタにマップする。許容的なDTOをドメインモデルにサブクラス化または継承しない。
-
-### DTO デフォルトと未知フィールド
-
-クライアントがフィールドを省略したときにビジネス意味が変わるデフォルトは避ける：
-
-```python
-# Risky: omitted "currency" silently becomes USD.
-class ChargeInput(BaseModel):
-    amount_cents: int
-    currency: str = "USD"
-
-
-# Prefer: require explicit values at the boundary.
-class ChargeInput(BaseModel):
-    model_config = ConfigDict(strict=True, extra="forbid")
-
-    amount_cents: int = Field(gt=0)
-    currency: Literal["USD", "EUR", "JPY"]
-```
-
-オプショナルフィールドには、「未提供」が別の、文書化された意味であるときだけ `None` を使う。隠れたデフォルトを意味するときには使わない。
-
-## 環境と CLI の境界
-
-環境変数とCLI由来の設定には [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) を使う。設定モデルはDTOとして扱い、プロセス起動時に一度だけ検証し、ドメイン状態と混ぜない。
-
-```bash
-uv add pydantic-settings
-```
-
-```python
-from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-class DatabaseSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="DB_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="forbid",
-        strict=True,
-    )
-
-    host: str
-    port: int = 5432
-    name: str
-    user: str
-    password: SecretStr
-
-
-class AppSettings(BaseSettings):
-    model_config = SettingsConfigDict(extra="forbid")
-
-    database: DatabaseSettings
-    tenant_header: str = "X-Tenant-Id"
-```
-
-守るべき境界：
-
-- **起動時にパース**する（コンポジションルート — `application-wiring.md`）。ユースケースや遷移内で `os.environ` を読まない。
-- **`extra="forbid"`** はフィールドにマップされる環境変数名のtypoを検出する。
-- 資格情報には **`SecretStr`**。`model_dump()` で設定をログに出さない。
-- **CLI フラグ**は `CliSettingsSource` またはPydanticモデルを構築する薄いargparseレイヤー経由で設定モデルに入れられる。envベース設定と同じ検証ルール。
-- **リクエストごとの値**（テナントID、アクター ID）は設定ではない。リクエストコンテキストに属する。`BaseSettings` ではない。[アプリケーション配線](/projects/kamae-py/application-wiring/) を参照。
-
-## 認可とテナント境界
-
-<!-- constrained-by ./error-handling.md -->
-
-**チェックリスト対応（4.6）:** 認証済みコンテキストと比較せずに、パス、クエリ、ボディ、メッセージペイロードのテナントまたはアクター IDを信頼しない。
-
-### API ゲートウェイ注入パターン
-
-よくある構成：
-
-```text
-Client → API gateway (authn) → service (authz + domain)
-         injects: tenant_id, subject, scopes
-```
-
-ゲートウェイはセッションまたはトークンを検証し、信頼できるヘッダーを転送する。サービスはそのテナントに対して操作が許可されているかを依然として検証する。
-
-```python
-from dataclasses import dataclass
-from uuid import UUID
-
-
-@dataclass(frozen=True)
-class RequestContext:
-    tenant_id: UUID
-    actor_id: UUID
-    scopes: frozenset[str]
-
-
-class AssignDriverBody(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    driver_id: UUID
-    # Do NOT accept tenant_id from body when gateway already established tenant.
-
-
-async def assign_driver_endpoint(
-    body: AssignDriverBody,
-    ctx: RequestContext,  # from middleware / dependency
-    request_id: UUID,  # from path
-) -> JSONResponse:
-    result = await assign_driver_use_case(
-        ctx=ctx,
-        request_id=request_id,
-        driver_id=body.driver_id,
-    )
-    return assign_driver_response(result)
-```
-
-### ドメインレイヤーでの検証
-
-認可は**ユースケース**に属する。読み込みの後、遷移の前：
-
-```python
-async def assign_driver_use_case(
-    ctx: RequestContext,
-    request_id: UUID,
-    driver_id: UUID,
-    *,
-    store: RequestStore,
-    resolver: RequestResolver,
-) -> Result[EnRoute, AssignDriverError]:
-    waiting = await resolver.find_waiting(request_id)
-    if waiting is None:
-        return Err(RequestNotFound(request_id=request_id))
-
-    # Tenant ownership is a domain/application invariant, not a DTO concern.
-    if waiting.tenant_id != ctx.tenant_id:
-        return Err(RequestNotFound(request_id=request_id))  # or TenantMismatch
-
-    if "driver:assign" not in ctx.scopes:
-        return Err(Forbidden())
-
-    en_route, events = assign_driver(waiting, driver_id, now=utc_now())
-    await store.save_en_route(en_route, events, expected_version=waiting.version, ...)
-    return Ok(en_route)
-```
-
-ルール：
-
-- すべての変更コマンドでリソースの `tenant_id` を `ctx.tenant_id` と比較する。
-- テナント横断のIDプロービングには `404` または汎用拒否を優先する。方針を文書化する。
-- 永続化でFK制約を強制できるよう、集約状態または行DTOに `tenant_id` を置く。
-- キューコンシューマーは未認証ペイロードフィールドではなく、署名付きメッセージメタデータから `RequestContext` を再構築する。
-
-## ドメイン状態では余分なフィールドを禁止する
-
-ドメイン状態とイベントモデルには `extra="forbid"` を使い、存在すべきでないフィールドを黙って受け入れない。未知キーを許すと、`model_dump()` 経由でログや永続化へ想定外のデータが載る経路を作る（たとえばクライアントが付けた余分なPIIフィールドを含む）。
-
-## 未検証キャストを避ける
-
-`typing.cast`、`# type: ignore`、未検証の `dict[str, Any]`、`model_construct` で境界データを信頼済みドメインオブジェクトにしてはならない。これらは検証を迂回する。
-
-許容される狭い例外：
-
-- データベースドライバーまたは先行するPydanticパースですでに検証された値を受け取る、テスト済みマッパー内の `model_construct`。[unsafe 境界](/projects/kamae-py/unsafe-boundaries/#model_construct-in-orm-mappers) を読む。
-- 近くに実行時検証と短いコメントがあるフレームワーク制限まわりの `cast`。
-
-生成クライアント、ネイティブアダプター、ORMはしばしば広すぎる、または信頼しすぎる型の値を返す。まずDTO/行モデル経由で変換し、その後ドメインモデルへ。
-
-## スキーマ経由で永続化と再水和
-
-データベースから読むときは、ユースケースへ渡す前に行をドメインモデルへパースする。データベースに書くときは、ドライバーに応じて `model_dump(mode="python")` または `model_dump(mode="json")` で意図的にダンプする。
-
-```python
-def request_from_row(row: Mapping[str, object]) -> TaxiRequest:
-    return TaxiRequestAdapter.validate_python(row)
-
-
-def request_to_row(request: TaxiRequest) -> dict[str, object]:
-    return request.model_dump(mode="python")
-```
-
-ORMモデルをデフォルトでドメインモデルにしてはならない。永続化の関心事、遅延ロード、nullableカラム、ドメイン不変条件を弱める余分なフィールドを運ぶ。
-
-## ドメイン外で検証エラーを処理する
-
-Pydanticは `ValidationError` を投げる。コントローラー、メッセージコンシューマー、CLIハンドラー、またはマッパーレイヤーで捕捉し、ローカルのエラー/レスポンス形状に変換する。すでに信頼すべきデータの検証エラーを純粋遷移関数が捕捉してはならない。
-
-### HTTP マッピング
-
-```python
-from fastapi import Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from pydantic import ValidationError
-
-
-def validation_error_response(exc: ValidationError | RequestValidationError) -> JSONResponse:
-    return JSONResponse(
-        status_code=422,
-        content={
-            "code": "validation_error",
-            "details": [
-                {
-                    "loc": list(err["loc"]),
-                    "type": err["type"],
-                    "msg": err["msg"],
-                }
-                for err in exc.errors()
-            ],
-        },
-    )
-
-
-@app.exception_handler(ValidationError)
-async def pydantic_validation_handler(_: Request, exc: ValidationError) -> JSONResponse:
-    return validation_error_response(exc)
-```
-
-シークレットを含む可能性があるフィールドについてレビューせず、生のPydanticエラー dictをクライアントに返さない。公開レスポンスから入力値を除去する。
-
-### gRPC マッピング
-
-```python
-import grpc
-from pydantic import ValidationError
-
-
-def validation_error_status(exc: ValidationError) -> grpc.aio.ServicerContext:
-    # Return INVALID_ARGUMENT; attach sanitized details in trailing metadata if needed.
-    details = "; ".join(f"{'.'.join(str(p) for p in e['loc'])}: {e['msg']}" for e in exc.errors())
-    return grpc.StatusCode.INVALID_ARGUMENT, details
-```
-
-形状違反は `INTERNAL` ではなく `INVALID_ARGUMENT` にマップする。
-
-### キュー / ワーカーマッピング
-
-```python
-async def handle_message(body: bytes) -> None:
-    try:
-        event = TaxiRequestEventAdapter.validate_json(body)
-    except ValidationError as exc:
-        logger.warning("dropping invalid message", extra={"error_count": exc.error_count()})
-        await dead_letter.publish(body, reason="validation_error")
-        return  # do not retry forever on poison shape
-
-    await process_event(event)
-```
-
-恒久的な検証失敗となるpoisonメッセージは、デッドレターキューへ送る。一時的失敗はバックオフ付きリトライ。[永続化、集約、イベント](/projects/kamae-py/persistence-events/#outbox-relay-at-least-once-delivery) を読む。
-
-### レイヤーの責務
-
-| レイヤー | `ValidationError` を捕捉? | 返すもの |
+| モデルの役割 | `extra` | `strict` |
 | --- | --- | --- |
-| HTTP コントローラー / gRPC サーバー | はい | 422 / `INVALID_ARGUMENT` |
-| キューコンシューマー | はい | DLQ またはメトリクス + 破棄 |
-| CLI | はい | 終了コード 2 + stderr |
-| DTO → ドメインマッパー | はい（またはコントローラーへバブル） | ドメインエラーまたは再送出 |
-| 純粋遷移 | いいえ | N/A |
-| ユースケース（信頼済み状態） | いいえ | N/A |
+| ドメインstate / イベント | `forbid` | default |
+| インバウンドHTTP/コマンドDTO | `forbid` | `True` |
+| Webhook（前方互換） | `allow` | `True`（既知部分だけドメインへ） |
+| 設定スナップショット | `ignore` | default |
 
-## レビューで見るところ
+ワイヤ向けDTOで`strict=True`を使い、`"123"`→`123`の黙殺変換を防ぎます。省略時に意味が変わるデフォルト（例：通貨がUSD固定）は避け、明示的な必須フィールドを優先します。
 
-- ドメイン不変条件を `model_validate` だけに頼り、コンストラクタや遷移前提を飛ばしていないか。
-- 境界で `cast`、`# type: ignore`、未検証 `dict`、`model_construct` を使っていないかも見る。
-- HTTP・キュー・DB・設定・CLIが検証なしでドメインへ渡していないか、認可・テナント確認前にパス/ボディを信頼していないかも確認する。
-- 受信DTOの広いデフォルトや `extra="allow"`、ドメイン状態へのORM結合がないかも見る。
+## 環境とCLI
 
+`pydantic-settings`で起動時に一度だけ検証します。資格情報は`SecretStr`とし、`model_dump()`で設定をログに出しません。リクエストごとのテナントIDやアクターIDは`RequestContext`に属します。
+
+## 認可とテナント
+
+パス・クエリ・ボディ・メッセージのテナントIDを、認証済みコンテキストと照合せず信頼しません。ゲートウェイがヘッダーを注入しても、サービスはスコープと所有権を再確認します。キューコンシューマはメタデータから`RequestContext`を再構築します。
+
+## ドメインstateの`extra="forbid"`
+
+未知キーを黙って受け入れると`model_dump`経由でログや永続化に余分なPIIが載る経路を作ります。
+
+## 未検証キャストの回避
+
+`typing.cast`、`# type: ignore`、未検証`dict[str, Any]`、`model_construct`で境界データを信頼済みドメインにしてはいけません。許容される狭い例外は、テスト済みマッパー内でDB値が既に検証済みの`model_construct`だけです。
+
+## 永続化と再水和
+
+読み取りは行を`TaxiRequestAdapter.validate_python`でドメインへ。書き込みは`model_dump(mode="python")`か`mode="json"`をドライバーに合わせて選びます。ORMモデルをドメインモデルのデフォルトにしません。
+
+## 検証エラーのレイヤー
+
+| レイヤー | `ValidationError`を捕捉 |
+| --- | --- |
+| HTTP / gRPC / キュー / CLI | はい（422・`INVALID_ARGUMENT`・DLQ） |
+| DTO→ドメインマッパー | はい、または上位へ再送出 |
+| 純粋遷移・信頼済みユースケース | いいえ |
+
+クライアントへ返す詳細から入力値とシークレットを除去します。恒久的な形状違反はDLQへ、一時障害はバックオフ付きリトライです。
+
+## PIIと観測経路
+
+ログ・トレース・エラー・メトリクス・イベントは長寿命で複製されます。個人データを後からマスクする前提にせず、型と許可リストで最初から載せない設計にします。既定は**原則マスキング**です。
+
+| ティア | 例 | ログ/トレース | メトリクスラベル |
+| --- | --- | --- | --- |
+| A シークレット | トークン・鍵 | 載せない | 載せない |
+| B 直接PII | 氏名・メール・精密位置 | 載せない | 載せない |
+| C 相関 | `request_id`・`trace_id` | 構造化属性で可 | 載せない |
+| D アクター | `user_id`・`tenant_id` | 運用必要時のみ構造化 | 載せない |
+| E 語彙 | state `kind`・列挙 | 可 | 可 |
+
+相関IDはメッセージ文字列へ補間せず、名前付きフィールドに記録します。クライアント可視エラーは不透明コードを使い、契約が明示しないIDをエコーしません。テレメトリの既定インターフェースはOpenTelemetryです。Prometheusの`/metrics`などプル型は任意で、ドメインコードにHTTPサーバーを埋め込みません。記録はユースケース境界で行い、純粋遷移の中では行いません。
+
+## unsafe境界の封じ込め
+
+`ctypes`、C拡張、pickle、`eval`、広い生成クライアントはアダプターに閉じ、小さな安全APIの内側で前提を検証してからドメイン値を返します。サービス間の契約では`kind`とフィールド名の規約を揃え、未知版は進化方針（スキップ・DLQ・互換マッパー）を文書化します。副作用は冪等キーと同じストアへ載せ、コンシューマの重複適用を防ぎます。
+
+## 次に読む
+
+| 目的 | ページ |
+| --- | --- |
+| ポートと永続化 | [ドメインモデリング](/projects/kamae-py/domain-modeling/) |
+| 遷移とエラー | [状態遷移](/projects/kamae-py/state-transitions/) |
+| ログとテストのゲート | [品質ゲート](/projects/kamae-py/quality-gates/) |
+| FastAPIの具体例 | [ライブラリガイド](/projects/kamae-py/library-guides/) |

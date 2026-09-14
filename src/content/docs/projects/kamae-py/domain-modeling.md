@@ -4,13 +4,11 @@ sidebar:
   order: 10
 ---
 
-Kamae Pythonの中心は、ビジネス状態をPydantic v2の凍結モデルと `kind` 判別子で表すことだ。素の `str` や可変モデルに頼ると無効な中間状態が表現でき、境界を一度すり抜けた値がドメイン深部まで届く。
+ビジネス状態の型付け、集約境界、ポート定義、永続化の契約、既存コードへの段階的な入れ方を扱います。ライフサイクル上の変化は[状態遷移](/projects/kamae-py/state-transitions/)、外部データの取り込みは[境界防御](/projects/kamae-py/boundary-defense/)へ。
 
-ライフサイクル上の変化は [状態遷移](/projects/kamae-py/state-transitions/)、外部データの取り込みは [境界防御](/projects/kamae-py/boundary-defense/)、ホットパスでの検証コストは [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) を参照する。
+## ドメイン状態のPydantic v2バリアント
 
-## ドメイン状態には Pydantic v2 のバリアントを使う
-
-Python 3.12以降とPydantic v2を前提とする。`frozen=True` と `extra="forbid"` は、構築後の暗黙的な変更と未知フィールドの混入を防ぐための**既定**とする。各ビジネス状態を個別の凍結モデルとして定義し、プロジェクト全体で `kind` という名前の判別子を1つ使う。
+Python 3.12以降とPydantic v2を前提にします。`frozen=True`と`extra="forbid"`を既定とし、各ビジネス状態を個別の凍結モデルとして定義します。プロジェクト全体で判別子名は`kind`を1つ使います。
 
 ```python
 from datetime import datetime
@@ -29,6 +27,7 @@ class Waiting(DomainModel):
     request_id: UUID
     passenger_id: UUID
     created_at: datetime
+    version: int = 1
 
 
 class EnRoute(DomainModel):
@@ -37,170 +36,62 @@ class EnRoute(DomainModel):
     passenger_id: UUID
     driver_id: UUID
     assigned_at: datetime
-
-
-class InTrip(DomainModel):
-    kind: Literal["in_trip"] = "in_trip"
-    request_id: UUID
-    passenger_id: UUID
-    driver_id: UUID
-    started_at: datetime
-
-
-class Completed(DomainModel):
-    kind: Literal["completed"] = "completed"
-    request_id: UUID
-    passenger_id: UUID
-    driver_id: UUID
-    started_at: datetime
-    completed_at: datetime
-
-
-class Cancelled(DomainModel):
-    kind: Literal["cancelled"] = "cancelled"
-    request_id: UUID
-    passenger_id: UUID
-    cancelled_at: datetime
-    reason: str
+    version: int
 
 
 type TaxiRequest = Annotated[
-    Waiting | EnRoute | InTrip | Completed | Cancelled,
+    Waiting | EnRoute,
     Field(discriminator="kind"),
 ]
 
 TaxiRequestAdapter = TypeAdapter(TaxiRequest)
 ```
 
-JSON向けのPythonサービスでは、プロジェクトが別の規約を使っていない限り、判別子の値はlower snake caseを優先する。
+JSON向けサービスでは、判別子の値はlower snake caseを優先します。
 
-## オプショナルな状態フィールドを持つ blob モデルを避ける
+## Optional blobモデルの回避
 
-`status: str` と多数のオプショナルフィールドを持つ1つのモデルでワークフローを表現してはならない。オプショナルフィールドは無効な状態を表現可能にしてしまう。
+`status: str`と多数のOptionalフィールドでワークフローを表しません。あるフィールドが1状態にしか存在しないなら、その状態のモデルで必須にします。
 
-```python
-# Avoid this shape for domain state.
-class TaxiRequest(BaseModel):
-    status: str
-    request_id: UUID
-    passenger_id: UUID
-    driver_id: UUID | None = None
-    assigned_at: datetime | None = None
-    completed_at: datetime | None = None
-```
+## 凍結と更新経路
 
-あるフィールドが1つの状態にしか存在しないなら、その状態のモデルで必須とする。
+状態の変更は既存モデルを書き換えず、新しいターゲット状態を構築します。公開セッター、`model_copy(update=...)`による部分更新、ミューテータは避けます。更新は遷移またはコマンドとして命名し、不変条件全体を検証させます。
 
-## 状態モデルは frozen に保つ
+## ドメインとトランスポートDTOの分離
 
-ドメインのPydanticモデルには `ConfigDict(frozen=True, extra="forbid")` を設定する。状態の変更は既存モデルを変更するのではなく、新しいターゲット状態を構築する。強制変換がデータ品質の問題を隠す場合は、外部DTO境界で `strict=True` を検討する。
+APIのJSON形状とドメイン状態を同一にする必要はありません。エンドポイント固有のフィールドや互換用OptionalはDTOに置き、検証済みDTOからドメインへマップします。コアstateに`version`や`tenant_id`を載せると`model_dump`やログ経路から漏れやすくなります。
 
-公開セッター、部分更新ヘルパー、またはフィールド間不変条件を破る可能性のある `model_copy(update=...)` パスは避ける。更新がビジネスアクションなら、遷移かコマンドとして命名し、不変条件全体を検証させる。
+## 意味のあるID
 
-pyreflyを有効にすると、frozenモデルは静的にもチェックされる。モデルフィールドへの代入は、実行時より前に失敗するはずだ。
-
-## 必要に応じてドメインモデルとトランスポート DTO を分離する
-
-APIのJSON形状とドメイン状態が同じである必要はない。エンドポイント固有のフィールドや互換性のためのoptionalはDTOに置き、検証済みDTOからドメインモデルまたはコマンドへマップする。コアのドメイン状態に `version` や `tenant_id` のような永続化・認可の関心事を載せると、レスポンス用の `model_dump` やログ経路から漏れやすくなる。
-
-内部APIだけで、かつ形状が完全に一致し不変条件も同じなら共通化してもよい。迷ったときは分離を選ぶ。
-
-## 意味のある ID には明示的な値型を使う
-
-`UUID`、`EmailStr`、`HttpUrl`、制約付き文字列、またはドメイン上の意味を持つ小さなfrozen Pydanticモデルなど、組み込みの精密型を使う。区別が重要なときは、無関係なIDを素の `str` として渡さない。
+`UUID`、制約付き文字列、または小さな凍結ラッパーモデルで意味を分けます。`Annotated[UUID, ...]`や`NewType`は静的には効きますが、実行時に兄弟IDを止めません。取り違えがビジネス上の影響を持つ場合はIDごとの凍結ラッパーを優先します。
 
 ```python
-from pydantic import StringConstraints
-from typing import Annotated
-
-RequestCode = Annotated[str, StringConstraints(pattern=r"^req-[0-9]{8}$")]
-```
-
-`Annotated` エイリアスと `typing.NewType` は、実行時にはベース型と**構造的に等価**である。Mypy/pyrightは一部のミスを検出するが、両方が `UUID` のとき、`passenger_id` を `driver_id` が期待される場所に渡すのを止めるものはない。IDの取り違えがビジネス上の影響を持つ場合は、より強いパターンを優先する。
-
-### 名目的 ID には frozen ラッパーモデルを優先する
-
-各意味的IDを独自のfrozen Pydanticモデル（またはプロセス内専用IDには `@dataclass(frozen=True, slots=True)`）で包む。構築時に形式を検証し、ラッパー型は兄弟型と交換できない。
-
-```python
-from uuid import UUID
-
-from pydantic import field_validator
-
-
 class PassengerId(DomainModel):
     value: UUID
 
 
 class DriverId(DomainModel):
     value: UUID
-
-
-class RequestId(DomainModel):
-    value: UUID
-
-    @field_validator("value")
-    @classmethod
-    def not_nil(cls, value: UUID) -> UUID:
-        if value.int == 0:
-            raise ValueError("request id must not be nil")
-        return value
 ```
 
-遷移では異なるパラメータ名と型を使う：
+値の構築はドメインコンストラクタとPydanticアダプターを正規入口にします。テストでも、破損データ処理が明示的な目的でない限り生dictや`model_construct`で不変条件付き値を組み立てません。
+
+## 集約境界
+
+**集約**は1コマンドで一貫させたい不変条件の単位です。Kamae Pythonでは次を1セットにします。
+
+- 1つの判別state共用体
+- その共用体を変える純粋遷移
+- 遷移が出すドメインイベント
+- 1コマンドあたり1つの整合境界
+
+集約ルートはstate共用体を指す識別子です（例：`request_id`）。独立ライフサイクルの`Passenger`や`Payment`は別集約とし、IDで参照します。2ルートを毎コマンド同時に変える必要が出るなら、境界は小さすぎます。結果整合を受け入れるべきです。
+
+## リポジトリポート
+
+ドメイン向けポートは`typing.Protocol`で狭く定義します。入門用の最小形状は次です。
 
 ```python
-def assign_driver(waiting: Waiting, driver_id: DriverId, now: datetime) -> EnRoute:
-  ...
-```
-
-### インスタンス化不可ベースの `__init_subclass__` ガード
-
-複数のID型が検証ロジックを共有するときは、直接のインスタンス化を拒否する抽象ベースを使う。サブクラスは別々の名目的型のままである。
-
-```python
-class SemanticId(DomainModel):
-    value: UUID
-
-    def __init_subclass__(cls, **kwargs: object) -> None:
-        super().__init_subclass__(**kwargs)
-        if cls is SemanticId:
-            raise TypeError("SemanticId cannot be instantiated directly")
-
-
-class TenantId(SemanticId):
-    pass
-
-
-class AccountId(SemanticId):
-    pass
-```
-
-ルールが異なる場合のみサブクラスごとのバリデータを追加する。コードベースがすでにそのパターンを標準化していない限り、単一の汎用 `Id[T]` ラッパーは使わない。
-
-### 頼ってはいけないもの
-
-| アプローチ | 静的チェック | 実行時の分離 |
-| --- | --- | --- |
-| `UUID` パラメータ名のみ | 弱い | なし |
-| `Annotated[UUID, ...]` / `NewType` | 良い | なし |
-| ID ごとの frozen ラッパーモデル | 良い | 良い（別型） |
-| 正規表現制約付き `str` | 形状のみ | ID 種別の分離なし |
-
-実行時の取り違えが無害なら `NewType` は軽量なドキュメントとして許容される。金額、テナント境界、認証に敏感なIDにはラッパーモデルを使う。
-
-値の構築は、ドメインコンストラクタとPydanticアダプターを正規の入口とする。テスト、リポジトリ、ネイティブアダプター、マイグレーションは、破損データ処理が明示的な目的でない限り、生のdictや `model_construct` で不変条件を持つ値を構築してはならない。信頼できるマッパーで `model_construct` が適切な場合は [Pydantic のパフォーマンス](/projects/kamae-py/pydantic-performance/) を読む。
-
-## プロトコルでリポジトリポートを定義する
-
-ドメイン向けポートには `typing.Protocol` を使う。メソッドシグネチャは狭く保ち、ドメイン状態または明示的な結果型を返す。
-
-これはプロトコル導入のための**最小**ポート形状である。楽観的ロック、冪等性キー、イベントタプルを持つ本番ストアには、[永続化、集約、イベント](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) の**正規**定義を使う。
-
-```python
-from typing import Protocol
-
-
 class RequestResolver(Protocol):
     async def find_waiting(self, request_id: UUID) -> Waiting | None: ...
 
@@ -210,123 +101,87 @@ class RequestStore(Protocol):
         self,
         state: EnRoute,
         events: tuple[DomainEvent, ...],
+        *,
+        expected_version: int,
+        idempotency_key: str,
     ) -> None: ...
 ```
 
-プロトコルクラスはポートを記述する。ドメインエンティティではない。
+本番では`expected_version`と`idempotency_key`を明示し、状態とイベントを同一トランザクションで保存します。アウトボックス行も同じ`begin`内に載せ、リレーは別プロセスに任せます。ORMエンティティをドメインAPIにしないで、行DTO経由で`TypeAdapter`再水和します。
 
-外部表現が不変条件を迂回したり、余分なフィールドを含んだり、プライバシー/シリアライズ要件が異なる場合は、API DTO、DB行モデル、読み取りモデル、ドメインモデルを分離する。
+## 1モジュール1概念
 
-## 1 モジュール 1 概念
+`request_id.py`、`taxi_request.py`、`request_repository.py`のように概念ごとにファイルを分けます。`models.py`に無関係な型が集まると循環importとレビュー負荷が増えます。
 
-`request_id.py`、`taxi_request.py`、`request_repository.py` のように、1つのドメイン概念ごとにファイルを分ける。`models.py` や `types.py` に無関係な型が集まり始めると、importの循環が起きやすく、レビューでも「この変更がどこに波及するか」が見えにくくなる。分割の目安は、ファイル名を説明せずに中身が想像できることだ。
-
-## uv でプロジェクトを管理する
-
-新規リポジトリでは、Python 3.12+ とPydantic v2を持つuv管理プロジェクトを作成する。
-
-```bash
-uv init --package
-uv python pin 3.13
-uv add "pydantic>=2,<3"
-uv lock
-```
-
-インポート可能なPythonパッケージではないスキル、またはドキュメントリポジトリでは、`[tool.uv]` の下に `package = false` を設定する。
-
-## Pyrefly で Pydantic モデルを検査する
-
-Pydanticドメインモデルに依存するプロジェクトではpyreflyを使う。Pydantic v2サポートは組み込みで、モデル `__init__`、`model_construct`、frozenモデル、フィールドデフォルト、余分なフィールド、エイリアスに対する静的チェックが改善される。既存のmypy設定からは `pyrefly init` で移すか、次のテンプレートから始める。
-
-```toml
-[dependency-groups]
-dev = [
-    "pyrefly>=1.1.1",
-]
-
-[tool.pyrefly]
-project-includes = ["src", "tests"]
-python-version = "3.12.0"
-```
-
-Pydanticの厳しさはモデル自身に書く。`ConfigDict` の `extra="forbid"`、不変状態の `frozen=True`、強制変換を拒むときの `Field(strict=True)` である。Pyreflyはこれらを直接読むので、mypyプラグインの `init_forbid_extra` や `init_typed` のような別フラグは不要である。コンストラクタチェックを弱めるため、ドメインモデルに必須の動的エイリアスは避ける。
-
-## Pydantic、dataclass、attrs の選択
-
-Pydantic v2は、Kamae Pythonのドメイン状態、境界DTO、プロセス境界を越えるエラーバリアントのデフォルトである。検証とJSONスキーマが不要な場合は、より軽いツールでもよい。
+## Pydantic・dataclass・attrsの選択
 
 | ニーズ | 優先 |
 | --- | --- |
-| 判別共用体状態、境界パース、JSON/API 契約 | **Pydantic v2** frozen モデル |
-| HTTP、キュー、永続化を越えるエラー/イベント | `kind` 判別子付き **Pydantic v2** |
-| 外部シリアライズのない小さなプロセス内値オブジェクト | **`@dataclass(frozen=True, slots=True)`** または **attrs frozen** |
-| 1 モジュール内のみで使う内部コマンド/結果タプル | **dataclass** または **NamedTuple** |
-| 豊富なバリデータ、コンバーター、attrs エコシステムプラグイン | `frozen=True` の **attrs** |
+| 判別共用体state・境界パース・JSON契約 | Pydantic v2凍結モデル |
+| プロセスを越えるエラー・イベント | `kind`判別子付きPydantic v2 |
+| 外部シリアライズのない小さな値オブジェクト | `@dataclass(frozen=True, slots=True)` |
+| attrsエコシステムのバリデータ | `frozen=True`のattrs |
+
+ログ・API・リポジトリ・イベントに現れる金額・ID・ライフサイクルstateはPydanticに置きます。同一概念をPydanticとdataclassの両方で表しません。
+
+## アプリケーション層と配線
+
+依存の向きはDomain → Application（`Protocol`のみ）→ Infrastructure → Interfaceです。ユースケースはプレーンな関数引数でポートを受け取り、Readerモナドやサービスロケーターは既存規約がない限り採用しません。
 
 ```python
-from dataclasses import dataclass
-from decimal import Decimal
-
-
-@dataclass(frozen=True, slots=True)
-class Money:
-    amount: Decimal
-    currency: str
+async def assign_driver_use_case(
+    resolver: RequestResolver,
+    store: RequestStore,
+    authorizer: RequestAuthorizer,
+    actor: Actor,
+    request_id: UUID,
+    driver_id: UUID,
+    now: datetime,
+) -> Result[EnRoute, AssignDriverError]:
+    ...
 ```
 
-ログ、API、リポジトリ、イベントに現れる金額、ID、ライフサイクル状態はPydanticに置く。ドメインモジュールを離れないホットパスヘルパーにはdataclass/attrsを使う。
+依存の配線はFastAPIの`Depends`、lifespan、ワーカーファクトリー、CLI`main`などコンポジションルートだけで行います。設定は起動時に`pydantic-settings`で一度検証し、ユースケース内で`os.environ`を読みません。
 
-明示的なマッパーなしに、同じ概念をPydanticとdataclassの両方で表現しない。
+## ORMアダプター
+
+```text
+ORM entity / Row  --mapper-->  Pydantic domain state
+Session / transaction         --implements-->  RequestStore Protocol
+```
+
+`to_domain(row)`と`to_row(state)`を明示し、判別子と不変条件は`TypeAdapter`で走らせます。信頼済みDB値への`model_construct`はマッパー内だけに閉じ、理由を短くコメントします。`begin`/`commit`はアダプタかunit-of-workポート内で行い、純粋遷移の中では行いません。
+
+## 段階的な移行
+
+触れたワークフローごとに、次の順で締めます。
+
+| フェーズ | 目標 |
+| --- | --- |
+| 0 ベースライン | uv・Ruff・pyrefly・pytest |
+| 1 境界パース | API/DB/キューでPydantic検証 |
+| 2 状態形状 | `status + Optional`を判別共用体へ |
+| 3 純粋遷移 | サービスメソッドから名前付き関数へ |
+| 4 ポート分離 | ORM/SDKを`Protocol`の背後へ |
+| 5 原子性 | 状態＋イベント＋アウトボックスを同一TX |
+
+別ワークフローは並行して進められますが、1ワークフロー内ではフェーズ順を守ります。
+
+## 投影とストリーム
+
+読み取りモデル（投影）はコマンド経路から分けます。権威ある状態変更はユースケースだけが行い、コンシューマはイベントを冪等に適用します。未知の`event_name`や版はスキップかDLQへ送り、パニックや黙殺は避けます。CPUバウンドな投影はコンポジションルートでオフロードします。
 
 ## デコレータと明示的スタイル
 
-Kamae Pythonは隠れた振る舞いより明示的なフィールド、コンストラクタ、関数引数を好む。効果が局所的でドメイン不変条件に置き換わらないとき、デコレータは共存できる。
+純粋遷移はすべての入力を引数で受け取ります。`@cached_property`でI/Oや時間依存を隠しません。Pydanticの`field_validator`/`model_validator`で構築を単一入口に保ちます。
 
-| デコレータ | ドメイン/遷移コード | 境界/アダプターコード |
-| --- | --- | --- |
-| `@property` | 集約状態では避ける。プレーンなフィールドを優先 | 薄いアダプタービューでは許容 |
-| `@cached_property` | 避ける。「値」の中に時間依存や高コスト処理を隠す | 稀。事前計算値の注入を優先 |
-| `@validate_call` | 純粋遷移では避ける。型はすでに狭いはず | 小さな parse/convert ヘルパーに有用 |
-| `@functools.wraps` | インフラ境界のロギング/トレースラッパーで可 | 可 |
+## 次に読む
 
-```python
-# Prefer explicit fields on domain states.
-class Waiting(DomainModel):
-    kind: Literal["waiting"] = "waiting"
-    request_id: UUID
-    ...
+| 目的 | ページ |
+| --- | --- |
+| 遷移とエラー | [状態遷移](/projects/kamae-py/state-transitions/) |
+| 境界パースとPII | [境界防御](/projects/kamae-py/boundary-defense/) |
+| 環境構築 | [使い方](/projects/kamae-py/usage/) |
+| FastAPI・SQLAlchemy例 | [ライブラリガイド](/projects/kamae-py/library-guides/) |
 
-
-# Avoid computed lifecycle state that performs I/O or caching.
-class Waiting(DomainModel):
-    @cached_property
-    def display_label(self) -> str: ...  # hides work; hard to test in isolation
-```
-
-純粋遷移関数はすべての入力をパラメータとして受け取るべきである。デコレータが可観測な振る舞い（検証、キャッシュ、I/O）を変えるなら、遷移の外、アダプターまたはユースケースに置き、依存関係がシグネチャで見えるようにする。
-
-既存フィールドからの純粋な導出でありI/Oを行わない場合、小さな不変値オブジェクトの `@property` は許容される：
-
-```python
-@dataclass(frozen=True, slots=True)
-class DateRange:
-    start: date
-    end: date
-
-    @property
-    def days(self) -> int:
-        return (self.end - self.start).days
-```
-
-Pydanticのフィールドバリデータや `model_validator` がデコレータ多用クラスに置き換わるときは、構築を単一の検証エントリポイントに保つため、frozenモデル上のバリデータを優先する。
-
-## レビューで見るところ
-
-- 可変ドメイン、`model_construct` や生dictでの組み立て、部分更新だけのミューテータで不変条件を飛ばしていないか。
-- ID・金額・メールなどが素の `str` / `int` / `float` / `UUID` のまま混ざっていないかも見る（凍結モデルや検証付きコンストラクタへ）。
-- ORMミックスインや受信デシリアライズがドメイン状態に張り付いていないか。
-- ライフサイクルモデルで `frozen=True` と `extra="forbid"` が揃っているかも確認する。
-- `status: str` ＋ Optionalの巨大モデルより `kind` 付きの判別共用体の方が明確でないか。
-- 単位・通貨・タイムゾーンが型で分かれているか。
-- `models.py` / `types.py` に無関係な概念が溜まっていないかも見る。
-
+タクシー配車のコード例はリポジトリの[`taxi-request.py`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/references/taxi-request.py)を参照してください。

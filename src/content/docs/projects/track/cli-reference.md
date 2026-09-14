@@ -59,7 +59,7 @@ track <SUBCOMMAND> [OPTIONS]
 
 完了・キャンセルしたTODOの再オープンはできません。続きは新しいTODOを足します。
 
-## リンク / スクラップ
+## リンクとスクラップ
 
 | コマンド | 説明 |
 |---|---|
@@ -79,7 +79,7 @@ track <SUBCOMMAND> [OPTIONS]
 | `track repo list` / `track repo remove <id>` | 一覧 / 解除 |
 | `track sync` | `.worktrees/<slug>` を `track/<slug>` 上に作成／更新する |
 
-## Web UI / 補完
+## Web UIと補完
 
 | コマンド | 説明 |
 |---|---|

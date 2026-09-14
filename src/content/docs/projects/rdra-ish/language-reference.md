@@ -5,7 +5,7 @@ sidebar:
   order: 6
 ---
 
-`.rdra` ファイルは `module` 宣言、`import`、**インスタンス宣言**、**述語呼び出し**、**エンティティ本体** で構成される。完全な仕様は [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/language-reference.md) のupstreamドキュメントも参照。
+このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/language-reference.md) も参照してください。
 
 ## ファイル構造
 
@@ -41,7 +41,7 @@ creates(PlaceOrder, Order)
 <kind> <Id> "Label" description "Longer text"
 ```
 
-### 主要な kind
+### 主要なkind
 
 | kind | 説明 |
 |---|---|
@@ -74,11 +74,11 @@ entity Order "Order" {
 
 アノテーション例： `@pk`, `@fk`, `@unique`, `@default`, `@index`
 
-## 関係述語（predicate）
+## 関係述語
 
-述語は `(Subject, Object)` またはチェーン形式で関係を記述する。
+述語は `(Subject, Object)` またはチェーン形式で関係を記述します。
 
-### スコープ・所有
+### スコープと所有
 
 | 述語 | 意味 |
 |---|---|
@@ -87,7 +87,7 @@ entity Order "Order" {
 | `contains(Buc, Usecase)` | BUCがUCを包含 |
 | `decides(Adr, Element)` | ADRが要素に影響 |
 
-### データ操作（CRUD）
+### データ操作
 
 | 述語 | 意味 |
 |---|---|
@@ -106,7 +106,7 @@ entity Order "Order" {
 | `requires_permission(Usecase\|Api, Permission)` | 必要権限 |
 | `requires_medium(Screen, Medium)` | 媒体制約 |
 
-### ライフサイクル（v0.2.0）
+### ライフサイクル
 
 | 述語 | 意味 |
 |---|---|
@@ -120,7 +120,7 @@ transitions(Order.status, event::Capture, pending -> paid)
 sets(CapturePayment, Order, status == paid)
 ```
 
-### ルール（v0.2.0）
+### ルール
 
 条件は比較式のみ（`col == val`、`stock < selling`）。タプルや平坦な `col, val` は不可。
 
@@ -134,7 +134,7 @@ sets(CapturePayment, Order, status == paid)
 | `exclusive(Entity, ...)` | 排他 |
 | `property Name always/eventually/leads_to(...)` | 時間性質（`states` では未評価。TLA 向け） |
 
-時間結合子は `and` / `or` / `not` を推奨（`/\` `\/` `~` はエイリアス）。詳細と形式検証は [形式検証](/projects/rdra-ish/formal-verification/) を参照。
+時間結合子は `and` / `or` / `not` を推奨（`/\` `\/` `~` はエイリアス）。詳細と形式検証は [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
 
 ## ビジネスフロー
 
@@ -147,15 +147,95 @@ precedes(S1, S2)
 contains(BucOrder, OrderFlow)
 ```
 
-## 配置ルール（要約）
+## 配置ルール
 
 - BUC固有述語を `shared/` に置かない
 - 安定語彙（actor, business, 共有entity）は `shared/`
 - 1 BUC = 原則1ファイル（`buc/buc_<name>.rdra`）
 
-詳細は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) を参照。
+詳細は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) を参照してください。
 
-## 検証
+## 図表生成
+
+```bash
+rdra-ish diagram <INPUTS...> --kind <KIND> --format <FORMAT> [OPTIONS]
+```
+
+| オプション | 説明 |
+|---|---|
+| `--kind` | 図の種類（下表） |
+| `--format` | `mermaid` / `plantuml` |
+| `--buc` | 特定BUCにスコープ |
+| `--show-description` | 説明メタデータを注釈として表示 |
+
+### 図の種類
+
+| kind | 用途 |
+|---|---|
+| `rdra` | RDRA レイヤ図（BUC・UC・エンティティの関係） |
+| `er` | ER 図 |
+| `sequence` | ユースケースシーケンス |
+| `state` | 状態遷移 |
+| `event-flow` | イベントフロー |
+| `boundaryless` | 境界なし全体グラフ |
+| `business-area` | ビジネス領域ビュー |
+| `diff` | ベースとの差分図（`--diff-base` の意味エラーでも fail-closed） |
+
+早期レビューでは **Mermaid**（`--format mermaid`）が推奨です。テキストなのでdiffしやすい。
+
+```bash
+rdra-ish diagram src/ --kind sequence --format mermaid --buc BucOrder
+rdra-ish diagram src/ --kind event-flow --format mermaid
+```
+
+PlantUMLでPNG/SVGが必要な場合はJava + plantuml.jarが必要です。
+
+## レビュー表
+
+```bash
+rdra-ish csv <INPUTS...> --kind <KIND> [--format table|json|csv]
+```
+
+| kind | 内容 |
+|---|---|
+| `matrix` | CRUD マトリクス |
+| `api-list` | API 一覧 |
+| `screen-constraints` | 画面制約 |
+| `actor-permission-audit` | 権限とアクター割当の監査 |
+| `requirement-trace` | 要件トレーサビリティ |
+
+## 状態導出
+
+BUC横断で到達可能なエンティティ状態パターンを導出します（BFS）。
+
+```bash
+rdra-ish states <INPUTS...> [--entity <EntityId>] [--format table|json]
+```
+
+- 到達不能なenum variant
+- 作成経路の欠落
+- `forbidden` / `invariant` / `required` / `exclusive` 違反（マルチエンティティ含む）
+
+ライフサイクルレビュー（Stage 5–6）では `states` と `diagram --kind event-flow` をセットで使います。Int / `now` の算術・時間性質は `states` では扱わず [形式検証](/projects/rdra-ish/formal-verification/) へ。
+
+## 機械可読エクスポート
+
+```bash
+rdra-ish export <INPUTS...> --kind <KIND> [--out <path>]
+```
+
+| kind（例） | 内容 |
+|---|---|
+| `openapi` / `asyncapi` | API・イベント契約のたたき台 |
+| `dbml` / `json-schema` | 論理スキーマ |
+| `typescript-states` | 状態ユニオン（TS） |
+| `tla` | TLA+ Spec + TLC `.cfg`（v0.2.0） |
+
+exportは **レビュー起点のたたき台** です。モデルを更新した後に再生成し、差分をレビューする運用を前提とします。
+
+生成系サブコマンド（`diagram` / `csv` / `list` / `export` / `states` / `verify`）はモデルにerrorがあるとき **fail-closed** です。
+
+## 検証コマンド
 
 ```bash
 rdra-ish check src/
@@ -165,9 +245,12 @@ rdra-ish states src/ --entity Order
 rdra-ish verify src/ --backend tlc -o /tmp/rdra-tla
 ```
 
-## 関連ページ
+## レビューの観点
+
+構造は `check` でerrorゼロを前提にし、カバレッジは `csv --kind matrix`、境界は `diagram --kind sequence`、アクセスは `csv --kind actor-permission-audit` で見ます。ライフサイクルは `states` と `diagram --kind event-flow`、厳密な比較・時間性質は `export --kind tla` / `verify --backend tlc`。トレーサビリティは `list --kind requirement` と `lint` です。
+
+## 次に読む
 
 - [段階的モデリング](/projects/rdra-ish/incremental-modeling/)
 - [CLI リファレンス](/projects/rdra-ish/cli-reference/)
-- [図表とエクスポート](/projects/rdra-ish/diagram-and-export/)
 - [形式検証](/projects/rdra-ish/formal-verification/)

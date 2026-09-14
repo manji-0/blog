@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-閉じた状態集合はenumと遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
+## 範囲
 
-状態のデータ構造は [ドメインモデリング](/projects/kamae-rs/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) に委ねる。
+純粋遷移・エラー返却・集約トランザクション・永続化とイベントの同期です。状態のデータ構造は[ドメインモデリング](/projects/kamae-rs/domain-modeling/)を参照してください。
 
 ## ソース型で遷移を制約する
 
@@ -76,7 +76,7 @@ impl WaitingRequest {
 
 ## `self` by value（所有権消費）の理由
 
-state変更遷移で `&mut self` ではなく `self` を取る利点：
+state変更遷移で `self` を取る利点：
 
 1. **旧 state を再利用できない。** `waiting.assign_driver(driver)` の後 `waiting` はmoveされ、再参照はコンパイルエラー。ランタイムフラグなしで二重割当バグを防ぐ。
 2. **遷移は state 置換として読める。** 返却structが新しい真実。共有ハンドル上の隠れたmutationがない。
@@ -110,7 +110,7 @@ pub enum TaxiRequest {
 
 ## 複数遷移先
 
-1ソースstateから複数targetへ行けるとき、単一struct型ではなくoutcome enumを返す。
+1ソースstateから複数targetへ行けるとき、outcome enumを返す。
 
 ```rust
 pub enum WaitingExit {
@@ -170,7 +170,7 @@ impl WaitingRequest {
 }
 ```
 
-ユースケースが結果を分解し、[永続化、集約、イベント](/projects/kamae-rs/persistence-events/) 経由で状態を保存し、イベントを発行する。遷移メソッド内のglobal bufferにeventを積まない。
+ユースケースが結果を分解し、[永続化とイベント](/projects/kamae-rs/state-transitions/) 経由で状態を保存し、イベントを発行する。遷移メソッド内のglobal bufferにeventを積まない。
 
 state消費遷移では `self` by valueを優先。元stateを残す必要があるときだけborrow。
 
@@ -233,16 +233,8 @@ pub fn assign_driver(
 
 - **State struct + `self` 消費**: ライフサイクルが明確なサーバー側ドメイン層では、こちらをデフォルトとする
 - **Typestate phantom marker**: フェーズ間で同じデータ形状だが操作が異なる。[ドメインモデリング](/projects/kamae-rs/domain-modeling/#phantom-型による-typestate-パターン) を参照
-- **集約トランザクション**: ユースケースがversion付き集約をload、純粋遷移、原子的save; [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) 参照
+- **集約トランザクション**: ユースケースがversion付き集約をload、純粋遷移、原子的save; [永続化とイベント](/projects/kamae-rs/state-transitions/) 参照
 
+## 次に読む
 
-## レビューで見るところ
-
-- セッターや部分更新でクロスフィールド不変条件・ライフサイクルを壊していないか。
-- 楽観ロックや冪等キーなしの競合しやすい遷移がないか（[永続化、集約、イベント](/projects/kamae-rs/persistence-events/)）。
-- 認可・テナント確認の前に状態を変えていないか。
-- ドメイン `match` で `_` が将来バリアントを隠していないか。
-- 遷移が永続化やログまで抱え込んでいないか。
-- 特定状態型で受け取れるのに広い列挙でランタイム検査していないか。
-- 遷移後にソース状態を使えなくすべきなら `self` 消費も検討する。
-
+外部データは[境界防御](/projects/kamae-rs/boundary-defense/)、チェックは[品質ゲート](/projects/kamae-rs/quality-gates/)です。

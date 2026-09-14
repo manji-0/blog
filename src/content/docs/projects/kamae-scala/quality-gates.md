@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-変更したモジュールでは、`scalafmtCheckAll`、プロジェクトの `scalafix` 方針、焦点を絞ったテストを、ローカルとCIで同じコマンドとして揃える。以下が品質ゲートの正規コマンド一覧である。
+## 範囲
 
-アプリケーションのセットアップは [開発環境](/projects/kamae-scala/dev-environment/)、Actionsへの反映は [CI セットアップ](/projects/kamae-scala/ci-setup/)、スキルリポジトリ開発は [スキルリポジトリの開発](/projects/kamae-scala/development-setup/) を読む。
+scalafmt・scalafix・test・scaladoc・CI・テストデータ・プロパティテスト・mutation・ログ方針の正規コマンド一覧です。環境セットアップは[使い方](/projects/kamae-scala/usage/)を参照してください。
 
 ## ベースラインコマンド
 
@@ -44,7 +44,7 @@ python3 scripts/validate_package.py
 python3 skills/kamae-scala-review/scripts/review_probe.py skills/kamae-scala/examples/src/main/scala --json
 ```
 
-**kamae-scala** リポジトリ本体では `scripts/validate_package.py` と上記review probeを使う。例コードは `skills/kamae-scala/examples/` 配下のsbtサブプロジェクト `kamae-scala-taxi-request` にある。リポジトリルートから `sbt test` を実行する。このリポジトリの開発ワークフローは [スキルリポジトリの開発](/projects/kamae-scala/development-setup/) を参照。
+**kamae-scala** リポジトリ本体では `scripts/validate_package.py` と上記review probeを使う。例コードは `skills/kamae-scala/examples/` 配下のsbtサブプロジェクト `kamae-scala-taxi-request` にある。リポジトリルートから `sbt test` を実行する。このリポジトリの開発ワークフローは [スキルリポジトリの開発](/projects/kamae-scala/usage/) を参照。
 
 スキルをインストールしたアプリケーションプロジェクトは、ドメインディレクトリが変わるときCIまたはpre-pushフックにprobeを追加してよい：
 
@@ -54,7 +54,7 @@ python3 path/to/kamae-scala/skills/kamae-scala-review/scripts/review_probe.py sr
 
 ## フォーマットのベースライン
 
-変更を仕上げる前に触ったScalaファイルで `sbt scalafmtAll` を実行する。Kamaeではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、JNI、永続化の変更を確認しやすくするための手段である。
+変更を仕上げる前に触ったScalaファイルで `sbt scalafmtAll` を実行する。Kamaeではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、JNI、永続化の変更を確認しやすくするための手段です。
 
 リポジトリルートに `.scalafmt.conf` をコミットし、モジュール間で揃える。フォーマットは設計レビューの代わりにならないが、未フォーマットのdomain diffはリスクのある変更を隠す。
 
@@ -70,7 +70,7 @@ Scalaプロジェクトでは関連サブプロジェクトまたはワークス
 - 可能な箇所での明示的 `match` 網羅性
 - 境界で誤って使われるdeprecated APIの検出
 
-CIでscalafixを採用しているプロジェクトでは `scalafixAll --check` を追加する。[CI セットアップ](/projects/kamae-scala/ci-setup/) を参照。
+CIでscalafixを採用しているプロジェクトでは `scalafixAll --check` を追加する。[CI セットアップ](/projects/kamae-scala/quality-gates/) を参照。
 
 ## 抑制ルール
 
@@ -107,7 +107,7 @@ def assignDriver(...): Either[AssignDriverError, Transition[EnRouteRequest, Taxi
 - `sbt test`
 - 採用時 `sbt scalafixAll --check`
 
-ドメインconstructor、遷移、境界変換、JNI wrapper、persistence挙動に関連するテストを含める。workflowテンプレートとbranch protectionは [CI セットアップ](/projects/kamae-scala/ci-setup/) 参照。
+ドメインconstructor、遷移、境界変換、JNI wrapper、persistence挙動に関連するテストを含める。workflowテンプレートとbranch protectionは [CI セットアップ](/projects/kamae-scala/quality-gates/) 参照。
 
 ## Scaladoc と型契約
 
@@ -121,17 +121,14 @@ def assignDriver(...): Either[AssignDriverError, Transition[EnRouteRequest, Taxi
 
 | 関心 | テスト場所 | ガイド |
 | --- | --- | --- |
-| フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-scala/test-data/) |
-| 入力全体の不変条件 | ScalaCheck property | [プロパティベーステスト](/projects/kamae-scala/property-based-tests/) |
-| アサーション強度 / 静かなギャップ | ドメインモジュールへのStryker | [ミューテーションテスト](/projects/kamae-scala/mutation-testing/) |
-| コンパイル時 state 安全性 | munit `compileErrors` | [テストデータ](/projects/kamae-scala/test-data/#コンパイル時安全性テスト) |
-| fake port とユースケース | application tests | [開発環境](/projects/kamae-scala/dev-environment/) |
+| フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-scala/quality-gates/) |
+| 入力全体の不変条件 | ScalaCheck property | [プロパティベーステスト](/projects/kamae-scala/quality-gates/) |
+| アサーション強度 / 静かなギャップ | ドメインモジュールへのStryker | [ミューテーションテスト](/projects/kamae-scala/quality-gates/) |
+| コンパイル時 state 安全性 | munit `compileErrors` | [テストデータ](/projects/kamae-scala/quality-gates/#コンパイル時安全性テスト) |
+| fake port とユースケース | application tests | [開発環境](/projects/kamae-scala/usage/) |
 
 生成バインディング、vendoredコード、外部維持スナップショットはフルlintバーから免除してよいが、それらを包むsafe wrapperは境界検証、PII、JNI境界ガイダンスに従う。
 
-## レビューで見るところ
+## 次に読む
 
-- `throw` / `???` / unsafe `.get`、非網羅`match`、金額の`Double`、PIIの`toString`まわりのlint抑制が安全性を隠していないか。
-- 広い`@nowarn`や説明のない抑制、触ったモジュールの新しい警告がないかも見る。
-- Scala変更があるのに`scalafmtCheckAll`や関連`scalafix`の実行が文書化・通過していないか確認する。
-
+初回セットアップは[使い方](/projects/kamae-scala/usage/)。設計の正は[はじめに](/projects/kamae-scala/)です。

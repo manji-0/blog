@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-閉じた状態集合はenumと遷移メソッドで表し、非法遷移は型と `match` の網羅で落とす。遷移の内側で永続化やログを行うと、純粋性が失われ、テストや並行性の検討が難しくなる。
+## 範囲
 
-状態のデータ構造は [ドメインモデリング](/projects/kamae-scala/domain-modeling/)、保存とイベントは [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) に委ねる。後段のユースケース例はCats Effect前提である。ZIOや`Future`を使う場合は、先に [エフェクトシステム](/projects/kamae-scala/effect-systems/) でプライマリスタックを1つ選ぶ。
+純粋遷移・エラー返却・集約トランザクション・永続化とイベントの同期です。状態のデータ構造は[ドメインモデリング](/projects/kamae-scala/domain-modeling/)を参照してください。
 
 ## ソース型で遷移を制約する
 
@@ -49,10 +49,10 @@ extension (request: WaitingRequest)
 
 ## ソース状態を消費することの意味
 
-ソース状態を引数として受け取り、新しい状態を返す（共有集約をmutateするのではなく）設計には、次の利点がある。
+ソース状態を引数として受け取り、新しい状態を返す設計には、次の利点があります。
 
 1. **旧 state を再利用できない。** `waiting.assignDriver(driver)` の後、呼び出し元は返却された状態で作業する。隠れたmutationなしで二重割当を防ぎやすい。
-2. **遷移は state 置換として読める。** 返却case classが新しい真実である。
+2. **遷移は state 置換として読める。** 返却case classが新しい真実です。
 3. **永続化マッピングが容易。** ユースケースは所有 `EnRouteRequest` を `saveAssigned` に渡せる。
 4. **event ペアリングが明確。** `Transition(state, events)` を消費入力から一度構築する。
 
@@ -116,20 +116,13 @@ final class AssignDriver[F[_]: Monad](
 final case class Transition[TState, TEvent](state: TState, events: List[TEvent])
 ```
 
-リポジトリの期待は [永続化、集約、イベント](/projects/kamae-scala/persistence-events/) を参照する。
+リポジトリの期待は [永続化とイベント](/projects/kamae-scala/state-transitions/) を参照する。
 
 ## 正規の例
 
 - 実装は [kamae-scala の `TaxiRequest.scala`](https://github.com/manji-0/kamae-scala/blob/main/examples/src/main/scala/kamae/examples/TaxiRequest.scala) を参照する。
 - コンパイル時安全性： [kamae-scala の `CompileTimeSafetySuite.scala`](https://github.com/manji-0/kamae-scala/blob/main/examples/src/test/scala/kamae/examples/CompileTimeSafetySuite.scala) — munitの `compileErrors` で `EnRouteRequest` が `WaitingRequest` の要求箇所に渡せないことを検証する。
 
-## レビューで見るところ
+## 次に読む
 
-- セッターや部分更新でクロスフィールド不変条件・ライフサイクルを壊していないか。
-- 楽観ロックや冪等キーなしの競合しやすい遷移がないか（[永続化、集約、イベント](/projects/kamae-scala/persistence-events/)）。
-- 認可・テナント確認の前に状態を変えていないか。
-- ドメイン `match` で `_` が将来バリアントを隠していないか。
-- 遷移が永続化やログまで抱え込んでいないか。
-- 特定状態型で受け取れるのに広い列挙でランタイム検査していないか。
-- 遷移後にソース状態を使えなくすべきなら、受け取った状態を消費する形も検討する。
-
+外部データは[境界防御](/projects/kamae-scala/boundary-defense/)、チェックは[品質ゲート](/projects/kamae-scala/quality-gates/)です。

@@ -5,22 +5,13 @@ sidebar:
   label: "クレートガイド（参照）"
 ---
 
-`thiserror`、`serde`、`nutype` などはKamaeのドメイン規約を**補助**するクレートである。トピック別リファレンス（エラーハンドリング、境界防御など）と矛盾する場合は、そちらを優先する。
+## 範囲
 
-ここでは「よくある組み合わせ」とデフォルトの置き場所をまとめる。個別の設計判断は [エラーハンドリング](/projects/kamae-rs/error-handling/)、[境界防御](/projects/kamae-rs/boundary-defense/)、[ドメインモデリング](/projects/kamae-rs/domain-modeling/)、[PII 保護](/projects/kamae-rs/pii-protection/) を参照する。
-
-| 用途 | ガイド付きクレート | 検出のみ（ローカル慣習の参考） |
-| --- | --- | --- |
-| エラー | `thiserror`、`anyhow`、`eyre` | `snafu` |
-| シリアライズ | `serde` | `serde_json`、`toml`、`config` |
-| 検証 / newtype | `validator`、`garde`、`nutype` | `derive_more` |
-| PII / シークレット | `secrecy` | `zeroize` |
-| ログ / トレース | `tracing`、`log`、`metrics` | `opentelemetry`、`prometheus` |
-| テスト | `proptest` | `quickcheck`、`trybuild` |
+`Cargo.toml`に応じた依存クレートの置き方です。トピック別の設計判断は実装3本を優先してください。
 
 ## thiserror
 
-ドメイン・ユースケースの `thiserror` 列挙型を導入・整備するときに参照する。詳細は [エラーハンドリング](/projects/kamae-rs/error-handling/) を優先する。
+ドメイン・ユースケースの `thiserror` 列挙型を導入・整備するときに参照する。詳細は [エラーハンドリング](/projects/kamae-rs/state-transitions/) を優先する。
 
 ```rust
 #[derive(Debug, thiserror::Error)]
@@ -35,12 +26,12 @@ pub enum DomainError {
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `thiserror` + `serde` boundary | `TryFrom<Dto>` で `type Error = CommandError` | [境界防御](/projects/kamae-rs/boundary-defense/) |
-| `thiserror` + `sqlx` | adapter 境界で `RepositoryError` が `sqlx::Error` を包む | [永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
-| `thiserror` + transitions | `AssignDriverError` が domain / not-found / conflict を分離 | [状態遷移](/projects/kamae-rs/state-transitions/)、[永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
+| `thiserror` + `sqlx` | adapter 境界で `RepositoryError` が `sqlx::Error` を包む | [永続化とイベント](/projects/kamae-rs/state-transitions/) |
+| `thiserror` + transitions | `AssignDriverError` が domain / not-found / conflict を分離 | [状態遷移](/projects/kamae-rs/state-transitions/)、[永続化とイベント](/projects/kamae-rs/state-transitions/) |
 
 ## anyhow / eyre
 
-`anyhow` / `eyre` は**報告境界**向けである。`main`、HTTPハンドラ、移行スクリプト、接着コードでは、多様な失敗を1本のチェーンにまとめてよい。
+`anyhow` / `eyre` は**報告境界**向けです。`main`、HTTPハンドラ、移行スクリプト、接着コードでは、多様な失敗を1本のチェーンにまとめてよい。
 
 ドメインのコンストラクタやユースケースの戻り値に `anyhow::Result` を使うと、呼び出し元が網羅的に分岐できなくなる。ドメイン層は具体的な `enum` と `Result` を返し、ハンドラでHTTPステータスやログ用メッセージに変換する。
 
@@ -77,8 +68,8 @@ ID、メール、スラッグ、有界数量などのリーフ値オブジェク
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `serde` + `thiserror` | DTO `Deserialize`、`TryFrom` が型付き error enum を返す | [境界防御](/projects/kamae-rs/boundary-defense/) |
-| `serde` + `sqlx` | row struct のみ `FromRow`、ドメインへ `TryFrom` | [境界防御](/projects/kamae-rs/boundary-defense/#データベース行sqlxfromrow)、[永続化、集約、イベント](/projects/kamae-rs/persistence-events/) |
-| `serde` + events | ドメイン event enum に `#[serde(tag = "event_type")]` | [永続化、集約、イベント](/projects/kamae-rs/persistence-events/#event-の-serde-表現) |
+| `serde` + `sqlx` | row struct のみ `FromRow`、ドメインへ `TryFrom` | [境界防御](/projects/kamae-rs/boundary-defense/#データベース行sqlxfromrow)、[永続化とイベント](/projects/kamae-rs/state-transitions/) |
+| `serde` + events | ドメイン event enum に `#[serde(tag = "event_type")]` | [永続化とイベント](/projects/kamae-rs/state-transitions/#event-の-serde-表現) |
 | `serde` + `garde` | `TryFrom` 前に DTO を `garde` で検証 | [garde](#garde) |
 
 ## validator
@@ -104,10 +95,10 @@ pub struct CreateUserDto {
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
 | `garde` + `serde` + axum | `Json<Dto>` -> `dto.validate()` -> `Command::try_from(dto)` | [境界防御](/projects/kamae-rs/boundary-defense/#http-extractoraxum--actix-web) |
-| `garde` + `thiserror` | adapter で `garde` report を境界 error enum にマップ | [エラーハンドリング](/projects/kamae-rs/error-handling/) |
+| `garde` + `thiserror` | adapter で `garde` report を境界 error enum にマップ | [エラーハンドリング](/projects/kamae-rs/state-transitions/) |
 | `garde` + leaf newtypes | DTO フィールド検証 + ドメイン newtype 向け `TryFrom` | [ドメインモデリング](/projects/kamae-rs/domain-modeling/) |
 
-`garde` はDTO形状を検証する。`TryFrom` はドメイン意味（フィールド横断ルール、テナントスコープ、ID意味論）の権威のままである。
+`garde` はDTO形状を検証する。`TryFrom` はドメイン意味（フィールド横断ルール、テナントスコープ、ID意味論）の権威のままです。
 
 ## nutype
 
@@ -117,7 +108,7 @@ pub struct CreateUserDto {
 
 ## secrecy
 
-`Debug` 出力に現れてはならず、メモリ上に必要以上残してはならない資格情報などのsecret向けに `secrecy` を使う。詳細は [PII 保護](/projects/kamae-rs/pii-protection/) を優先する。
+`Debug` 出力に現れてはならず、メモリ上に必要以上残してはならない資格情報などのsecret向けに `secrecy` を使う。詳細は [PII 保護](/projects/kamae-rs/boundary-defense/) を優先する。
 
 個人データ（PII）は `Redacted<T>` またはcustom `Debug` 付きドメインnewtypeを優先する。
 
@@ -127,13 +118,13 @@ secretは `SecretString` または `SecretBox` 周りのプロジェクト固有
 
 | スタック | パターン | トピックガイド |
 | --- | --- | --- |
-| `secrecy` + adapter | payment/auth モジュールのみ `ExposeSecret` | [PII 保護](/projects/kamae-rs/pii-protection/) |
-| `secrecy` + `tracing` | `SecretString` をログしない。資格情報 struct は `skip` | [PII 保護](/projects/kamae-rs/pii-protection/#tracing-と-span-フィールド) |
-| PII vs secrets | 個人データは `Redacted<T>`、資格情報は `secrecy` | [PII 保護](/projects/kamae-rs/pii-protection/#secrecy-vs-redactedt--when-to-use-which) |
+| `secrecy` + adapter | payment/auth モジュールのみ `ExposeSecret` | [PII 保護](/projects/kamae-rs/boundary-defense/) |
+| `secrecy` + `tracing` | `SecretString` をログしない。資格情報 struct は `skip` | [PII 保護](/projects/kamae-rs/boundary-defense/#tracing-と-span-フィールド) |
+| PII vs secrets | 個人データは `Redacted<T>`、資格情報は `secrecy` | [PII 保護](/projects/kamae-rs/boundary-defense/#secrecy-vs-redactedt--when-to-use-which) |
 
 ## proptest
 
-crateがすでに依存している場合、またはproperty testが入力全体の法則を最も明確にカバーできる場合に、ドメイン不変条件テスト向け `proptest` を使う。generator設計、state machine property、CI予算、regressionファイルは [プロパティベーステスト](/projects/kamae-rs/property-based-tests/) を参照する。
+crateがすでに依存している場合、またはproperty testが入力全体の法則を最も明確にカバーできる場合に、ドメイン不変条件テスト向け `proptest` を使う。generator設計、state machine property、CI予算、regressionファイルは [プロパティベーステスト](/projects/kamae-rs/quality-gates/) を参照する。
 
 `[dev-dependencies]` に置く。publicコンストラクタを呼ぶstrategyを優先し、無効なドメイン状態を直接構築しない。
 
@@ -147,3 +138,7 @@ proptest! {
     }
 }
 ```
+
+## 次に読む
+
+設計の正は[ドメインモデリング](/projects/kamae-rs/domain-modeling/)から実装3本。コマンドは[品質ゲート](/projects/kamae-rs/quality-gates/)です。

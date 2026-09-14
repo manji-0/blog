@@ -25,25 +25,8 @@ function group(root, label, paths, collapsed = true) {
 export function getDagaynSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/dagayn/' },
-		group(
-			'dagayn',
-			'ガイド',
-			['installation', 'quickstart', 'cli-reference', 'mcp-tools'],
-			false,
-		),
-		group('dagayn', 'リファレンス', [
-			'graph-model',
-			'integrations',
-			'semantic-search',
-		]),
-		group('dagayn', '技術ノート', [
-			'architecture',
-			'storage',
-			'metrics',
-			'review-analysis',
-			'development',
-			'troubleshooting',
-		]),
+		group('dagayn', '実装', ['architecture', 'graph-model', 'review-analysis'], false),
+		group('dagayn', 'リファレンス', ['usage', 'mcp-tools', 'cli-reference'], false),
 	];
 }
 
@@ -53,17 +36,11 @@ export function getRdraIshSidebarItems() {
 		{ label: 'はじめに', link: '/projects/rdra-ish/' },
 		group(
 			'rdra-ish',
-			'ガイド',
-			['installation', 'quickstart', 'incremental-modeling', 'diagram-and-export', 'formal-verification'],
+			'実装',
+			['incremental-modeling', 'formal-verification', 'examples/store-restock'],
 			false,
 		),
-		group('rdra-ish', '実践例', ['examples/store-restock'], false),
-		group('rdra-ish', 'リファレンス', [
-			'cli-reference',
-			'language-reference',
-			'vscode-lsp',
-		]),
-		group('rdra-ish', '開発', ['development']),
+		group('rdra-ish', 'リファレンス', ['usage', 'language-reference', 'cli-reference'], false),
 	];
 }
 
@@ -71,10 +48,8 @@ export function getRdraIshSidebarItems() {
 export function getTrackSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/track/' },
-		group('track', 'ガイド', ['installation', 'quickstart', 'webui'], false),
-		group('track', '概念', ['workspace', 'agents'], false),
-		group('track', 'リファレンス', ['cli-reference'], false),
-		group('track', '開発', ['development']),
+		group('track', '実装', ['workspace', 'agents'], false),
+		group('track', 'リファレンス', ['usage', 'cli-reference', 'webui'], false),
 	];
 }
 
@@ -82,12 +57,16 @@ export function getTrackSidebarItems() {
 export function getBmdSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/bmd/' },
-		group(
-			'bmd',
-			'ガイド',
-			['installation', 'quickstart', 'keybindings', 'configuration'],
-			false,
-		),
-		group('bmd', '開発', ['development']),
+		group('bmd', '実装', ['rendering'], false),
+		group('bmd', 'リファレンス', ['usage', 'keybindings', 'configuration'], false),
+	];
+}
+
+/** @returns {Array<{ label: string; link: string } | SidebarGroup>} */
+export function getKamaeModelTranslatorSidebarItems() {
+	return [
+		{ label: 'はじめに', link: '/projects/kamae-model-translator/' },
+		group('kamae-model-translator', '実装', ['port', 'bridge'], false),
+		group('kamae-model-translator', 'リファレンス', ['usage'], false),
 	];
 }

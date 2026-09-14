@@ -8,11 +8,11 @@ sidebar:
 
 <!-- derived-from ../incremental-modeling.md#Stage-一覧 -->
 
-店舗運営部の「補充予定と担当組織の維持」を題材に、要求分析からエンティティ構造・ライフサイクル・業務ルールまでをStage 0–6で一気に追う。[段階的モデリング](/projects/rdra-ish/incremental-modeling/) の概念表に対する実践ウォークスルーで、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/main/samples/incremental-order) である。
+このページは、店舗運営部の「補充予定と担当組織の維持」を題材に、要求分析からエンティティ構造・ライフサイクル・業務ルールまでをStage 0–6で追う実践ウォークスルーです。[段階的モデリング](/projects/rdra-ish/incremental-modeling/) の概念表に対応し、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/main/samples/incremental-order) です。
 
 ## 前提
 
-各Stageは独立した `src/` を持つ。前段を上書きせず、その段階のモデルだけを `check` する。
+各Stageは独立した `src/` を持ちます。前段を上書きせず、その段階のモデルだけを `check` します。
 
 ```text
 samples/incremental-order/
@@ -24,22 +24,22 @@ samples/incremental-order/
     buc/      # buc_store_restock.rdra
 ```
 
-クローン後は次のルートで試せる。
+クローン後は次のルートで試せます。
 
 ```bash
 git clone https://github.com/manji-0/rdra-ish-dsl.git
 cd rdra-ish-dsl
 ```
 
-以下、パスは `samples/incremental-order/` からの相対とする。
+以下、パスは `samples/incremental-order/` からの相対です。
 
-## Stage 0 — スコープ
+## Stage 0のスコープ
 
 <!-- derived-from ../incremental-modeling.md#Stage-一覧 -->
 
 **要求の焦点:** 店舗補充管理を店舗運営業務のスライスとして切り、画面やデータを置くより先に業務名と境界をレビューできること。
 
-追加するのは業務領域とBUC名だけ。
+追加するのは業務領域とBUC名だけです。
 
 ```rdra
 // shared/biz.rdra
@@ -54,9 +54,9 @@ belongs(BucStoreRestock, StoreOperations)
 rdra-ish check step-0-scope/src
 ```
 
-この段階で固定する語彙は `StoreOperations` と `BucStoreRestock`。発注実行・在庫引当・配送は対象外のままにする。
+この段階で固定する語彙は `StoreOperations` と `BucStoreRestock` です。発注実行・在庫引当・配送は対象外のままにします。
 
-## Stage 1 — BUC 骨格
+## Stage 1のBUC骨格
 
 **要求の焦点:** 店舗運営の担当者が実行主体として見え、補充予定日の変更と担当組織変更を別ユースケースとしてレビューできること。
 
@@ -76,9 +76,9 @@ rdra-ish check step-1-buc-skeleton/src
 rdra-ish diagram step-1-buc-skeleton/src --kind rdra --format mermaid --buc BucStoreRestock
 ```
 
-データや画面はまだ置かない。UCの粒度が業務担当者にとって別作業か、だけを見る。
+データや画面はまだ置きません。UCの粒度が業務担当者にとって別作業か、だけを見ます。
 
-## Stage 2 — データ接点
+## Stage 2のデータ接点
 
 **要求の焦点:** 粗いエンティティとUC直結のCRUDで、どの操作がどのデータに触るか説明できること。
 
@@ -137,9 +137,9 @@ flowchart LR
   ChangeStoreParentOrganization -.->|updates| Store
 ```
 
-カラム詳細やAPIはまだ入れない。Organizationは参照のみ（担当組織マスタ自体の変更ではない）。
+カラム詳細やAPIはまだ入れません。Organizationは参照のみ（担当組織マスタ自体の変更ではない）です。
 
-## Stage 3 — 相互作用境界
+## Stage 3の相互作用境界
 
 **要求の焦点:** 担当者がどの画面から操作し、担当組織変更では店舗更新と組織参照を別API境界として見える化できること。補充予定日の変更は過剰なAPI化を避けてよい。
 
@@ -181,9 +181,9 @@ rdra-ish csv step-3-interaction-boundary/src --kind actor-permission-audit
 rdra-ish csv step-3-interaction-boundary/src --kind screen-constraints
 ```
 
-direct CRUD（補充予定日）とAPI CRUD（担当組織変更）の混在は、この段階の判断として残す。
+direct CRUD（補充予定日）とAPI CRUD（担当組織変更）の混在は、この段階の判断として残します。
 
-## Stage 4 — エンティティ構造
+## Stage 4のエンティティ構造
 
 **要求の焦点:** 店舗・組織の業務識別子とN:1関係をERとしてレビューし、境界越え関係の調整責務をユースケースに明示できること。
 
@@ -226,7 +226,7 @@ erDiagram
   Store }o--|| Organization : ""
 ```
 
-## Stage 5 — ライフサイクル
+## Stage 5のライフサイクル
 
 **要求の焦点:** 補充状態（normal / scheduled / blocked）と次回の補充予定日の有無を、同じイベントで説明し到達検証できること。
 
@@ -258,9 +258,9 @@ rdra-ish states step-5-lifecycle/src --entity Store
 rdra-ish diagram step-5-lifecycle/src --kind event-flow --format mermaid --buc BucStoreRestock
 ```
 
-blockedからnormalへ戻すUCは、このサンプルではまだ入れない。
+blockedからnormalへ戻すUCは、このサンプルではまだ入れません。
 
-## Stage 6 — 業務ルール
+## Stage 6の業務ルール
 
 **要求の焦点:** scheduledには予定日が必要、blockedに予定日を残してはいけない、をDSL上の制約として検出し、状態到達表で違反がないことを確認できること。
 
@@ -277,11 +277,11 @@ rdra-ish check step-6-business-rules/src
 rdra-ish states step-6-business-rules/src --entity Store
 ```
 
-`normal + present` は禁止しない（業務上許容する判断）。比較や時間性質まで厳密に見る場合は [形式検証](/projects/rdra-ish/formal-verification/) へ進む。
+`normal + present` は禁止しません（業務上許容する判断）。比較や時間性質まで厳密に見る場合は [形式検証](/projects/rdra-ish/formal-verification/) へ進みます。
 
 ## 最終形の骨格
 
-Stage 6のBUC側の関係は次の形に収束する。
+Stage 6のBUC側の関係は次の形に収束します。
 
 ```rdra
 module buc.store_restock
@@ -326,23 +326,23 @@ updates(BlockScheduledRestock, Store)
 raises(BlockScheduledRestock, event::RestockBlocked)
 ```
 
-エンティティ側の制約・遷移はStage 5–6の抜粋をそのまま共有モジュールに置く。
+エンティティ側の制約・遷移はStage 5–6の抜粋をそのまま共有モジュールに置きます。
 
-## まとめ
+## 実務のループ
 
-<!-- derived-from #Stage-0--スコープ -->
-<!-- derived-from #Stage-1--BUC-骨格 -->
-<!-- derived-from #Stage-2--データ接点 -->
-<!-- derived-from #Stage-3--相互作用境界 -->
-<!-- derived-from #Stage-4--エンティティ構造 -->
-<!-- derived-from #Stage-5--ライフサイクル -->
-<!-- derived-from #Stage-6--業務ルール -->
-
-実務のループは次のとおり。
+<!-- derived-from #Stage-0のスコープ -->
+<!-- derived-from #Stage-1のBUC骨格 -->
+<!-- derived-from #Stage-2のデータ接点 -->
+<!-- derived-from #Stage-3の相互作用境界 -->
+<!-- derived-from #Stage-4のエンティティ構造 -->
+<!-- derived-from #Stage-5のライフサイクル -->
+<!-- derived-from #Stage-6の業務ルール -->
 
 1. 要求をそのStageの焦点に絞る（Mustだけ先に固定する）
 2. 差分だけ `.rdra` に足す
 3. `check` と `--buc` 付きdiagram / csv / `states` でレビューする
 4. 次Stageへ進む（warningは探索信号、errorはブロッカー）
 
-Stageの定義とディレクトリ規約の正本は [段階的モデリング](/projects/rdra-ish/incremental-modeling/)。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、図表は [図表とエクスポート](/projects/rdra-ish/diagram-and-export/)、状態の厳密検証は [形式検証](/projects/rdra-ish/formal-verification/)。フル差分は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/main/samples/incremental-order) の各stepの `requirements-analysis.md` と `design.md` を参照。
+## 次に読む
+
+Stageの定義とディレクトリ規約の正本は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) です。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密検証は [形式検証](/projects/rdra-ish/formal-verification/)。フル差分は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/main/samples/incremental-order) の各stepの `requirements-analysis.md` と `design.md` を参照してください。

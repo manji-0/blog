@@ -4,13 +4,13 @@ sidebar:
   order: 10
 ---
 
-`serde` やDBドライバは「要求された形状」を満たすことは証明しても、ドメイン上の意味（有効ID、テナント境界、金額の単位など）は保証しない。外部データはDTOで受け、`TryFrom` でドメイン型へ変換する二段構えとする。
+## 範囲
 
-状態とnewtypeの設計は [ドメインモデリング](/projects/kamae-rs/domain-modeling/)、エラーの返し方は [エラーハンドリング](/projects/kamae-rs/error-handling/)、serdeの使い分けは [クレートガイド（serde）](/projects/kamae-rs/crate-guides/#serde) を参照する。
+HTTP・DB・キューなど外部境界でのDTO検証と`TryFrom`変換です。PIIとサービス境界も本ページに含みます。状態型は[ドメインモデリング](/projects/kamae-rs/domain-modeling/)、エラー返却は[状態遷移](/projects/kamae-rs/state-transitions/)を参照してください。
 
 ## デシリアライズは形状パースに留める
 
-JSONや行データが「形として正しい」ことと「ビジネスとして許可される」ことは別問題である。二段変換を省略すると、後段のドメインコードが暗黙に外部形状を信頼してしまう。
+JSONや行データが「形として正しい」ことと「ビジネスとして許可される」ことは別問題です。二段変換を省略すると、後段のドメインコードが暗黙に外部形状を信頼してしまう。
 
 ```rust
 #[derive(serde::Deserialize)]
@@ -281,11 +281,11 @@ pub fn load_booking_settings() -> Result<BookingSettings, ConfigError> {
 }
 ```
 
-環境変数は暗黙default（`0`、空文字列）を持つ文字列である。他の外部境界と同様に扱う。
+環境変数は暗黙default（`0`、空文字列）を持つ文字列です。他の外部境界と同様に扱う。
 
 ## gRPC メッセージ（tonic / prost）
 
-生成されたprost型はワイヤDTOである。ユースケースの前にドメインコマンドへ変換する。
+生成されたprost型はワイヤDTOです。ユースケースの前にドメインコマンドへ変換する。
 
 ```rust
 impl TryFrom<proto::AssignDriverRequest> for AssignDriverCommand {
@@ -333,12 +333,6 @@ prost型をドメインモジュールに持ち込まない。`.proto` にフィ
 | `config` + `serde` | env/ファイルから settings DTO、`TryFrom` でドメイン設定へ |
 | `tonic` + `prost` | 生成メッセージ -> `TryFrom` -> ユースケース |
 
+## 次に読む
 
-## レビューで見るところ
-
-- 非空や正の金額などドメイン不変条件を `Deserialize` だけに頼っていないか。
-- HTTP・キュー・DB行・設定・CLIが検証付き `TryFrom` / コンストラクタなしに生データをドメインへ渡していないか。
-- パスやボディのテナントIDを認証コンテキストと比較せず信頼していないかも見る。
-- 欠落で意味が変わるDTOに広い `Default` や未知フィールド許容はないか。
-- 不変条件付きエンティティに不要な `Deserialize` / `Serialize` / `FromRow` がなく、クロスフィールド集約と検証済みリーフの `#[serde(try_from = "...")]` を区別しているか。
-
+依存クレートのserde方針は[クレートガイド](/projects/kamae-rs/crate-guides/)、PR前の確認は[品質ゲート](/projects/kamae-rs/quality-gates/)です。

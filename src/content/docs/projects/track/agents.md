@@ -6,9 +6,9 @@ sidebar:
   label: "エージェント"
 ---
 
-このページは、コーディングエージェントがtrackを読むときの契約です。MCPではありません。入口はスキルと `track llm-help` と `--json` です。ワークスペースの所有モデルは [ワークスペース](/projects/track/workspace/) へ。人手の一周は [クイックスタート](/projects/track/quickstart/) へ。
+このページは、コーディングエージェントがtrackを読むときの契約です。入口はスキルと `track llm-help` と `--json` です。ワークスペースの所有モデルは [ワークスペース](/projects/track/workspace/) へ。人手の一周は [使い方](/projects/track/usage/) へ。
 
-## スキルを入れる
+## スキル導入
 
 ```bash
 npx skills add manji-0/track \
@@ -77,4 +77,4 @@ Web UI起動中は `GET /api/status` でも同じ状態が取れます。フィ�
 
 ## 次に読む
 
-ワークスペースの契約は [ワークスペース](/projects/track/workspace/) です。エージェント連携の細部は [LLM_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/LLM_INTEGRATION.md) へ。
+ワークスペースの契約は [ワークスペース](/projects/track/workspace/) です。エージェント連携の細部はupstreamの [LLM_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/LLM_INTEGRATION.md) へ。

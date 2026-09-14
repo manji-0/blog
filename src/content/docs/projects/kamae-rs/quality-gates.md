@@ -4,9 +4,9 @@ sidebar:
   order: 10
 ---
 
-変更したcrateでは、`cargo fmt --check`、プロジェクトの `clippy` 方針、焦点を絞ったテストを、ローカルとCIで同じコマンドとして揃える。以下が品質ゲートの正規コマンド一覧である。
+## 範囲
 
-アプリケーションcrateのセットアップは [開発環境](/projects/kamae-rs/dev-environment/)、Actionsへの反映は [CI セットアップ](/projects/kamae-rs/ci-setup/)、スキルリポジトリ開発は [スキルリポジトリの開発](/projects/kamae-rs/development-setup/) を読む。
+fmt・clippy・test・rustdoc・CI・テストデータ・プロパティテスト・mutation・ログ方針の正規コマンド一覧です。環境セットアップは[使い方](/projects/kamae-rs/usage/)を参照してください。
 
 ## ベースラインコマンド
 
@@ -29,7 +29,7 @@ cargo test -p domain -p application
 
 CIでは `cargo fmt --check` を使う。ローカルでフォーマットチェックが失敗したら `cargo fmt --all` で適用する。
 
-初回ローカルセットアップは [開発環境](/projects/kamae-rs/dev-environment/#テンプレートからの初回ブートストラップ) を読み、[`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ配下のファイルが含まれるが、このリポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/`、`scripts/` は確実にはインストールされない。
+初回ローカルセットアップは [使い方](/projects/kamae-rs/usage/) を読み、[`https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/`](https://github.com/manji-0/kamae-rs/blob/main/skills/kamae-rs/assets/templates/) からテンプレートをコピーまたはマージする。インストール済みスキルにはスキルディレクトリ配下のファイルが含まれるが、このリポジトリルートの `Cargo.toml`、`rust-toolchain.toml`、`.github/`、`scripts/` は確実にはインストールされない。
 
 ## スキルパッケージと review probe チェック
 
@@ -40,7 +40,7 @@ python3 scripts/validate_package.py
 cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -- skills/kamae-rs/examples/taxi-request.rs --json
 ```
 
-**kamae-rs** リポジトリ本体では `scripts/validate_package.py` と `cargo run -p kamae-review-probe` を使う。例コードは `skills/kamae-rs/examples/` 配下のworkspace crate `kamae-rs-taxi-request` にある。リポジトリルートから `cargo test --all-targets` を実行する。このリポジトリの開発ワークフローは [スキルリポジトリの開発](/projects/kamae-rs/development-setup/) を参照。
+**kamae-rs** リポジトリ本体では `scripts/validate_package.py` と `cargo run -p kamae-review-probe` を使う。例コードは `skills/kamae-rs/examples/` 配下のworkspace crate `kamae-rs-taxi-request` にある。リポジトリルートから `cargo test --all-targets` を実行する。このリポジトリの開発ワークフローは [スキルリポジトリの開発](/projects/kamae-rs/usage/) を参照。
 
 スキルをインストールしたアプリケーションcrateは、ドメインディレクトリが変わるときCIまたはpre-pushフックにprobeを追加してよい：
 
@@ -50,7 +50,7 @@ cargo run -q --manifest-path path/to/kamae-rs/Cargo.toml -p kamae-review-probe -
 
 ## フォーマットのベースライン
 
-変更を仕上げる前に触ったRustファイルで `cargo fmt` または `rustfmt` を実行する。Kamaeではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、unsafe、永続化の変更を確認しやすくするための手段である。
+変更を仕上げる前に触ったRustファイルで `cargo fmt` または `rustfmt` を実行する。Kamaeではフォーマットはスタイルの好みの問題ではない。差分をレビューしやすく保ち、ドメイン、境界、PII、unsafe、永続化の変更を確認しやすくするための手段です。
 
 `rustfmt` が戻す手整列をしない。複雑条件を隠すformattingトリックより、小さなhelper関数またはnamed value objectを優先。
 
@@ -112,7 +112,7 @@ disallowed-names = ["foo", "bar", "baz"]
 
 ドメインcrateで通貨に `f64` を禁止するとき `disallowed-methods` または `disallowed-types` を追加（nightlyまたはreviewによる規律）。
 
-`clippy.toml` はローカルdevと同じフラグのCIとセット。[CI セットアップ](/projects/kamae-rs/ci-setup/) 参照。
+`clippy.toml` はローカルdevと同じフラグのCIとセット。[CI セットアップ](/projects/kamae-rs/quality-gates/) 参照。
 
 ## ドメイン安全性で重要な lint
 
@@ -159,7 +159,7 @@ toolchainが `reason` 非対応なら近くにコメント。
 - リポジトリfeature/package行列での `cargo clippy`
 - ドメインconstructor、遷移、境界変換、unsafe wrapper、persistence挙動に関連するテスト
 
-フルworkspaceチェックが速くないプロジェクトでは、変更コードをカバーする最小package/featureを実行し制限を明記。workflowテンプレートとbranch protectionは [CI セットアップ](/projects/kamae-rs/ci-setup/) 参照。
+フルworkspaceチェックが速くないプロジェクトでは、変更コードをカバーする最小package/featureを実行し制限を明記。workflowテンプレートとbranch protectionは [CI セットアップ](/projects/kamae-rs/quality-gates/) 参照。
 
 ## よくある crate 組み合わせ
 
@@ -181,18 +181,14 @@ toolchainが `reason` 非対応なら近くにコメント。
 
 | 関心 | テスト場所 | ガイド |
 | --- | --- | --- |
-| フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-rs/test-data/) |
-| 入力全体の不変条件 | `proptest!` または `quickcheck!` | [プロパティベーステスト](/projects/kamae-rs/property-based-tests/) |
-| アサーション強度 / 静かなギャップ | ドメインパッケージへの `cargo mutants` | [ミューテーションテスト](/projects/kamae-rs/mutation-testing/) |
-| コンパイル時 state 安全性 | `trybuild` | [テストデータ](/projects/kamae-rs/test-data/#compile-time-state-安全性をテストする) |
-| fake port とユースケース | `application` tests | [開発環境](/projects/kamae-rs/dev-environment/#fake-port-とテストフィクスチャ) |
+| フィクスチャと遷移エッジ | unit/integration tests | [テストデータ](/projects/kamae-rs/quality-gates/) |
+| 入力全体の不変条件 | `proptest!` または `quickcheck!` | [プロパティベーステスト](/projects/kamae-rs/quality-gates/) |
+| アサーション強度 / 静かなギャップ | ドメインパッケージへの `cargo mutants` | [ミューテーションテスト](/projects/kamae-rs/quality-gates/) |
+| コンパイル時 state 安全性 | `trybuild` | [テストデータ](/projects/kamae-rs/quality-gates/#compile-time-state-安全性をテストする) |
+| fake port とユースケース | `application` tests | [使い方](/projects/kamae-rs/usage/) |
 
 生成バインディング、vendoredコード、外部維持スナップショットはフルlintバーから免除してよいが、それらを包むsafe wrapperは境界検証、PII、unsafe-boundaryガイダンスに従う。
 
-## レビューで見るところ
+## 次に読む
 
-- パニック、境界チェックなしインデックス、`await_holding_lock`、unsafe、PIIの `Debug`、境界デシリアライズまわりのlint抑制がリスクを隠していないか。
-- 広い `#![allow(warnings)]` や説明のない `#[allow(...)]` はないか。
-- 触ったパッケージで `cargo clippy` / `cargo check` の警告が増え、`cargo fmt --check` に失敗していないかも見る。
-- フォーマットとlintの走らせ方が文書化されているか。
-
+初回セットアップは[使い方](/projects/kamae-rs/usage/)。設計の正は[はじめに](/projects/kamae-rs/)です。

@@ -2,10 +2,10 @@
 title: "キーバインド"
 description: "bmd のキー操作一覧"
 sidebar:
-  order: 3
+  order: 2
 ---
 
-上書きは [設定](/projects/bmd/configuration/) の `[keymap.*]` で行います。
+このページは、bmdのNormal / Search / Preview各モードのキー操作を扱います。上書きは [設定](/projects/bmd/configuration/) の `[keymap.*]` で行います。最短の起動は [使い方](/projects/bmd/usage/) へ。
 
 ## Normalモード
 
@@ -17,7 +17,7 @@ sidebar:
 | `u` / `PageUp` | 半ページ上 |
 | `g` / `G` | 先頭 / 末尾 |
 | `[` / `]` | 前 / 次の見出し |
-| `t` | 見出しアウトラインの開閉（開くとフォーカス。`j`/`k` で選択、`Enter`/`o` でジャンプ、`Esc` で文書へ戻る） |
+| `t` | 見出しアウトラインの開閉（`j`/`k` で選択、`Enter`/`o` でジャンプ、`Esc` で文書へ戻る） |
 | `ma` / `'a` | スクロールマークを置く / 飛ぶ（`a`–`z`） |
 | `Tab` / `n` | 次の可視リンク（検索中は次ヒット） |
 | `Shift-Tab` / `N` / `p` | 前の可視リンク（検索中は前ヒット） |
@@ -31,7 +31,7 @@ sidebar:
 | リンクを左クリック | 開く / プレビュー |
 | チェックボックスを左クリック | トグル（Normalのみ） |
 | ドラッグ | テキスト選択（離すとクリップボードへ） |
-| `y` | 現在の選択をコピー。選択が無ければ次キー待ち：`l` リンクURL、`h` 見出し `#slug`、`c` 最寄りのコードブロック、`y` 選択コピーを再試行 |
+| `y` | 選択をコピー。選択が無ければ `l` リンクURL、`h` 見出し `#slug`、`c` 最寄りコードブロック |
 
 ## 検索入力モード
 
@@ -58,14 +58,13 @@ sidebar:
 | 種類 | 例 | `o` / `Enter` |
 |---|---|---|
 | Web | `[text](https://…)` | OSのブラウザで開く |
-| Anchor | `[text](#section)` | 見出しへジャンプ（履歴スタックあり） |
-| Document | `[text](./other.md)` | 同ビューで開く（ファイルスタック） |
+| Anchor | `[text](#section)` | 見出しへジャンプ |
+| Document | `[text](./other.md)` | 同ビューで開く |
 | Image | `![alt](path.png)` | フローティングプレビュー |
-| Mermaid | mermaidコードブロック由来 | 描画プレビュー |
+| Mermaid | mermaidコードブロック | 描画プレビュー |
 
-`O`はプレビュー閉鎖とナビ戻りの両方に使います。アンカーと文書ナビが両方あるときはアンカーが優先されます。各スタックは最大64層。
+各スタックは最大64層です。描画方式の詳細は [レンダリング](/projects/bmd/rendering/) を参照してください。
 
-## 関連ページ
+## 次に読む
 
-- [クイックスタート](/projects/bmd/quickstart/)
-- [設定](/projects/bmd/configuration/)
+テーマとkeymap上書きは [設定](/projects/bmd/configuration/) です。

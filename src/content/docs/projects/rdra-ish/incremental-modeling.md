@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-rdra-ishは一度に全部書くことを求めません。**小さな段階**で精緻化し、各段階のあと `check` やdiagramでレビューします。
+このページは、Stage 0–6で要件モデルを段階的に精緻化する手順です。各段階のあと `check` やdiagramでレビューします。実践ウォークスルーは [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) へ。
 
 ## 原則
 
@@ -15,7 +15,7 @@ rdra-ishは一度に全部書くことを求めません。**小さな段階**�
 - **error** はモデル信頼性を損なうためブロッカー
 - `--buc` フィルタで1スライスだけ検証できる
 
-## Stage 一覧
+## Stage一覧
 
 | Stage | 関心 | 主な追加 | あとで確認すること |
 |---|---|---|---|
@@ -35,7 +35,7 @@ rdra-ish lint src/
 rdra-ish diagram src/ --kind rdra --format mermaid --buc <BucId>
 ```
 
-Stage 3以降は `--kind sequence` や `--kind event-flow` も有効。
+Stage 3以降は `--kind sequence` や `--kind event-flow` も有効です。
 
 ## ディレクトリ配置
 
@@ -60,24 +60,23 @@ src/
 | BUC固有の述語（CRUD, `invokes`, `raises` 等） | そのBUCファイル（sharedに置かない） |
 | クロスBUC `event`, 制約述語 | エンティティ近くの shared |
 
-成長したら `shared/entities/order.rdra`、`shared/lifecycle/`、`shared/rules.rdra` へ分割する。
+成長したら `shared/entities/order.rdra`、`shared/lifecycle/`、`shared/rules.rdra` へ分割します。
 
-## BUC・フロー・UC の読み分け
+## BUCとフローとUC
 
-1. **BUC** —「今どの価値スライスをレビューするか」を決める
+1. **BUC** — いまどの価値スライスをレビューするかを決める
 2. **ビジネスフロー** — `flow` / `step` / `precedes` で時間順・分岐
 3. **UC** —「注文する」のような **一つの操作**。混ざったら分割
 
-BUCは画面名やテーブル名ではなく **ビジネス価値** から名付ける。
+BUCは **ビジネス価値** から名付けます。
 
 ## サンプル
 
-`samples/incremental-order/` にStage 0から6まで段階的に増やした成果物がある。diffしながら各段階の追加量を確認できる。要求分析からルールまでの読み物としてのウォークスルーは [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/)。
+`samples/incremental-order/` にStage 0から6まで段階的に増やした成果物があります。diffしながら各段階の追加量を確認できます。要求分析からルールまでの読み物としてのウォークスルーは [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) です。
 
-## 関連ページ
+## 次に読む
 
 - [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/)
 - [言語リファレンス](/projects/rdra-ish/language-reference/)
-- [図表とエクスポート](/projects/rdra-ish/diagram-and-export/)
 - [形式検証](/projects/rdra-ish/formal-verification/)
 - [CLI リファレンス](/projects/rdra-ish/cli-reference/)

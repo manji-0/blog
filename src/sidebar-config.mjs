@@ -10,6 +10,7 @@ import {
 import {
 	getBmdSidebarItems,
 	getDagaynSidebarItems,
+	getKamaeModelTranslatorSidebarItems,
 	getRdraIshSidebarItems,
 	getTrackSidebarItems,
 } from './project-sidebar.mjs';
@@ -27,6 +28,7 @@ const PROJECT_TREES = {
 	'kamae-rs': getKamaeRustSidebarItems,
 	'kamae-py': getKamaePythonSidebarItems,
 	'kamae-scala': getKamaeScalaSidebarItems,
+	'kamae-model-translator': getKamaeModelTranslatorSidebarItems,
 };
 
 function getGitCreatedTimestamp(pathname) {

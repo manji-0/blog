@@ -8,56 +8,70 @@ sidebar:
 
 > ソースリポジトリ: [kamae-model-translator](https://github.com/manji-0/kamae-model-translator)
 
-**kamae-model-translator** は、kamaeファミリー（TypeScript / Python / Rust / Scala）のドメインモデルを、言語をまたいで移す・やり取りするための **Agent Skill** 集です。コード生成器ではなく、エージェントが参照する移植・連携の設計ガイドをMarkdownで束ねたものです。GitHub上のスキルパッケージ名は `agent-skill-modelconverter` です（インストールコマンドとリポジトリ名が異なる点に注意）。
+## 目的
 
-言語ごとの書き方は各言語らしい形に分かれます（Zodのbrand、Pydanticのfrozen、Rustのnewtype、Scalaのopaqueなど）。一方で、判別unionの状態、純粋な遷移、境界でのDTO検証、PIIのredaction、リポジトリportとイベント、といった骨格は共通です。別言語へのリライトやポリグロットなイベント交換で、その差が不変条件や通信上の表現（wire）のずれになるのを防ぐのが役割です。
+**kamae-model-translator**は、kamaeファミリー（TypeScript / Python / Rust / Scala）のドメインモデルを、言語をまたいで移す・やり取りするためのAgent Skill集です。エージェントが参照する移植・連携の設計ガイドをMarkdownで束ねます。
 
-単一言語内の実装は各kamaeスキルで足り、IDLからの機械生成だけが目的なら対象外です。詳細ドキュメントはブログには載せず、下記のupstreamを正とします。
+## 背景
 
-## 2つのSkill
+言語ごとの書き方は分かれますが、判別unionの状態、純粋な遷移、境界でのDTO検証、PIIのredaction、リポジトリportとイベントといった骨格は共通です。別言語へのリライトやポリグロットなイベント交換で、その差が不変条件やwire表現のずれになるのを防ぎます。
 
-| Skill | 何をするか | いつ使うか |
-| --- | --- | --- |
-| **kamae-model-port** | 同じドメインを別言語へ移植する | TS→Rustのリライトなど |
-| **kamae-model-bridge** | 通信表現（wire）経由で異言語サービスと交換する | JSON / Protobuf / gRPC、契約テスト |
+## 関連文書
 
-portならソースとターゲットのkamaeスキルを先に読み、こちら側の対応表で写像します。bridgeならwire（言語中立の通信表現）を決め、各側がDTO境界でローカル型に落とします。
+| 文書 | 役割 |
+| --- | --- |
+| [kamae-py](/projects/kamae-py/) | Python向けkamaeガイド |
+| [kamae-rs](/projects/kamae-rs/) | Rust向けkamaeガイド |
+| [kamae-scala](/projects/kamae-scala/) | Scala向けkamaeガイド |
+| [kamae-ts](https://github.com/iwasa-kosui/kamae-ts) | TypeScript向けkamae（ブログ外） |
+| [agent-skill-modelconverter](https://github.com/manji-0/kamae-model-translator) | スキルパッケージ本体 |
 
-対応言語のブログ側ガイドは [kamae-py](/projects/kamae-py/)、[kamae-rs](/projects/kamae-rs/)、[kamae-scala](/projects/kamae-scala/) です。TypeScriptは [kamae-ts](https://github.com/iwasa-kosui/kamae-ts) を参照してください。
+## 目標
 
-## port: 移植の進め方
+- 同じドメインを別言語へ移植する手順を共有する（**port**）
+- 通信表現（wire）経由で異言語サービスと交換する規約を共有する（**bridge**）
+- 人とエージェントが同じ写像表を参照できる共通言語を持つ
 
-[migration-workflow.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/migration-workflow.md) の順序は後段が前段に依存するので飛ばしません。状態型 → ID・値オブジェクト → 遷移 → エラー → 境界・DTO → PII → 永続化・イベント → 配線 → テスト、です。各段に検証条件と落とし穴があります。
+## 対象外
 
-よく見る対応は [type-mapping.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/type-mapping.md) にまとまっています。判別union、branded ID、Result / Either、遷移成果型などです。言語内の慣用表記と、通信上（wire）の表記は別物だと思ってください。
+同じ写像表を人とエージェントが共有するためのガイドです。単一言語内の実装レビューは各kamaeスキルで足ります。OpenAPI / Protobufからの機械生成だけを目的にする場合は、別のツールを選びます。詳細リファレンスの正はGitHub上のupstreamです。
 
-例は [taxi-request-ts-to-rs.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/examples/taxi-request-ts-to-rs.md) と [taxi-request-py-to-scala.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/examples/taxi-request-py-to-scala.md)。周辺は [state-transition-mapping.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/state-transition-mapping.md)、[error-handling-mapping.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/error-handling-mapping.md)、[id-and-branded-types.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/id-and-branded-types.md)、[pii-and-sensitive.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/pii-and-sensitive.md)、[boundary-and-dto.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/boundary-and-dto.md)、[persistence-event-mapping.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-port/references/persistence-event-mapping.md) を見てください。
+## シナリオ
 
-## bridge: 通信表現（wire）の決め方
+| 状況 | 使うSkill |
+| --- | --- |
+| TS→Rustなど同じドメインのリライト | **kamae-model-port**（[移植](/projects/kamae-model-translator/port/)） |
+| JSON / Protobuf / gRPCでサービス連携 | **kamae-model-bridge**（[連携](/projects/kamae-model-translator/bridge/)） |
+| スキル導入とルール上書き | [使い方](/projects/kamae-model-translator/usage/) |
 
-共有するcanonicalはだいたい次のとおりです。フィールドは `snake_case`、判別子 `kind` もsnake_caseリテラル、時刻はISO 8601 UTC、UUIDは小文字ハイフン、金額は整数セント＋通貨コード。TS / ScalaはcodecでcamelCaseと往復し、Python / Rustはwireと素直に揃いやすいです。
+## 構成
 
-ドメイン型をwireに直接載せません。送信はdomain → outbound DTO → serialize、受信はdeserialize → inbound DTO → domainです。
+| 層 | ページ |
+| --- | --- |
+| 設計（トップ） | はじめに |
+| 実装 | port（言語移植）、bridge（wire連携） |
+| リファレンス | 使い方 |
 
-詳細は [wire-format-conventions.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/wire-format-conventions.md)、[discriminant-interop.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/discriminant-interop.md)、[serialization-compatibility.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/serialization-compatibility.md)、[contract-testing.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/contract-testing.md) を見てください。加えて [schema-evolution.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/schema-evolution.md)、[dto-boundary-patterns.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/dto-boundary-patterns.md)、[protobuf-mapping.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/references/protobuf-mapping.md)。例は [json-interop-ts-py.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/examples/json-interop-ts-py.md) と [grpc-interop-rs-scala.md](https://github.com/manji-0/kamae-model-translator/blob/main/skills/kamae-model-bridge/examples/grpc-interop-rs-scala.md)。
+GitHub上のパッケージ名は`agent-skill-modelconverter`です。インストールコマンドとリポジトリ名が異なる点に注意してください。
 
-## インストールとルール
+## 制約
 
-```bash
-npx skills add manji-0/agent-skill-modelconverter \
-  -s kamae-model-port -s kamae-model-bridge -g -y
-# または
-claude skills add manji-0/agent-skill-modelconverter
-```
+portならソースとターゲットのkamaeスキルを先に読み、対応表で写像します。bridgeならwireを決め、各側がDTO境界でローカル型に落とします。同じ写像表を共有するためのガイドです。
 
-2つセットで入ります。タスクに応じてportかbridgeかを選んでください。
+## インタフェース
 
-[rules/README.md](https://github.com/manji-0/kamae-model-translator/blob/main/rules/README.md) のとおり、`.claude/rules/*.md` や `.codex/rules/*.md` で振る舞いを上書きできます。優先は **プロジェクトルール > ユーザーグローバル > 同梱defaults**。`applies-to` でport / bridge / `*` を指定します。チームの命名やwire例外はここに書くとエージェントが揃いやすいです。
+2つのSkillがセットで入ります。タスクに応じてportかbridgeかを選びます。インストールとルール上書きは[使い方](/projects/kamae-model-translator/usage/)です。
 
-## まわりと向き不向き
+## 依存
 
-各言語のkamaeが単一言語の設計、本リポジトリが言語横断の写像とwire、[rdra-ish](/projects/rdra-ish/) が任意の上流要件、という並びです。
+各言語のkamaeが単一言語の設計、本リポジトリが言語横断の写像とwire、[rdra-ish](/projects/rdra-ish/)が任意の上流要件、という並びです。どれも必須ではありません。
 
-向いているのは、kamaeサービスを別言語へ書き直すとき、混在環境でイベントやAPI契約を揃えるとき、discriminated unionの写像を不変条件付きで決めたいときです。単一言語の実装レビューや、OpenAPI / Protobufからの機械生成だけが目的なら向きません。
+## 検討して捨てた案
 
-作業後は状態variantの余計なoptional、ID型の取り違え、遷移の副作用、境界でのbypass、PIIのログ漏れを見る。bridgeならwire規約と契約テスト、portなら移植順序の飛ばしがないかも確認する。自動変換ではなく、同じ写像表を人とエージェントが共有するための共通言語だと思ってください。
+- ブログに全referenceを複製する案（upstreamと二重管理になる）
+- IDLからの一括コード生成（kamaeの型安全な境界設計と相性が悪い）
+- portとbridgeを1 Skillにまとめる案（タスクの切り分けが曖昧になる）
+
+## 次に読む
+
+移植順序と型対応は[port](/projects/kamae-model-translator/port/)、wire規約と契約テストは[bridge](/projects/kamae-model-translator/bridge/)です。導入は[使い方](/projects/kamae-model-translator/usage/)から始めてください。

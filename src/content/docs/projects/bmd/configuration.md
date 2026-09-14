@@ -2,8 +2,12 @@
 title: "設定"
 description: "bmd のテーマとキーマップ"
 sidebar:
-  order: 4
+  order: 3
 ---
+
+このページは、`config.toml` と環境変数によるbmdの見た目・操作カスタマイズを扱います。既定キー一覧は [キーバインド](/projects/bmd/keybindings/) へ。インストールは [使い方](/projects/bmd/usage/) へ。
+
+## 設定ファイル
 
 任意設定は `~/.config/bmd/config.toml`（または `$XDG_CONFIG_HOME/bmd/config.toml`）です。無い場合は組み込み既定を使います。
 
@@ -72,7 +76,6 @@ preview_zoom_out = "-"
 | `preview` | `close_preview`、`preview_zoom_*`、`quit` |
 | `search` | `search_confirm`、`search_cancel`、`search_backspace` |
 
-## 関連ページ
+## 次に読む
 
-- [キーバインド](/projects/bmd/keybindings/)
-- [開発環境](/projects/bmd/development/)
+Mermaidと画像の描画方式は [レンダリング](/projects/bmd/rendering/) です。

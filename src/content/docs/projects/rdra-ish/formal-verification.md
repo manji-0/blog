@@ -5,9 +5,7 @@ sidebar:
   order: 4.5
 ---
 
-v0.2.0から、エンティティのライフサイクルと状態制約を **TLA+** にエクスポートし、**TLC** でモデル検査できます。`rdra-ish states`（高速なBFS到達性）を補完する古典的な検査レイヤです。
-
-完全な仕様と近似の一覧はupstreamの [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/formal-verification.md) を参照。
+このページは、エンティティのライフサイクルと状態制約をTLA+にエクスポートし、TLCでモデル検査する手順です。`rdra-ish states`（高速なBFS到達性）を補完する古典的な検査レイヤです。完全な仕様と近似の一覧はupstreamの [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/formal-verification.md) を参照してください。
 
 ## コマンド
 
@@ -24,7 +22,7 @@ rdra-ish verify <INPUTS...> --backend tlc [-o <OUT_DIR>]
 
 `-o` が `.tla` で終わる場合は、その隣に `.cfg` を書きます。ディレクトリ（または拡張子なし）なら `<dir>/RdraSpec.tla` / `.cfg` になります。`.cfg` は `CHECK_DEADLOCK FALSE` を設定します（終端ライフサイクル状態をTLCデッドロック扱いにしないため）。
 
-## モデルとの対応（要約）
+## モデルとの対応
 
 | RDRA | TLA+ |
 |---|---|
@@ -53,14 +51,14 @@ forbidden(Order, Payment, Order.status == cancelled, Payment.status == captured)
 
 パス性質（`always` / `eventually` / `leads_to`）は `states` では評価しません。`export` / `verify` を使います。
 
-## 2つのレイヤ: Int / `now`
+## Intレイヤとnowレイヤ
 
 | レイヤ | ツール | 連続値の扱い |
 |---|---|---|
 | 抽象命題 | `rdra-ish states` | `stock < selling` を Bool 軸として扱い、`sets(..., cmp, true/false)` で駆動 |
 | 算術モデル検査 | `export --kind tla` / `verify` | Int / Money / Decimal / `now` を `IntRange` 変数として TLC 算術 |
 
-`states` でinertな比較制約でも、TLAエクスポート側では算術Safetyになることがあります。期待値を混ぜないこと。
+`states` でinertな比較制約でも、TLAエクスポート側では算術Safetyになることがあります。期待値を混ぜないでください。
 
 ## 推奨ワークフロー
 
@@ -84,11 +82,10 @@ canonicalは `skills/rdra-ish-verify/samples/`（各ファイルは **単体** �
 | `cross_order_payment.rdra` | fail（想定） | マルチインスタンス + `.along` |
 | `quantifier_none.rdra` | fail（想定） | `when(...).none` |
 
-`check` がwarningのみでexit 0でも、TLCではfailになるサンプルがあります。否定判定はTLC側で取る。
+`check` がwarningのみでexit 0でも、TLCではfailになるサンプルがあります。否定判定はTLC側で取ります。
 
-## 関連ページ
+## 次に読む
 
-- [図表とエクスポート](/projects/rdra-ish/diagram-and-export/)
-- [CLI リファレンス](/projects/rdra-ish/cli-reference/)
 - [言語リファレンス](/projects/rdra-ish/language-reference/)
+- [CLI リファレンス](/projects/rdra-ish/cli-reference/)
 - upstream: [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/formal-verification.md)

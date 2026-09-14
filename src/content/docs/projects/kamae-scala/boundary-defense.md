@@ -4,18 +4,13 @@ sidebar:
   order: 10
 ---
 
-CirceやDBドライバは「要求された形状」を満たすことは証明しても、ドメイン上の意味（有効ID、テナント境界、金額の単位など）は保証しない。外部データはDTOで受け、検証付き変換でドメイン型へ変換する二段構えとする。
+## 範囲
 
-状態とopaque typeの設計は [ドメインモデリング](/projects/kamae-scala/domain-modeling/)、エラーの返し方は [エラーハンドリング](/projects/kamae-scala/error-handling/)、ORM分離は [ORMアダプタ](/projects/kamae-scala/orm-adapters/)、サービス間契約は [サービス境界](/projects/kamae-scala/service-boundaries/) を参照する。
-
-<!-- constrained-by ./domain-modeling.md -->
-<!-- constrained-by ./pii-protection.md -->
-<!-- constrained-by ./orm-adapters.md -->
-<!-- constrained-by ./service-boundaries.md -->
+HTTP・DB・JNIなど外部境界でのDTO検証とドメイン変換です。PIIとサービス境界も本ページに含みます。状態型は[ドメインモデリング](/projects/kamae-scala/domain-modeling/)、エラー返却は[状態遷移](/projects/kamae-scala/state-transitions/)を参照してください。
 
 ## デシリアライズは形状パースに留める
 
-JSONや行データが「形として正しい」ことと「ビジネスとして許可される」ことは別問題である。二段変換を省略すると、後段のドメインコードが暗黙に外部形状を信頼してしまう。
+JSONや行データが「形として正しい」ことと「ビジネスとして許可される」ことは別問題です。二段変換を省略すると、後段のドメインコードが暗黙に外部形状を信頼してしまう。
 
 ```scala
 final case class CreateRequestDto(passengerId: String)
@@ -184,7 +179,7 @@ object WaitingRequestRow:
     yield Versioned(waiting, version)
 ```
 
-リポジトリadapterは行をデコードし`toDomain`を呼ぶ。無効な保存データはドメインコードで例外を投げず`RepositoryError.CorruptRow`になる。[ORMアダプタ](/projects/kamae-scala/orm-adapters/)を参照。
+リポジトリadapterは行をデコードし`toDomain`を呼ぶ。無効な保存データはドメインコードで例外を投げず`RepositoryError.CorruptRow`になる。[ドメインモデリング](/projects/kamae-scala/domain-modeling/)を参照。
 
 ## 設定と環境変数
 
@@ -206,11 +201,11 @@ object BookingSettingsDto:
     yield BookingSettings(maxPassengers, currency, timeout)
 ```
 
-環境変数は暗黙default（`0`、空文字列）を持つ文字列である。他の外部境界と同様に扱う。[ライブラリガイド（pureconfig）](/projects/kamae-scala/library-guides/#pureconfig)を参照。
+環境変数は暗黙default（`0`、空文字列）を持つ文字列です。他の外部境界と同様に扱う。[ライブラリガイド（pureconfig）](/projects/kamae-scala/library-guides/#pureconfig)を参照。
 
 ## gRPC / Protobufメッセージ
 
-生成されたScalaPB / protobuf型はワイヤDTOである。ユースケースの前にドメインコマンドへ変換する。
+生成されたScalaPB / protobuf型はワイヤDTOです。ユースケースの前にドメインコマンドへ変換する。
 
 ```scala
 object AssignDriverCommand:
@@ -225,7 +220,7 @@ object AssignDriverCommand:
     yield AssignDriverCommand(tenantId, requestId, driverId, key)
 ```
 
-生成protobuf型をドメインパッケージに持ち込まない。`.proto`にフィールドが追加されてもDTO層はコンパイルし、mapperを明示的に更新する。[サービス境界](/projects/kamae-scala/service-boundaries/)を参照。
+生成protobuf型をドメインパッケージに持ち込まない。`.proto`にフィールドが追加されてもDTO層はコンパイルし、mapperを明示的に更新する。本ページを参照。
 
 ## よくあるライブラリの組み合わせ
 
@@ -239,11 +234,6 @@ object AssignDriverCommand:
 | http4s-circe | DTOのみ`EntityDecoder`、route内でmap |
 | sttp + Circe | クライアントadapterでresponse DTOをデコード |
 
-## レビューで見るところ
+## 次に読む
 
-- ハンドラが`String`IDをユースケースへ直接渡していないか。
-- ドメインstructにCirce codecやdoobie`Read`/`Write`が付いていないか。
-- インバウンドDTOの手数料・同意・所有権に関わるdefaultはないか。
-- 認証コンテキストと照合しないテナントIDやactor IDはないか。
-- `Json`やprotobufメッセージ型がドメイン遷移に到達していないか。
-
+依存ライブラリのcodec方針は[ライブラリガイド](/projects/kamae-scala/library-guides/)、PR前の確認は[品質ゲート](/projects/kamae-scala/quality-gates/)です。
