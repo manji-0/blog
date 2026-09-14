@@ -71,12 +71,9 @@ export function getRdraIshSidebarItems() {
 export function getTrackSidebarItems() {
 	return [
 		{ label: 'はじめに', link: '/projects/track/' },
-		group(
-			'track',
-			'ガイド',
-			['installation', 'quickstart', 'cli-reference', 'jj-integration', 'webui'],
-			false,
-		),
+		group('track', 'ガイド', ['installation', 'quickstart', 'webui'], false),
+		group('track', '概念', ['workspace', 'agents'], false),
+		group('track', 'リファレンス', ['cli-reference'], false),
 		group('track', '開発', ['development']),
 	];
 }

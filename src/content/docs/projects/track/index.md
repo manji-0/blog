@@ -10,15 +10,24 @@ sidebar:
 
 **track** は、いま着手している開発タスクを「コンテキスト」として管理する軽量なCLIです。TODOやスクラップ、チケットURL、作業対象のリポジトリをタスク単位でまとめ、`track switch` で切り替えると、その後の操作を対象タスクに関連付けられます。
 
-コーディング用の作業コピーもtrackが持ちます。`.worktrees/<slug>/` をブランチ／bookmark `track/<slug>` の上に作り、実装はその中で進めます。`git worktree` や `jj workspace add`、`jj-task` を手で叩く必要はありません。バックエンドは `track config set vcs-mode git|jj` で切り替えます（新規DBの既定は **git**。すでにタスクがある既存DBで `vcs-mode` 未設定のものは **jj** のままです）。
+| 層 | 担当 |
+| --- | --- |
+| **何をやるか** | track（タスク、TODO、スクラップ、チケット、JSONのworkflowとhint） |
+| **どこで書くか** | track（`.worktrees/<slug>/`、ブランチ／bookmark `track/<slug>`） |
+| **どうコミットするか** | そのワークスペース内の git または jj |
 
-エージェント向けには `track status --json` があります。いまのphase、次に打つコマンド（`hint` / `workflow.next_action`）、ワークスペースのパスがJSONで返るので、スキルやCIの入口にしやすいです。ブラウザから触りたい人向けにWeb UIも同梱しています。
+コーディング用の作業コピーもtrackが持ちます。`git worktree` や `jj workspace add`、`jj-task` を手で叩く必要はありません。契約は [ワークスペース](/projects/track/workspace/) へ。エージェント向けの入口は [エージェント](/projects/track/agents/) です。ブラウザから触りたい人向けにWeb UIも同梱しています。
 
 ## どこから読むか
 
-まずは [インストール](/projects/track/installation/) と [クイックスタート](/projects/track/quickstart/) で、タスク管理とワークスペース作成を一通り動かしてください。コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/)、ブラウザUIは [Web UI](/projects/track/webui/) です。
+| 目的 | 読む順 |
+| --- | --- |
+| まず動かす | [インストール](/projects/track/installation/) → [クイックスタート](/projects/track/quickstart/) |
+| ワークスペースの契約 | [ワークスペース](/projects/track/workspace/) |
+| エージェントから使う | [エージェント](/projects/track/agents/) |
+| コマンドを探す | [CLI リファレンス](/projects/track/cli-reference/) |
 
-git / jjのどちらでワークスペースを切るか、aggressive mode（空のマーカーrevisionとgit notes）、エージェントの読み方は [VCS連携](/projects/track/jj-integration/) にまとめています。ソースを触る人は [開発環境](/projects/track/development/) へ。
+ブラウザUIは [Web UI](/projects/track/webui/)、ソースを触る人は [開発環境](/projects/track/development/) へ。
 
 ## まわりのツールとの関係
 

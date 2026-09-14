@@ -2,8 +2,10 @@
 title: "Web UI"
 description: "track webui のブラウザインターフェース"
 sidebar:
-  order: 5
+  order: 3
 ---
+
+このページは `track webui` のブラウザ操作です。起動以外のCLIは [CLI リファレンス](/projects/track/cli-reference/) へ。JSONの読み方は [エージェント](/projects/track/agents/) へ。
 
 ```bash
 track webui              # 既定ポート 3000
@@ -19,6 +21,6 @@ TODOのメモボタンから関連スクラップへ移動できます。スク�
 
 Markdownはサニタイズされ、生のHTMLは落ちます。リンクは新しいタブで開きます。
 
-エージェント向けの状態は、CLIなら `track status --json`、webui起動中なら `GET /api/status` でも取れます。フィールドの意味は [VCS連携](/projects/track/jj-integration/) を見てください。
+## 次に読む
 
-ほかは [クイックスタート](/projects/track/quickstart/) か [CLI リファレンス](/projects/track/cli-reference/) へどうぞ。
+人手の一周は [クイックスタート](/projects/track/quickstart/) です。コマンド表は [CLI リファレンス](/projects/track/cli-reference/) へ。

@@ -2,16 +2,16 @@
 title: "CLI リファレンス"
 description: "track CLI サブコマンド一覧"
 sidebar:
-  order: 3
+  order: 6
 ---
+
+このページはサブコマンドの一覧です。ワークスペースの契約は [ワークスペース](/projects/track/workspace/) へ。`--json` とhintの読み方は [エージェント](/projects/track/agents/) へ。
 
 ```text
 track <SUBCOMMAND> [OPTIONS]
 ```
 
-多くの操作は、いまアクティブなタスクに対して走ります。切り替えるときは `track switch` です。mutatingコマンド（`new` / `switch` / `archive` / `todo add|done|update|next|delete` / `scrap add` / `repo add`）は `--json` で `track status --json` と同じスナップショットに `mutation` を足して返します。
-
-人間向け出力の末尾には `hint:` / `next:` が付きます。`--json` なら `hint` フィールドです。消すときは `TRACK_HINTS=0`。
+多くの操作は、いまアクティブなタスクに対して走ります。切り替えるときは `track switch` です。
 
 ## タスク
 
@@ -23,7 +23,7 @@ track <SUBCOMMAND> [OPTIONS]
 | `track switch <task_id> [--json]` | タスク切替 |
 | `track switch today` | Todayタスクへ（なければ作成） |
 | `track status [id]` | タスク情報 |
-| `track status --json` | エージェント向けJSON（`hint` / `workflow` / `git` または `jj`） |
+| `track status --json` | エージェント向けJSON |
 | `track status --all` | スクラップも含めて表示 |
 | `track desc [description]` | 説明の表示/設定 |
 | `track ticket <ticket_id> <url>` | チケット紐づけ |
@@ -86,8 +86,6 @@ track <SUBCOMMAND> [OPTIONS]
 | `track webui [--port N] [--open]` | Web UI起動（既定ポート3000） |
 | `track completion <shell> [--dynamic]` | シェル補完スクリプト生成 |
 
-## 関連ページ
+## 次に読む
 
-- [クイックスタート](/projects/track/quickstart/)
-- [VCS連携](/projects/track/jj-integration/)
-- [Web UI](/projects/track/webui/)
+契約は [ワークスペース](/projects/track/workspace/) です。ブラウザ操作は [Web UI](/projects/track/webui/) へ。

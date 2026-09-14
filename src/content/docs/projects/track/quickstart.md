@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-このページは、タスク管理からコーディング用ワークスペースまで、track単体で一通り触る手順です。git / jjの切り替えやaggressive modeは [VCS連携](/projects/track/jj-integration/) を読んでください。
+このページは、タスク管理からワークスペースへ入るまでの手順です。slugや `vcs-mode`、aggressive modeは [ワークスペース](/projects/track/workspace/) へ。JSONとスキルは [エージェント](/projects/track/agents/) へ。
 
 ## タスクを作る
 
@@ -33,7 +33,7 @@ track todo add "Compare auth providers" --no-workspace
 cd "/path/to/repo/.worktrees/auth-456"
 ```
 
-slugはエイリアス、なければチケットID（`AUTH-456` → `auth-456`）、それも無ければ `task-{id}` です。GitHubのPR headは `track/<slug>` です。
+slugの決まり方は [ワークスペース](/projects/track/workspace/) です。GitHubのPR headは `track/<slug>` です。
 
 ## メモと完了
 
@@ -45,24 +45,14 @@ track status --json
 
 `track todo done` はtrack DB上の完了です。mutatingコマンドは `--json` を付けると同じスナップショットが返ります。実装とcommitは、メインのチェックアウトではなくワークスペースの中で行ってください。
 
-## Todayタスク
-
-```bash
-track switch today
-```
-
-前日に残ったTODOを引き継ぐ日次用のタスクです。カレンダーを出すなら `track config set-calendar <calendar-id>` を先に。
-
-## Web UI
-
-```bash
-track webui --open
-```
-
-ブラウザからタスクやTODO、スクラップを触りたいとき用です。細かい機能は [Web UI](/projects/track/webui/) へ。
-
 ## 仕上げ
 
-実装が終わったら `track/<slug>` をpushしてPRを出します。マージ後は `track archive` です。確認プロンプトはTTY以外では失敗するので、エージェントは待たずにhintへ従ってください。`todo delete` だけは常に `--force` が要ります。
+実装が終わったら `track/<slug>` をpushしてPRを出します。マージ後は `track archive` です。確認プロンプトの扱いは [エージェント](/projects/track/agents/) へ。
 
-コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/) です。
+## ほかの入口
+
+日次のTodayタスクは `track switch today` です。ブラウザから触るなら [Web UI](/projects/track/webui/) へ。
+
+## 次に読む
+
+契約を読むなら [ワークスペース](/projects/track/workspace/) です。コマンド表は [CLI リファレンス](/projects/track/cli-reference/) へ。

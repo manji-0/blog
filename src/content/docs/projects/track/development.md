@@ -2,10 +2,10 @@
 title: "開発環境"
 description: "track リポジトリの開発・コントリビュート"
 sidebar:
-  order: 6
+  order: 7
 ---
 
-利用者向けの [インストール](/projects/track/installation/) とは別に、ソースをいじる人向けのメモです。
+このページはtrack本体のソースをいじる人向けです。利用者向けの入れ方は [インストール](/projects/track/installation/) へ。
 
 ```bash
 git clone https://github.com/manji-0/track.git
@@ -19,4 +19,8 @@ cargo build --release
 
 設計や機能の詳細はリポジトリ内のドキュメントを見てください。`DESIGN.md` と `docs/FUNCTIONAL_SPEC.md`、ワークスペースまわりの `docs/JJ_INTEGRATION.md`、Todayタスクの `docs/TODAY_TASK.md` があります。利用例は `docs/USAGE_EXAMPLES.md`、エージェント連携は `docs/LLM_INTEGRATION.md`、構成は `PROJECT_STRUCTURE.md`、変更履歴は `CHANGELOG.md` です。スキルは `skills/`（ルーター `track` とsetup / execute / advanced）。
 
-ライセンスはMITです。サイト側の入口は [はじめに](/projects/track/) と [CLI リファレンス](/projects/track/cli-reference/) です。
+ライセンスはMITです。
+
+## 次に読む
+
+サイト側の入口は [はじめに](/projects/track/) です。ワークスペースの製品契約は [ワークスペース](/projects/track/workspace/) へ。
