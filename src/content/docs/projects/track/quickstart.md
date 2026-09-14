@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-このページは **track単体** で一通り触る手順です。jjのタスクワークスペースまで使う場合は、後半の任意セクションと [JJ連携](/projects/track/jj-integration/) を読んでください。
+このページは、タスク管理からコーディング用ワークスペースまで、track単体で一通り触る手順です。git / jj の切り替えや aggressive mode は [VCS連携](/projects/track/jj-integration/) を読んでください。
 
 ## タスクを作る
 
@@ -25,7 +25,15 @@ track todo add "Design database schema"
 track todo add "Compare auth providers" --no-workspace
 ```
 
-調べものだけでワークスペースが要らない項目は、`--no-workspace` を付けておきます。
+`track repo add`（または後からの `track sync`）が `.worktrees/<slug>/` を作ります。調べものだけでワークスペースが要らない項目は、`--no-workspace` を付けておきます。
+
+コマンドの末尾（stderrの `next:`、JSONなら `hint.next_command`）が次に入るディレクトリを示します。
+
+```bash
+cd "/path/to/repo/.worktrees/auth-456"
+```
+
+slugはエイリアス、なければチケットID（`AUTH-456` → `auth-456`）、それも無ければ `task-{id}` です。GitHubのPR headは `track/<slug>` です。
 
 ## メモと完了
 
@@ -35,7 +43,7 @@ track todo done 1
 track status --json
 ```
 
-ここまでで、タスク管理としてのtrackは一通り動きます。Gitだけで実装する場合も、この流れで十分です。
+`track todo done` はtrack DB上の完了です。mutatingコマンドは `--json` を付けると同じスナップショットが返ります。実装とcommitは、メインのチェックアウトではなくワークスペースの中で行ってください。
 
 ## Todayタスク
 
@@ -53,17 +61,8 @@ track webui --open
 
 ブラウザからタスクやTODO、スクラップを触りたいとき用です。細かい機能は [Web UI](/projects/track/webui/) へ。
 
-## （任意）jjのタスクワークスペースで実装する
+## 仕上げ
 
-コード変更をjjのタスクワークスペースに閉じたいときだけ使います。前提は [インストール](/projects/track/installation/) の「タスクワークスペースまで使うなら」と [JJ連携](/projects/track/jj-integration/) です。`jj-task` がPATHに無い状態では動きません。
-
-```bash
-jj-task repo init
-jj-task start auth-456
-cd "$(jj-task path auth-456)"
-# ここで実装して jj commit、draft PR まで進める
-```
-
-slugの決まり方や、DraftとIn reviewで何が違うか、`status --json` の読み方は [JJ連携](/projects/track/jj-integration/) にまとめてあります。コミットまわりは `$jj` skillの仕事です。
+実装が終わったら `track/<slug>` をpushしてPRを出し、マージ後に `track archive` します。確認プロンプトはTTY以外では失敗するので、エージェントは待たずにhintに従います。`todo delete` だけは常に `--force` が要ります。
 
 コマンド一覧は [CLI リファレンス](/projects/track/cli-reference/) です。

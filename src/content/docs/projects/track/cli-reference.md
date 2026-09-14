@@ -9,45 +9,55 @@ sidebar:
 track <SUBCOMMAND> [OPTIONS]
 ```
 
-多くの操作は、いまアクティブなタスクに対して走ります。切り替えるときは `track switch` です。
+多くの操作は、いまアクティブなタスクに対して走ります。切り替えるときは `track switch` です。mutatingコマンド（`new` / `switch` / `archive` / `todo add|done|update|next|delete` / `scrap add` / `repo add`）は `--json` で `track status --json` と同じスナップショットに `mutation` を足して返します。
+
+人間向け出力の末尾には `hint:` / `next:` が付きます。`--json` なら `hint` フィールドです。消すときは `TRACK_HINTS=0`。
 
 ## タスク
 
 | コマンド | 説明 |
 |---|---|
-| `track new <name>` | タスク作成しアクティブ化 |
+| `track new <name> [--json]` | タスク作成しアクティブ化 |
 | `track new <name> --template <task_ref>` | 既存タスクをテンプレートにTODOをコピー |
-| `track list [--all]` | タスク一覧 |
-| `track switch <task_id>` | タスク切替 |
+| `track list [--all] [--json]` | タスク一覧 |
+| `track switch <task_id> [--json]` | タスク切替 |
 | `track switch today` | Todayタスクへ（なければ作成） |
 | `track status [id]` | タスク情報 |
-| `track status --json` | エージェント向けJSON |
+| `track status --json` | エージェント向けJSON（`hint` / `workflow` / `git` または `jj`） |
 | `track status --all` | スクラップも含めて表示 |
 | `track desc [description]` | 説明の表示/設定 |
 | `track ticket <ticket_id> <url>` | チケット紐づけ |
-| `track alias set <alias>` | エイリアス設定 |
+| `track alias set <alias>` | エイリアス設定（ワークスペースslugの最優先） |
 | `track alias set <alias> --force` | 他タスク上のエイリアスを上書き |
 | `track alias remove` | エイリアス削除 |
-| `track archive [task_id]` | アーカイブ |
+| `track archive [task_id] [--json]` | アーカイブ（ワークスペースディレクトリも削除） |
+| `track archive [task_id] --force` | dirtyチェックをスキップしてアーカイブ。ディレクトリは消える |
 
 ## 設定
 
 | コマンド | 説明 |
 |---|---|
-| `track config set-calendar <calendar-id>` | Todayビュー用GoogleカレンダーID |
 | `track config show` | 設定表示 |
+| `track config set vcs-mode git\|jj` | git worktree（新規DBの既定）または colocated jj |
+| `track config set aggressive-mode on\|off` | タスクごとの空revisionと `refs/notes/track` |
+| `track config set-calendar <calendar-id>` | Todayビュー用GoogleカレンダーID |
+| `track import [path] [--json]` | 現在のブランチ上の git notes からタスクを復元 |
+| `track notes push [--remote]` | `refs/notes/track` を公開 |
+| `track notes fetch [--remote]` | `refs/notes/track` を受け取る |
 
 ## TODO
 
 | コマンド | 説明 |
 |---|---|
-| `track todo add <text> [--no-workspace]` | TODO追加（`--no-workspace`は調査・計画向け） |
+| `track todo add <text> [--no-workspace] [--json]` | TODO追加（`--no-workspace`は調査・計画向け） |
 | `track todo list` | 一覧 |
-| `track todo update <index> <status>` | 状態更新 |
-| `track todo done <index>` | 完了 |
+| `track todo update <index> <status> [--json]` | 状態更新 |
+| `track todo done <index> [--json]` | 完了（aggressive modeでは未公開WIPをTODO 1件あたり1コミットに畳む） |
 | `track todo workspace <index> [...]` | ワークスペース表示/再作成 |
-| `track todo next <index>` | 先頭へ移動（次に着手） |
-| `track todo delete <index> [--force]` | 削除 |
+| `track todo next <index> [--json]` | 先頭へ移動（次に着手） |
+| `track todo delete <index> --force [--json]` | 削除（確認なし。TTY以外では `--force` 必須） |
+
+完了・キャンセルしたTODOの再オープンはできません。続きは新しいTODOを足します。
 
 ## リンク / スクラップ
 
@@ -55,17 +65,19 @@ track <SUBCOMMAND> [OPTIONS]
 |---|---|
 | `track link add <url> [title]` | 参照URL追加 |
 | `track link list` / `track link delete <index>` | 一覧 / 削除 |
-| `track scrap add <content>` | 作業メモ追加 |
+| `track scrap add <content> [--share] [--json]` | 作業メモ追加（既定はローカル。`--share` は対応するTODOコミットの git notes） |
 | `track scrap list` | メモ一覧 |
+| `track scrap share <id> [--json]` | 既存スクラップをnotes対象にする |
+| `track scrap unshare <id> [--json]` | ローカルのみに戻す |
 
 ## リポジトリ
 
 | コマンド | 説明 |
 |---|---|
-| `track repo add [path]` | 現タスクにリポジトリ登録 |
+| `track repo add [path] [--json]` | 現タスクにリポジトリ登録し、ワークスペースを作る |
 | `track repo add --base <bookmark>` | ベースbookmark指定で登録 |
 | `track repo list` / `track repo remove <id>` | 一覧 / 解除 |
-| `track sync` | 登録リポジトリの同期（通常の実装フローでは [JJ連携](/projects/track/jj-integration/) の `jj-task start` を使う） |
+| `track sync` | `.worktrees/<slug>` を `track/<slug>` 上に作成／更新する |
 
 ## Web UI / 補完
 
@@ -77,5 +89,5 @@ track <SUBCOMMAND> [OPTIONS]
 ## 関連ページ
 
 - [クイックスタート](/projects/track/quickstart/)
-- [JJ連携](/projects/track/jj-integration/)
+- [VCS連携](/projects/track/jj-integration/)
 - [Web UI](/projects/track/webui/)

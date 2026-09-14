@@ -85,7 +85,7 @@ jobs:
         run: uv run ruff check .
 
       - name: Type check
-        run: uv run mypy .
+        run: uv run pyrefly check .
 
       - name: Test
         run: uv run pytest
@@ -101,7 +101,7 @@ jobs:
 
 - プラグインマニフェスト、スキルfrontmatter、リンク、Python構文のパッケージ検証。
 - Ruffフォーマットとリント。
-- `plugins = ["pydantic.mypy"]` 付きMypy strictモード。
+- Pyrefly（Pydantic v2サポート組み込み）。
 - コンストラクタ、遷移、境界パース、マスキング、永続化リトライ、イベント互換性のPytestカバレッジ。
 
 ## ピン留めと更新
@@ -118,7 +118,7 @@ jobs:
 
 ## レビューで見るところ
 
-- パッケージ検証、`ruff format --check`、`ruff check`、mypy/pyright、pytestなしにドメインがマージできないか。
+- パッケージ検証、`ruff format --check`、`ruff check`、pyrefly/pyright、pytestなしにドメインがマージできないか。
 - 挙動がバージョンやDBで変わるのにデフォルト環境だけになっていないかも見る。
 - ネイティブ/PII敏感パッケージに監査やファズの計画があるか、`continue-on-error` が必須に見えていないかも確認する。
 - コアチェックのローカル再現手順はあるか（[開発環境とセットアップ](/projects/kamae-py/development-setup/)）。

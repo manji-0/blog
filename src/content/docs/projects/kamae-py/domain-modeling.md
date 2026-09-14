@@ -97,7 +97,7 @@ class TaxiRequest(BaseModel):
 
 公開セッター、部分更新ヘルパー、またはフィールド間不変条件を破る可能性のある `model_copy(update=...)` パスは避ける。更新がビジネスアクションなら、遷移かコマンドとして命名し、不変条件全体を検証させる。
 
-Pydantic mypyプラグインを有効にすると、frozenモデルは静的にもチェックされる。モデルフィールドへの代入は、実行時より前にmypyで失敗するはずだ。
+pyreflyを有効にすると、frozenモデルは静的にもチェックされる。モデルフィールドへの代入は、実行時より前に失敗するはずだ。
 
 ## 必要に応じてドメインモデルとトランスポート DTO を分離する
 
@@ -234,23 +234,22 @@ uv lock
 
 インポート可能なPythonパッケージではないスキル、またはドキュメントリポジトリでは、`[tool.uv]` の下に `package = false` を設定する。
 
-## Pydantic プラグイン付きで Mypy を設定する
+## Pyrefly で Pydantic モデルを検査する
 
-Pydanticドメインモデルに依存するプロジェクトではPydantic v2 mypyプラグインを使う。モデル `__init__`、`model_construct`、frozenモデル、フィールドデフォルト、型なしフィールド、動的エイリアスに対する静的チェックが改善される。
+Pydanticドメインモデルに依存するプロジェクトではpyreflyを使う。Pydantic v2サポートは組み込みで、モデル `__init__`、`model_construct`、frozenモデル、フィールドデフォルト、余分なフィールド、エイリアスに対する静的チェックが改善される。既存のmypy設定からは `pyrefly init` で移すか、次のテンプレートから始める。
 
 ```toml
-[tool.mypy]
-python_version = "3.12"
-strict = true
-plugins = ["pydantic.mypy"]
+[dependency-groups]
+dev = [
+    "pyrefly>=1.1.1",
+]
 
-[tool.pydantic-mypy]
-init_forbid_extra = true
-init_typed = true
-warn_required_dynamic_aliases = true
+[tool.pyrefly]
+project-includes = ["src", "tests"]
+python-version = "3.12.0"
 ```
 
-`init_typed = true` を維持し、コンストラクタ呼び出しがPydanticのデフォルト強制変換の `Any` を受け入れず、フィールド型に対してチェックされるようにする。`init_forbid_extra = true` も維持し、予期しないコンストラクタキーワードが `**kwargs: Any` の背後へ隠れないようにする。コンストラクタチェックを弱めるため、ドメインモデルに必須の動的エイリアスは避ける。
+Pydanticの厳しさはモデル自身に書く。`ConfigDict` の `extra="forbid"`、不変状態の `frozen=True`、強制変換を拒むときの `Field(strict=True)` である。Pyreflyはこれらを直接読むので、mypyプラグインの `init_forbid_extra` や `init_typed` のような別フラグは不要である。コンストラクタチェックを弱めるため、ドメインモデルに必須の動的エイリアスは避ける。
 
 ## Pydantic、dataclass、attrs の選択
 

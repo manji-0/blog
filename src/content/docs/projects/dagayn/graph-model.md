@@ -14,7 +14,7 @@ dagaynはリポジトリ内のソース、ドキュメント、インフラ定�
 | ソースコード | `.py`, `.rs`, `.ts`, `.go`, `.java` 等 | 40言語以上 |
 | Markdown | `.md` | directive、コードスパン |
 | Terraform | `.tf`, `.tfvars` | block 種別ごとのノード |
-| Notebook | `.ipynb` | セル単位 |
+| Notebook | `.ipynb`、marimo の `.py` / `.md` | セル単位。marimoは `notebook_format: "marimo"` |
 
 フロントエンド（Vue / Svelte / Astro）、スクリプト（Bash / PowerShell）、スマートコントラクト（Solidity）も同一グラフに載る。
 

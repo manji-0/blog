@@ -49,7 +49,7 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target .
 - [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/gitignore`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/gitignore/) -> `.gitignore` または既存ファイルへマージ。
 - [`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/validate_package.py`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/validate_package.py) -> スキル/プラグインリポジトリのみ `scripts/validate_package.py`。
 
-コミット前に `project.name`、`description`、`[tool.mypy].files` を調整する。アプリケーションリポジトリでは `[tool.mypy].files` は通常 `src` と `tests` を指す。スキルリポジトリでは `scripts`、examples、testsを含める。
+コミット前に `project.name`、`description`、`[tool.pyrefly].project-includes` を調整する。アプリケーションリポジトリでは `project-includes` は通常 `src` と `tests` を指す。スキルリポジトリでは `scripts`、examples、testsを含める。
 
 ## 初回セットアップ
 
@@ -104,7 +104,7 @@ pydantic-settingsで `.env` を使う（[境界防御](/projects/kamae-py/bounda
 ```bash
 uv run ruff format --check .
 uv run ruff check .
-uv run mypy .
+uv run pyrefly check .
 uv run pytest
 python path/to/kamae-py/scripts/check_kamae_policy.py --target . --include-tests
 ```
@@ -113,7 +113,7 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target . --include-tests
 
 - IDEでRuffをフォーマット/リントプロバイダーとして有効化する。
 - `uv sync` 後、インタープリタを `.venv/bin/python` に設定する。
-- Pydantic mypyプラグインが解決されるよう、プロジェクトルートから `uv run mypy` を実行する。
+- 組み込みPydanticサポートが解決されるよう、プロジェクトルートから `uv run pyrefly check` を実行する。
 
 ## ローカルチェックループ
 
@@ -121,7 +121,7 @@ python path/to/kamae-py/scripts/check_kamae_policy.py --target . --include-tests
 
 チームがコミット前の自動フォーマットを望むなら、[品質ゲート](/projects/kamae-py/quality-gates/#pre-commit-integration) からpre-commitフックをインストールする。
 
-mypyとPydanticプラグイン設定については、[`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/projects/kamae-py/domain-modeling/#pydantic-プラグイン付きで-mypy-を設定する) に従う。
+pyreflyとPydantic設定については、[`https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml`](https://github.com/manji-0/kamae-py/blob/main/skills/kamae-py/assets/templates/pyproject.toml) をマージするか、[ドメインモデリング](/projects/kamae-py/domain-modeling/#pyrefly-で-pydantic-モデルを検査する) に従う。
 
 ## Docker を追加するタイミング
 
@@ -220,9 +220,9 @@ CIは `uv sync --locked` を実行するため、古いロックファイルで�
 
 ## トラブルシューティング
 
-- **Mypy が `pydantic.mypy` プラグイン欠如を報告**: `[tool.mypy] plugins = ["pydantic.mypy"]` が設定され、仮想環境が `uv run` 経由で有効であることを確認する。
+- **Pyrefly がPydanticモデルを追えない**: `[tool.pyrefly].project-includes` が対象パスを含み、仮想環境が `uv run` 経由で有効であることを確認する。既存mypy設定からは `pyrefly init` で移せる。
 - **ロックファイルのドリフト**: `uv lock` を実行し、更新された `uv.lock` をコミットする。
-- **新リファレンスでポリシーチェッカー失敗**: チェッカーはデフォルトで `src/` と `tests/` のみ検査する。スキルリポジトリは `--include-tests` でチェックされる。別の場所にコードを追加したら、`[tool.mypy].files` にパスを追加するか、適切なスコープでチェッカーを実行する。
+- **新リファレンスでポリシーチェッカー失敗**: チェッカーはデフォルトで `src/` と `tests/` のみ検査する。スキルリポジトリは `--include-tests` でチェックされる。別の場所にコードを追加したら、`[tool.pyrefly].project-includes` にパスを追加するか、適切なスコープでチェッカーを実行する。
 
 ## レビューで見るところ
 

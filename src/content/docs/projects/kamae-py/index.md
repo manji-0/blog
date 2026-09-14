@@ -12,7 +12,7 @@ Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタン
 
 防ぎたいのは、`status: str` とOptionalだらけで表せる無効状態、`typing.cast` や未検証dictの穴、想定内ビジネス失敗の例外依存、ORMエンティティとドメインの混同、観測経路へのPII、状態とイベントの非アトミックな保存です。全部を通読する必要はありません。いまのトピックだけ開けば十分です。各ページ末尾の **レビュー観点** はレビュー用の確認項目です。
 
-既定のツールチェーンはPython 3.12/3.13、uv、Pydantic v2（ジェネリックを使うなら2.11以降を推奨）、Ruff、mypy（`plugins = ["pydantic.mypy"]`）です。既存リポジトリでは、まずそのリポジトリの慣習を確認してください。
+既定のツールチェーンはPython 3.12/3.13、uv、Pydantic v2（ジェネリックを使うなら2.11以降を推奨）、Ruff、**pyrefly**（Pydantic v2サポート組み込み）です。既存リポジトリでは、まずそのリポジトリの慣習を確認してください。
 
 ## どこから読むか
 
@@ -24,7 +24,17 @@ Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタン
 | 既存コードへ入れる | [移行戦略](/projects/kamae-py/migration-strategy/)（ORMなら [ORM アダプター](/projects/kamae-py/orm-adapters/)） |
 | 仕上げのゲート | [品質ゲート](/projects/kamae-py/quality-gates/) |
 
-それ以外はサイドバーから必要なトピックだけ開いてください。よく参照する節は下表へ。
+それ以外はサイドバーから必要なトピックだけ開いてください。
+
+## スキルとして入れる
+
+実装時は `kamae-py`、差分レビュー時は `kamae-py-review` です。
+
+```bash
+npx skills add manji-0/kamae-py -s kamae-py -s kamae-py-review -g -y
+```
+
+Claude Codeなら `/plugin marketplace add manji-0/kamae-py` のあと `/plugin install kamae-py@kamae-py` でも入れられます。チームの命名やライブラリ好みは `.claude/rules/` / `.codex/rules/` で上書きできます。
 
 ## よく参照する節
 
@@ -34,5 +44,5 @@ Kamae Pythonは、サーバーサイドPython 3.12以降向けの設計スタン
 | 永続化エラー | [エラーハンドリング](/projects/kamae-py/error-handling/#推奨パターン-早期リターン) |
 | リポジトリポート | [永続化](/projects/kamae-py/persistence-events/#リポジトリプロトコルは小さく保つ) / [ドメインモデリング](/projects/kamae-py/domain-modeling/#プロトコルでリポジトリポートを定義する) |
 | E2E（ドメイン） | [タクシー配車の例](/projects/kamae-py/examples/taxi-request/) |
-| mypy | [ドメインモデリング](/projects/kamae-py/domain-modeling/#pydantic-プラグイン付きで-mypy-を設定する) |
+| pyrefly | [ドメインモデリング](/projects/kamae-py/domain-modeling/#pyrefly-で-pydantic-モデルを検査する) |
 | 品質ゲートコマンド | [品質ゲート](/projects/kamae-py/quality-gates/#ベースラインコマンド) |

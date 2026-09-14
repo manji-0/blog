@@ -6,11 +6,11 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [dagayn](https://github.com/manji-0/dagayn)
+> ソースリポジトリ: [dagayn](https://github.com/manji-0/dagayn) · 対象バージョン: **v4.14.0**
 
 **DAG is All You Need** — dagaynは、リポジトリをローカルの有向グラフとして持ち、AIコーディングアシスタントが構造クエリでコードベースを辿れるようにするツールです。
 
-対応言語のソースやMarkdown、TerraformをTree-sitterでパースし、ノードとエッジにしてSQLiteに載せます。その上でFTS、コミュニティ分割、実行フロー、各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。ファイルを開き直してgrepする代わりに、callerやimport、テスト対応、設計書とコードの橋をグラフから取れる、というのが狙いです。
+対応言語のソースやMarkdown、Terraform、ノートブック（`.ipynb` と marimo の `.py` / `.md`）をTree-sitterでパースし、ノードとエッジにしてSQLiteに載せます。グラフエンジン、フロー、コミュニティ、FTSはRustコア（`dagayn._core`）です。その上で日本語向けFTS（Lindera IPADIC + CJKバイグラム）、実行フロー、各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。ファイルを開き直してgrepする代わりに、callerやimport、テスト対応、設計書とコードの橋、ヒットしたノードのソース断片（`source_of`）をグラフから取れる、というのが狙いです。
 
 ## なぜ必要か
 
@@ -18,7 +18,7 @@ CursorやClaude Codeのようなエージェントは、タスクのたびにフ
 
 「この関数のcallerは誰か」「この変更の影響範囲（blast radius）はどこまでか」「この設計書はどの実装を指しているか」は、毎回ファイルを読み直すより、一度パースした構造に聞く方が合理的です。
 
-コアの着想は [tirth8205/code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはそこにTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、パッケージ健全性のADP / SDP / SAP、複数ツール向けの `dagayn install` などを足しています。経緯の長めの話は [ブログ記事](/blog/2026/dagayn-knowledge-graph-for-code-review/) へ。用語の定義は [グラフモデル](/projects/dagayn/graph-model/) と [構造メトリクス](/projects/dagayn/metrics/) にあります。
+コアの着想は [tirth8205/code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはそこにTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、パッケージ健全性のADP / SDP / SAP、marimoノートブック、日本語FTS、複数ツール向けの `dagayn install` などを足しています。Pythonのグラフエンジンは廃止済みで、`DAGAYN_BACKEND=python` はエラーになります。経緯の長めの話は [ブログ記事](/blog/2026/dagayn-knowledge-graph-for-code-review/) へ。用語の定義は [グラフモデル](/projects/dagayn/graph-model/) と [構造メトリクス](/projects/dagayn/metrics/) にあります。
 
 ## どこから読むか
 
@@ -29,7 +29,7 @@ CursorやClaude Codeのようなエージェントは、タスクのたびにフ
 | 語彙・グラフ構造 | [グラフモデル](/projects/dagayn/graph-model/) |
 | 差分レビュー | [レビューと影響分析](/projects/dagayn/review-analysis/) |
 
-CLIは [CLI リファレンス](/projects/dagayn/cli-reference/)、設計書連携は [Markdown / Terraform 連携](/projects/dagayn/integrations/)、意味検索は [セマンティック検索](/projects/dagayn/semantic-search/)（最短手順の `fts-only` では埋め込みなし）。パイプライン全体は [アーキテクチャ](/projects/dagayn/architecture/)、詰まったら [トラブルシューティング](/projects/dagayn/troubleshooting/) へ。
+CLIは [CLI リファレンス](/projects/dagayn/cli-reference/)、設計書連携は [Markdown / Terraform 連携](/projects/dagayn/integrations/)、意味検索は [セマンティック検索](/projects/dagayn/semantic-search/)（最短手順の `fts-only` では埋め込みなし）。パイプライン全体は [アーキテクチャ](/projects/dagayn/architecture/)、詰まったら [トラブルシューティング](/projects/dagayn/troubleshooting/) へ。エージェントスキル（`review-changes`、`explore-codebase`、`source_of` 前提のMarkdown連携など）は `dagayn install` が配る。
 
 ## まわりのツールとの関係
 

@@ -86,7 +86,7 @@ def waiting_from_row(dto: RequestRow) -> Waiting:
 
 ## msgspec 境界 → Pydantic ドメインパイプライン
 
-[msgspec](https://jcristharif.com/msgspec/) などは単純で安定したスキーマのJSONエンコード/デコードでPydanticより速いことがある。Kamae Pythonは依然としてバリデータ表現力、エコシステム統合、mypyプラグインサポートのため、ドメイン状態と判別共用体にPydanticを好む。
+[msgspec](https://jcristharif.com/msgspec/) などは単純で安定したスキーマのJSONエンコード/デコードでPydanticより速いことがある。Kamae Pythonは依然としてバリデータ表現力、エコシステム統合、pyreflyの組み込みPydanticサポートのため、ドメイン状態と判別共用体にPydanticを好む。
 
 許容パターン： **ワイヤエッジに msgspec、ドメインに Pydantic。**
 

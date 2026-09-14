@@ -5,7 +5,7 @@ sidebar:
   order: 7
 ---
 
-dagaynの `semantic_search_nodes_tool` はFTS5全文検索とベクトル類似度を組み合わせたハイブリッド検索を提供する。埋め込みが無い環境でもFTSのみで動作する。
+dagaynの `semantic_search_nodes_tool` はFTS5全文検索とベクトル類似度を組み合わせたハイブリッド検索を提供する。埋め込みが無い環境でもFTSのみで動作する。日本語はLindera IPADICの形態素（基本形つき）と重なり合うCJKバイグラムで索引し、活用したクエリでもAND一致しやすい。ヒットしたノードの本文は、ファイル全体を読む前に `query_graph_tool(pattern="source_of")` で取る。
 
 ## 埋め込みモード
 

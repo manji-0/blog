@@ -44,9 +44,10 @@ portならソースとターゲットのkamaeスキルを先に読み、こち�
 ## インストールとルール
 
 ```bash
-claude skills add manji-0/agent-skill-modelconverter
+npx skills add manji-0/agent-skill-modelconverter \
+  -s kamae-model-port -s kamae-model-bridge -g -y
 # または
-npx @anthropic-ai/skills add manji-0/agent-skill-modelconverter
+claude skills add manji-0/agent-skill-modelconverter
 ```
 
 2つセットで入ります。タスクに応じてportかbridgeかを選んでください。

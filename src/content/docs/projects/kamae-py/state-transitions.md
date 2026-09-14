@@ -131,7 +131,7 @@ class DriverAssigned(DomainModel):
 
 ## 網羅性をチェックする
 
-判別共用体を分岐するときは `typing.assert_never` を使う。Python 3.11+ では標準ライブラリにある。十分にstrictなモードでpyrightまたはmypyを実行する。
+判別共用体を分岐するときは `typing.assert_never` を使う。Python 3.11+ では標準ライブラリにある。十分にstrictなモードでpyreflyまたはpyrightを実行する。
 
 ```python
 from typing import assert_never

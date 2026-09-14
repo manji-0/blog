@@ -15,7 +15,7 @@ uvでプロジェクトツールを実行する。リポジトリに既存コマ
 ```bash
 uv run ruff format .
 uv run ruff check .
-uv run mypy .
+uv run pyrefly check .
 uv run pytest
 ```
 
@@ -51,9 +51,9 @@ uv run python path/to/kamae-py/scripts/check_kamae_policy.py --include-tests --s
 
 ## 型チェック
 
-プロジェクトに設定があればmypyまたはpyrightを実行する。Pydantic v2プロジェクトでは `plugins = ["pydantic.mypy"]` とstrictプラグインフラグ（`init_forbid_extra`、`init_typed`、`warn_required_dynamic_aliases`）付きmypyを優先する。完全な `[tool.mypy]` と `[tool.pydantic-mypy]` 例： [ドメインモデリング](/projects/kamae-py/domain-modeling/#pydantic-プラグイン付きで-mypy-を設定する)。
+プロジェクトに設定があればpyreflyまたはpyrightを実行する。Pydantic v2プロジェクトではpyreflyを優先する。Pydanticサポートは組み込みで、`extra="forbid"`、`frozen=True`、フィールドの `strict=True` といったモデル設定を直接読む。完全な `[tool.pyrefly]` 例： [ドメインモデリング](/projects/kamae-py/domain-modeling/#pyrefly-で-pydantic-モデルを検査する)。
 
-プラグインは素のmypyが見逃しうるPydantic固有リスクを検出する： 型なしモデルフィールド、frozenモデル変更、誤った `model_construct`、無効フィールドデフォルト、余分なコンストラクタキーワード、必須動的エイリアス。
+Pyreflyは素の型チェッカーが見逃しうるPydantic固有リスクを検出する： frozenモデル変更、誤った `model_construct`、余分なコンストラクタキーワード、エイリアス不一致。
 
 判別共用体、リポジトリプロトコル、結果値、境界DTO、Pydanticモデル構築周りの型チェックを弱めない。
 
@@ -84,9 +84,9 @@ repos:
         entry: uv run ruff check --fix
         language: system
         types: [python]
-      - id: mypy
-        name: mypy
-        entry: uv run mypy
+      - id: pyrefly
+        name: pyrefly
+        entry: uv run pyrefly check
         language: system
         types: [python]
         pass_filenames: false
@@ -123,7 +123,7 @@ lint:
 	uv run ruff check .
 
 typecheck:
-	uv run mypy .
+	uv run pyrefly check .
 
 test:
 	uv run pytest
@@ -147,7 +147,7 @@ tasks:
     cmds: [uv run ruff check .]
 
   typecheck:
-    cmds: [uv run mypy .]
+    cmds: [uv run pyrefly check .]
 
   test:
     cmds: [uv run pytest]
@@ -161,6 +161,6 @@ CIワークフローを `make check` または `task check` に向け、ロー�
 ## レビューで見るところ
 
 - 広い `# type: ignore` や説明のない `noqa` が、未検証 `Any`、ビジネス `assert`、PIIログ、境界デシリアライズのリスクを隠していないか。
-- 触れたコードのRuffとmypy/pyrightはクリーンか。
-- `uv run ruff format --check`・`ruff check`・mypy・pytestの実行方法が文書化され、触れたPythonはフォーマット済みかも確認する。
+- 触れたコードのRuffとpyrefly/pyrightはクリーンか。
+- `uv run ruff format --check`・`ruff check`・pyrefly・pytestの実行方法が文書化され、触れたPythonはフォーマット済みかも確認する。
 

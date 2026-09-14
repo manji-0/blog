@@ -15,8 +15,8 @@ cargo test
 cargo build --release
 ```
 
-言語はRust（Edition 2021）、CLIはclap、DBはbundledのrusqliteです。Web UIはAxumにMiniJinja、HTMX、SSEを載せています。日時はchronoです。
+言語はRust（Edition 2024、MSRV 1.88）、CLIはclap、DBはbundledのrusqliteです。Web UIはAxumにMiniJinja、HTMX 2、SSEを載せています。日時はchronoです。
 
-設計や機能の詳細はリポジトリ内のドキュメントを見てください。`DESIGN.md` と `docs/FUNCTIONAL_SPEC.md`、jjまわりの `docs/JJ_INTEGRATION.md`、Todayタスクの `docs/TODAY_TASK.md` があります。利用例は `docs/USAGE_EXAMPLES.md`、エージェント連携は `docs/LLM_INTEGRATION.md`、構成は `PROJECT_STRUCTURE.md`、変更履歴は `CHANGELOG.md` です。
+設計や機能の詳細はリポジトリ内のドキュメントを見てください。`DESIGN.md` と `docs/FUNCTIONAL_SPEC.md`、ワークスペースまわりの `docs/JJ_INTEGRATION.md`、Todayタスクの `docs/TODAY_TASK.md` があります。利用例は `docs/USAGE_EXAMPLES.md`、エージェント連携は `docs/LLM_INTEGRATION.md`、構成は `PROJECT_STRUCTURE.md`、変更履歴は `CHANGELOG.md` です。スキルは `skills/`（ルーター `track` と setup / execute / advanced）。
 
 ライセンスはMITです。サイト側の入口は [はじめに](/projects/track/) と [CLI リファレンス](/projects/track/cli-reference/) です。

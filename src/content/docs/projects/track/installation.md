@@ -5,29 +5,57 @@ sidebar:
   order: 1
 ---
 
-trackはRust製のCLIで、いまのところソースからビルドして入れるのが主な入手経路です。
+trackはRust製のCLIです。Cargo上のパッケージ名は `task-track`、動くバイナリの名前は `track` です。
+
+## crates.io（推奨）
 
 ```bash
-git clone https://github.com/manji-0/track.git
-cd track
-cargo build --release
-cargo install --path .
-```
-
-動くバイナリの名前は `track` です。Cargo上のパッケージ名だけ `task-track` になっています。
-
-```bash
+cargo install task-track
 track --help
 track list
 ```
 
-ここまでで [クイックスタート](/projects/track/quickstart/) の前半（タスク・TODO・スクラップ）は使えます。
+ソースから入れる場合：
 
-### タスクワークスペースまで使うなら
+```bash
+git clone https://github.com/manji-0/track.git
+cd track
+cargo install --path .
+```
 
-jj連携が必要です。[agent-skill-jj](https://github.com/manji-0/agent-skill-jj) と `jj-task` を入れたうえで、手順は [JJ連携](/projects/track/jj-integration/) を見てください。`jj-task` 未導入のままクイックスタート後半に進むと失敗します。
+ここまでで [クイックスタート](/projects/track/quickstart/) のタスク・TODO・スクラップは使えます。リポジトリを登録すると、同じ流れでコーディング用ワークスペースも作れます。
 
-シェル補完はbash / zsh / fish / PowerShell向けに出せます。zshなら例えばこうです。
+## エージェント向けスキル
+
+エージェントにtrackのphaseを読ませるなら、スキルを入れてください。入口は `track status --json` の `hint` / `workflow.next_action` です。`jj-task` は使いません。
+
+```bash
+npx skills add manji-0/track \
+  -s track -s track-task-setup -s track-task-execute -s track-advanced \
+  -g -a cursor -a claude-code -a codex -y
+```
+
+| Skill | いつ使うか |
+| --- | --- |
+| `track` | ルーター。`workflow.phase` を見て振り分ける |
+| `track-task-setup` | タスク・repo・TODOの用意（`setup`） |
+| `track-task-execute` | ワークスペース内の実装ループ |
+| `track-advanced` | archive、マルチリポジトリ、hotfix |
+
+## VCSモード
+
+新規のデータベースでは `vcs-mode` の既定は **git** です。colocated jjでワークスペースを切るなら：
+
+```bash
+track config set vcs-mode jj
+track config show
+```
+
+すでにタスクがある既存DBで `vcs-mode` を一度も書いていない場合は **jj** のままです。詳細は [VCS連携](/projects/track/jj-integration/) へ。
+
+## シェル補完
+
+bash / zsh / fish / PowerShell向けに出せます。zshなら例えばこうです。
 
 ```bash
 mkdir -p ~/.zsh/completions

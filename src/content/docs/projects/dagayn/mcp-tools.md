@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-dagaynはMCPサーバとして起動し、エージェントからグラフ操作ツールを公開する。CLIの `dagayn tool --list` で現在の一覧を確認できる。
+dagaynはMCPサーバとして起動し、エージェントからグラフ操作ツールを公開する。`dagayn serve` の既定はコンパクトなワークフロー面（下表の「既定」）である。`dagayn tool --list` で現在の一覧を確認できる。`all` / `full` / `*`、または `--tools` / `CRG_TOOLS` で拡張面を出す。
 
 ## レビュー・変更分析
 
@@ -33,13 +33,15 @@ review_tool(mode="changes", detail_level="minimal")
 
 ### query_graph_tool
 
-定義済みパターンで関係をたどる。
+定義済みパターンで関係をたどる。検索ヒットのあと、ファイル全体を開き直す前に `source_of` でノードのライブ断片を取るのが推奨である（上限およそ4,000文字。`truncated` / `source_stale` を返すことがある）。
 
 | pattern | 意味 |
 | --- | --- |
+| `source_of` | 1ノードの現行ワークツリー断片 |
 | `callers_of` | 呼び出し元 |
 | `callees_of` | 呼び出し先 |
 | `imports_of` | import 関係 |
+| `importers_of` | 被import（ファイルパス対象。セクション形は0件になる） |
 | `tests_for` | テスト対応 |
 | `docs_for` | 関連ドキュメント |
 | `implementations_of` | ドキュメントからコード実装 |
@@ -51,7 +53,7 @@ FTS5と埋め込みベクトルのハイブリッド検索。関数名を覚え�
 
 ### traverse_graph_tool
 
-任意の起点からエッジ種別を指定してグラフを走査する。
+任意の起点からエッジ種別を指定してグラフを走査する。既定のコンパクト面には含まれない（拡張面）。
 
 ## アーキテクチャ分析
 
@@ -65,12 +67,15 @@ CLIコマンド、HTTPハンドラ、MCPツールハンドラなどのエント�
 
 ## グラフ管理
 
-| ツール | 用途 |
-| --- | --- |
-| `build_or_update_graph_tool` | MCP から build / update |
-| `run_postprocess_tool` | 後処理のみ実行 |
-| `list_graph_stats_tool` | ノード数、最終更新等 |
-| `embed_graph_tool` | 埋め込み生成 |
+既定面では `ensure_graph_tool` がグラフの作成／更新の入口である。統計や埋め込み生成などは拡張面。
+
+| ツール | 用途 | 面 |
+| --- | --- | --- |
+| `ensure_graph_tool` | グラフが無ければ build、あれば更新 | 既定 |
+| `build_or_update_graph_tool` | MCP から build / update | 拡張 |
+| `run_postprocess_tool` | 後処理のみ実行 | 拡張 |
+| `list_graph_stats_tool` | ノード数、最終更新等 | 拡張 |
+| `embed_graph_tool` | 埋め込み生成 | 拡張 |
 
 ## リファクタ・Wiki
 
@@ -104,7 +109,7 @@ flowchart TD
 
 ## hooks との連携
 
-`dagayn install` が登録するhookは保存後に `dagayn update --skip-flows` を走らせる。MCPツールは常に最新（またはhook更新後）のグラフを読む。グラフが空の場合は `build_or_update_graph_tool(full_rebuild=True)` を先に実行する。
+`dagayn install` が登録するhookは保存後に `dagayn update --skip-flows` を走らせる。MCPツールは常に最新（またはhook更新後）のグラフを読む。グラフが空の場合は先に `ensure_graph_tool()` を実行する。並列エージェントのworktreeでは、メイン側に健全なグラフがあるなら `dagayn worktree sync` を優先する。
 
 ## 関連ページ
 

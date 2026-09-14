@@ -28,6 +28,16 @@ Kamae Rustは、サーバーサイドのドメインコードを型で守り、�
 
 それ以外はサイドバーから必要なトピックだけ開いてください。
 
+## スキルとして入れる
+
+実装時は `kamae-rs`、差分レビュー時は `kamae-rs-review` です。
+
+```bash
+npx skills add manji-0/kamae-rs -s kamae-rs -s kamae-rs-review -g -y
+```
+
+チームの命名やクレート好みは `.claude/rules/` / `.codex/rules/` で上書きできます。
+
 ## よく参照する節
 
 | トピック | 正規リファレンス |

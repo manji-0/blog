@@ -29,6 +29,16 @@ Kamae Scalaは、サーバーサイドのScala 3ドメインコードを型で�
 
 それ以外はサイドバーから必要なトピックだけ開いてください。
 
+## スキルとして入れる
+
+実装時は `kamae-scala`、差分レビュー時は `kamae-scala-review` です。
+
+```bash
+npx skills add manji-0/kamae-scala -s kamae-scala -s kamae-scala-review -g -y
+```
+
+チームの命名やライブラリ好みは `.claude/rules/` / `.codex/rules/` で上書きできます。
+
 ## よく参照する節
 
 | トピック | 正規リファレンス |

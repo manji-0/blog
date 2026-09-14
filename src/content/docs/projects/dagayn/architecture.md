@@ -35,7 +35,7 @@ flowchart TB
 
 拡張子、shebang、設定ファイルに基づいてパーサを割り当てる。拡張子なしスクリプトはshebangからBash / Python等を推定する。
 
-対応はポリグロット：アプリコード、Markdown、Terraform、Notebookを同一リポジトリ内で混在可能。
+対応はポリグロット：アプリコード、Markdown、Terraform、Notebook（`.ipynb` と marimo）を同一リポジトリ内で混在可能。
 
 ### 2. パーサ抽出
 
@@ -45,7 +45,7 @@ Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得する
 | --- | --- |
 | Terraform | fork `tree-sitter-terraform`。`.tf` / `.tfvars` |
 | Markdown | fork `tree-sitter-markdown`。directive コメント対応 |
-| Notebook | セル単位。span overlap で行番号ずれに耐性 |
+| Notebook | セル単位。`.ipynb` に加え marimo `.py` / `.md`。span overlap で行番号ずれに耐性 |
 | Rust / Python / JS・TS 系 | Rust 所有パスが既定 |
 
 パーサ出力は常に **ファイル単位** のノード・エッジ列。qualified nameはリポジトリ内で一意。
@@ -78,18 +78,19 @@ Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得する
 ┌─────────────────────────────────────┐
 │  CLI / MCP / tests                  │
 ├─────────────────────────────────────┤
-│  Python GraphStore（安定 API）       │
+│  Native GraphStore（dagayn._core）   │
 │  ・スキーマ・トランザクション         │
-│  ・パス正規化・キャッシュ無効化       │
+│  ・パーサ / FTS / フロー / コミュニティ │
+│  ・パス正規化                        │
 ├─────────────────────────────────────┤
-│  Rust dagayn_core（PyO3）            │
-│  ・バッチ store / parse              │
-│  ・Markdown artifact 解決            │
-│  ・centrality / フロー JSON 永続化    │
+│  Python（残る部分）                   │
+│  ・ハイブリッド検索                  │
+│  ・manifest-bridge 抽出              │
+│  ・analyze_changes の案内組み立て     │
 └─────────────────────────────────────┘
 ```
 
-移行方針：Rustは加速実装としてGraphStore APIの背後に置く。`dagayn._core` が無いsource checkoutは明確に失敗し、旧Pythonパーサにはフォールバックしない。
+`from dagayn.graph import GraphStore` はネイティブストアである。`DAGAYN_BACKEND=python` はエラーになる。`dagayn._core` が無いsource checkoutは明確に失敗し、旧Pythonエンジンにはフォールバックしない。
 
 ## ハイブリッド検索（概要）
 
