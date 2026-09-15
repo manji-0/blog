@@ -1100,6 +1100,97 @@ h1#_top {
 	stroke-width: 0.8;
 }
 
+.diagram-design .n-layer {
+	fill: var(--dd-node);
+	stroke: var(--dd-zone-stroke);
+	stroke-width: 1;
+}
+
+.diagram-design .n-layer-alt {
+	fill: var(--dd-store);
+	stroke: var(--dd-zone-stroke);
+	stroke-width: 1;
+}
+
+.diagram-design .n-layer-focal {
+	fill: var(--dd-accent-tint);
+	stroke: var(--dd-accent);
+	stroke-width: 1;
+}
+
+.diagram-design .dd-layer-name {
+	fill: var(--dd-ink);
+	font-size: 14px;
+	font-weight: 700;
+	font-family: var(--dd-font-sans);
+}
+
+.diagram-design .dd-layer-idx,
+.diagram-design .dd-layer-idx-focal {
+	font-size: 9px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.12em;
+}
+
+.diagram-design .dd-layer-idx {
+	fill: var(--dd-muted);
+}
+
+.diagram-design .dd-layer-idx-focal {
+	fill: var(--dd-accent);
+}
+
+.diagram-design .n-num {
+	fill: var(--dd-ink);
+}
+
+.diagram-design .n-num-focal {
+	fill: var(--dd-accent);
+}
+
+.diagram-design .dd-num {
+	fill: var(--dd-paper);
+	font-size: 9px;
+	font-weight: 700;
+	font-family: var(--dd-font-mono);
+}
+
+.diagram-design .n-diamond {
+	fill: var(--dd-node);
+	stroke: var(--dd-ink);
+	stroke-width: 1;
+}
+
+.diagram-design .n-er-head {
+	fill: var(--dd-store);
+	stroke: var(--dd-muted);
+	stroke-width: 1;
+}
+
+.diagram-design .n-er-head-focal {
+	fill: var(--dd-accent-tint);
+	stroke: var(--dd-accent);
+	stroke-width: 1;
+}
+
+.diagram-design .n-er-body {
+	fill: var(--dd-paper);
+	stroke: var(--dd-muted);
+	stroke-width: 1;
+}
+
+.diagram-design .dd-card {
+	fill: var(--dd-muted);
+	font-size: 8px;
+	font-family: var(--dd-font-mono);
+}
+
+.diagram-design .dd-field {
+	fill: var(--dd-ink);
+	font-size: 11px;
+	font-family: var(--dd-font-mono);
+}
+
 .link-card {
 	display: flex;
 	gap: 1rem;
