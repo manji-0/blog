@@ -100,15 +100,7 @@ CLIコマンド、HTTPハンドラ、MCPツールハンドラなどのエント�
 
 ## 推奨ワークフロー
 
-```mermaid
-flowchart TD
-  A[get_minimal_context_tool] --> B{目的}
-  B -->|差分レビュー| C[review_tool mode=changes]
-  B -->|構造調査| D[query_graph/semantic_search]
-  B -->|設計診断| E[architecture_analysis_tool]
-  C --> F{深掘り}
-  F -->|blast radius| G[review_tool mode=impact]
-  F -->|フロー影響| H[flow_tool]
+```diagram-design dagayn-mcp-workflow
 ```
 
 ## hooksとの連携

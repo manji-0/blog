@@ -920,6 +920,186 @@ h1#_top {
 	height: auto;
 }
 
+.diagram-design {
+	--dd-paper: var(--sl-color-bg);
+	--dd-ink: var(--sl-color-white);
+	--dd-muted: var(--sl-color-gray-2);
+	--dd-soft: var(--sl-color-gray-3);
+	--dd-accent: var(--sl-color-accent);
+	--dd-accent-tint: var(--sl-color-accent-low);
+	--dd-link: var(--sl-color-text-accent);
+	--dd-node: var(--manj-panel-2);
+	--dd-store: color-mix(in srgb, var(--sl-color-white) 5%, var(--sl-color-bg));
+	--dd-input: color-mix(in srgb, var(--sl-color-gray-2) 12%, var(--sl-color-bg));
+	--dd-external: color-mix(in srgb, var(--sl-color-white) 3%, var(--sl-color-bg));
+	--dd-external-stroke: color-mix(in srgb, var(--sl-color-white) 30%, transparent);
+	--dd-zone: color-mix(in srgb, var(--sl-color-white) 3%, transparent);
+	--dd-zone-stroke: color-mix(in srgb, var(--sl-color-white) 10%, transparent);
+	--dd-rule: color-mix(in srgb, var(--sl-color-white) 10%, transparent);
+	--dd-font-sans: 'LINE Seed JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic',
+		sans-serif;
+	--dd-font-mono: 'Fira Code', ui-monospace, monospace;
+	margin-block: 1.25rem;
+	overflow-x: auto;
+}
+
+.diagram-design svg {
+	display: block;
+	width: 100%;
+	height: auto;
+	min-width: 36rem;
+}
+
+.diagram-design .n-mask {
+	fill: var(--dd-paper);
+}
+
+.diagram-design .n-backend {
+	fill: var(--dd-node);
+	stroke: var(--dd-ink);
+	stroke-width: 1;
+}
+
+.diagram-design .n-focal {
+	fill: var(--dd-accent-tint);
+	stroke: var(--dd-accent);
+	stroke-width: 1;
+}
+
+.diagram-design .n-store {
+	fill: var(--dd-store);
+	stroke: var(--dd-muted);
+	stroke-width: 1;
+}
+
+.diagram-design .n-input {
+	fill: var(--dd-input);
+	stroke: var(--dd-soft);
+	stroke-width: 1;
+}
+
+.diagram-design .n-external {
+	fill: var(--dd-external);
+	stroke: var(--dd-external-stroke);
+	stroke-width: 1;
+}
+
+.diagram-design .n-optional {
+	fill: color-mix(in srgb, var(--sl-color-white) 2%, var(--sl-color-bg));
+	stroke: color-mix(in srgb, var(--sl-color-white) 20%, transparent);
+	stroke-width: 1;
+	stroke-dasharray: 4 3;
+}
+
+.diagram-design .n-zone {
+	fill: var(--dd-zone);
+	stroke: var(--dd-zone-stroke);
+	stroke-width: 0.8;
+}
+
+.diagram-design .dd-name {
+	fill: var(--dd-ink);
+	font-size: 12px;
+	font-weight: 700;
+	font-family: var(--dd-font-sans);
+}
+
+.diagram-design .dd-sub {
+	fill: var(--dd-muted);
+	font-size: 9px;
+	font-family: var(--dd-font-mono);
+}
+
+.diagram-design .dd-tag {
+	fill: var(--dd-muted);
+	font-size: 7px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.08em;
+}
+
+.diagram-design .dd-tag-focal {
+	fill: var(--dd-accent);
+	font-size: 7px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.08em;
+}
+
+.diagram-design .dd-alabel {
+	fill: var(--dd-muted);
+	font-size: 8px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.06em;
+}
+
+.diagram-design .dd-alabel-accent {
+	fill: var(--dd-accent);
+	font-size: 8px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.06em;
+}
+
+.diagram-design .dd-legend {
+	fill: var(--dd-muted);
+	font-size: 8px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.14em;
+}
+
+.diagram-design .dd-legend-item {
+	fill: var(--dd-muted);
+	font-size: 8.5px;
+	font-family: var(--dd-font-sans);
+}
+
+.diagram-design .dd-zone-label {
+	fill: color-mix(in srgb, var(--dd-ink) 40%, transparent);
+	font-size: 7px;
+	font-family: var(--dd-font-mono);
+	letter-spacing: 0.14em;
+}
+
+.diagram-design .dd-conn {
+	fill: none;
+	stroke: var(--dd-muted);
+	stroke-width: 1.2;
+}
+
+.diagram-design .dd-conn-accent {
+	fill: none;
+	stroke: var(--dd-accent);
+	stroke-width: 1.4;
+}
+
+.diagram-design .dd-conn-link {
+	fill: none;
+	stroke: var(--dd-link);
+	stroke-width: 1.2;
+}
+
+.diagram-design .dd-conn-dash {
+	fill: none;
+	stroke: var(--dd-muted);
+	stroke-width: 1;
+	stroke-dasharray: 4 3;
+}
+
+.diagram-design .dd-hairline {
+	stroke: var(--dd-rule);
+	stroke-width: 0.8;
+}
+
+.diagram-design .dd-tag-box {
+	fill: none;
+	stroke: color-mix(in srgb, var(--dd-ink) 40%, transparent);
+	stroke-width: 0.8;
+}
+
+.diagram-design .dd-tag-box-focal {
+	fill: none;
+	stroke: color-mix(in srgb, var(--dd-accent) 50%, transparent);
+	stroke-width: 0.8;
+}
+
 .link-card {
 	display: flex;
 	gap: 1rem;

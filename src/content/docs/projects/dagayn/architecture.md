@@ -9,24 +9,7 @@ sidebar:
 
 ## 全体像
 
-```mermaid
-flowchart TB
-  subgraph ingest [取り込み]
-    A[ファイル発見] --> B[言語検出]
-    B --> C[Tree-sitterパース]
-    C --> D[ノードエッジ抽出]
-  end
-  subgraph persist [永続化]
-    D --> E[(graph.db)]
-    E --> F[後処理]
-    F --> G[nodes_fts/flows/communities]
-    F --> H[(embeddings.db任意)]
-  end
-  subgraph query [クエリ]
-    G --> I[CLI/MCP]
-    H --> I
-    I --> J[AIエージェント]
-  end
+```diagram-design dagayn-pipeline
 ```
 
 dagaynはリポジトリ内容をローカル知識グラフに変換し、CLIとMCPから同じデータセットをクエリします。中核は **Tree-sitter + SQLite** で、ホットパスは **Rust（`dagayn_core`）** が担います。
@@ -110,20 +93,7 @@ changed file
 
 ## GraphStoreとRust境界
 
-```text
-┌─────────────────────────────────────┐
-│  CLI / MCP / tests                  │
-├─────────────────────────────────────┤
-│  Native GraphStore（dagayn._core）   │
-│  ・スキーマ・トランザクション         │
-│  ・パーサ / FTS / フロー / コミュニティ │
-│  ・パス正規化                        │
-├─────────────────────────────────────┤
-│  Python（残る部分）                   │
-│  ・ハイブリッド検索                  │
-│  ・manifest-bridge 抽出              │
-│  ・analyze_changes の案内組み立て     │
-└─────────────────────────────────────┘
+```diagram-design dagayn-layers
 ```
 
 `from dagayn.graph import GraphStore` はネイティブストアです。`DAGAYN_BACKEND=python` はエラーになります。`dagayn._core` が無いsource checkoutは明確に失敗し、旧Pythonエンジンにはフォールバックしません。

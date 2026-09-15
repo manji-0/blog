@@ -45,33 +45,7 @@ Wordや表に散らばりがちな「誰が・何を・どのデータに触る�
 
 ## 構成
 
-```mermaid
-flowchart LR
-  subgraph sourceLayer[source]
-    rdraFiles[".rdra files"]
-  end
-  subgraph coreLayer[core]
-    parser[parser]
-    typeCheck[typeCheck]
-    stateDerive[stateDerive]
-  end
-  subgraph outputLayer[output]
-    checkCmd[check]
-    diagramCmd[diagram]
-    csvCmd[csv]
-    statesCmd[states]
-    exportCmd[export]
-    verifyCmd[verify]
-  end
-  rdraFiles --> parser
-  parser --> typeCheck
-  typeCheck --> stateDerive
-  typeCheck --> checkCmd
-  typeCheck --> diagramCmd
-  typeCheck --> csvCmd
-  stateDerive --> statesCmd
-  typeCheck --> exportCmd
-  exportCmd --> verifyCmd
+```diagram-design rdra-ish-pipeline
 ```
 
 BUCはビジネス価値のスライス、ビジネスフローは時間順の展開、ユースケースは効果を持つ相互作用の境界です。実務ではBUCで切り、フローで順番を追い、UCで1操作とそのデータ・画面・API効果に名前を付けます。

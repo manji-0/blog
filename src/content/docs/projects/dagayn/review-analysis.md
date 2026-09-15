@@ -33,15 +33,7 @@ base refのdiffとローカルworktree変更を区別したいときは `change_
 
 ## 推奨レビューフロー
 
-```mermaid
-flowchart TD
-  A[get_minimal_context_tool] --> B[review_tool mode=changes detail=minimal]
-  B --> C{guidanceを読む}
-  C -->|テスト不足| D[query_graph tests_for]
-  C -->|doc更新| E[query_graph docs_for]
-  C -->|blast radius| F[review_tool mode=impact]
-  C -->|フロー影響| G[flow_tool/get_affected_flows]
-  F --> H[architecture_analysis_tool]
+```diagram-design dagayn-review-flow
 ```
 
 1. **`get_minimal_context_tool`**：タスク向け最小コンテキスト

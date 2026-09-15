@@ -52,25 +52,7 @@ sidebar:
 | **どこで書くか** | track（`.worktrees/<slug>/`、ブランチ／bookmark `track/<slug>`） |
 | **どうコミットするか** | そのワークスペース内のgitまたはjj |
 
-```mermaid
-flowchart TB
-  subgraph trackLayer[track]
-    taskDb[taskDb]
-    hintJson[hintJson]
-  end
-  subgraph workspaceLayer[workspace]
-    worktreeDir[".worktrees/slug"]
-    trackBranch["track/slug"]
-  end
-  subgraph vcsLayer[vcs]
-    gitMode[gitWorktree]
-    jjMode[jjWorkspace]
-  end
-  taskDb --> hintJson
-  hintJson --> worktreeDir
-  worktreeDir --> trackBranch
-  worktreeDir --> gitMode
-  worktreeDir --> jjMode
+```diagram-design track-layers
 ```
 
 `git worktree`、`jj workspace add`、`jj-task` は手で叩きません。契約は [ワークスペース](/projects/track/workspace/) です。

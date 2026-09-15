@@ -95,13 +95,7 @@ dagayn update --skip-flows   # hookの既定に近い
 dagayn build --force-full-build
 ```
 
-```mermaid
-flowchart LR
-  Edit[コード編集] --> Hook[hook:update--skip-flows]
-  Hook --> MCP[MCPでreview/query]
-  MCP --> Refactor{大きなrefactor?}
-  Refactor -->|Yes| FullBuild[build--force-full-build]
-  Refactor -->|No| Edit
+```diagram-design dagayn-hook-loop
 ```
 
 hookは `dagayn install` が登録します。週次や大きなrefactorのあとだけ、フロー込みの `update` かフル `build` を走らせると安心です。

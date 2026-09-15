@@ -46,24 +46,7 @@ grepとLSPが足りる小さな単一言語リポジトリには向きません�
 
 ## 構成
 
-```mermaid
-flowchart TB
-  subgraph ingest [取り込み]
-    Discover[ファイル発見] --> Detect[言語検出]
-    Detect --> Parse[Tree-sitterパース]
-    Parse --> Extract[ノードエッジ抽出]
-  end
-  subgraph persist [永続化]
-    Extract --> GraphDB[(graph.db)]
-    GraphDB --> Post[後処理]
-    Post --> Derived[nodes_fts/flows/communities]
-    Post --> EmbedDB[(embeddings.db任意)]
-  end
-  subgraph serve [提供]
-    Derived --> CLI[CLI/MCP]
-    EmbedDB --> CLI
-    CLI --> Agent[AIエージェント]
-  end
+```diagram-design dagayn-pipeline
 ```
 
 対応言語のソース、Markdown、Terraform、ノートブック（`.ipynb` とmarimoの `.py` / `.md`）をTree-sitterでパースし、SQLiteに載せます。グラフエンジン、フロー、コミュニティ、FTSはRustコア（`dagayn._core`）です。その上で日本語向けFTS（Lindera IPADIC + CJKバイグラム）、実行フロー、各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。

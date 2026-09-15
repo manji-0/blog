@@ -58,14 +58,7 @@ Pythonのサービスは境界が曖昧だと型チェッカーが「正しい�
 | **Infrastructure** | DB/HTTP/キュー/SDKアダプター（`Protocol`実装） |
 | **Interface** | コントローラー・コンシューマー・CLI・コンポジションルート |
 
-```mermaid
-flowchart LR
-  edge[HTTP_queue_DB] --> dto[DTO_parse]
-  dto --> domain[frozen_state]
-  domain --> trans[pure_transition]
-  trans --> uc[use_case]
-  uc --> port[Protocol_port]
-  port --> adapter[infra_adapter]
+```diagram-design kamae-request-path
 ```
 
 ブログ側は実装3本（モデリング・遷移・境界）とリファレンス3本（使い方・ライブラリ・品質）に集約しています。旧URLはリダイレクトで新ページへ誘導します。

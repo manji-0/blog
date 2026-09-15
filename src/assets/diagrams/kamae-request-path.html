@@ -1,0 +1,92 @@
+<!-- diagram-design: architecture · fit · balanced · mixed · manj-io -->
+<svg viewBox="0 0 960 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kamae-request-path-title kamae-request-path-desc">
+  <title id="kamae-request-path-title">Kamae のリクエスト経路</title>
+  <desc id="kamae-request-path-desc">外部入力が DTO を経て凍結モデルと純粋遷移へ入り、ユースケースが Protocol 経由でアダプターを呼ぶ経路。</desc>
+  <defs>
+    <marker id="kamae-request-path-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
+    <marker id="kamae-request-path-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
+    <marker id="kamae-request-path-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-link)"/></marker>
+  </defs>
+
+  <line x1="148" y1="120" x2="168" y2="120" class="dd-conn-link" marker-end="url(#kamae-request-path-arrow-link)"/>
+  <line x1="280" y1="120" x2="300" y2="120" class="dd-conn-accent" marker-end="url(#kamae-request-path-arrow-accent)"/>
+  <line x1="412" y1="120" x2="432" y2="120" class="dd-conn-accent" marker-end="url(#kamae-request-path-arrow-accent)"/>
+  <line x1="544" y1="120" x2="564" y2="120" class="dd-conn" marker-end="url(#kamae-request-path-arrow)"/>
+  <line x1="676" y1="120" x2="696" y2="120" class="dd-conn" marker-end="url(#kamae-request-path-arrow)"/>
+  <line x1="808" y1="120" x2="828" y2="120" class="dd-conn-link" marker-end="url(#kamae-request-path-arrow-link)"/>
+
+  <rect x="164" y="100" width="40" height="12" rx="2" class="n-mask"/>
+  <text x="184" y="109" class="dd-alabel" text-anchor="middle">PARSE</text>
+  <rect x="296" y="100" width="40" height="12" rx="2" class="n-mask"/>
+  <text x="316" y="109" class="dd-alabel-accent" text-anchor="middle">ENTER</text>
+  <rect x="428" y="100" width="40" height="12" rx="2" class="n-mask"/>
+  <text x="448" y="109" class="dd-alabel-accent" text-anchor="middle">APPLY</text>
+  <rect x="560" y="100" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="576" y="109" class="dd-alabel" text-anchor="middle">ORCH</text>
+  <rect x="692" y="100" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="708" y="109" class="dd-alabel" text-anchor="middle">PORT</text>
+  <rect x="824" y="100" width="36" height="12" rx="2" class="n-mask"/>
+  <text x="842" y="109" class="dd-alabel" text-anchor="middle">IO</text>
+
+  <rect x="40" y="88" width="108" height="64" rx="6" class="n-mask"/>
+  <rect x="40" y="88" width="108" height="64" rx="6" class="n-input"/>
+  <rect x="48" y="94" width="28" height="12" rx="2" class="dd-tag-box"/>
+  <text x="62" y="103" class="dd-tag" text-anchor="middle">IN</text>
+  <text x="94" y="122" class="dd-name" text-anchor="middle">入力</text>
+  <text x="94" y="138" class="dd-sub" text-anchor="middle">HTTP · Q · DB</text>
+
+  <rect x="168" y="88" width="112" height="64" rx="6" class="n-mask"/>
+  <rect x="168" y="88" width="112" height="64" rx="6" class="n-backend"/>
+  <rect x="176" y="94" width="28" height="12" rx="2" class="dd-tag-box"/>
+  <text x="190" y="103" class="dd-tag" text-anchor="middle">DTO</text>
+  <text x="224" y="122" class="dd-name" text-anchor="middle">DTO</text>
+  <text x="224" y="138" class="dd-sub" text-anchor="middle">境界で検証</text>
+
+  <rect x="300" y="88" width="112" height="64" rx="6" class="n-mask"/>
+  <rect x="300" y="88" width="112" height="64" rx="6" class="n-focal"/>
+  <rect x="308" y="94" width="40" height="12" rx="2" class="dd-tag-box-focal"/>
+  <text x="328" y="103" class="dd-tag-focal" text-anchor="middle">DOM</text>
+  <text x="356" y="122" class="dd-name" text-anchor="middle">凍結モデル</text>
+  <text x="356" y="138" class="dd-sub" text-anchor="middle">frozen state</text>
+
+  <rect x="432" y="88" width="112" height="64" rx="6" class="n-mask"/>
+  <rect x="432" y="88" width="112" height="64" rx="6" class="n-backend"/>
+  <rect x="440" y="94" width="28" height="12" rx="2" class="dd-tag-box"/>
+  <text x="454" y="103" class="dd-tag" text-anchor="middle">FN</text>
+  <text x="488" y="122" class="dd-name" text-anchor="middle">純粋遷移</text>
+  <text x="488" y="138" class="dd-sub" text-anchor="middle">pure fn</text>
+
+  <rect x="564" y="88" width="112" height="64" rx="6" class="n-mask"/>
+  <rect x="564" y="88" width="112" height="64" rx="6" class="n-backend"/>
+  <rect x="572" y="94" width="28" height="12" rx="2" class="dd-tag-box"/>
+  <text x="586" y="103" class="dd-tag" text-anchor="middle">UC</text>
+  <text x="620" y="122" class="dd-name" text-anchor="middle">ユースケース</text>
+  <text x="620" y="138" class="dd-sub" text-anchor="middle">async orch</text>
+
+  <rect x="696" y="88" width="112" height="64" rx="6" class="n-mask"/>
+  <rect x="696" y="88" width="112" height="64" rx="6" class="n-store"/>
+  <rect x="704" y="94" width="36" height="12" rx="2" class="dd-tag-box"/>
+  <text x="722" y="103" class="dd-tag" text-anchor="middle">PORT</text>
+  <text x="752" y="122" class="dd-name" text-anchor="middle">Protocol</text>
+  <text x="752" y="138" class="dd-sub" text-anchor="middle">port</text>
+
+  <rect x="828" y="88" width="112" height="64" rx="6" class="n-mask"/>
+  <rect x="828" y="88" width="112" height="64" rx="6" class="n-external"/>
+  <rect x="836" y="94" width="36" height="12" rx="2" class="dd-tag-box"/>
+  <text x="854" y="103" class="dd-tag" text-anchor="middle">INFRA</text>
+  <text x="884" y="122" class="dd-name" text-anchor="middle">アダプター</text>
+  <text x="884" y="138" class="dd-sub" text-anchor="middle">DB · HTTP</text>
+
+  <line x1="40" y1="196" x2="920" y2="196" class="dd-hairline"/>
+  <text x="40" y="216" class="dd-legend">LEGEND</text>
+  <rect x="120" y="208" width="14" height="10" rx="2" class="n-focal"/>
+  <text x="140" y="217" class="dd-legend-item">ドメイン</text>
+  <rect x="212" y="208" width="14" height="10" rx="2" class="n-backend"/>
+  <text x="232" y="217" class="dd-legend-item">アプリ</text>
+  <rect x="292" y="208" width="14" height="10" rx="2" class="n-input"/>
+  <text x="312" y="217" class="dd-legend-item">入力</text>
+  <rect x="368" y="208" width="14" height="10" rx="2" class="n-external"/>
+  <text x="388" y="217" class="dd-legend-item">インフラ</text>
+  <line x1="472" y1="213" x2="500" y2="213" class="dd-conn-link" marker-end="url(#kamae-request-path-arrow-link)"/>
+  <text x="508" y="217" class="dd-legend-item">境界越え</text>
+</svg>

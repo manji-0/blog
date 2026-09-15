@@ -1,0 +1,61 @@
+<!-- diagram-design: flowchart · fit · balanced · mixed · manj-io -->
+<svg viewBox="0 0 720 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dagayn-hook-loop-title dagayn-hook-loop-desc">
+  <title id="dagayn-hook-loop-title">dagayn の日常ループ</title>
+  <desc id="dagayn-hook-loop-desc">コード編集のあと hook がグラフを更新し、MCP で問い合わせ、大きな refactor のときだけフルビルドする流れ。</desc>
+  <defs>
+    <marker id="dagayn-hook-loop-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
+    <marker id="dagayn-hook-loop-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
+  </defs>
+
+  <line x1="280" y1="88" x2="280" y2="112" class="dd-conn-accent" marker-end="url(#dagayn-hook-loop-arrow-accent)"/>
+  <line x1="280" y1="176" x2="280" y2="200" class="dd-conn" marker-end="url(#dagayn-hook-loop-arrow)"/>
+  <line x1="280" y1="264" x2="280" y2="292" class="dd-conn" marker-end="url(#dagayn-hook-loop-arrow)"/>
+  <line x1="380" y1="340" x2="480" y2="340" class="dd-conn-accent" marker-end="url(#dagayn-hook-loop-arrow-accent)"/>
+  <path d="M 280,388 V 412 Q 280,420 272,420 H 48 Q 40,420 40,412 V 64 Q 40,56 48,56 H 192" class="dd-conn-dash" marker-end="url(#dagayn-hook-loop-arrow)"/>
+
+  <rect x="264" y="92" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="280" y="101" class="dd-alabel-accent" text-anchor="middle">SAVE</text>
+  <rect x="264" y="180" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="280" y="189" class="dd-alabel" text-anchor="middle">ASK</text>
+  <rect x="408" y="320" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="424" y="329" class="dd-alabel-accent" text-anchor="middle">YES</text>
+  <rect x="286" y="392" width="24" height="12" rx="2" class="n-mask"/>
+  <text x="298" y="401" class="dd-alabel" text-anchor="middle">NO</text>
+
+  <rect x="192" y="40" width="176" height="48" rx="24" class="n-mask"/>
+  <rect x="192" y="40" width="176" height="48" rx="24" class="n-input"/>
+  <text x="280" y="68" class="dd-name" text-anchor="middle">コード編集</text>
+
+  <rect x="192" y="112" width="176" height="64" rx="6" class="n-mask"/>
+  <rect x="192" y="112" width="176" height="64" rx="6" class="n-focal"/>
+  <rect x="200" y="118" width="36" height="12" rx="2" class="dd-tag-box-focal"/>
+  <text x="218" y="127" class="dd-tag-focal" text-anchor="middle">HOOK</text>
+  <text x="280" y="146" class="dd-name" text-anchor="middle">update</text>
+  <text x="280" y="162" class="dd-sub" text-anchor="middle">--skip-flows</text>
+
+  <rect x="192" y="200" width="176" height="64" rx="6" class="n-mask"/>
+  <rect x="192" y="200" width="176" height="64" rx="6" class="n-backend"/>
+  <rect x="200" y="206" width="28" height="12" rx="2" class="dd-tag-box"/>
+  <text x="214" y="215" class="dd-tag" text-anchor="middle">MCP</text>
+  <text x="280" y="234" class="dd-name" text-anchor="middle">MCP で照会</text>
+  <text x="280" y="250" class="dd-sub" text-anchor="middle">review / query</text>
+
+  <polygon points="280,292 380,340 280,388 180,340" class="n-backend"/>
+  <text x="280" y="336" class="dd-name" text-anchor="middle">大きな</text>
+  <text x="280" y="352" class="dd-name" text-anchor="middle">refactor?</text>
+
+  <rect x="480" y="316" width="200" height="48" rx="24" class="n-mask"/>
+  <rect x="480" y="316" width="200" height="48" rx="24" class="n-focal"/>
+  <text x="580" y="344" class="dd-name" text-anchor="middle">フルビルド</text>
+
+  <line x1="40" y1="452" x2="680" y2="452" class="dd-hairline"/>
+  <text x="40" y="472" class="dd-legend">LEGEND · SHAPE CARRIES TYPE</text>
+  <rect x="40" y="488" width="24" height="12" rx="6" class="n-input"/>
+  <text x="72" y="498" class="dd-legend-item">開始 / 終了</text>
+  <rect x="176" y="488" width="24" height="12" rx="2" class="n-backend"/>
+  <text x="208" y="498" class="dd-legend-item">手順</text>
+  <polygon points="292,494 304,488 316,494 304,500" class="n-backend"/>
+  <text x="324" y="498" class="dd-legend-item">分岐</text>
+  <line x1="380" y1="494" x2="408" y2="494" class="dd-conn-dash" marker-end="url(#dagayn-hook-loop-arrow)"/>
+  <text x="416" y="498" class="dd-legend-item">日常へ戻る</text>
+</svg>

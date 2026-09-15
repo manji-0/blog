@@ -1,0 +1,65 @@
+<!-- diagram-design: flowchart · fit · balanced · mixed · manj-io -->
+<svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dagayn-review-flow-title dagayn-review-flow-desc">
+  <title id="dagayn-review-flow-title">差分レビューの深掘り</title>
+  <desc id="dagayn-review-flow-desc">minimal context から review_tool へ進み、guidance に従ってテスト・文書・impact・flow を選ぶ流れ。</desc>
+  <defs>
+    <marker id="dagayn-review-flow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
+    <marker id="dagayn-review-flow-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
+  </defs>
+
+  <line x1="400" y1="88" x2="400" y2="112" class="dd-conn-accent" marker-end="url(#dagayn-review-flow-arrow-accent)"/>
+  <line x1="400" y1="176" x2="400" y2="204" class="dd-conn-accent" marker-end="url(#dagayn-review-flow-arrow-accent)"/>
+  <path d="M 300,252 H 80 Q 72,252 72,260 V 300" class="dd-conn" marker-end="url(#dagayn-review-flow-arrow)"/>
+  <path d="M 500,252 H 720 Q 728,252 728,260 V 300" class="dd-conn" marker-end="url(#dagayn-review-flow-arrow)"/>
+  <line x1="400" y1="300" x2="400" y2="324" class="dd-conn" marker-end="url(#dagayn-review-flow-arrow)"/>
+  <path d="M 400,300 V 312 Q 400,320 408,320 H 600 Q 608,320 608,328 V 336" class="dd-conn" marker-end="url(#dagayn-review-flow-arrow)"/>
+  <line x1="400" y1="388" x2="400" y2="404" class="dd-conn" marker-end="url(#dagayn-review-flow-arrow)"/>
+
+  <rect x="384" y="92" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="400" y="101" class="dd-alabel-accent" text-anchor="middle">DIFF</text>
+  <rect x="384" y="180" width="48" height="12" rx="2" class="n-mask"/>
+  <text x="408" y="189" class="dd-alabel-accent" text-anchor="middle">READ</text>
+  <rect x="140" y="248" width="40" height="12" rx="2" class="n-mask"/>
+  <text x="160" y="257" class="dd-alabel" text-anchor="middle">TEST</text>
+  <rect x="600" y="248" width="32" height="12" rx="2" class="n-mask"/>
+  <text x="616" y="257" class="dd-alabel" text-anchor="middle">DOC</text>
+  <rect x="384" y="304" width="48" height="12" rx="2" class="n-mask"/>
+  <text x="408" y="313" class="dd-alabel" text-anchor="middle">BLAST</text>
+  <rect x="500" y="312" width="40" height="12" rx="2" class="n-mask"/>
+  <text x="520" y="321" class="dd-alabel" text-anchor="middle">FLOW</text>
+
+  <rect x="312" y="40" width="176" height="48" rx="24" class="n-mask"/>
+  <rect x="312" y="40" width="176" height="48" rx="24" class="n-input"/>
+  <text x="400" y="68" class="dd-name" text-anchor="middle">minimal context</text>
+
+  <rect x="300" y="112" width="200" height="64" rx="6" class="n-mask"/>
+  <rect x="300" y="112" width="200" height="64" rx="6" class="n-focal"/>
+  <rect x="308" y="118" width="48" height="12" rx="2" class="dd-tag-box-focal"/>
+  <text x="332" y="127" class="dd-tag-focal" text-anchor="middle">REVIEW</text>
+  <text x="400" y="146" class="dd-name" text-anchor="middle">review_tool</text>
+  <text x="400" y="162" class="dd-sub" text-anchor="middle">mode=changes</text>
+
+  <polygon points="400,204 500,252 400,300 300,252" class="n-backend"/>
+  <text x="400" y="248" class="dd-name" text-anchor="middle">guidance</text>
+  <text x="400" y="264" class="dd-sub" text-anchor="middle">claim / action</text>
+
+  <rect x="40" y="300" width="176" height="48" rx="6" class="n-mask"/>
+  <rect x="40" y="300" width="176" height="48" rx="6" class="n-backend"/>
+  <text x="128" y="328" class="dd-name" text-anchor="middle">tests_for</text>
+
+  <rect x="584" y="300" width="176" height="48" rx="6" class="n-mask"/>
+  <rect x="584" y="300" width="176" height="48" rx="6" class="n-backend"/>
+  <text x="672" y="328" class="dd-name" text-anchor="middle">docs_for</text>
+
+  <rect x="300" y="324" width="200" height="48" rx="6" class="n-mask"/>
+  <rect x="300" y="324" width="200" height="48" rx="6" class="n-store"/>
+  <text x="400" y="352" class="dd-name" text-anchor="middle">impact</text>
+
+  <rect x="508" y="336" width="176" height="48" rx="6" class="n-mask"/>
+  <rect x="508" y="336" width="176" height="48" rx="6" class="n-store"/>
+  <text x="596" y="364" class="dd-name" text-anchor="middle">flow_tool</text>
+
+  <rect x="300" y="404" width="200" height="40" rx="6" class="n-mask"/>
+  <rect x="300" y="404" width="200" height="40" rx="6" class="n-optional"/>
+  <text x="400" y="428" class="dd-name" text-anchor="middle">architecture_analysis</text>
+</svg>

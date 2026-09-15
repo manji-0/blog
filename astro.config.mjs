@@ -5,6 +5,7 @@ import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
+import remarkDiagramDesign from './src/plugins/remark-diagram-design.mjs';
 import remarkHatenaFootnotes from './src/plugins/remark-hatena-footnotes.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import remarkProjectList from './src/plugins/remark-project-list.mjs';
@@ -40,6 +41,7 @@ export default defineConfig({
 	markdown: {
 		processor: unified({
 			remarkPlugins: [
+				remarkDiagramDesign,
 				remarkBeautifulMermaid,
 				remarkHatenaFootnotes,
 				remarkLinkCard,

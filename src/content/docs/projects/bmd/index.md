@@ -43,18 +43,7 @@ WYSIWYGのMarkdown編集、タスクリストのファイル書き戻し、Web�
 
 ## 構成
 
-```mermaid
-flowchart LR
-  Input[Markdown入力] --> Parse[pulldown-cmark]
-  Parse --> Domain[ドメインモデル]
-  Domain --> Render[ratatui描画]
-  Domain --> Mermaid[merman]
-  Mermaid --> Gfx{グラフィックス端末?}
-  Gfx -->|Yes| Inline[Kitty/iTerm等]
-  Gfx -->|No| HalfBlock[Unicodeハーフブロック]
-  Render --> TUI[TUI表示]
-  Inline --> TUI
-  HalfBlock --> TUI
+```diagram-design bmd-render
 ```
 
 見出し、テーブル、コードハイライト（syntect）、タスクリスト（セッション内トグルのみ）、文書内検索、リンク（Web / アンカー / 相対 `.md` / プレビュー）を備えます。v0.5.0から見出しアウトライン（`t`）、スクロールマーク（`ma` / `'a`）、yank（選択・リンク・見出しslug・コードブロック）もあります。

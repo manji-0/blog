@@ -1,0 +1,30 @@
+<!-- diagram-design: layer-stack · fit · balanced · mixed · manj-io -->
+<svg viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dagayn-layers-title dagayn-layers-desc">
+  <title id="dagayn-layers-title">dagayn の GraphStore 境界</title>
+  <desc id="dagayn-layers-desc">CLI/MCP の下に Native GraphStore があり、Python に残るのは検索と案内組み立てだけである層構成。</desc>
+  <text x="40" y="48" class="dd-legend">AGENT</text>
+  <line x1="56" y1="60" x2="56" y2="268" class="dd-hairline"/>
+  <polygon points="52,60 60,60 56,52" fill="var(--dd-muted)"/>
+  <text x="40" y="288" class="dd-legend">CORE</text>
+
+  <rect x="96" y="56" width="824" height="64" class="n-input"/>
+  <line x1="96" y1="120" x2="920" y2="120" class="dd-hairline"/>
+  <text x="116" y="92" class="dd-tag">L2</text>
+  <text x="180" y="94" class="dd-name">CLI / MCP / tests</text>
+  <text x="900" y="94" class="dd-sub" text-anchor="end">dagayn.graph 入口</text>
+
+  <rect x="96" y="120" width="824" height="72" class="n-focal"/>
+  <text x="116" y="160" class="dd-tag-focal">L1</text>
+  <text x="180" y="162" class="dd-name">Native GraphStore</text>
+  <text x="900" y="162" class="dd-sub" text-anchor="end">dagayn._core · schema · FTS · flow</text>
+
+  <rect x="96" y="192" width="824" height="64" class="n-backend"/>
+  <line x1="96" y1="192" x2="920" y2="192" class="dd-hairline"/>
+  <text x="116" y="228" class="dd-tag">L0</text>
+  <text x="180" y="230" class="dd-name">Python に残る部分</text>
+  <text x="900" y="230" class="dd-sub" text-anchor="end">hybrid search · manifest-bridge</text>
+
+  <line x1="96" y1="280" x2="920" y2="280" class="dd-hairline"/>
+  <text x="96" y="304" class="dd-legend">FOCAL LAYER</text>
+  <text x="220" y="304" class="dd-legend-item">スキーマ・トランザクション・パーサは Rust。Python エンジンへはフォールバックしない。</text>
+</svg>

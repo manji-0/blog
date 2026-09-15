@@ -111,30 +111,7 @@ ChangeStoreParentOrganization,R,U
 
 オブジェクト関係のイメージ：
 
-```mermaid
-flowchart LR
-  subgraph layer_value[System Value]
-    OpsStaff(["Operations Staff"])
-  end
-  subgraph layer_environment[External Environment]
-    StoreOperations["Store Operations"]
-    BucStoreRestock["Maintain Store Restock"]
-  end
-  subgraph layer_boundary[System Boundary]
-    ChangeNextRestockDate(["Change Next Restock Date"])
-    ChangeStoreParentOrganization(["Change Store Parent Organization"])
-  end
-  subgraph layer_system[System]
-    Organization[("Organization")]
-    Store[("Store")]
-  end
-  OpsStaff -->|performs| BucStoreRestock
-  BucStoreRestock -.->|belongs| StoreOperations
-  BucStoreRestock -->|contains| ChangeNextRestockDate
-  BucStoreRestock -->|contains| ChangeStoreParentOrganization
-  ChangeNextRestockDate -.->|updates| Store
-  ChangeStoreParentOrganization -.->|reads| Organization
-  ChangeStoreParentOrganization -.->|updates| Store
+```diagram-design store-restock-context
 ```
 
 カラム詳細やAPIはまだ入れません。Organizationは参照のみ（担当組織マスタ自体の変更ではない）です。
@@ -210,20 +187,7 @@ rdra-ish diagram step-4-entity-structure/src --kind er --format mermaid
 
 生成されるERのイメージ：
 
-```mermaid
-erDiagram
-  Organization {
-    Int id PK
-    String code
-    String name
-  }
-  Store {
-    Int id PK
-    String code
-    String name
-    Int organization_id FK
-  }
-  Store }o--|| Organization : ""
+```diagram-design store-restock-er
 ```
 
 ## Stage 5のライフサイクル
