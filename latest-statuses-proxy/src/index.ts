@@ -30,6 +30,7 @@ type FediverseStatus = {
   uri?: unknown;
   created_at?: unknown;
   text?: unknown;
+  content?: unknown;
   reblog?: unknown;
   visibility?: unknown;
 };
@@ -91,6 +92,41 @@ function asString(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
+function fromCodePoint(code: number): string {
+  if (!Number.isInteger(code) || code < 0 || code > 0x10ffff) return "";
+  return String.fromCodePoint(code);
+}
+
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => fromCodePoint(Number.parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => fromCodePoint(Number.parseInt(dec, 10)))
+    .replace(/&amp;/gi, "&");
+}
+
+function htmlToText(html: string): string {
+  return decodeHtmlEntities(
+    html
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<[^>]+>/g, ""),
+  )
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function fediverseText(status: FediverseStatus): string {
+  return asString(status.text) ?? htmlToText(asString(status.content) ?? "");
+}
+
 function normalizeFediverseStatuses(payload: unknown): LatestStatus[] {
   if (!Array.isArray(payload)) {
     throw new Error("Fediverse statuses response was not an array");
@@ -109,7 +145,7 @@ function normalizeFediverseStatuses(payload: unknown): LatestStatus[] {
         source: "fediverse",
         url: asString(status.url) ?? asString(status.uri) ?? FEDIVERSE_STATUSES_ENDPOINT,
         created_at: createdAt,
-        text: asString(status.text) ?? "",
+        text: fediverseText(status),
       };
     })
     .filter((status): status is LatestStatus => status !== null);
