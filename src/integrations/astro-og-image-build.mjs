@@ -9,8 +9,13 @@ const CONTENT_HEIGHT = 630;
 const CONTENT_TOP = Math.floor((HEIGHT - CONTENT_HEIGHT) / 2);
 const TITLE_MAX_LINES = 3;
 const DESCRIPTION_MAX_LINES = 3;
-const TITLE_LINE_CHARS = 25;
-const DESCRIPTION_LINE_CHARS = 40;
+const TEXT_LEFT = 88;
+const TEXT_MAX_WIDTH = WIDTH - TEXT_LEFT - 60;
+// Pango font sizes are in points; at 72 dpi one point equals one pixel.
+const TEXT_DPI = 72;
+// Transparent glyphs appended to every line so each rendered line has the same
+// ink height regardless of its content, which keeps baselines aligned.
+const LINE_STRUT_MARKUP = '<span alpha="1">|Åg</span>';
 const TITLE_LINE_GAP = 78;
 const DESCRIPTION_LINE_GAP = 48;
 const FONT_DOWNLOAD_URL =
@@ -176,9 +181,11 @@ async function renderPng(metadata) {
 	const safeDescription = normalizeText(description);
 	const safeSlug = normalizeText(slug);
 
-	const titleLines = wrapLines(safeTitle, TITLE_LINE_CHARS, TITLE_MAX_LINES);
+	const titleFont = { fontSize: 62, weight: 700, fontFamily: 'OGPJP', fontfile: japaneseFontFile };
+	const descriptionFont = { fontSize: 36, weight: 500, fontFamily: 'OGPJP', fontfile: japaneseFontFile };
+	const titleLines = await wrapLines(safeTitle, titleFont, TEXT_MAX_WIDTH, TITLE_MAX_LINES);
 	const descriptionLines = safeDescription
-		? wrapLines(safeDescription, DESCRIPTION_LINE_CHARS, DESCRIPTION_MAX_LINES)
+		? await wrapLines(safeDescription, descriptionFont, TEXT_MAX_WIDTH, DESCRIPTION_MAX_LINES)
 		: [];
 
 	/** @type {import('sharp').OverlayOptions[]} */
@@ -187,7 +194,7 @@ async function renderPng(metadata) {
 	overlays.push(
 		createTextOverlay({
 			text: 'manj.io / blog',
-			left: 88,
+			left: TEXT_LEFT,
 			baseline: yInContent(130),
 			fontSize: 28,
 			color: '#9ab6f2',
@@ -199,30 +206,24 @@ async function renderPng(metadata) {
 
 	for (const [index, line] of titleLines.entries()) {
 		overlays.push(
-				createTextOverlay({
-					text: line,
-					left: 88,
-					baseline: yInContent(250 + index * TITLE_LINE_GAP),
-					fontSize: 62,
-					color: '#ffffff',
-					weight: 700,
-					fontFamily: 'OGPJP',
-				fontfile: japaneseFontFile,
+			createTextOverlay({
+				...titleFont,
+				text: line,
+				left: TEXT_LEFT,
+				baseline: yInContent(250 + index * TITLE_LINE_GAP),
+				color: '#ffffff',
 			}),
 		);
 	}
 
 	for (const [index, line] of descriptionLines.entries()) {
 		overlays.push(
-				createTextOverlay({
-					text: line,
-					left: 88,
-					baseline: yInContent(430 + index * DESCRIPTION_LINE_GAP),
-					fontSize: 36,
-					color: '#a9c2f6',
-					weight: 500,
-					fontFamily: 'OGPJP',
-				fontfile: japaneseFontFile,
+			createTextOverlay({
+				...descriptionFont,
+				text: line,
+				left: TEXT_LEFT,
+				baseline: yInContent(430 + index * DESCRIPTION_LINE_GAP),
+				color: '#a9c2f6',
 			}),
 		);
 	}
@@ -230,7 +231,7 @@ async function renderPng(metadata) {
 	overlays.push(
 		createTextOverlay({
 			text: safeSlug,
-			left: 88,
+			left: TEXT_LEFT,
 			baseline: yInContent(575),
 			fontSize: 24,
 			color: '#c7dafb',
@@ -265,25 +266,60 @@ async function renderPng(metadata) {
  */
 function createTextOverlay(opts) {
 	const { text, left, baseline, fontSize, color, weight, fontFamily, fontfile } = opts;
-	const markup = `<span foreground="${color}" weight="${weight}">${escapePango(text)}</span>`;
-
-	/** @type {import('sharp').CreateText} */
-	const textInput = {
-		text: markup,
-		font: `${fontFamily} ${fontSize}`,
-		rgba: true,
-		width: Math.max(1, WIDTH - left - 60),
-		height: Math.max(1, Math.ceil(fontSize * 1.4)),
-		align: 'left',
-		wrap: 'none',
-	};
-	if (fontfile) textInput.fontfile = fontfile;
+	const markup = `<span foreground="${color}" weight="${weight}">${escapePango(text)}</span>${LINE_STRUT_MARKUP}`;
 
 	return {
-		input: { text: textInput },
+		input: { text: createTextInput(markup, { fontSize, fontFamily, fontfile }) },
 		left,
 		top: Math.max(0, Math.round(baseline - fontSize)),
 	};
+}
+
+/**
+ * Build a fixed-size text input. `height` is deliberately omitted: when both
+ * width and height are set, libvips auto-fits each line to the box, which makes
+ * short lines larger than long ones.
+ *
+ * @param {string} markup
+ * @param {{ fontSize: number; fontFamily: string; fontfile: string }} font
+ * @returns {import('sharp').CreateText}
+ */
+function createTextInput(markup, font) {
+	/** @type {import('sharp').CreateText} */
+	const textInput = {
+		text: markup,
+		font: `${font.fontFamily} ${font.fontSize}`,
+		dpi: TEXT_DPI,
+		rgba: true,
+		align: 'left',
+		wrap: 'none',
+	};
+	if (font.fontfile) textInput.fontfile = font.fontfile;
+	return textInput;
+}
+
+/**
+ * @typedef {{ fontSize: number; weight: number; fontFamily: string; fontfile: string }} TextFont
+ */
+
+/** @type {Map<string, number>} */
+const textWidthCache = new Map();
+
+/**
+ * @param {string} text
+ * @param {TextFont} font
+ * @returns {Promise<number>}
+ */
+async function measureTextWidth(text, font) {
+	if (!text) return 0;
+	const key = `${font.fontFamily}|${font.fontSize}|${font.weight}|${font.fontfile}|${text}`;
+	const cached = textWidthCache.get(key);
+	if (cached !== undefined) return cached;
+
+	const markup = `<span weight="${font.weight}">${escapePango(text)}</span>`;
+	const { info } = await sharp({ text: createTextInput(markup, font) }).raw().toBuffer({ resolveWithObject: true });
+	textWidthCache.set(key, info.width);
+	return info.width;
 }
 
 /**
@@ -325,43 +361,94 @@ function normalizeText(value) {
 }
 
 /**
+ * Wrap text into lines that fit `maxWidth` when rendered with `font`.
+ *
  * @param {string} text
- * @param {number} maxCharsPerLine
+ * @param {TextFont} font
+ * @param {number} maxWidth
  * @param {number} maxLines
- * @returns {string[]}
+ * @returns {Promise<string[]>}
  */
-function wrapLines(text, maxCharsPerLine, maxLines) {
-	const chars = [...text];
+async function wrapLines(text, font, maxWidth, maxLines) {
+	/** @type {string[]} */
 	const lines = [];
-	let current = '';
+	let rest = [...text];
 
-	for (const char of chars) {
-		if (current.length >= maxCharsPerLine) {
-			lines.push(current);
-			current = '';
+	while (rest.length > 0 && lines.length < maxLines) {
+		const isLastLine = lines.length === maxLines - 1;
+		const fitCount = await countFittingChars(rest, font, maxWidth);
+
+		if (fitCount >= rest.length) {
+			lines.push(rest.join(''));
+			rest = [];
+			break;
 		}
-		current += char;
-		if (lines.length >= maxLines) break;
-	}
 
-	if (lines.length < maxLines && current) lines.push(current);
+		if (isLastLine) {
+			lines.push(await fitWithEllipsis(rest, font, maxWidth));
+			rest = [];
+			break;
+		}
 
-	if (lines.length > maxLines) lines.length = maxLines;
-	if (lines.length === maxLines && chars.length > lines.join('').length) {
-		lines[maxLines - 1] = trimWithEllipsis(lines[maxLines - 1], maxCharsPerLine);
+		const breakAt = findBreakIndex(rest, fitCount);
+		lines.push(rest.slice(0, breakAt).join('').trimEnd());
+		rest = [...rest.slice(breakAt).join('').trimStart()];
 	}
 
 	return lines;
 }
 
 /**
- * @param {string} value
- * @param {number} maxChars
- * @returns {string}
+ * Largest prefix length of `chars` whose rendered width fits `maxWidth`.
+ *
+ * @param {string[]} chars
+ * @param {TextFont} font
+ * @param {number} maxWidth
+ * @param {string} [suffix]
+ * @returns {Promise<number>}
  */
-function trimWithEllipsis(value, maxChars) {
-	if (value.length <= maxChars) return value;
-	return `${value.slice(0, Math.max(maxChars - 1, 1)).trimEnd()}…`;
+async function countFittingChars(chars, font, maxWidth, suffix = '') {
+	let low = 0;
+	let high = chars.length;
+
+	while (low < high) {
+		const mid = Math.ceil((low + high) / 2);
+		const width = await measureTextWidth(chars.slice(0, mid).join('') + suffix, font);
+		if (width <= maxWidth) low = mid;
+		else high = mid - 1;
+	}
+
+	return Math.max(low, 1);
+}
+
+/**
+ * @param {string[]} chars
+ * @param {TextFont} font
+ * @param {number} maxWidth
+ * @returns {Promise<string>}
+ */
+async function fitWithEllipsis(chars, font, maxWidth) {
+	const count = await countFittingChars(chars, font, maxWidth, '…');
+	return `${chars.slice(0, count).join('').trimEnd()}…`;
+}
+
+/**
+ * Avoid splitting a Latin word across lines by moving the break back to the
+ * preceding space, as long as that keeps the line reasonably full.
+ *
+ * @param {string[]} chars
+ * @param {number} fitCount
+ * @returns {number}
+ */
+function findBreakIndex(chars, fitCount) {
+	const isWordChar = (char) => /[A-Za-z0-9]/.test(char ?? '');
+	if (!isWordChar(chars[fitCount - 1]) || !isWordChar(chars[fitCount])) return fitCount;
+
+	for (let index = fitCount - 1; index > fitCount / 2; index -= 1) {
+		if (!isWordChar(chars[index - 1])) return index;
+	}
+
+	return fitCount;
 }
 
 /**
