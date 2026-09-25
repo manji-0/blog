@@ -1,0 +1,43 @@
+<!-- diagram-design: flowchart · fit · simplified · mixed · manj-io -->
+<svg viewBox="0 0 960 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="devflow-todo-loop-title devflow-todo-loop-desc">
+  <title id="devflow-todo-loop-title">TODO 1 件がレビュー可能な 1 コミットになる</title>
+  <desc id="devflow-todo-loop-desc">グラフに聞いてから編集し、検査を直接走らせ、jj commit して track todo done する。次の TODO で同じ輪を回す。</desc>
+  <defs>
+    <marker id="devflow-todo-loop-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
+    <marker id="devflow-todo-loop-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
+  </defs>
+
+  <line x1="244" y1="96" x2="292" y2="96" class="dd-conn-accent" marker-end="url(#devflow-todo-loop-arrow-accent)"/>
+  <line x1="472" y1="96" x2="520" y2="96" class="dd-conn" marker-end="url(#devflow-todo-loop-arrow)"/>
+  <line x1="700" y1="96" x2="748" y2="96" class="dd-conn" marker-end="url(#devflow-todo-loop-arrow)"/>
+  <path d="M 838,136 V 172 Q 838,180 830,180 H 162 Q 154,180 154,172 V 140" class="dd-conn-dash" marker-end="url(#devflow-todo-loop-arrow)"/>
+
+  <rect x="248" y="72" width="40" height="12" rx="2" class="n-mask"/>
+  <text x="268" y="81" class="dd-alabel-accent" text-anchor="middle">HOOK</text>
+  <rect x="456" y="172" width="80" height="12" rx="2" class="n-mask"/>
+  <text x="496" y="181" class="dd-alabel" text-anchor="middle">NEXT TODO</text>
+
+  <rect x="64" y="56" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="64" y="56" width="180" height="80" rx="6" class="n-input"/>
+  <text x="154" y="92" class="dd-name" text-anchor="middle">聞いて編集</text>
+  <text x="154" y="112" class="dd-sub" text-anchor="middle">graph → source_of</text>
+
+  <rect x="292" y="56" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="292" y="56" width="180" height="80" rx="6" class="n-focal"/>
+  <text x="382" y="92" class="dd-name" text-anchor="middle">検査と review</text>
+  <text x="382" y="112" class="dd-sub" text-anchor="middle">lint · test · guidance</text>
+
+  <rect x="520" y="56" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="520" y="56" width="180" height="80" rx="6" class="n-backend"/>
+  <text x="610" y="92" class="dd-name" text-anchor="middle">jj commit</text>
+  <text x="610" y="112" class="dd-sub" text-anchor="middle">type(scope): what</text>
+
+  <rect x="748" y="56" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="748" y="56" width="180" height="80" rx="6" class="n-store"/>
+  <text x="838" y="92" class="dd-name" text-anchor="middle">todo done</text>
+  <text x="838" y="112" class="dd-sub" text-anchor="middle">scrap に理由を残す</text>
+
+  <line x1="64" y1="220" x2="928" y2="220" class="dd-hairline"/>
+  <text x="64" y="244" class="dd-legend">GRANULARITY</text>
+  <text x="176" y="244" class="dd-legend-item">TODO は「レビューできる 1 ステップ」で切る。コミットもそれに揃う。</text>
+</svg>
