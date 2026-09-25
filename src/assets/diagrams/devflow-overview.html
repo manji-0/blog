@@ -1,0 +1,63 @@
+<!-- diagram-design: architecture · fit · simplified · mixed · manj-io -->
+<svg viewBox="0 0 960 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="devflow-overview-title devflow-overview-desc">
+  <title id="devflow-overview-title">問いごとに持ち主を 1 つだけ決める</title>
+  <desc id="devflow-overview-desc">track がタスクと作業場所を決め、jj がコミットを記録し、gh が PR にする。dagayn は作業場所ごとのグラフで文脈を返す。</desc>
+  <defs>
+    <marker id="devflow-overview-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
+    <marker id="devflow-overview-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
+  </defs>
+
+  <text x="154" y="52" class="dd-zone-label" text-anchor="middle">WHAT</text>
+  <text x="382" y="52" class="dd-zone-label" text-anchor="middle">WHERE</text>
+  <text x="610" y="52" class="dd-zone-label" text-anchor="middle">HOW</text>
+  <text x="838" y="52" class="dd-zone-label" text-anchor="middle">REVIEW</text>
+
+  <line x1="244" y1="112" x2="292" y2="112" class="dd-conn-accent" marker-end="url(#devflow-overview-arrow-accent)"/>
+  <line x1="472" y1="112" x2="520" y2="112" class="dd-conn" marker-end="url(#devflow-overview-arrow)"/>
+  <line x1="700" y1="112" x2="748" y2="112" class="dd-conn" marker-end="url(#devflow-overview-arrow)"/>
+
+  <path d="M 382,196 V 156" class="dd-conn-dash" marker-end="url(#devflow-overview-arrow)"/>
+  <path d="M 610,196 V 156" class="dd-conn-dash" marker-end="url(#devflow-overview-arrow)"/>
+
+  <rect x="64" y="72" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="64" y="72" width="180" height="80" rx="6" class="n-backend"/>
+  <circle cx="84" cy="92" r="10" class="n-num"/>
+  <text x="84" y="96" class="dd-num" text-anchor="middle">1</text>
+  <text x="154" y="110" class="dd-name" text-anchor="middle">タスク</text>
+  <text x="154" y="130" class="dd-sub" text-anchor="middle">track · todo · scrap</text>
+
+  <rect x="292" y="72" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="292" y="72" width="180" height="80" rx="6" class="n-focal"/>
+  <circle cx="312" cy="92" r="10" class="n-num-focal"/>
+  <text x="312" y="96" class="dd-num" text-anchor="middle">2</text>
+  <text x="382" y="110" class="dd-name" text-anchor="middle">ワークスペース</text>
+  <text x="382" y="130" class="dd-sub" text-anchor="middle">.worktrees/&lt;slug&gt;</text>
+
+  <rect x="520" y="72" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="520" y="72" width="180" height="80" rx="6" class="n-backend"/>
+  <circle cx="540" cy="92" r="10" class="n-num"/>
+  <text x="540" y="96" class="dd-num" text-anchor="middle">3</text>
+  <text x="610" y="110" class="dd-name" text-anchor="middle">コミット</text>
+  <text x="610" y="130" class="dd-sub" text-anchor="middle">jj · track/&lt;slug&gt;</text>
+
+  <rect x="748" y="72" width="180" height="80" rx="6" class="n-mask"/>
+  <rect x="748" y="72" width="180" height="80" rx="6" class="n-external"/>
+  <circle cx="768" cy="92" r="10" class="n-num"/>
+  <text x="768" y="96" class="dd-num" text-anchor="middle">4</text>
+  <text x="838" y="110" class="dd-name" text-anchor="middle">PR</text>
+  <text x="838" y="130" class="dd-sub" text-anchor="middle">gh · draft</text>
+
+  <rect x="292" y="196" width="408" height="64" rx="6" class="n-mask"/>
+  <rect x="292" y="196" width="408" height="64" rx="6" class="n-store"/>
+  <text x="496" y="224" class="dd-name" text-anchor="middle">dagayn のグラフ</text>
+  <text x="496" y="244" class="dd-sub" text-anchor="middle">ワークスペースごと · @-..@ を追従</text>
+
+  <rect x="340" y="170" width="84" height="12" rx="2" class="n-mask"/>
+  <text x="382" y="179" class="dd-alabel" text-anchor="middle">CONTEXT</text>
+  <rect x="568" y="170" width="84" height="12" rx="2" class="n-mask"/>
+  <text x="610" y="179" class="dd-alabel" text-anchor="middle">REVIEW</text>
+
+  <line x1="64" y1="288" x2="928" y2="288" class="dd-hairline"/>
+  <text x="64" y="312" class="dd-legend">ONE OWNER</text>
+  <text x="168" y="312" class="dd-legend-item">状態ごとに持ち主は 1 つ。エージェントは次の一手を推測せず、持ち主に聞く。</text>
+</svg>

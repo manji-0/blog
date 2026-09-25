@@ -1,0 +1,49 @@
+<!-- diagram-design: architecture · fit · simplified · mixed · manj-io -->
+<svg viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="harbor-monorepo-title harbor-monorepo-desc">
+  <title id="harbor-monorepo-title">設計書がサービス境界の橋になる</title>
+  <desc id="harbor-monorepo-desc">仮想モノレポ harbor では、設計書のコードスパンが Rust・Python・Terraform のシンボルへ CROSS_ARTIFACT で届く。サービス間の HTTP 呼び出しはコードのグラフには現れない。</desc>
+  <defs>
+    <marker id="harbor-monorepo-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
+    <marker id="harbor-monorepo-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
+  </defs>
+
+  <path d="M 284,168 H 372 V 72 H 456" class="dd-conn-accent" marker-end="url(#harbor-monorepo-arrow-accent)"/>
+  <path d="M 284,168 H 456" class="dd-conn-accent" marker-end="url(#harbor-monorepo-arrow-accent)"/>
+  <path d="M 284,168 H 372 V 264 H 456" class="dd-conn-accent" marker-end="url(#harbor-monorepo-arrow-accent)"/>
+  <path d="M 580,136 V 108" class="dd-conn-dash" marker-end="url(#harbor-monorepo-arrow)"/>
+  <line x1="700" y1="264" x2="756" y2="264" class="dd-conn" marker-end="url(#harbor-monorepo-arrow)"/>
+
+  <rect x="384" y="154" width="64" height="12" rx="2" class="n-mask"/>
+  <text x="416" y="163" class="dd-alabel-accent" text-anchor="middle">CODE SPAN</text>
+  <rect x="592" y="114" width="72" height="12" rx="2" class="n-mask"/>
+  <text x="628" y="123" class="dd-alabel" text-anchor="middle">HTTP · 見えない</text>
+
+  <rect x="64" y="128" width="220" height="80" rx="6" class="n-mask"/>
+  <rect x="64" y="128" width="220" height="80" rx="6" class="n-focal"/>
+  <text x="174" y="164" class="dd-name" text-anchor="middle">docs/design</text>
+  <text x="174" y="184" class="dd-sub" text-anchor="middle">Markdown · directive</text>
+
+  <rect x="460" y="40" width="240" height="64" rx="6" class="n-mask"/>
+  <rect x="460" y="40" width="240" height="64" rx="6" class="n-backend"/>
+  <text x="580" y="68" class="dd-name" text-anchor="middle">services/inventory</text>
+  <text x="580" y="88" class="dd-sub" text-anchor="middle">Rust · 引当と在庫</text>
+
+  <rect x="460" y="136" width="240" height="64" rx="6" class="n-mask"/>
+  <rect x="460" y="136" width="240" height="64" rx="6" class="n-backend"/>
+  <text x="580" y="164" class="dd-name" text-anchor="middle">services/orders</text>
+  <text x="580" y="184" class="dd-sub" text-anchor="middle">Python · 注文 API</text>
+
+  <rect x="460" y="232" width="240" height="64" rx="6" class="n-mask"/>
+  <rect x="460" y="232" width="240" height="64" rx="6" class="n-external"/>
+  <text x="580" y="260" class="dd-name" text-anchor="middle">infra/terraform</text>
+  <text x="580" y="280" class="dd-sub" text-anchor="middle">Terraform · スケジューラ</text>
+
+  <rect x="760" y="232" width="168" height="64" rx="6" class="n-mask"/>
+  <rect x="760" y="232" width="168" height="64" rx="6" class="n-store"/>
+  <text x="844" y="260" class="dd-name" text-anchor="middle">resource</text>
+  <text x="844" y="280" class="dd-sub" text-anchor="middle">DEPENDS_ON</text>
+
+  <line x1="64" y1="320" x2="928" y2="320" class="dd-hairline"/>
+  <text x="64" y="344" class="dd-legend">BRIDGE</text>
+  <text x="136" y="344" class="dd-legend-item">コードから見えない依存は、設計書に書いたコードスパンがグラフの辺になる。</text>
+</svg>
