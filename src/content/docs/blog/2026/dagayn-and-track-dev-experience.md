@@ -208,6 +208,20 @@ jj commit -m "feat(orders): reject confirmation of expired reservations"
 track todo done 3
 ```
 
+ここまでの状態は、`track webui` でブラウザから見られる。
+
+```bash
+track webui --open
+```
+
+![track webuiでHBR-412を開いたところ。左にTODO、右にTODOごとのスクラップ、左下に次の移動先](../../assets/img/track-webui-hbr-412.png)
+
+左のTODOは完了した2件が畳まれ、いま作業中の `#3` が先頭に来ている。右のスクラップには、どのTODOで書いたメモかが付く。左下には `workflow.phase` と次の移動先が出ていて、エージェントが読む `hint` と同じ内容である。
+
+画面はSSEで更新される。エージェントがCLIで `track scrap add` や `track todo done` を叩くと、開いているブラウザにもすぐ反映される。人はブラウザで進み具合を眺め、エージェントはCLIとJSONで同じタスクを読み書きする、という分担になる。
+
+スクリーンショットは、この記事用に用意したデモ環境で撮ったものである。
+
 ### 6. インフラと設計書（子課題4）
 
 Terraformでは解放ジョブのスケジュールを足す。
