@@ -1,3 +1,5 @@
+import { handleCard, isCardPath } from './card';
+
 const R2_ROUTE_PREFIX = '/assets/r2/';
 const DECK_PATH = /^\/slides\/([^/]+)(?:\/(.*))?$/;
 
@@ -155,6 +157,10 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 	const { pathname } = new URL(request.url);
 	if (pathname.startsWith(R2_ROUTE_PREFIX)) {
 		return handleR2Asset(request, env);
+	}
+
+	if (isCardPath(pathname)) {
+		return handleCard(request, env);
 	}
 
 	return handleAssetMiss(request, env);

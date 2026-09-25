@@ -25,12 +25,22 @@ pnpm run cf:deploy:local   # assemble まで
 pnpm --filter site-worker run dev
 ```
 
+## NFC 名刺
+
+```bash
+pnpm run card:url                                         # キー生成と NTAG215 容量チェック
+pnpm --filter site-worker exec wrangler secret put CARD_KEY
+```
+
+出力された URL を NFC タグに書き込む。キーを変えると旧タグの URL は 404 になる。
+
 ## Worker が担うルート
 
 | パス | 処理 |
 |------|------|
 | 静的ファイル (Astro / slides assets) | ASSETS binding (自動) |
 | `/assets/r2/*` | R2 プロキシ (`run_worker_first`) |
+| `/card` | NFC 名刺プロフィール。`?k=` が secret `CARD_KEY` と一致しない場合は 404 (`run_worker_first`) |
 | `/slides` | デッキ manifest JSON |
 | `/slides/{deck}/{n}` | Slidev SPA フォールバック |
 | `/docs/kamae-*` | `_redirects` で `/projects/kamae-*` へ 308 |
