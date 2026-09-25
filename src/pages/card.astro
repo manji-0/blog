@@ -134,8 +134,9 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 		--line: hsl(203, 19%, 19%);
 		--text: hsl(205, 18%, 86%);
 		--muted: hsl(205, 11%, 58%);
-		--leaf: hsl(96, 42%, 52%);
-		--leaf-low: hsla(96, 42%, 52%, 0.14);
+		--accent: hsl(213, 90%, 66%);
+		--accent-high: hsl(205, 80%, 82%);
+		--accent-low: hsla(213, 90%, 66%, 0.14);
 		--silver: hsl(210, 10%, 88%);
 		--grid: hsla(199, 80%, 75%, 0.045);
 		--mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -159,7 +160,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 		place-items: center;
 		padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
 		background:
-			radial-gradient(60rem 30rem at 50% -10%, var(--leaf-low), transparent 60%),
+			radial-gradient(60rem 30rem at 50% -10%, var(--accent-low), transparent 60%),
 			linear-gradient(var(--grid) 1px, transparent 1px),
 			linear-gradient(90deg, var(--grid) 1px, transparent 1px),
 			var(--bg);
@@ -219,15 +220,15 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 		display: inline-flex;
 		align-items: center;
 		gap: 0.4rem;
-		color: var(--leaf);
+		color: var(--accent);
 	}
 
 	.led {
 		width: 0.45rem;
 		height: 0.45rem;
 		border-radius: 50%;
-		background: var(--leaf);
-		box-shadow: 0 0 8px var(--leaf);
+		background: var(--accent);
+		box-shadow: 0 0 8px var(--accent);
 		animation: pulse 2.4s ease-in-out infinite;
 	}
 
@@ -245,7 +246,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 		background: #fbfaf9;
 		border: 2px solid var(--silver);
 		box-shadow:
-			4px 4px 0 0 var(--leaf),
+			4px 4px 0 0 var(--accent),
 			4px 4px 0 2px var(--bg);
 	}
 
@@ -267,7 +268,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 	}
 
 	.caret {
-		color: var(--leaf);
+		color: var(--accent);
 	}
 
 	.name {
@@ -286,7 +287,8 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 	}
 
 	.at {
-		color: var(--leaf);
+		margin-right: 0.15em;
+		color: var(--accent-high);
 	}
 
 	.nick {
@@ -320,8 +322,8 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 
 	.link:hover,
 	.link:focus-visible {
-		border-color: var(--leaf);
-		background: var(--leaf-low);
+		border-color: var(--accent);
+		background: var(--accent-low);
 		outline: none;
 	}
 
@@ -337,7 +339,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 		flex: none;
 		border-radius: 0.4rem;
 		background: var(--bg);
-		color: var(--leaf);
+		color: var(--accent);
 	}
 
 	.link-body {
@@ -367,7 +369,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 	}
 
 	.link:hover .link-arrow {
-		color: var(--leaf);
+		color: var(--accent);
 	}
 
 	.save {
@@ -375,7 +377,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 		margin: 1rem 1rem 0;
 		padding: 0.8rem;
 		border-radius: 0.5rem;
-		background: var(--leaf);
+		background: var(--accent);
 		color: hsl(205, 31%, 7%);
 		font-family: var(--mono);
 		font-size: 0.9rem;
