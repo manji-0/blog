@@ -13,6 +13,7 @@
     "search:index": "node scripts/build-search-index.mjs",
     "fonts:subset": "node scripts/subset-fonts.mjs",
     "r2:upload-assets": "node scripts/upload-r2-assets.mjs",
+    "card:url": "node scripts/card-url.mjs",
     "deploy:worker": "pnpm --filter site-worker run deploy",
     "cf:deploy:local": "pnpm run fonts:subset && pnpm run build && pnpm run r2:upload-assets && pnpm --filter site-worker run assemble && pnpm --filter slides run build",
     "cf:deploy": "pnpm run cf:deploy:local && pnpm --filter site-worker run deploy",
@@ -25,6 +26,7 @@
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.2.0",
+    "@astrojs/sitemap": "^3.7.3",
     "@astrojs/starlight": "^0.39.3",
     "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
     "astro": "^6.4.3",
