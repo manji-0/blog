@@ -41,6 +41,7 @@ pnpm --filter site-worker exec wrangler secret put CARD_KEY
 | 静的ファイル (Astro / slides assets) | ASSETS binding (自動) |
 | `/assets/r2/*` | R2 プロキシ (`run_worker_first`) |
 | `/card` | NFC 名刺プロフィール。`?k=` が secret `CARD_KEY` と一致しない場合は 404 (`run_worker_first`) |
+| `/card/manji0.vcf` | 同じキーで vCard を `萬治渉.vcf` (fallback `manji0.vcf`) として返す |
 | `/slides` | デッキ manifest JSON |
 | `/slides/{deck}/{n}` | Slidev SPA フォールバック |
 | `/docs/kamae-*` | `_redirects` で `/projects/kamae-*` へ 308 |

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
+import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkDiagramDesign from './src/plugins/remark-diagram-design.mjs';
@@ -50,6 +51,9 @@ export default defineConfig({
 		}),
 	},
 	integrations: [
+		sitemap({
+			filter: (page) => !new URL(page).pathname.startsWith('/card'),
+		}),
 		ogImageBuildIntegration(),
 		cloudflareStatusIntegration(),
 		cloudflarePlatformUptimeIntegration(),

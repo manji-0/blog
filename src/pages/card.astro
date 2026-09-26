@@ -2,15 +2,7 @@
 import { Picture } from 'astro:assets';
 import { Icon } from '@astrojs/starlight/components';
 import avatar from '../assets/card/manji0.jpg';
-
-const profile = {
-	name: '萬治 渉',
-	handle: 'manji0',
-	nickname: 'まんじまる',
-	email: 'manji@linux.com',
-	workEmail: 'w.manji@kakehashi.life',
-	org: 'KAKEHASHI Inc.',
-};
+import { profile, VCARD_PATH } from '../lib/card-profile';
 
 const links = [
 	{
@@ -30,42 +22,25 @@ const links = [
 	{
 		label: 'GitHub',
 		value: 'github.com/manji-0',
-		href: 'https://github.com/manji-0',
-		copy: 'https://github.com/manji-0',
+		href: profile.github,
+		copy: profile.github,
 		icon: 'github',
 	},
 	{
 		label: 'X',
 		value: 'x.com/_manji0',
-		href: 'https://x.com/_manji0',
-		copy: 'https://x.com/_manji0',
+		href: profile.x,
+		copy: profile.x,
 		icon: 'x.com',
 	},
 	{
 		label: 'Fediverse',
-		value: '@manji0@fedi.manji.app',
-		href: 'https://fedi.manji.app/users/manji0',
-		copy: '@manji0@fedi.manji.app',
+		value: profile.fediverseHandle,
+		href: profile.fediverse,
+		copy: profile.fediverseHandle,
 		icon: 'mastodon',
 	},
 ] as const;
-
-const vcard = [
-	'BEGIN:VCARD',
-	'VERSION:3.0',
-	'N:萬治;渉;;;',
-	`FN:${profile.name}`,
-	`NICKNAME:${profile.handle}`,
-	`ORG:${profile.org}`,
-	`EMAIL;TYPE=INTERNET,HOME:${profile.email}`,
-	`EMAIL;TYPE=INTERNET,WORK:${profile.workEmail}`,
-	'URL:https://www.manj.io/',
-	'URL:https://github.com/manji-0',
-	'URL:https://x.com/_manji0',
-	'URL:https://fedi.manji.app/users/manji0',
-	'END:VCARD',
-].join('\r\n');
-const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 ---
 
 <!doctype html>
@@ -138,7 +113,7 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 				</nav>
 				<p class="toast" role="status" aria-live="polite"></p>
 
-				<a class="save" href={vcardHref} download="manji0.vcf">
+				<a class="save" href={VCARD_PATH} data-keep-query>
 					<span class="caret">&gt;</span> 連絡先を保存 (.vcf)
 				</a>
 
@@ -150,6 +125,10 @@ const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
 			</div>
 		</main>
 		<script>
+			for (const link of document.querySelectorAll<HTMLAnchorElement>('a[data-keep-query]')) {
+				link.search = location.search;
+			}
+
 			const COPIED_MS = 1600;
 			const toast = document.querySelector<HTMLElement>('.toast');
 			let toastTimer: number | undefined;
