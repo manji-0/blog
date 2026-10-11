@@ -12,6 +12,14 @@ head:
 
 ## Recent Notes
 
+### [Hono Conference Tokyo 2026を受けて](/blog/2026/hono-conference-tokyo-2026/)
+
+Notes after Hono Conference Tokyo 2026: why server-side TS/JS is fast enough
+for production, where it still falls short against Python and Rust, and how
+AI coding agents may shift the trade-off.
+
+`typescript` `hono` `conference` `ai`
+
 ### [エージェントを迷子にさせない、trackとdagaynの合わせ技](/blog/2026/dagayn-and-track-dev-experience/)
 
 `track` decides where an agent works; `dagayn` keeps a code graph for that
