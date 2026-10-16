@@ -12,6 +12,14 @@ head:
 
 ## Recent Notes
 
+### [出力を1バイトも変えずに変換器をリファクタする](/blog/2026/purecrate-byte-identical-refactor/)
+
+Two large refactors of `purecrate-ts` were gated on one condition: every
+generated file stays byte for byte the same. What the gate caught, the bugs
+that duplicated code had already grown, and what was left unmerged on purpose.
+
+`rust` `typescript` `refactoring` `testing`
+
 ### [serde_jsonとzod・valibot・arktypeに同じJSONを同じように読ませる](/blog/2026/purecrate-wire-serde-json/)
 
 `purecrate-ts` generates schemas that read and write JSON exactly as the
