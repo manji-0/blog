@@ -12,6 +12,14 @@ head:
 
 ## Recent Notes
 
+### [serde_jsonとzod・valibot・arktypeに同じJSONを同じように読ませる](/blog/2026/purecrate-wire-serde-json/)
+
+`purecrate-ts` generates schemas that read and write JSON exactly as the
+server's serde_json does. Its rules were measured against serde_json itself,
+and `parseJson` recovers what `JSON.parse` throws away.
+
+`rust` `typescript` `serde` `zod` `json`
+
 ### [RustのドメインロジックをTypeScriptへ「意味ごと」移す](/blog/2026/purecrate-semantics-preservation/)
 
 `purecrate-ts` translates pure Rust domain logic into plain TypeScript and
