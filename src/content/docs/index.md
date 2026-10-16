@@ -12,6 +12,14 @@ head:
 
 ## Recent Notes
 
+### [RustのドメインロジックをTypeScriptへ「意味ごと」移す](/blog/2026/purecrate-semantics-preservation/)
+
+`purecrate-ts` translates pure Rust domain logic into plain TypeScript and
+checks that both return the same results. How it defines equivalence, refuses
+what cannot keep its meaning, and writes TS that narrows as the Rust types do.
+
+`rust` `typescript` `semantics` `type-narrowing`
+
 ### [Hono Conference Tokyo 2026を受けて](/blog/2026/hono-conference-tokyo-2026/)
 
 Notes after Hono Conference Tokyo 2026: why server-side TS/JS is fast enough
