@@ -12,6 +12,14 @@ head:
 
 ## Recent Notes
 
+### [RustとTypeScriptで答えが変わる18問](/blog/2026/purecrate-rust-ts-quiz/)
+
+Eighteen pure functions that look the same in Rust and TypeScript and return
+different values, from `-7 / 2` to `trim` and `sort`, each run on both sides,
+with what `purecrate-ts` prints to make them agree or why it refuses them.
+
+`rust` `typescript` `javascript` `unicode` `quiz`
+
 ### [出力を1バイトも変えずに変換器をリファクタする](/blog/2026/purecrate-byte-identical-refactor/)
 
 Two large refactors of `purecrate-ts` were gated on one condition: every
