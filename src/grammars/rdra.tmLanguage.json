@@ -1,0 +1,245 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "rdra",
+  "displayName": "RDRA-ish",
+  "scopeName": "source.rdra",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#modules"
+    },
+    {
+      "include": "#declarations"
+    },
+    {
+      "include": "#temporal"
+    },
+    {
+      "include": "#predicates"
+    },
+    {
+      "include": "#methods"
+    },
+    {
+      "include": "#fields"
+    },
+    {
+      "include": "#annotations"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#constants"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#identifiers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.rdra",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.rdra",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.rdra",
+          "match": "\"[^\"]*\""
+        }
+      ]
+    },
+    "modules": {
+      "patterns": [
+        {
+          "match": "\\b(module|import)\\s+([A-Za-z_][A-Za-z0-9_.]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.import.rdra"
+            },
+            "2": {
+              "name": "entity.name.namespace.rdra"
+            }
+          }
+        },
+        {
+          "match": "\\b(as)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.import.rdra"
+            },
+            "2": {
+              "name": "entity.name.namespace.rdra"
+            }
+          }
+        }
+      ]
+    },
+    "declarations": {
+      "comment": "Kinds from crates/rdra-ish-syntax/src/token.rs. A declaration names an instance: `kind Id \"label\"`.",
+      "patterns": [
+        {
+          "match": "^\\s*(actor|extsystem|system|requirement|adr|goal|nfr|quality|constraint|business|buc|flow|step|usecase|screen|field|event|entity|api|dto|timer|medium|permission|variation|condition|property)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.kind.rdra"
+            },
+            "2": {
+              "name": "entity.name.type.rdra"
+            }
+          }
+        }
+      ]
+    },
+    "temporal": {
+      "patterns": [
+        {
+          "name": "keyword.control.temporal.rdra",
+          "match": "\\b(always|eventually|leads_to)(?=\\s*\\()"
+        }
+      ]
+    },
+    "predicates": {
+      "comment": "The parser reads any `name(args)` statement as a predicate or rule, so the position decides, not a list of names.",
+      "patterns": [
+        {
+          "match": "^\\s*(?!(?:always|eventually|leads_to)\\b)([a-z_][A-Za-z0-9_]*)(?=\\s*\\()",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.predicate.rdra"
+            }
+          }
+        }
+      ]
+    },
+    "methods": {
+      "patterns": [
+        {
+          "match": "(\\.)([a-z_][A-Za-z0-9_]*)(?=\\s*\\()",
+          "captures": {
+            "1": {
+              "name": "punctuation.accessor.rdra"
+            },
+            "2": {
+              "name": "entity.name.function.method.rdra"
+            }
+          }
+        },
+        {
+          "comment": "A column reference such as Order.status.",
+          "match": "(\\.)([a-z_][A-Za-z0-9_]*)\\b(?!\\s*\\()",
+          "captures": {
+            "1": {
+              "name": "punctuation.accessor.rdra"
+            },
+            "2": {
+              "name": "variable.other.property.rdra"
+            }
+          }
+        }
+      ]
+    },
+    "fields": {
+      "patterns": [
+        {
+          "match": "^\\s*([a-z_][A-Za-z0-9_]*)\\s*(:)(?!:)",
+          "captures": {
+            "1": {
+              "name": "variable.other.property.rdra"
+            },
+            "2": {
+              "name": "punctuation.separator.key-value.rdra"
+            }
+          }
+        }
+      ]
+    },
+    "annotations": {
+      "patterns": [
+        {
+          "name": "storage.modifier.annotation.rdra",
+          "match": "@[a-z_]+\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.primitive.rdra",
+          "match": "\\b(Int|String|Money|DateTime|Date|Bool|Decimal|Enum)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.rdra",
+          "match": "\\bnow\\b"
+        },
+        {
+          "comment": "Cardinalities such as N:1, N:M and 1..*.",
+          "name": "constant.other.cardinality.rdra",
+          "match": "\\b(?:[NM]|[0-9]+)(?::|\\.\\.)(?:[NM]\\b|[0-9]+\\b|\\*)"
+        },
+        {
+          "name": "constant.numeric.integer.rdra",
+          "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "comment": "`in` is a keyword only before its value list, so a column may be named `in`.",
+          "name": "keyword.operator.membership.rdra",
+          "match": "\\b(?:not\\s+)?in(?=\\s*\\()"
+        },
+        {
+          "name": "keyword.operator.logical.rdra",
+          "match": "\\b(?:and|or|not)\\b|/\\\\|\\\\/|~"
+        },
+        {
+          "name": "keyword.operator.arrow.rdra",
+          "match": "->"
+        },
+        {
+          "name": "keyword.operator.comparison.rdra",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "punctuation.separator.namespace.rdra",
+          "match": "::"
+        },
+        {
+          "name": "keyword.operator.arithmetic.rdra",
+          "match": "[+*-]"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "entity.name.type.rdra",
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}
