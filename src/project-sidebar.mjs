@@ -27,6 +27,7 @@ export function getDagaynSidebarItems() {
 		{ label: 'はじめに', link: '/projects/dagayn/' },
 		group('dagayn', '実装', ['architecture', 'graph-model', 'review-analysis'], false),
 		group('dagayn', 'リファレンス', ['usage', 'mcp-tools', 'cli-reference'], false),
+		group('dagayn', '評価', ['design-review'], false),
 	];
 }
 
@@ -41,6 +42,7 @@ export function getRdraIshSidebarItems() {
 			false,
 		),
 		group('rdra-ish', 'リファレンス', ['usage', 'language-reference', 'cli-reference'], false),
+		group('rdra-ish', '評価', ['design-review'], false),
 	];
 }
 
