@@ -22,16 +22,16 @@ src/
 └── error.rs
 ```
 
-pulldown-cmarkでMarkdownをドメインモデルに変換し、ratatuiでTUIに描画します。コードブロックはsyntectでハイライトします。編集やチェックボックスのファイル書き戻しは行いません。
+pulldown-cmarkでMarkdownをドメインモデルに変換し（reStructuredTextとAsciiDocは専用のパーサーで変換し）、ratatuiでTUIに描画します。コードブロックはsyntectでハイライトします。編集やチェックボックスのファイル書き戻しは行いません。
 
 ## Mermaid描画
 
-Mermaidコードブロックは [merman](https://crates.io/crates/merman) でラスター化します。外部のNode CLIやブラウザランタイムは要りません。図はmerman 0.9の既定の見た目（白背景、濃い線）で描きます。
+Mermaidコードブロックは [merman](https://crates.io/crates/merman) でラスター化します。外部のNode CLIやブラウザランタイムは要りません。図はmerman 0.9の既定の見た目で描きます。背景は透明なので、端末の背景色の上に表示されます。
 
 | 端末 | 描画方式 |
 | --- | --- |
 | Kitty、Ghostty、iTerm2、WezTerm等 | グラフィックスプロトコルでインライン表示 |
-| その他 | Unicodeハーフブロックにフォールバック |
+| その他 | PNGに書き出し、OSの既定ビューア（`open` / `xdg-open`）で開く |
 
 Previewモードでは `+` / `-` / `0` でズーム、`Esc` / `o` / `O` で閉じます。Mermaidブロック由来のリンクは `o` / `Enter` で描画プレビューを開きます。
 
@@ -53,7 +53,7 @@ Previewモードでは `+` / `-` / `0` でズーム、`Esc` / `o` / `O` で閉�
 
 | 種類 | 例 | 動作 |
 | --- | --- | --- |
-| Web | `[text](https://…)` | OSのブラウザで開く |
+| Web | `[text](https://…)` | OSのブラウザで開く。対応形式の文書を指すGitHubのblob URLは、bmdの中で開く |
 | Anchor | `[text](#section)` | 見出しへジャンプ（履歴スタックあり） |
 | Document | `[text](./other.md)` | 同ビューで開く（ファイルスタック）。`#section` 付きならその見出しで開く |
 | Image | `![alt](path.png)` | フローティングプレビュー |
@@ -92,7 +92,7 @@ devbox run prek
 |---|---|
 | `build` / `build-release` | デバッグ / リリース |
 | `build-linux-x86_64` | macOSから静的Linux x86_64（musl） |
-| `package` | `dist/*.tar.gz` とcrates.io用クレート |
+| `package` | `dist/*.tar.gz` を作り、crates.ioへ公開する（`cargo publish` まで実行する） |
 
 devboxはプロジェクトローカルの `RUSTUP_HOME` / `CARGO_HOME` / `SCCACHE_DIR` と `RUSTFLAGS="-C linker=clang"`、`RUSTC_WRAPPER=sccache` を設定します。devboxと素の `cargo` を混ぜると `RUSTFLAGS` 差でインクリメンタルが壊れやすいです。
 

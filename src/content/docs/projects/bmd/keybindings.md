@@ -60,7 +60,7 @@ sidebar:
 
 | 種類 | 例 | `o` / `Enter` |
 |---|---|---|
-| Web | `[text](https://…)` | OSのブラウザで開く |
+| Web | `[text](https://…)` | OSのブラウザで開く。対応形式の文書を指すGitHubのblob URLは、bmdの中で開く |
 | Anchor | `[text](#section)` | 見出しへジャンプ |
 | Document | `[text](./other.md)` | 同ビューで開く（`#section` 付きならその見出しへ） |
 | Image | `![alt](path.png)` | フローティングプレビュー |

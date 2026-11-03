@@ -8,7 +8,7 @@ sidebar:
 
 > ソースリポジトリ: [bmd](https://github.com/manji-0/bmd) · 対象バージョン: **v0.7.0** · ライセンス: Apache-2.0
 
-**bmd** は、ターミナルのままMarkdownを読むためのTUIです。ブラウザも外部のJSランタイムも要りません。
+**bmd** は、ターミナルのままMarkdownを読むためのTUIです。reStructuredTextとAsciiDocも読めます。ブラウザも外部のJSランタイムも要りません。
 
 ## 目的
 
@@ -27,7 +27,7 @@ READMEや設計メモをエディタと別ウィンドウに出さず、ター�
 
 ## 目標
 
-vim風の操作で長文を `j`/`k` と検索で辿れるようにします。[merman](https://crates.io/crates/merman) によるネイティブMermaid描画で、ブラウザなしに図を確認できるようにします。KittyやiTerm2等のグラフィックス端末では図や画像をインライン表示し、未対応端末ではUnicodeハーフブロックにフォールバックします。
+vim風の操作で長文を `j`/`k` と検索で辿れるようにします。[merman](https://crates.io/crates/merman) によるネイティブMermaid描画で、ブラウザなしに図を確認できるようにします。KittyやiTerm2等のグラフィックス端末では図や画像をインライン表示し、未対応端末では、図や画像をOSの既定ビューアで開きます。
 
 ## 対象外
 
