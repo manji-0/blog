@@ -20,9 +20,10 @@ export default defineConfig({
 	},
 	cloudflare: {
 		name: 'manjio',
+		// Visibility and the Custom Domain match what the dashboard set on the
+		// existing Worker; `void deploy` refuses to republish undeclared ones.
 		workers_dev: true,
-		// The Custom Domain was attached in the dashboard. Declaring it keeps
-		// `void deploy` from dropping it when it updates triggers.
+		preview_urls: true,
 		routes: [{ pattern: 'www.manj.io', custom_domain: true }],
 		r2_buckets: [{ binding: 'R2_ASSETS', bucket_name: 'manjio-assets' }],
 		observability: { enabled: true, head_sampling_rate: 1 },
