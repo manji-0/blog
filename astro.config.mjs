@@ -17,6 +17,9 @@ import cloudflarePlatformUptimeIntegration from './src/integrations/cloudflare-p
 import { getSiteSidebarConfig } from './src/sidebar-config.mjs';
 
 const fontFaceCss = readFileSync(new URL('./public/fonts/fonts.css', import.meta.url), 'utf8');
+const rdraGrammar = JSON.parse(
+	readFileSync(new URL('./src/grammars/rdra.tmLanguage.json', import.meta.url), 'utf8'),
+);
 
 // https://astro.build/config
 export default defineConfig({
@@ -107,6 +110,7 @@ export default defineConfig({
 					},
 				},
 				shiki: {
+					langs: [rdraGrammar],
 					langAlias: {
 						yml: 'yaml',
 						shell: 'bash',
