@@ -1,11 +1,11 @@
 ---
 title: "言語リファレンス"
-description: "rdra-ish DSL（.rdra）の構文概要（v1.0.0）"
+description: "rdra-ish DSL（.rdra）の構文概要（v1.1.0）"
 sidebar:
   order: 6
 ---
 
-このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/docs/language-reference.md) も参照してください。
+このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.1.0/docs/language-reference.md) も参照してください。
 
 ## ファイル構造
 
@@ -120,17 +120,51 @@ entity Order "Order" {
 | `raises(Usecase\|ExtSystem, Event)` | イベント発行 |
 | `triggers(Event\|Timer, Usecase\|Buc\|ExtSystem)` | イベントやタイマーがUC・BUCを起動する（タイマーは外部システムを起動できない） |
 | `transitions(Usecase, Entity.col, from -> to)` | Enum 列上の遷移。遷移を起こすのはUC |
-| `sets(Usecase, Entity.col == val)` | 列への代入。`Entity.col == Source.col` で値をコピーする |
+| `transitions(Usecase, Entity.col, (a, b) -> to)` | 遷移元を並べる形（v1.1.0）。遷移元ごとに1行ずつ書いたのと同じ |
+| `sets(Usecase, Entity.col == val)` | 列への代入。`Entity.col == Source.col` で値をコピーする。`Date` / `DateTime` 列には `now` の時計上の点として数値を書ける（v1.1.0） |
 | `drives(Usecase, Entity.col op rhs, true\|false)` | 比較命題の真偽を駆動する |
 | `chooses(Usecase, Entity.col)` | バリエーション列の値をアクターが選び直す |
+| `links(Usecase, Child, Parent)` | 既存の子の行を既存の親の行につなぐ（v1.1.0） |
+| `relinks(Usecase, Child, Parent)` | つながっている子を別の親へ移す（v1.1.0） |
+| `unlinks(Usecase, Child, Parent)` | つながっている子を親から外す（v1.1.0） |
 | `outbox(Event)` | 意図的な外部公開（未消費 warning 抑制） |
 
 ```rdra
 transitions(CapturePayment, Order.status, pending -> paid)
 sets(CapturePayment, Order.paid_at == present)
+
+// 遷移元を並べる形。3行に分けて書いたのと同じ
+transitions(CancelOrder, Order.status, (pending, held, confirmed) -> cancelled)
+
+// Date列：`now` の時計上の点。時計が3を過ぎると expires_at < now が真になる
+sets(Issue, Coupon.expires_at == 3)
 ```
 
+遷移元の並びの後ろに `.when(Cond)` を付けると、すべての遷移をガードします。「すべての状態から」を表す `*` はありません。遷移先自身や終端状態を含むかに1つの答えがないので、遷移元を書き並べます。
+
 v0.3.0でイベントを渡す `transitions(Entity.col, Event, from -> to)` が削除され、v0.4.0で `transitions(Entity.col, UC, …)` が `transitions(UC, Entity.col, …)` に変わりました。今はUCを先頭に書く形だけです。v1.0.0で `sets(UC, Entity, col == val)` も削除され、列は常に `Entity.col` で書きます。古い形は書き換え後の行を示すエラーで読み込みに失敗します。upstreamの `scripts/migrate-phase3.py`（v0.3.0向け）、`scripts/migrate-syntax-v2.py`（v0.4.0向け）、`scripts/migrate-syntax-v3.py`（v1.0.0向け）がモデルを書き換えます。
+
+#### 既存の子をつなぐ：`links` / `relinks` / `unlinks`
+
+`links(UC, Child, Parent)` は、子から親への `.optional()` のキーを通じて、既存の子を既存の親につなぎます。担当なしで開いた案件に担当を付ける、といった操作です。`relinks` はつながっている子を別の親へ移し、`unlinks` は親を外します。3つとも同じ引数を取り、同じキーをたどります。
+
+```rdra
+entity Handler "Handler" { id: Int @pk  busy: Bool @default(false) }
+entity Case "Case" { id: Int @pk  status: Enum(new, assigned) @default(new) }
+relate(Case, Handler, N:1).optional()
+
+usecase OpenCase "Open a case"
+usecase Assign "Assign a handler to the case"
+creates(OpenCase, Case)
+transitions(Assign, Case.status, new -> assigned)
+links(Assign, Case, Handler)
+invariant(Case).when(status == assigned).has(Handler)
+```
+
+- 親は、そのステップが束縛する行です。UCが書く行、分割したUCの前のステップが書いた行、どちらもなければ存在する任意の親の順に選びます
+- `links` はまだつながっていない子だけをつなぎます。つながっている子は動かしません。動かすのは `relinks`（必須キーも可）、外すのは `unlinks`（`.optional()` キーのみ）です
+- キーがなければ `LinkWithoutKey`、`links` / `unlinks` のキーが必須なら `LinkOnMandatoryKey`、キーが複数あって `.role(role)` で選んでいなければ `AmbiguousOwnerLink` です。1つのUCが同じキーに2つの形を書くと `ConflictingLinks` です
+- `check`、`states`、TLA+出力、`verify` は、作成時に設定するキーと同じようにこのつながりを読みます
 
 ### ルール
 
@@ -141,6 +175,7 @@ v0.3.0でイベントを渡す `transitions(Entity.col, Event, from -> to)` が�
 | `forbidden(Entity, conditions...)` | 到達禁止（局所） |
 | `forbidden(A, B, conditions...).along(A, B)` | マルチエンティティ禁止（旧 `cross_*` / `forbidden_when` は削除） |
 | `invariant(Entity).when(...).then(...)` | 含意形の不変条件 |
+| `forbidden(...).when(Cond)` / `invariant(...).when(Cond)` | 条件 `Cond` の `holds` 本体の比較を、その場に書いたものとして読む（v1.1.0） |
 | `invariant(Entity).when(...).none/has(...)` | 有限インスタンス上の量化（トップレベルの `when(...)` 規則は削除） |
 | `required(Entity, conditions...)` | 必須条件 |
 | `exclusive(Entity, conditions...)` | 排他（2条件以上） |
@@ -148,6 +183,19 @@ v0.3.0でイベントを渡す `transitions(Entity.col, Event, from -> to)` が�
 | `property Name always/eventually/leads_to(...)` | 時間性質（`states` では未評価。TLA 向け） |
 
 規則は対象エンティティを先頭の引数に書きます。v1.0.0で、条件から始まる `forbidden(Order.status == paid)` やエンティティなしの `invariant()` は削除されました。
+
+v1.1.0から、`forbidden` と `invariant` の `.when(...)` に `condition` を渡せます。業務ルールを条件として1回書けば、UCのガードと規則の両方で使えます。
+
+```rdra
+condition PastDeadline "the deadline has passed"
+holds(PastDeadline, Coupon.expires_at < now)
+
+forbidden(Coupon, status == active).when(PastDeadline)
+// 次と同じ規則
+forbidden(Coupon, status == active, expires_at < now)
+```
+
+局所の規則、マルチエンティティの規則、量化のどれにも付けられます。`holds` は規則より後ろに書いてもかまいません。本体のない条件は `WhenConditionWithoutBody` です。本体に `.has` / `.none` / `.along` / `.role` がある場合や、局所の規則が読まないエンティティを比べる場合は `RuleWhenConditionScope` です。条件でないものを渡すと `RuleWhenArg` です。
 
 時間結合子は `and` / `or` / `not` を推奨（`/\` `\/` `~` はエイリアス）。詳細と形式検証は [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
 
@@ -240,14 +288,14 @@ rdra-ish csv <INPUTS...> --kind <KIND> [--format csv|markdown] [-o <out>]
 BUC横断で到達可能なエンティティ状態パターンを導出します（BFS）。
 
 ```bash
-rdra-ish states <INPUTS...> [--entity <EntityId>] [--format table|csv|json|typescript]
+rdra-ish states <INPUTS...> [--entity <EntityId>] [--format table|csv|json|typescript] [--instance-count <N>] [--int-range-max <N>]
 ```
 
 - 到達不能なenum variant
 - 作成経路の欠落
 - `forbidden` / `invariant` / `required` / `exclusive` 違反（マルチエンティティ含む）
 
-ライフサイクルレビュー（Stage 6–7）では `states` と `diagram --kind state` / `--kind event` をセットで使います。Int / `now` の算術・時間性質は `states` では扱わず [形式検証](/projects/rdra-ish/formal-verification/) へ。
+ライフサイクルレビュー（Stage 6–7）では `states` と `diagram --kind state` / `--kind event` をセットで使います。Int / `now` の比較は `states` も境界（既定でInt `0..5`、1インスタンス）の範囲で探索します。時間性質は `states` では扱わず [形式検証](/projects/rdra-ish/formal-verification/) へ。
 
 ## 機械可読エクスポート
 
@@ -265,7 +313,7 @@ rdra-ish export <INPUTS...> --kind <KIND> [--out <path>]
 
 exportは **レビュー起点のたたき台** です。モデルを更新した後に再生成し、差分をレビューする運用を前提とします。
 
-生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list`、`diagram --kind state`、`entity` 以外の `csv`、`export --kind typescript-states`）が **fail-closed** です。`states` は `[error]` 行を含めて出力し、非ゼロで終了します。データ層だけを読む出力は書き出し、stderrにnoteを出します。
+生成系サブコマンドはparse/resolve errorがあると成果物を出しません。ライフサイクルのerrorで止まる（**fail-closed**）のは、到達性の結果を印字する出力（`diagram --kind state`、`export --kind typescript-states`）だけです。`states` は `[error]` 行を含めて出力し、非ゼロで終了します。`list`、`csv`、ほかの図やexportは書き出し、stderrにnoteを出します。詳細は [CLI リファレンス](/projects/rdra-ish/cli-reference/#ライフサイクルのerror) を参照してください。
 
 ## 検証コマンド
 

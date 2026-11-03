@@ -77,6 +77,7 @@ src/
 | BUC固有の述語（CRUD, `displays`, `invokes`, アクセス制約, `raises`, `sets` 等） | そのBUCファイル（sharedに置かない） |
 | クロスBUC `event`, `transitions` | 所有エンティティ近くの shared |
 | 制約述語（`forbidden`, `invariant`, `required`, `exclusive`） | 制約するエンティティ近くの shared |
+| UCを名指す `condition` / `property`（`applies_to(Cond, UseCase)`、`.fair(UseCase)`） | そのUCのBUCファイル（`holds` 本体ごと）。`shared/rules.rdra` に置くと循環importになる |
 
 成長したら `shared/entities/order.rdra`、`shared/lifecycle/`、`shared/rules.rdra` へ分割します。
 

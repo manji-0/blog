@@ -6,7 +6,7 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl) · 対象バージョン: **v1.0.0**
+> ソースリポジトリ: [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl) · 対象バージョン: **v1.1.0**
 
 **rdra-ish** は、要件モデルを `.rdra` で書いて、型チェック・図表・状態導出・形式検証まで同じモデルから回すCLIとコンパイラ群です。
 
@@ -25,7 +25,7 @@ Wordや表に散らばりがちな「誰が・何を・どのデータに触る�
 | [使い方](/projects/rdra-ish/usage/) | インストールと初回の一周 |
 | [段階的モデリング](/projects/rdra-ish/incremental-modeling/) | Stage 0–7 の精緻化フロー |
 | [形式検証](/projects/rdra-ish/formal-verification/) | `export --kind tla` と `verify --backend tlc` |
-| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/CHANGELOG.md) | 破壊的変更の一覧 |
+| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.1.0/CHANGELOG.md) | 破壊的変更の一覧 |
 
 ## 目標
 
@@ -52,7 +52,7 @@ BUCはビジネス価値のスライス、ビジネスフローは時間順の�
 
 ## 制約
 
-- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list` / `diagram --kind state` / 多くの `csv`）が **fail-closed** です。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。データ層だけを読む図やexportは書き出し、noteを出します。`export --kind tla` と `verify` は、遷移系の構築時のerror（`DerivedColumnRead` など）では止まりますが、探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まりません。`verify` は制約違反をTLCの反例で、witnessの欠如とデッドロックをBFSで報告して非ゼロで終了します。`export --kind tla` はnoteも出さずに書き出します
+- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。ライフサイクルのerrorで止まる（**fail-closed**）のは、到達性の結果を印字する出力だけです。`export --kind typescript-states` は止まります。`diagram --kind state` も止まりますが、errorがデッドロックだけなら図を書きます。`list` と `csv` の全kind、`state` 以外の `diagram`、データ層の `export` は成果物を書き、error件数を示すnoteを出して終了コード0で終わります。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。`export --kind tla` と `verify` は、遷移系の構築時のerror（`DerivedColumnRead` など）では止まります。探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まりません。`verify` は制約違反をTLCの反例で、witnessの欠如とデッドロックをBFSで報告して非ゼロで終了します。`export --kind tla` は書き出したうえで、TLC単体ではデッドロックとwitnessを検査しないので `verify` を使うよう促すnoteを出します
 - v1.0.0から互換性の約束があります。読み込めるモデルは次のメジャーリリースまで読み込め、`check` と `verify` はそれぞれ、同じモデル・同じ範囲ならリリースをまたいで同じ判定を返します
 - `warning` はレビュー信号（探索中は意図的に残してよい）
 - `error` はモデル信頼性を損なうためブロッカーです
