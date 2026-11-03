@@ -1,6 +1,8 @@
 ---
 title: serde_jsonとzod・valibot・arktypeに同じJSONを同じように読ませる
 description: PureCrateがサーバーのserde_jsonと同じ規則でJSONを読み書きするスキーマを生成するために、serde_jsonの挙動を実測して仕様にした話。JSON.parseが捨てる情報の取り戻し方と、3つのスキーマライブラリでの揃え方もまとめる
+summary: "`purecrate-ts` generates schemas that read and write JSON exactly as the server's serde_json does. Its rules were measured against serde_json itself, and `parseJson` recovers what `JSON.parse` throws away."
+tags: [rust, typescript, serde, zod, json]
 ---
 
 [前回](/blog/2026/purecrate-semantics-preservation/)は、Rustのドメインロジックを素のTypeScriptへ翻訳する[PureCrate](https://github.com/manji-0/purecrate-ts)で、意味を保つための定義と制約について書いた。今回はその境界の話を書く。サーバーのRustがserde_jsonで書いたJSONを、クライアントのTSがserde_jsonとまったく同じ規則で読み、同じバイト列で書き戻すための仕組みである。

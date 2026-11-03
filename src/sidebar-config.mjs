@@ -1,6 +1,5 @@
-import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import matter from 'gray-matter';
 import {
 	getKamaePythonSidebarItems,
@@ -14,10 +13,8 @@ import {
 	getRdraIshSidebarItems,
 	getTrackSidebarItems,
 } from './project-sidebar.mjs';
+import { listBlogPosts } from './lib/blog-posts.mjs';
 import { listProjectSlugs, projectsContentDir } from './lib/projects.mjs';
-
-const rootDir = process.cwd();
-const blogContentDir = join(rootDir, 'src/content/docs/blog');
 
 /** @type {Record<string, () => import('./kamae-sidebar.mjs').SidebarGroup[]>} */
 const PROJECT_TREES = {
@@ -31,53 +28,21 @@ const PROJECT_TREES = {
 	'kamae-model-translator': getKamaeModelTranslatorSidebarItems,
 };
 
-function getGitCreatedTimestamp(pathname) {
-	try {
-		const output = execFileSync(
-			'git',
-			['log', '--follow', '--diff-filter=A', '--format=%ct', '--', pathname],
-			{ cwd: rootDir, encoding: 'utf8' },
-		).trim();
-		const timestamp = Number(output.split('\n').filter(Boolean).at(-1));
-		return Number.isFinite(timestamp) ? timestamp : undefined;
-	} catch {
-		return undefined;
-	}
-}
-
-function getFileCreatedTimestamp(fileUrl, pathname) {
-	const stats = statSync(fileUrl);
-	const createdAt = Math.trunc(stats.birthtimeMs / 1000);
-	return getGitCreatedTimestamp(pathname) ?? (Number.isFinite(createdAt) ? createdAt : 0);
-}
-
-function getBlogSidebarItem(year, filename) {
-	const filePath = join(blogContentDir, year, filename);
-	const { data } = matter(readFileSync(filePath, 'utf8'));
-	const slug = filename.replace(/\.mdx?$/, '');
-
-	return {
-		label: data.sidebar?.label ?? data.title ?? slug,
-		link: `/blog/${year}/${slug}`,
-		_sidebarOrder: data.sidebar?.order,
-		_createdTimestamp: getFileCreatedTimestamp(filePath, filePath),
-	};
-}
-
-function getBlogSidebarSortKey(item) {
-	return item._sidebarOrder ?? -item._createdTimestamp;
+function getBlogSidebarSortKey(post) {
+	return post.data.sidebar?.order ?? -post.createdTimestamp;
 }
 
 function getBlogYearSidebar(year) {
-	const items = readdirSync(join(blogContentDir, year))
-		.filter((filename) => /\.mdx?$/.test(filename))
-		.map((filename) => getBlogSidebarItem(year, filename))
-		.filter((item) => item.label)
+	const items = listBlogPosts()
+		.filter((post) => post.year === year)
+		.map((post) => ({ post, label: post.data.sidebar?.label ?? post.data.title ?? post.slug }))
+		.filter(({ label }) => label)
 		.sort(
 			(a, b) =>
-				getBlogSidebarSortKey(a) - getBlogSidebarSortKey(b) || a.link.localeCompare(b.link),
+				getBlogSidebarSortKey(a.post) - getBlogSidebarSortKey(b.post) ||
+				a.post.link.localeCompare(b.post.link),
 		)
-		.map(({ _sidebarOrder, _createdTimestamp, ...item }) => item);
+		.map(({ post, label }) => ({ label, link: `/blog/${post.year}/${post.slug}` }));
 
 	return { label: year, items };
 }

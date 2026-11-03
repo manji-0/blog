@@ -1,6 +1,8 @@
 ---
 title: RustとTypeScriptで答えが変わる18問
 description: 同じ見た目の純粋関数が、RustとTypeScriptでは違う値を返す。整数、浮動小数、文字列、コレクションから18問をクイズ形式で集め、すべて実際に動かした結果と、PureCrateがどう揃えているかをまとめる
+summary: "Eighteen pure functions that look the same in Rust and TypeScript and return different values, from `-7 / 2` to `trim` and `sort`, each run on both sides, with what `purecrate-ts` prints to make them agree or why it refuses them."
+tags: [rust, typescript, javascript, unicode, quiz]
 ---
 
 [PureCrate](https://github.com/manji-0/purecrate-ts)は、純粋なRustのドメインロジックを素のTypeScriptへ翻訳し、両者が同じ値を返すことを確かめる変換器である。作っていて一番面白かったのは、「同じに見えて答えが違う」例を集める作業だった。[1本目](/blog/2026/purecrate-semantics-preservation/)では、その一部を表にまとめた。今回は一段掘り下げて、クイズにする。

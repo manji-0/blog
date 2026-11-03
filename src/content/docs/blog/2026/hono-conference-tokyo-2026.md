@@ -1,6 +1,8 @@
 ---
 title: Hono Conference Tokyo 2026を受けて
 description: Hono Conference Tokyo 2026に参加して考えた、Serverside TS/JSの強みと弱み、AI時代の立ち位置についての雑感
+summary: "Notes after Hono Conference Tokyo 2026: why server-side TS/JS is fast enough for production, where it still falls short against Python and Rust, and how AI coding agents may shift the trade-off."
+tags: [typescript, hono, conference, ai]
 ---
 
 今日は業務扱いで[Hono Conference Tokyo 2026](https://hono.connpass.com/event/401554/)に参加してきました。チームメイトの[kosuiくんの発表](https://speakerdeck.com/kakehashi/hono-ga-kanaeru-itsu-demo-orirareru-lambdalith)がウケていて嬉しかったです。

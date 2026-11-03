@@ -10,6 +10,7 @@ import remarkDiagramDesign from './src/plugins/remark-diagram-design.mjs';
 import remarkHatenaFootnotes from './src/plugins/remark-hatena-footnotes.mjs';
 import remarkLinkCard from './src/plugins/remark-link-card.mjs';
 import remarkProjectList from './src/plugins/remark-project-list.mjs';
+import remarkRecentNotes from './src/plugins/remark-recent-notes.mjs';
 import ogImageBuildIntegration from './src/integrations/astro-og-image-build.mjs';
 import cloudflareStatusIntegration from './src/integrations/cloudflare-status.mjs';
 import cloudflarePlatformUptimeIntegration from './src/integrations/cloudflare-platform-uptime.mjs';
@@ -47,6 +48,7 @@ export default defineConfig({
 				remarkHatenaFootnotes,
 				remarkLinkCard,
 				remarkProjectList,
+				remarkRecentNotes,
 			],
 		}),
 	},
