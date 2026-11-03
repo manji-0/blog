@@ -34,7 +34,7 @@ track new "Implement User Authentication" \
   --ticket-url https://jira.example.com/browse/AUTH-456
 ```
 
-作った瞬間、そのタスクがアクティブになります。TODOやスクラップは、切り替えるまでここに付きます。
+singleモード（既定）では、作った瞬間にそのタスクがアクティブになります。multiモードでは切り替わらず、以降は `--task` で指定します。TODOやスクラップは、切り替えるまでここに付きます。
 
 ## リポジトリとTODO
 

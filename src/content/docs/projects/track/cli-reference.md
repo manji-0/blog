@@ -13,11 +13,22 @@ track <SUBCOMMAND> [OPTIONS]
 
 多くの操作は、いまアクティブなタスクに対して走ります。切り替えるときは `track switch` です。
 
+## 対象タスクの指定（`--task`）
+
+すべてのコマンドがグローバルな `--task <ref>` を受け付けます。位置はサブコマンドの前と後のどちらでも構いません（`track --task 3 todo add "..."` または `track todo add "..." --task 3`）。
+
+| `context-mode` | `--task` なし | `--task` あり |
+|---|---|---|
+| `single`（既定） | カレントタスク（`track switch` で選んだもの） | そのコマンドだけ指定タスク |
+| `multi` | タスク単位のコマンドは失敗する。`track switch` は使えない | 指定タスク |
+
+`<ref>` は数値ID、`t:<ticket>`、`a:<alias>`（素のエイリアスも可）、アクティブなタスクの正確な名前のどれかです。`today` は `track switch` だけで使えます。`track new`、`list`、`config`、`import`、`webui`、`llm-help`、`completion`、`migrate`、`notes` はタスクを必要としません。
+
 ## タスク
 
 | コマンド | 説明 |
 |---|---|
-| `track new <name> [--json]` | タスク作成しアクティブ化 |
+| `track new <name> [--json]` | タスク作成（singleモードではアクティブ化） |
 | `track new <name> --template <task_ref>` | 既存タスクをテンプレートにTODOをコピー |
 | `track list [--all] [--json]` | タスク一覧 |
 | `track switch <task_id> [--json]` | タスク切替 |
@@ -40,6 +51,7 @@ track <SUBCOMMAND> [OPTIONS]
 | `track config show` | 設定表示 |
 | `track config set vcs-mode git\|jj` | git worktree（新規DBの既定）または colocated jj |
 | `track config set aggressive-mode on\|off` | タスクごとの空revisionと `refs/notes/track` |
+| `track config set context-mode single\|multi` | 暗黙のカレントタスク（既定）か、タスク単位のコマンドに `--task <ref>` を必須にするか |
 | `track config set-calendar <calendar-id>` | Todayビュー用GoogleカレンダーID |
 | `track import [path] [--json]` | 現在のブランチ上の git notes からタスクを復元 |
 | `track notes push [--remote]` | `refs/notes/track` を公開 |
@@ -77,7 +89,7 @@ track <SUBCOMMAND> [OPTIONS]
 | `track repo add [path] [--json]` | 現タスクにリポジトリ登録し、ワークスペースを作る |
 | `track repo add --base <bookmark>` | ベースbookmark指定で登録 |
 | `track repo list` / `track repo remove <id>` | 一覧 / 解除 |
-| `track sync` | `.worktrees/<slug>` を `track/<slug>` 上に作成／更新する |
+| `track sync` | `.worktrees/<slug>` を `track/<slug>` 上に作成／更新する。新しいワークスペースは `origin` をfetchし、リモートのベースから始める |
 
 ## Web UIと補完
 
