@@ -52,8 +52,8 @@ BUCはビジネス価値のスライス、ビジネスフローは時間順の�
 
 ## 制約
 
-- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list` / `diagram --kind state` / 多くの `csv`）が **fail-closed** です。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。データ層だけを読む図やexportは書き出し、noteを出します。`export --kind tla` と `verify` は状態診断では止まらず、性質の違反はTLCが反例として報告します
-- v1.0.0から互換性の約束があります。読み込めるモデルは次のメジャーリリースまで読み込め、`check` と `verify` は同じ範囲で同じ判定を返します
+- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list` / `diagram --kind state` / 多くの `csv`）が **fail-closed** です。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。データ層だけを読む図やexportは書き出し、noteを出します。`export --kind tla` と `verify` は、遷移系の構築時のerror（`DerivedColumnRead` など）では止まりますが、探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まりません。`verify` は制約違反をTLCの反例で、witnessの欠如とデッドロックをBFSで報告して非ゼロで終了します。`export --kind tla` はnoteも出さずに書き出します
+- v1.0.0から互換性の約束があります。読み込めるモデルは次のメジャーリリースまで読み込め、`check` と `verify` はそれぞれ、同じモデル・同じ範囲ならリリースをまたいで同じ判定を返します
 - `warning` はレビュー信号（探索中は意図的に残してよい）
 - `error` はモデル信頼性を損なうためブロッカーです
 - `--buc` フィルタで1スライスだけ検証できます
