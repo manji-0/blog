@@ -5,7 +5,7 @@ sidebar:
   order: 6
 ---
 
-このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/language-reference.md) も参照してください。
+このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/docs/language-reference.md) も参照してください。
 
 ## ファイル構造
 
@@ -118,7 +118,7 @@ entity Order "Order" {
 | 述語 | 意味 |
 |---|---|
 | `raises(Usecase\|ExtSystem, Event)` | イベント発行 |
-| `triggers(Event\|Timer, Usecase\|Buc\|ExtSystem)` | イベントやタイマーがUC・BUCを起動する |
+| `triggers(Event\|Timer, Usecase\|Buc\|ExtSystem)` | イベントやタイマーがUC・BUCを起動する（タイマーは外部システムを起動できない） |
 | `transitions(Usecase, Entity.col, from -> to)` | Enum 列上の遷移。遷移を起こすのはUC |
 | `sets(Usecase, Entity.col == val)` | 列への代入。`Entity.col == Source.col` で値をコピーする |
 | `drives(Usecase, Entity.col op rhs, true\|false)` | 比較命題の真偽を駆動する |
@@ -130,7 +130,7 @@ transitions(CapturePayment, Order.status, pending -> paid)
 sets(CapturePayment, Order.paid_at == present)
 ```
 
-v0.4.0で `transitions(Entity.col, Event, from -> to)` は削除され、UCを先頭に書く形だけになりました。v1.0.0で `sets(UC, Entity, col == val)` も削除され、列は常に `Entity.col` で書きます。古い形は書き換え後の行を示すエラーで読み込みに失敗します。upstreamの `scripts/migrate-syntax-v2.py`（v0.4.0向け）と `scripts/migrate-syntax-v3.py`（v1.0.0向け）がモデルを書き換えます。
+v0.3.0でイベントを渡す `transitions(Entity.col, Event, from -> to)` が削除され、v0.4.0で `transitions(Entity.col, UC, …)` が `transitions(UC, Entity.col, …)` に変わりました。今はUCを先頭に書く形だけです。v1.0.0で `sets(UC, Entity, col == val)` も削除され、列は常に `Entity.col` で書きます。古い形は書き換え後の行を示すエラーで読み込みに失敗します。upstreamの `scripts/migrate-phase3.py`（v0.3.0向け）、`scripts/migrate-syntax-v2.py`（v0.4.0向け）、`scripts/migrate-syntax-v3.py`（v1.0.0向け）がモデルを書き換えます。
 
 ### ルール
 
@@ -207,7 +207,7 @@ rdra-ish diagram <INPUTS...> --kind <KIND> --format <FORMAT> [OPTIONS]
 | `state` | 状態遷移 |
 | `event` | イベントのraises / triggersリンク |
 
-`event-flow` は `event` に置き換わりました。`boundaryless` / `business-area` / `diff` は削除されました。出力はMermaidだけで、テキストなのでdiffしやすいです。
+`event-flow` は `event` に置き換わりました。`boundaryless-graph` / `business-area` / `diff` は削除されました。出力はMermaidだけで、テキストなのでdiffしやすいです。
 
 ```bash
 rdra-ish diagram src/ --kind sequence --format mermaid --usecase PlaceOrder
@@ -265,7 +265,7 @@ rdra-ish export <INPUTS...> --kind <KIND> [--out <path>]
 
 exportは **レビュー起点のたたき台** です。モデルを更新した後に再生成し、差分をレビューする運用を前提とします。
 
-生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`states`、`list`、`diagram --kind state`、`entity` 以外の `csv`、`export --kind typescript-states`）が **fail-closed** です。データ層だけを読む出力は書き出し、stderrにnoteを出します。
+生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list`、`diagram --kind state`、`entity` 以外の `csv`、`export --kind typescript-states`）が **fail-closed** です。`states` は `[error]` 行を含めて出力し、非ゼロで終了します。データ層だけを読む出力は書き出し、stderrにnoteを出します。
 
 ## 検証コマンド
 

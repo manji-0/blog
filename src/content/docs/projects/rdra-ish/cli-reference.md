@@ -15,7 +15,7 @@ rdra-ish <SUBCOMMAND> <INPUTS...> [OPTIONS]
 
 診断はstderrに `error:` / `warning:` 形式で出力します。ライフサイクルの所見は `error[<Name>]:` のように安定した名前付きで出ます。`check` はerrorがあると非ゼロ終了します。
 
-生成系サブコマンドは、parse/resolve errorがあると成果物を出しません。状態診断のerrorで止まるかは出力の種類で決まります。ライフサイクルを印字する出力（`states` / `list` / `diagram --kind state` / `entity` 以外の `csv` / `export --kind typescript-states`）は **fail-closed** です。データ層や宣言だけを読む出力（`state` 以外の `diagram`、`csv --kind entity`、`export` の `dbml` / `json-schema` / `openapi` / `asyncapi` / `mermaid-er`）は成果物を書き、error件数を示すnoteをstderrに1行出します。`export --kind tla` と `verify` は、印字する遷移系のerrorでも止まります。`fmt` はパース可能なら意味解析なしで動きます。
+生成系サブコマンドは、parse/resolve errorがあると成果物を出しません。状態診断のerrorで止まるかは出力の種類で決まります。ライフサイクルを印字する出力（`list` / `diagram --kind state` / `entity` 以外の `csv` / `export --kind typescript-states`）は **fail-closed** です。ただし `diagram --kind state` は、errorがdeadlockだけなら図を書きます。`states` は `[error]` 行を含めて全体を出力し、非ゼロで終了します。データ層や宣言だけを読む出力（`state` 以外の `diagram`、`csv --kind entity`、`export` の `dbml` / `json-schema` / `openapi` / `asyncapi` / `mermaid-er`）は成果物を書き、error件数を示すnoteをstderrに1行出します。`export --kind tla` と `verify` は、印字する遷移系のerrorでも止まります。`fmt` はパース可能なら意味解析なしで動きます。
 
 ## check
 

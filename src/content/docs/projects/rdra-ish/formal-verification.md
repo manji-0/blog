@@ -5,7 +5,7 @@ sidebar:
   order: 4.5
 ---
 
-このページは、エンティティのライフサイクルと状態制約をTLA+にエクスポートし、TLCでモデル検査する手順です。`rdra-ish states`（高速なBFS到達性）を補完する古典的な検査レイヤです。完全な仕様と近似の一覧はupstreamの [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/formal-verification.md) を参照してください。
+このページは、エンティティのライフサイクルと状態制約をTLA+にエクスポートし、TLCでモデル検査する手順です。`rdra-ish states`（高速なBFS到達性）を補完する古典的な検査レイヤです。完全な仕様と近似の一覧はupstreamの [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/docs/formal-verification.md) を参照してください。
 
 ## コマンド
 
@@ -91,4 +91,4 @@ v1.0.0では `check` もBFSで同じ規則を検査し、表の各行でBFSとTL
 
 - [言語リファレンス](/projects/rdra-ish/language-reference/)
 - [CLI リファレンス](/projects/rdra-ish/cli-reference/)
-- upstream: [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/main/docs/formal-verification.md)
+- upstream: [formal-verification.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/docs/formal-verification.md)

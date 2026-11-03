@@ -107,7 +107,7 @@ rdra-ish diagram src/ --kind rdra --format mermaid --buc BucOrder
 
 1. 1段階だけモデルを足す（[段階的モデリング](/projects/rdra-ish/incremental-modeling/)）
 2. `rdra-ish check src/` で型・整合性を確認
-3. `--buc` フィルタ付きdiagram / csvでその段階の関心だけレビュー
+3. `--buc` フィルタ付きのdiagram / `states`（csvは `--kind` で絞る）で、その段階の関心だけレビュー
 4. `rdra-ish next src/` で各BUCのStageと、次の段階で足すものを確認
 5. 次の段階へ
 

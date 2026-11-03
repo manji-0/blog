@@ -19,8 +19,8 @@ sidebar:
 
 | Stage | 関心 | 主な追加 | あとで確認すること |
 |---|---|---|---|
-| **0** | スコープ | `business`、候補 `buc`、`belongs` | スライスの切り方 |
-| **1** | BUC 骨格 | `actor`、`usecase`、`performs`、`contains`（順序が要るなら `flow` / `step`） | アクターとUCがBUCに束ねられているか |
+| **0** | スコープ | `business`、候補 `buc`、候補 `actor`、`belongs` | スライスの切り方 |
+| **1** | BUC 骨格 | `usecase`、`performs`、`contains`（順序が要るなら `flow` / `step`） | アクターとUCがBUCに束ねられているか |
 | **2** | 画面 | `screen`、`displays`、`navigates` | UCごとにアクターが見る画面（`diagram --kind screen`） |
 | **3** | データ接点 | 粗い `entity`、CRUD 述語、`shows` | UCごとにCRUDが説明可能か（`csv --kind matrix`） |
 | **4** | API・アクセス境界 | 必要なら `api` / `invokes`、`system`、`permission`、`medium`、`has_permission`、`requires_*` | API/権限のギャップ（`csv --kind screen-constraints`、`csv --kind actor-permission-audit`） |
@@ -28,7 +28,7 @@ sidebar:
 | **6** | ライフサイクル | Enum / Bool / `@null` 列、`transitions(UC, Entity.col, …)`、`sets`、`event`、`raises`、`triggers`、`timer` | 到達不能状態、未消費イベント（`states`, `diagram --kind state`, `diagram --kind event`） |
 | **7A** | ルール（任意） | `forbidden` / `exclusive` | 同時に成り立ってはいけない状態（`states`） |
 | **7B** | ルール（任意） | `invariant`、`required` | 状態が要求する事実（`states`） |
-| **7C** | ルール（任意） | 比較式、マルチエンティティの `forbidden` / `invariant`、必要なら `property` + TLC | 比較・時間性質は [形式検証](/projects/rdra-ish/formal-verification/) |
+| **7C** | ルール（任意） | 比較式、マルチエンティティの `forbidden` / `invariant` | `check` と `states` で確かめる |
 
 必須はStage 0–6です。Stage 7A–7Cは任意で、ライフサイクルまで書いてルールがないBUCも完了扱いです。
 

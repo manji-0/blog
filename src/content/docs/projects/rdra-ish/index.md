@@ -25,7 +25,7 @@ Wordや表に散らばりがちな「誰が・何を・どのデータに触る�
 | [使い方](/projects/rdra-ish/usage/) | インストールと初回の一周 |
 | [段階的モデリング](/projects/rdra-ish/incremental-modeling/) | Stage 0–7 の精緻化フロー |
 | [形式検証](/projects/rdra-ish/formal-verification/) | `export --kind tla` と `verify --backend tlc` |
-| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/main/CHANGELOG.md) | 破壊的変更の一覧 |
+| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/CHANGELOG.md) | 破壊的変更の一覧 |
 
 ## 目標
 
@@ -52,7 +52,7 @@ BUCはビジネス価値のスライス、ビジネスフローは時間順の�
 
 ## 制約
 
-- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`states` / `list` / `diagram --kind state` / 多くの `csv`）と `export --kind tla` / `verify` が **fail-closed** です。データ層だけを読む図やexportは書き出し、noteを出します
+- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list` / `diagram --kind state` / 多くの `csv`）が **fail-closed** です。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。データ層だけを読む図やexportは書き出し、noteを出します。`export --kind tla` と `verify` は状態診断では止まらず、性質の違反はTLCが反例として報告します
 - v1.0.0から互換性の約束があります。読み込めるモデルは次のメジャーリリースまで読み込め、`check` と `verify` は同じ範囲で同じ判定を返します
 - `warning` はレビュー信号（探索中は意図的に残してよい）
 - `error` はモデル信頼性を損なうためブロッカーです

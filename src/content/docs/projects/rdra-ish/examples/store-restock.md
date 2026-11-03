@@ -8,7 +8,7 @@ sidebar:
 
 <!-- derived-from ../incremental-modeling.md#Stage-一覧 -->
 
-このページは、店舗運営部の「補充予定と担当組織の維持」を題材に、要求分析からエンティティ構造・ライフサイクル・業務ルールまでをStage 0–7で追う実践ウォークスルーです。[段階的モデリング](/projects/rdra-ish/incremental-modeling/) の概念表に対応し、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/main/samples/incremental-order) です。
+このページは、店舗運営部の「補充予定と担当組織の維持」を題材に、要求分析からエンティティ構造・ライフサイクル・業務ルールまでをStage 0–7で追う実践ウォークスルーです。[段階的モデリング](/projects/rdra-ish/incremental-modeling/) の概念表に対応し、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v1.0.0/samples/incremental-order) です。
 
 ## 前提
 
@@ -334,9 +334,9 @@ requires_medium(BlockScheduledRestock, OpsConsole)
 
 1. 要求をそのStageの焦点に絞る（Mustだけ先に固定する）
 2. 差分だけ `.rdra` に足す
-3. `check` と `--buc` 付きdiagram / csv / `states` でレビューする
+3. `check` と `--buc` 付きdiagram / `states`、それに `csv` でレビューする
 4. `next` で到達Stageと次の問いを確かめ、次Stageへ進む（warningは探索信号、errorはブロッカー）
 
 ## 次に読む
 
-Stageの定義とディレクトリ規約の正本は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) です。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密検証は [形式検証](/projects/rdra-ish/formal-verification/)。フル差分は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/main/samples/incremental-order) の各stepの `requirements-analysis.md` と `design.md` を参照してください。
+Stageの定義とディレクトリ規約の正本は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) です。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密検証は [形式検証](/projects/rdra-ish/formal-verification/)。フル差分は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v1.0.0/samples/incremental-order) の各stepの `requirements-analysis.md` と `design.md` を参照してください。
