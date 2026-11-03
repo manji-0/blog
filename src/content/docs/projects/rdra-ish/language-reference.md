@@ -125,7 +125,7 @@ entity Order "Order" {
 | `drives(Usecase, Entity.col op rhs, true\|false)` | 比較命題の真偽を駆動する |
 | `chooses(Usecase, Entity.col)` | バリエーション列の値をアクターが選び直す |
 | `links(Usecase, Child, Parent)` | 既存の子の行を既存の親の行につなぐ（v1.1.0） |
-| `relinks(Usecase, Child, Parent)` | つながっている子を別の親へ移す（v1.1.0） |
+| `relinks(Usecase, Child, Parent)` | つながっている子を、UCが束縛する親へ移す。同じ親でもよい（v1.1.0） |
 | `unlinks(Usecase, Child, Parent)` | つながっている子を親から外す（v1.1.0） |
 | `outbox(Event)` | 意図的な外部公開（未消費 warning 抑制） |
 
@@ -146,7 +146,7 @@ v0.3.0でイベントを渡す `transitions(Entity.col, Event, from -> to)` が�
 
 #### 既存の子をつなぐ：`links` / `relinks` / `unlinks`
 
-`links(UC, Child, Parent)` は、子から親への `.optional()` のキーを通じて、既存の子を既存の親につなぎます。担当なしで開いた案件に担当を付ける、といった操作です。`relinks` はつながっている子を別の親へ移し、`unlinks` は親を外します。3つとも同じ引数を取り、同じキーをたどります。
+`links(UC, Child, Parent)` は、子から親への `.optional()` のキーを通じて、既存の子を既存の親につなぎます。担当なしで開いた案件に担当を付ける、といった操作です。`relinks` はつながっている子をUCが束縛する親へ移し（同じ親でもよい）、`unlinks` は親を外します。3つとも同じ引数を取り、同じキーをたどります。
 
 ```rdra
 entity Handler "Handler" { id: Int @pk  busy: Bool @default(false) }

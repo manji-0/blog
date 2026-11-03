@@ -69,7 +69,7 @@ forbidden(Order, Payment, Order.status == cancelled, Payment.status == captured)
 ## 推奨ワークフロー
 
 1. `transitions` / `sets` とエンティティ局所ルールでライフサイクルを書く
-2. `rdra-ish states` でEnum/Bool/Nullable軸を素早く確認
+2. `rdra-ish states` で状態軸（Enum/Bool/Nullable、範囲内のIntと `now`）を素早く確認
 3. `rdra-ish export --kind tla -o /tmp/rdra-tla` でSpecを眺める
 4. [TLA+ tools](https://github.com/tlaplus/tlaplus) を入れ `tlc` をPATHに通す
 5. `rdra-ish verify --backend tlc -o /tmp/rdra-tla`
