@@ -1,6 +1,6 @@
 ---
 title: "CLI リファレンス"
-description: "rdra-ish CLI サブコマンド一覧（v1.0.0）"
+description: "rdra-ish CLI サブコマンド一覧（v1.1.0）"
 sidebar:
   order: 5
 ---
@@ -15,17 +15,36 @@ rdra-ish <SUBCOMMAND> <INPUTS...> [OPTIONS]
 
 診断はstderrに `error:` / `warning:` 形式で出力します。ライフサイクルの所見は `error[<Name>]:` のように安定した名前付きで出ます。`check` はerrorがあると非ゼロ終了します。
 
-生成系サブコマンドは、parse/resolve errorがあると成果物を出しません。状態診断のerrorで止まるかは出力の種類で決まります。ライフサイクルを印字する出力（`list` / `diagram --kind state` / `entity` 以外の `csv` / `export --kind typescript-states`）は **fail-closed** です。ただし `diagram --kind state` は、errorがdeadlockだけなら図を書きます。`states` は `[error]` 行を含めて全体を出力し、非ゼロで終了します。データ層や宣言だけを読む出力（`state` 以外の `diagram`、`csv --kind entity`、`export` の `dbml` / `json-schema` / `openapi` / `asyncapi` / `mermaid-er`）は成果物を書き、error件数を示すnoteをstderrに1行出します。`export --kind tla` と `verify` は、印字する遷移系の構築時のerrorで止まります。一方で、探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まらず、`export --kind tla` はnoteも出しません。`fmt` はパース可能なら意味解析なしで動きます。
+生成系サブコマンドは、parse/resolve errorがあると成果物を出しません。ライフサイクルのerrorで止まるかは、出力が何を読むかで決まります（[ライフサイクルのerror](#ライフサイクルのerror)）。`fmt` はパース可能なら意味解析なしで動きます。
+
+## ライフサイクルのerror
+
+到達性の結果を印字する出力は **fail-closed** です。`check` がライフサイクルのerrorを報告している間は成果物を出しません。印字しない出力は成果物を書き、error件数を示すnoteをstderrに1行出して終了コード0で終わります。kindごとの分類はupstreamの `crates/rdra-ish-cli/src/lifecycle_gate.rs` が1か所で決め、テストが全kindをupstreamの `docs/cli-reference.md` の表と突き合わせます。
+
+| 出力 | 読むもの | ライフサイクルのerrorがあるとき |
+|---|---|---|
+| `list` の全kind | 宣言された事実 | noteを出して書く |
+| `csv` の全kind | 宣言された事実とデータ層 | noteを出して書く |
+| `diagram --kind state` | 状態モデルの初期状態と到達状態 | 止まる。errorがデッドロックだけなら、デッドロックを色分けして図を書く |
+| `state` 以外の `diagram`（`sequence` を含む） | 宣言された事実 | noteを出して書く |
+| `export --kind typescript-states` | 到達状態 | 止まる |
+| `export --kind tla` | `--instance-count` / `--int-range-max` で組み立てた遷移系 | noteを出して書く。noteは、TLC単体ではデッドロックとwitnessを検査しないので `verify` を使うよう促す。遷移系の構築時のerrorでは止まる |
+| ほかの `export` | データ層 | noteを出して書く |
+| `states` | 導出そのもの | `[error]` 行を含めて表を出し、終了コード1 |
+
+`verify` は、検査する遷移系の構築時のerrorで止まり、それ以外の所見は自分で報告します。
+
+v1.0.0では `list` と、`entity` 以外の `csv` も止まっていました。v1.1.0からは書き出して終了コード0で終わります。`csv` や `list` の失敗でライフサイクルのerrorを検出していたスクリプトは、`check` を使います。
 
 ## check
 
 パース、型チェック、モデル整合性検証。成果物は出力しません。
 
 ```bash
-rdra-ish check src/ [--strict] [--deny-deprecated] [--buc <BucId>]... [--entity <EntityId>]...
+rdra-ish check src/ [--strict] [--deny-deprecated] [--instance-count <N>] [--int-range-max <N>] [--buc <BucId>]... [--entity <EntityId>]...
 ```
 
-errorがなければ最後に `OK: no errors within 1 instance per entity, Int 0..5` のように検査の範囲付きで表示します。`--buc` / `--entity` で範囲を絞ったときは `OK: no errors in the selected scope, within ...` です。
+errorがなければ最後に `OK: no errors within 1 instance per entity, Int 0..5` のように検査の範囲付きで表示します。`--buc` / `--entity` で範囲を絞ったときは `OK: no errors in the selected scope, within ...` です。`--instance-count 2` を渡すと `OK: no errors within 2 instances per entity, Int 0..5` のように、渡した境界が出ます。
 
 含まれるレビュー信号：
 
@@ -38,11 +57,21 @@ errorがなければ最後に `OK: no errors within 1 instance per entity, Int 0
 
 違反した制約や `after` アサーションは、最短の反例トレース付きで1回だけ出ます。
 
+1インスタンスで見つけたデッドロックの抜け道が、あるUCの作るエンティティの行を必要とする場合、errorの末尾に「`--instance-count 2` なら解ける可能性がある」という行が付きます。`verify` は既定で2インスタンスを回します。errorの名前と重大度は変わりません。
+
+v1.1.0で次の所見が加わりました。
+
+- warning `GuardReadsLaterStep`：分割したUCに適用した `holds` 本体が、後のトランザクションでしか作られないエンティティを比べている。ガードは最初のトランザクションの前に読まれるため、多くの場合成り立たない
+- warning `DrivenComparisonColumnWritten`：`drives` で駆動する比較が読む列をUCが `sets` で書き換えるのに、その比較を駆動していない
+- info `DefaultOnVariationIgnored`：バリエーション型の列の `@default` は初期値を選ばない。作成するUCが列を `sets` しないと、行はバリエーションのどの値からでも始まる
+
 | オプション | 説明 |
 |---|---|
 | `--strict` | 権限・アクセス整合性のギャップをerror扱いにする |
 | `--deny-deprecated` | 非推奨構文の `DeprecatedSyntax` warningをerror扱いにする（CI向け） |
 | `--max-patterns` / `--max-states` | 状態探索の上限（既定 `256` / `65536`） |
+| `--instance-count` | エンティティあたりのインスタンス数、`1..=255`（既定 `1`）。2行で初めて破れる規則（一意性や行をまたぐ量化）は `2` から見える。`verify` と同じ名前と検証で、既定だけが違う（`verify` は `2`） |
+| `--int-range-max` | Intの値域を `0..=N` にする、`1..=255`（既定 `5`） |
 | `--buc` / `--entity` | 部分実行。指定したBUCから届くUC、または指定エンティティを読む規則だけを検査する |
 
 ## lint
@@ -54,6 +83,15 @@ rdra-ish lint src/ [--format table|json|csv|markdown]
 ```
 
 追加finding: orphan node（参照されない孤立ノード）、未トレースrequirement、empty BUC、未マップscreen field、命名規約warning等。`stage-readiness` 行は [`next`](#next) と同じ判定で各BUCのStageを示します。
+
+v1.1.0で4つのルールが加わりました。どれもerrorではありません。
+
+| ルール | 重大度 | 内容 |
+|---|---|---|
+| `comparison-unsatisfiable-in-range` | warning | Int / Money / Decimal列とリテラルの比較を、値域 `0..5` のどの値も満たさない（`qty > 5` など） |
+| `comparison-trivial-in-range` | warning | 同じ比較を、値域 `0..5` のすべての値が満たす（`qty >= 0` など）。`@null` 列は対象外 |
+| `triggered-usecase-unguarded` | info | イベントかタイマーだけが起動するUCが何かを書くのに、条件のガードも `transitions` の遷移元もない。`check` はイベントの前にも実行する |
+| `condition-applied-without-body` | info | `holds` 本体も `combines` もない条件をUCかAPIに `applies_to` している。何もガードしない |
 
 ## next
 
@@ -83,7 +121,7 @@ ASTベースフォーマッタ。コメントは元の位置に残し、2回目�
 rdra-ish fmt src/ [--write | --check]
 ```
 
-既存ファイルでは `--check` を先に実行してください。削除された構文はparse errorになり、`fmt` はそのファイルを整形しません。
+フラグなしでは整形結果をstdoutに出すだけで、ファイルは変わりません。既存ファイルでは `--check` を先に実行してください。削除された構文はparse errorになり、`fmt` はそのファイルを整形しません。
 
 ## diagram
 
@@ -95,7 +133,7 @@ rdra-ish diagram src/ --kind rdra --format mermaid --buc BucOrder
 
 ## csv
 
-レビュー表生成。`-o <out>` で `<out>.<kind>.csv` を書きます（既定 `out`）。
+レビュー表生成。`-o <out>` で `<out>.<kind>.csv` を書きます（既定 `out`）。stdoutには行を出さず、`wrote <path>` を表示します。ライフサイクルのerrorがあっても、noteを出して書きます。
 
 ```bash
 rdra-ish csv src/ --kind matrix [--format csv|markdown]
@@ -103,11 +141,13 @@ rdra-ish csv src/ --kind matrix [--format csv|markdown]
 
 ## states
 
-状態パターン導出（BFS）。Enum / Bool / Nullable軸向け。Int / `now` の算術検査は [形式検証](/projects/rdra-ish/formal-verification/) を使います。
+状態パターン導出（BFS）。Enum / Bool / Nullable / Int列と `now` を、境界の範囲で探索します。時間性質（`always` / `eventually` / `leads_to`）は [形式検証](/projects/rdra-ish/formal-verification/) を使います。
 
 ```bash
-rdra-ish states src/ --entity Order [--format table|csv|json|typescript]
+rdra-ish states src/ --entity Order [--format table|csv|json|typescript] [--instance-count <N>] [--int-range-max <N>]
 ```
+
+`--instance-count`（既定 `1`）と `--int-range-max`（既定 `5`）は `check` と同じです。値を大きくするとconeあたりの状態が増え、`--max-states` に早く届きます。
 
 出力に `[error]` が含まれると非ゼロ終了します。
 
@@ -120,7 +160,7 @@ rdra-ish export src/ --kind openapi [--out out/]
 rdra-ish export src/ --kind tla -o /tmp/rdra-tla
 ```
 
-`--kind tla` は `.tla` と兄弟 `.cfg` を書きます。`--instance-count` と `--int-range-max` で探索範囲を変えられます。詳細は [形式検証](/projects/rdra-ish/formal-verification/)。
+`--kind tla` は `.tla` と兄弟 `.cfg` を書きます。`--instance-count` と `--int-range-max` で探索範囲を変えられます。`check` がライフサイクルのerrorを見つけるモデルでも書き出して終了コード0で終わり、error件数と `verify` を促すnoteを出します。詳細は [形式検証](/projects/rdra-ish/formal-verification/)。
 
 ## verify
 
@@ -142,13 +182,15 @@ rdra-ish list src/ --kind usecase [--format table|csv|json|markdown]
 
 kindの例：`actor` / `buc` / `usecase` / `entity` / `api` / `requirement` / `screen` / `rule` / `transition` / `buc-roles`
 
+どのkindも宣言された事実だけを読むので、ライフサイクルのerrorがあってもnoteを出して書きます。
+
 ## 共通オプション
 
 多くのサブコマンドで `--buc <BucId>` により特定BUCにスコープできます。段階的モデリング中のスライスレビューに使います。
 
 ## プロジェクトマニフェスト
 
-モデルのルートに `rdra.toml` を置けます。`[model] name` が必須です。`[dependencies]` は読み込まれますが、v1.0.0ではまだ出力を変えません。不正なマニフェストは読み込み系コマンドを終了コード1で止めます（`files` と `fmt` はマニフェストを読みません）。
+モデルのルートに `rdra.toml` を置けます。`[model] name` が必須です。`[dependencies]` は読み込まれますが、v1.1.0でもまだ出力を変えません。不正なマニフェストは読み込み系コマンドを終了コード1で止めます（`files` と `fmt` はマニフェストを読みません）。
 
 ```toml
 [model]
@@ -163,7 +205,7 @@ name = "shop"
 | 1 | parse/model error、または `check` / `fmt --check` / 生成系の fail-closed / TLC 失敗、必要なツールが動かない |
 | 2 | 使い方の誤り（未知のサブコマンドやフラグ、kindが受け付けない `--format`） |
 
-v1.0.0から、サブコマンドとフラグ、終了コード、JSON/CSVの出力列はupstreamの [compatibility.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/docs/compatibility.md) で互換性が約束されています。
+v1.0.0から、サブコマンドとフラグ、終了コード、JSON/CSVの出力列はupstreamの [compatibility.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.1.0/docs/compatibility.md) で互換性が約束されています。
 
 ## VS CodeとLSP
 

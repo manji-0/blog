@@ -1,13 +1,15 @@
 ---
 title: "設計の評価"
-description: "rdra-ish v1.0.0 の主要な設計判断と、その利点・代償・破綻条件の評価"
+description: "rdra-ish v1.1.0 の主要な設計判断と、その利点・代償・破綻条件の評価"
 sidebar:
   order: 4.8
 ---
 
-このページは、rdra-ish v1.0.0の設計判断を6つ取り上げ、それぞれの仕組みと理由を説明したうえで評価します。コマンドの使い方は [使い方](/projects/rdra-ish/usage/) と [CLI リファレンス](/projects/rdra-ish/cli-reference/) にあります。ここでは「なぜこの形なのか」と「どこで困るのか」に絞ります。
+このページは、rdra-ish v1.1.0の設計判断を6つ取り上げ、それぞれの仕組みと理由を説明したうえで評価します。コマンドの使い方は [使い方](/projects/rdra-ish/usage/) と [CLI リファレンス](/projects/rdra-ish/cli-reference/) にあります。ここでは「なぜこの形なのか」と「どこで困るのか」に絞ります。
 
-事実はすべてタグ `v1.0.0` のソースとドキュメントで確かめられるものに限ります。ファイルパスはリポジトリ [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl/tree/v1.0.0) のルートからの相対パスです。評価の部分は筆者の判断であり、「〜と考えます」のように書き分けます。
+事実はすべてタグ `v1.1.0` のソースとドキュメントで確かめられるものに限ります。ファイルパスはリポジトリ [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl/tree/v1.1.0) のルートからの相対パスです。評価の部分は筆者の判断であり、「〜と考えます」のように書き分けます。
+
+このページは最初v1.0.0を対象に書きました。そこで挙げた問題のうち、upstreamのissue #93、#94、#95、#96はv1.1.0で直りました。該当する箇所では、v1.0.0での状態を1文で残し、v1.1.0での再評価を書きます。
 
 ## 取り上げる判断
 
@@ -58,18 +60,18 @@ sidebar:
 
 遷移系を1つにした判断は、この版で最も効いていると考えます。図・表・検証の結果が互いに食い違う原因を構造的に消しています。一方で、これは検証の独立性を下げます。その点は判断3で扱います。
 
-なお、`docs/vision.md` の冒頭は、`verify` が何も検査せずに成功しうるという問題を現在形のまま書いています。同じ文書のフェーズ4以降は「Done」です。また、遷移を駆動しないUCの `sets` を扱うサンプル `skills/rdra-ish-verify/samples/untriggered_sets.rdra` は、冒頭のコメントでTLCの失敗を期待すると書いています。冒頭で述べられた問題に対応するサンプルだと筆者は読んでいます。タグ時点の文書としては、冒頭の記述が古いまま残っていることになります。読む側が混乱しやすい点です。
+v1.0.0の時点では、`docs/vision.md` の冒頭が、`verify` が何も検査せずに成功しうるという直った問題を現在形のまま書いており、読む側が混乱しやすい状態でした（issue #96）。v1.1.0で冒頭は経緯として書き直され、「Both are fixed since v0.3.0」と、TLA+出力器が `states` / `check` / `verify` と共有の `TransitionSystem` だけを出力することが明記されました。この指摘は解消したと考えます。
 
 ## 2. 有界の check / states
 
 ### 仕組み
 
-`check` と `states` は、遷移系を幅優先探索（BFS）で網羅します。探索の範囲は固定の境界で区切ります。
+`check` と `states` は、遷移系を幅優先探索（BFS）で網羅します。探索の範囲は境界で区切ります。v1.1.0から、インスタンス数とIntの値域を `--instance-count` / `--int-range-max` で変えられます。既定値はv1.0.0と同じです。
 
 | 項目 | `check` / `states` | 出典 |
 |---|---|---|
-| エンティティあたりのインスタンス数 | 1 | `Bounds::STATES`（`crates/rdra-ish-core/src/lifecycle/types.rs`） |
-| Int / Money / Date などの値域 | `0..5` | 同上 |
+| エンティティあたりのインスタンス数 | 既定1（`--instance-count`） | `Bounds::STATES`（`crates/rdra-ish-core/src/lifecycle/types.rs`） |
+| Int / Money / Date などの値域 | 既定 `0..5`（`--int-range-max`） | 同上 |
 | coneあたりの状態数の上限 | 65,536（`--max-states`） | `Caps::STATES`（`crates/rdra-ish-core/src/lifecycle/states.rs`） |
 | エンティティビューあたりのパターン数の上限 | 256（`--max-patterns`） | 同上 |
 
@@ -81,9 +83,11 @@ sidebar:
 OK: no errors within 1 instance per entity, Int 0..5
 ```
 
+`--instance-count 2` を渡せば、この行は `within 2 instances per entity` になります。
+
 ### 理由
 
-`docs/vision.md` は、TLAPSや帰納的な不変条件による無限の証明を範囲外とし、「verification means bounded model checking with TLC, and the bounds are part of every result」と書いています。`check` を1インスタンスに絞った理由そのものは、記録には見当たりません。`docs/formal-verification.md` には、モデル全体を2インスタンスで回す実行がclinic-opsでは終わらなかったという記録があります。日常のループに置く `check` を軽く保つための判断だと推測しますが、これは推測です。
+`docs/vision.md` は、TLAPSや帰納的な不変条件による無限の証明を範囲外とし、「verification means bounded model checking with TLC, and the bounds are part of every result」と書いています。`check` の既定を1インスタンスにした理由そのものは、記録には見当たりません。`docs/formal-verification.md` には、モデル全体を2インスタンスで回す実行がclinic-opsでは終わらなかったという記録があります。日常のループに置く `check` を軽く保つための判断だと推測しますが、これは推測です。
 
 ### 評価
 
@@ -91,7 +95,7 @@ OK: no errors within 1 instance per entity, Int 0..5
 
 一方で、1インスタンスの「OK」が保証する範囲は狭いです。次の限界は、すべて `docs/formal-verification.md` の「Known verification gaps」に文書化されています。
 
-- 2インスタンスで初めて破れる規則は、`check` では空虚に成り立ちます。1:1関係から生成される `Unique_*` がその代表です。`one_to_one_shared.rdra` は `check` が通り、TLCで失敗します。
+- 2インスタンスで初めて破れる規則は、既定の `check` では空虚に成り立ちます。1:1関係から生成される `Unique_*` がその代表です。`one_to_one_shared.rdra` は既定の `check` が通り、TLCで失敗します。v1.1.0では、`check --instance-count 2` を付ければ終了コード1で検出できます。
 - 削除したスロットは再利用しません。1インスタンスでは、エンティティは一度しか生成されません。
 - イベントとタイマーは、起動するUCに順序を課しません。過大近似なので見逃しはありませんが、実際には起きない反例を報告することがあります。
 - `--buc` で絞ると、到達witnessの欠如、実行されないUC、デッドロックは判定されず、`not checked:` に回ります。
@@ -101,9 +105,9 @@ OK: no errors within 1 instance per entity, Int 0..5
 
 もう1つの弱点は、空虚な制約の扱いです。どのUCも書かない列を読む制約には `UnwrittenConstrainedVar` が出ますが、重大度はwarningです（`crates/rdra-ish-core/src/lifecycle/diag.rs`）。その制約は初期値しか検査していません。それでも `check` は終了コード0で終わり得ます。探索中のモデルでwarningを許す方針（[段階的モデリング](/projects/rdra-ish/incremental-modeling/)）と組み合わさると、意味のない制約が「通った」ように見えます。
 
-互換性契約との関係にも隙間があります。`docs/compatibility.md` は、既定の境界を変えることは破壊的変更ではないとし、再現性が要るなら境界をフラグで渡すよう勧めています。しかし `check` が受け付ける境界のフラグは `--max-states` と `--max-patterns` だけです。インスタンス数とIntの値域は `check` では固定で、フラグで固定できません。将来その既定値が変わると、`check` の判定はフラグでは再現できなくなります。この隙間は隠されてはおらず、`docs/compatibility.md` は `check` の固定の境界を表にしています。それでも、将来既定値が変わったときにフラグで再現できない点は残ります。現時点で実害はありませんが、契約の文面と実装が完全には噛み合っていないと考えます。
+v1.0.0では、互換性契約との関係にも隙間がありました。`docs/compatibility.md` は境界をフラグで渡して判定を再現するよう勧めていたのに、`check` が受け付ける境界のフラグは `--max-states` と `--max-patterns` だけで、インスタンス数とIntの値域は固定でした（issue #95）。v1.1.0で `check` と `states` に `--instance-count` と `--int-range-max` が入り、`docs/compatibility.md` の「Bounds」の節も、この2つと `--max-states` を `check` と `states` に渡すよう書き直されました。フラグなしの実行は以前と同じ境界で回ります。契約の文面と実装は噛み合ったと考えます。
 
-代替案は、`check` も2インスタンスで回すことです。`Unique_*` のような規則が `check` で意味を持ちます。代わりに、状態数は大きく増えます。`docs/formal-verification.md` の表では、clinic-opsのいくつかのconeが2インスタンスで数十万から300万を超える状態に達します。65,536の上限を持つ `check` は、そのままでは止まります。1インスタンスを日常用、2インスタンスを `verify` 用に分けた現状は、妥当な折衷だと考えます。ただしその分担は、OK行ではなく文書を読まないと分かりません。
+代替案は、`check` の既定を2インスタンスにすることです。`Unique_*` のような規則が既定の `check` で意味を持ちます。代わりに、状態数は大きく増えます。`docs/formal-verification.md` の表では、clinic-opsのいくつかのconeが2インスタンスで数十万から300万を超える状態に達します。65,536の上限を持つ `check` は、そのままでは止まります。v1.1.0からは、利用者が実行ごとに `--instance-count 2` を選べます。既定を1インスタンスに保ち、必要なときに広げられる現状は、妥当な折衷だと考えます。ただし、既定の `check` で何が見えないかは、OK行ではなく文書を読まないと分かりません。
 
 ## 3. TLA+/TLCを同じ遷移系の2つ目の探索器にする
 
@@ -182,11 +186,13 @@ v0.4.0とv1.0.0のCHANGELOGには、旧来の読み方が誤っていた箇所�
 
 まず時期です。2026-10-30から11-03までの間に3回の破壊的リリースを経て、その直後に構文と意味を凍結しています。凍結した中には、イベントが順序を課さないという過大近似（#30。2026-11-01に#51で決定）も含まれます。`docs/vision.md` は、これを後で変えるにはメジャーリリースが要ると明記しています。安定版を早く出す利点はありますが、変更の勢いが収まったことを確かめる期間はほとんどなかったと考えます。
 
-次に、非推奨の段階はまだ一度も使われていません。タグ時点の `LEGACY_FORMS` の行はすべて `Status::Removed` で、`Status::Deprecated` の行はありません。`docs/compatibility.md` も、1.0.0より前には非推奨期間がなかったと書いています。v1.0の約束を支える「非推奨→移行→メジャーで削除」の経路は、仕組みとしては実装済みですが、実運用では未検証です。
+次に、非推奨の段階はまだ一度も使われていません。タグ時点の `LEGACY_FORMS` の行はすべて `Status::Removed` で、`Status::Deprecated` の行はありません。`docs/compatibility.md` も、1.0.0より前には非推奨期間がなかったと書いています。v1.0の約束を支える「非推奨→移行→メジャーで削除」の経路は、仕組みとしては実装済みですが、実運用では未検証です。v1.1.0でもこの状況は変わらず、`LEGACY_FORMS` の21行はすべて `Status::Removed` です。
 
 最後に範囲です。「同じ境界で同じ判定」を約束すると、判定を変えるバグ修正はすべてCHANGELOGで名指しする必要があります。Mermaidの符号化まで契約に含めたので、図の改善も互換性の制約を受けます。TLA+の不変条件名 `Forbidden_<E>_<n>` の `<n>` は、モデルに同種の規則を足すと動きます。契約はこれを「ツールではなくモデルの変更」と整理していますが、名前で `.cfg` を手書きする利用者にとっては不安定な名前です。一方で、crateのAPI、メッセージの文面、状態数、図のレイアウト、TLA+のモジュール構成は契約の外にあり、保守の自由度は残しています。安定した契約があるからこそ、サンプルの `// expect` ヘッダやエージェント向けのスキルが出力に頼れる、という利点もあります。それでも、契約の範囲は個人プロジェクトの保守体力に対してかなり広いと考えます。
 
 一方、`next` のStage番号については、表示ラベルと安定IDを分けています。`stage` の値（`"2"`、`"7A"`）は並びの変更で番号が変わる表示用で、安定なのは `slug` です（`docs/compatibility.md`）。実際にv1.0.0では、ルールのStageが6A–6Cから7A–7Cに番号を変えています（`CHANGELOG.md`）。変わりやすい部分を契約から外す判断は適切だと考えます。
+
+v1.1.0は、契約の下で出た最初のminorリリースです。CHANGELOGは、v1.0.0で読み込めるモデルはすべて同じ判定・error・状態数・規則名で読み込めると書いています。新しい形（`links` など）、warning、info、lintルールはすべて追加です。一方で、終了コードが1つ変わりました。`csv` と `list` の終了コードは、ライフサイクルのerrorがあるとき1から0になりました（#94）。CHANGELOGはこれをバグ修正として名指しし、`csv` や `list` の失敗に頼っていたスクリプトは `check` を使うよう書いています。名指しして移行先を示す手順は、契約の趣旨に沿っていると考えます。ただし、契約が終了コードを対象に含む以上、「バグ修正」の例外をどこまで広く読むかで、契約の実際の強さが決まります。今回の変更は原則（2026-10-28の判断）に実装を合わせるもので、例外として妥当だと考えます。
 
 ## 5. Stage 0–7を1つの仕様から生成し next で判定する
 
@@ -230,58 +236,69 @@ pub enum Weight {
 1. parse/resolveのerrorがあれば、どの出力も書きません（`crates/rdra-ish-cli/src/load.rs` の `reject_model_errors`）
 2. ライフサイクルのerrorで止まるかは、出力の種類で決まります
 
-2段目の判定はkindごとの関数です（`crates/rdra-ish-cli/src/cli.rs`）。
+v1.1.0では、2段目の判定は `crates/rdra-ish-cli/src/lifecycle_gate.rs` の1か所にあります。出力が読むものを列挙型で表し、`list`・`csv`・`diagram`・`export` の全kindを網羅的な `match` で分類します。
 
 ```rust
-impl DiagramKind {
-    pub(crate) fn reads_lifecycle(&self) -> bool {
-        matches!(self, DiagramKind::State)
-    }
+pub(crate) enum Reads {
+    /// Declared facts and the data layer only.
+    Declared,
+    /// The transition system, printed for TLC to explore. ...
+    System,
+    /// The explored states, such as each state model's start states and reachable states.
+    States,
+    /// The explored states, drawing each deadlock instead of refusing on it.
+    StatesDrawingDeadlocks,
 }
 ```
 
-`ExportKind::reads_lifecycle` は `TypeScriptStates` だけが真です。`csv` は `entity` 以外のkindで常に止まります（`crates/rdra-ish-cli/src/csv_cmd.rs`）。止まらない出力は、error件数を示す `note:` を1行出して成果物を書きます。例外は `export --kind tla` で、noteを出さずに書き出します。`diagram --kind state` は、errorがデッドロックだけなら図を書き、デッドロックを図の中で示します。`export --kind tla` は `check` の結果を再利用せず、同じ `TransitionSystem` を `verify` の境界で組み立て直します。その構築時のerror（`DerivedColumnRead` など）で止まります（`crates/rdra-ish-cli/src/export.rs` の `checked_system`）。探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まりません。`verify` は制約違反をTLCの反例で、witnessの欠如とデッドロックを自身のBFSで報告し、非ゼロで終了します。
+`States` に分類されるのは `export --kind typescript-states` だけで、errorがあると止まります。`diagram --kind state` は `StatesDrawingDeadlocks` で、errorがデッドロックだけなら図を書き、デッドロックを図の中で示します。`list` と `csv` の全kind、ほかの図とexportは `Declared` です。error件数を示す `note:` を1行出して成果物を書き、終了コード0で終わります。
+
+`export --kind tla` は `System` です。`check` の結果を再利用せず、同じ `TransitionSystem` を `verify` の境界で組み立て直し、その構築時のerror（`DerivedColumnRead` など）で止まります（`crates/rdra-ish-cli/src/export.rs` の `checked_system`）。探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まりません。そのときは、TLC単体ではデッドロックとwitnessを検査しないので `verify` を使うよう促すnoteを出します。`verify` は制約違反をTLCの反例で、witnessの欠如とデッドロックを自身のBFSで報告し、非ゼロで終了します。
+
+新しいkindは、分類を書くまでコンパイルできません（`lifecycle_gate.rs` の冒頭のコメント）。`crates/rdra-ish-cli/tests/export_gate.rs` は全kindを実行し、`docs/cli-reference.md` の「Lifecycle errors」の表とも突き合わせます。
 
 ### 理由
 
-2026-10-28の判断（`docs/vision.md`）は、データ系の出力をライフサイクルの完成を待たせないと決めています。DBMLやJSON Schemaは到達性の結果を読まないので、モデルのerrorだけで止め、ライフサイクルのerrorにはnoteを出す、という理由です。この結果、ライフサイクルにerrorを持つ6つの検証サンプルでもDBMLとJSON Schemaが出るようになりました。
+2026-10-28の判断（`docs/vision.md`）は、データ系の出力をライフサイクルの完成を待たせないと決めています。DBMLやJSON Schemaは到達性の結果を読まないので、モデルのerrorだけで止め、ライフサイクルのerrorにはnoteを出す、という理由です。この結果、ライフサイクルにerrorを持つ6つの検証サンプルでもDBMLとJSON Schemaが出るようになりました。v1.1.0のCHANGELOGは、この判定が3か所の手書きリストで決まり、文書ともずれていたことをバグとして直したと書いています（#94）。
 
 ### 評価
 
 原則は明快です。「その出力が誤ったライフサイクルを印字するなら止める。読まないなら止めない」。誤った状態表やTypeScriptのunionが実装に流れ込むのを防ぎつつ、ライフサイクルを書きかけの段階でもデータ設計のレビューを進められます。段階的モデリングとよく噛み合う判断だと考えます。
 
-ただし実装は、この原則から機械的に導かれていません。止めるかどうかは、kindの手書きリストで決まります。そのリストと原則がずれている箇所があります。
+v1.0.0では、実装がこの原則から機械的に導かれておらず、止めるかどうかはkindの手書きリストで決まっていました。そのリストと原則は次の4点でずれていました。どれもv1.1.0で直っています。
 
-- `csv` は `entity` 以外を止めます。しかし `crates/rdra-ish-emit/src/csv.rs` は `lifecycle` を何もimportしておらず、CSVの出力器はライフサイクルを読みません。`csv --kind actor` や `csv --kind matrix` は、原則に従えばnoteで済むはずの出力です。
-- `list` は、ライフサイクルを読まない `list --kind actor` まで含めて、すべてのkindで止まります（`crates/rdra-ish-cli/src/main.rs` の `reject_state_errors`）。`csv` と同じ止まりすぎです。
-- `docs/vision.md` は、状態図と並んでシーケンス図も止まる出力に挙げています。コードでは `DiagramKind::reads_lifecycle` が真になるのは `State` だけです。
-- `export --kind tla` は、探索で見つかるerrorでは止まらず、noteも出しません。TLCはデッドロックを検査せず（`CHECK_DEADLOCK FALSE`）、witnessの欠如もBFSでしか見つかりません。そのため、書き出した仕様を手でTLCにかける利用者は、デッドロックやwitnessの欠如を見逃し得ます。`verify` を使えばBFSの検査も通るので、この見逃しは起きません。
+- `csv` は `entity` 以外を止めていました。CSVの出力器はライフサイクルを読まないので、止めすぎです（issue #94）。v1.1.0では全kindが `Declared` で、noteを出して書きます。
+- `list` も、ライフサイクルを読まない `list --kind actor` まで止めていました（#94）。v1.1.0では全kindが `Declared` です。
+- `docs/vision.md` は、状態図と並んでシーケンス図も止まる出力に挙げていましたが、コードではシーケンス図は止まりませんでした（#94）。v1.1.0の `docs/vision.md` には、その一覧が誤りだったこと、止まるのは `export --kind typescript-states` と状態図だけであることが追記されています。
+- `export --kind tla` は、探索のerrorがあってもnoteを出さず、手でTLCを回す利用者がデッドロックやwitnessの欠如を見逃し得ました（#93）。v1.1.0ではnoteを出します。`samples/formal-verification/deadlock.rdra` に対して、`check` は終了コード1です。`export --kind tla` は仕様を書いて終了コード0になり、stderrに `` note: the lifecycle has 1 error(s) (see `rdra-ish check`); TLC alone does not check deadlocks or witnesses ... `` と出ます。
 
-多くは、止まりすぎるか、文書と実装が食い違うかの問題です。ただし `export --kind tla` だけは、手でTLCを回す使い方で見逃しにつながります。ただ、「どの出力が止まるか」を利用者が文書から予測できないのは弱点です。手書きのリストではなく、出力器が遷移系や状態レポートを受け取るかどうかを型で表せば、ずれは構造的に起きなくなると考えます。
+v1.0.0版のこのページは、出力器が遷移系や状態レポートを受け取るかどうかを型で表せば、ずれは構造的に起きなくなると書きました。v1.1.0の解決は、その形そのものではありません。分類は今も人が書く `match` で、出力器の入力の型から導かれてはいません。ただし、網羅的な `match` なので分類の書き忘れはコンパイルで止まり、文書との食い違いはテストで止まります。ずれの原因だった「散らばったリスト」と「文書との不一致」は、どちらも構造的に塞がれたと考えます。残るのは、ある出力が本当に宣言された事実しか読まないか、という分類そのものを人が誤る余地です。小さな残余だと考えます。
+
+`export --kind tla` の見逃しは、noteによって小さくなったと考えます。ただし、TLAの仕様がデッドロックとwitnessを検査するようになったわけではありません。noteを読み飛ばして手でTLCを回せば、見逃しは今も起き得ます。
 
 `states` の扱いは別の選択です。`[error]` 行を含めて全体を出し、非ゼロで終わります。止めるより、誤りを含む表を見せたほうがレビューに役立つという判断で、診断用のコマンドとしては妥当だと考えます。
 
-代替案は、すべての生成物を一律でfail-closedにすることです。単純で予測しやすい反面、ライフサイクルを書き始めた途端にデータ系の生成物まで止まります。逆にすべてをfail-openにすると、誤った状態unionが黙って出ます。種類ごとに分ける方向は正しく、問題は分け方の実装だと考えます。
+代替案は、すべての生成物を一律でfail-closedにすることです。単純で予測しやすい反面、ライフサイクルを書き始めた途端にデータ系の生成物まで止まります。逆にすべてをfail-openにすると、誤った状態unionが黙って出ます。種類ごとに分ける方向は正しく、v1.1.0で分け方の実装も原則に追いついたと考えます。
 
 ## 総合評価
 
-rdra-ish v1.0.0は、要件モデル・論理データ・ライフサイクルを1つのテキストモデルにまとめ、その上の検証結果の意味を厳しく管理しようとするツールです。最も強い判断は、遷移系を1つにして、すべての出力とBFS・TLCの両方にそれを読ませたことだと考えます。結果の食い違いを構造的に消し、境界を毎回印字し、上限到達をerrorにする姿勢は一貫しています。自らの検証の穴を「Known verification gaps」として列挙している点も誠実です。
+rdra-ish v1.1.0は、要件モデル・論理データ・ライフサイクルを1つのテキストモデルにまとめ、その上の検証結果の意味を厳しく管理しようとするツールです。最も強い判断は、遷移系を1つにして、すべての出力とBFS・TLCの両方にそれを読ませたことだと考えます。結果の食い違いを構造的に消し、境界を毎回印字し、上限到達をerrorにする姿勢は一貫しています。自らの検証の穴を「Known verification gaps」として列挙している点も誠実です。v1.1.0では、v1.0.0版で挙げた弱点のうち、`check` の境界をフラグで固定できない点、fail-closedの判定のずれ、`export --kind tla` の無言の書き出し、`docs/vision.md` の古い記述が直りました（issue #93〜#96）。
 
 一方で、最も弱いのは「OK」が保証する範囲の伝え方です。境界は印字されますが、境界の中でどの規則が空虚に成り立ったかは見えません。
 
 ### 大きな未解決のリスク
 
-1. **`check` のOKの過信**：既定の `check` は1インスタンスで回ります。そこでは `Unique_*` のような規則が空虚に成り立ち、どのUCも書かない列への制約もwarningで通ります。日常のループで使うコマンドの「OK」が、最も弱い保証です。
+1. **`check` のOKの過信**：既定の `check` は1インスタンスで回ります。そこでは `Unique_*` のような規則が空虚に成り立ち、どのUCも書かない列への制約もwarningで通ります。日常のループで使うコマンドの「OK」が、最も弱い保証です。v1.1.0で `--instance-count 2` を渡せるようになりましたが、既定は1インスタンスのままで、OK行は規則ごとの空虚さを示しません。リスクは小さくなったものの残っていると考えます。
 2. **検証の独立性の誤解**：TLCは同じ遷移系の別の探索器です。`.rdra` の解釈の誤りは、BFSとTLCの両方を素通りします。解釈の正しさは、サンプルの `// expect` ヘッダと人のレビューに頼っています。
-3. **早い凍結と広い契約**：4日間で3回の破壊的リリースを出した直後に、構文・意味・図の符号化・TLA+の名前まで凍結しました。非推奨の経路はまだ一度も使われていません。イベント順序の過大近似のような意味上の選択も、次のメジャーまで変えられません。
-4. **TLAを手で回す経路の見落とし**：`export --kind tla` は探索で見つかるerrorでも黙って書き出し、TLCはデッドロックとwitnessの欠如を検出しません。`verify` を通さない利用者は、これらを見逃し得ます。
+3. **早い凍結と広い契約**：4日間で3回の破壊的リリースを出した直後に、構文・意味・図の符号化・TLA+の名前まで凍結しました。非推奨の経路はまだ一度も使われていません。イベント順序の過大近似のような意味上の選択も、次のメジャーまで変えられません。v1.1.0は契約の下で出た最初のminorリリースで、モデルの読み込みと判定は保たれました。一方で、`csv` と `list` の終了コードの変更をバグ修正としてminorで出しています。
+4. **TLAを手で回す経路の見落とし**：v1.0.0では、`export --kind tla` は探索で見つかるerrorでも黙って書き出していました。v1.1.0で、error件数と `verify` を促すnoteを出すようになりました（#93）。TLCは今もデッドロックとwitnessの欠如を検出しないので、noteを読み飛ばして手でTLCを回す利用者は見逃し得ます。リスクは小さくなったと考えます。
 5. **規模の天井が要件を削る**：大きなサンプルでは、coneの状態数が上限に近づき、ガードや関係を意図的に外しています。検証が回るかどうかが、要件の書き方を左右しています。
 
 ### 評価を変える条件
 
 - `check` が規則ごとに「この境界では空虚」と報告するか、`UnwrittenConstrainedVar` がerrorになれば、リスク1の評価は大きく下がります。ただしwarningをerrorにするのは契約上の破壊的変更で、メジャーリリースが要ります。規則ごとの空虚の報告なら、新しいwarningとしてminorで足せます
 - `.rdra` から遷移系への変換を、独立した参照実装や仕様ベースのテストで押さえる仕組みが入れば、リスク2の評価を改めます
-- `export --kind tla` が探索で見つかるerrorにnoteを出すか、TLAの仕様がデッドロックとwitnessも検査するようになれば、リスク4は小さくなります
+- `export --kind tla` が探索で見つかるerrorにnoteを出すか、TLAの仕様がデッドロックとwitnessも検査するようになれば、リスク4は小さくなる、とv1.0.0版では書きました。前半はv1.1.0で満たされました。後半が満たされれば、リスク4は解消します
 - 最初の非推奨サイクル（minorで非推奨、メジャーで削除）を契約どおりに通せば、互換性契約を実績のあるものとして評価します
 - 部分順序簡約や対称性の利用などでconeの状態数が下がり、`patent-ops` や `insurance-claim-ops` が外したガードを戻せれば、リスク5は小さくなります（upstreamのissue #74がこの簡約を追っています）
-- fail-closedの判定が出力器の入力の型から導かれるようになれば、判断6の弱点は解消します
+- v1.1.0で、fail-closedの判定は網羅的な分類とテストで原則と文書に結び付き、判断6の弱点はほぼ解消したと考えます。分類が出力器の入力の型から導かれるようになれば、人が誤分類する余地もなくなります

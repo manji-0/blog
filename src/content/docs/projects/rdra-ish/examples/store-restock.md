@@ -8,7 +8,7 @@ sidebar:
 
 <!-- derived-from ../incremental-modeling.md#Stage-一覧 -->
 
-このページは、店舗運営部の「補充予定と担当組織の維持」を題材に、要求分析からエンティティ構造・ライフサイクル・業務ルールまでをStage 0–7で追う実践ウォークスルーです。[段階的モデリング](/projects/rdra-ish/incremental-modeling/) の概念表に対応し、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v1.0.0/samples/incremental-order) です。
+このページは、店舗運営部の「補充予定と担当組織の維持」を題材に、要求分析からエンティティ構造・ライフサイクル・業務ルールまでをStage 0–7で追う実践ウォークスルーです。[段階的モデリング](/projects/rdra-ish/incremental-modeling/) の概念表に対応し、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v1.1.0/samples/incremental-order) です。
 
 ## 前提
 
@@ -95,7 +95,7 @@ rdra-ish check step-2-screens/src
 rdra-ish diagram step-2-screens/src --kind screen --format mermaid
 ```
 
-画面はアクターが見て操作するシステム境界です。v1.0.0のStage順では、データより先に画面を決めます。
+画面はアクターが見て操作するシステム境界です。v1.0.0以降のStage順では、データより先に画面を決めます。
 
 ## Stage 3のデータ接点
 
@@ -243,7 +243,7 @@ rdra-ish states step-6-lifecycle/src --entity Store
 rdra-ish diagram step-6-lifecycle/src --kind state --format mermaid --buc BucStoreRestock
 ```
 
-v1.0.0では状態を動かすのはユースケースです。`transitions` はUCを先頭に取り、列は `Entity.col` で書きます。このサンプルはイベントを使わず、UCが遷移と `sets` を直接持ちます。blockedからnormalへ戻すUCは、このサンプルではまだ入れません。このStepで `next` は必須Stageの完了（`stage 6 Lifecycle, required stages complete`）を表示します。
+v1.0.0以降、状態を動かすのはユースケースです。`transitions` はUCを先頭に取り、列は `Entity.col` で書きます。このサンプルはイベントを使わず、UCが遷移と `sets` を直接持ちます。blockedからnormalへ戻すUCは、このサンプルではまだ入れません。このStepで `next` は必須Stageの完了（`stage 6 Lifecycle, required stages complete`）を表示します。
 
 ## Stage 7の業務ルール
 
@@ -339,4 +339,4 @@ requires_medium(BlockScheduledRestock, OpsConsole)
 
 ## 次に読む
 
-Stageの定義とディレクトリ規約の正本は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) です。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密検証は [形式検証](/projects/rdra-ish/formal-verification/)。フル差分は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v1.0.0/samples/incremental-order) の各stepの `requirements-analysis.md` と `design.md` を参照してください。
+Stageの定義とディレクトリ規約の正本は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) です。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密検証は [形式検証](/projects/rdra-ish/formal-verification/)。フル差分は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v1.1.0/samples/incremental-order) の各stepの `requirements-analysis.md` と `design.md` を参照してください。
