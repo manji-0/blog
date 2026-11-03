@@ -10,14 +10,14 @@ sidebar:
 
 ## インストール
 
-rdra-ishはRust製CLIです。PyPI/uv経由のバイナリ配布が主なインストール方法です（v0.2.0向け）。
+rdra-ishはRust製CLIです。PyPI/uv経由のバイナリ配布が主なインストール方法です（v1.0.0向け）。GitHub Releaseにもプラットフォーム別のアーカイブがあります。
 
 ```bash
 uv tool install rdra-ish
 rdra-ish --help
 ```
 
-インストール後に `export` / `verify` サブコマンドが見えればv0.2.0系です（旧0.1.xには `verify` がありません）。
+`--version` フラグはありません。`rdra-ish --help` に `next` サブコマンドが見えればv0.4.0以降です（v0.2.0には `next` がありません）。
 
 ```bash
 rdra-ish check --help
@@ -34,7 +34,7 @@ cd rdra-ish-dsl
 rdra-ish check samples/ec-site
 ```
 
-エラーがなければ `OK: no errors` が表示されます。
+エラーがなければ `OK: no errors within 1 instance per entity, Int 0..5` のように、検査した範囲付きで表示されます。
 
 ## 図の生成
 
@@ -42,10 +42,10 @@ Mermaidは追加依存なしで使えます。
 
 ```bash
 rdra-ish diagram samples/ec-site --kind rdra --format mermaid --buc BucOrder
-rdra-ish diagram samples/clinic-ops --kind sequence --format mermaid --buc BucAppointmentScheduling
+rdra-ish diagram samples/clinic-ops --kind sequence --format mermaid --usecase BookAppointment
 ```
 
-`diagram --format plantuml` でPNG/SVGを生成する場合、Javaと `plantuml.jar` が必要になります。
+`--kind sequence` は1つのUCを描くので、`--buc` ではなく `--usecase` を渡します。出力はMermaidテキストだけです。PlantUML出力はv0.3.0で削除されました。画像が要るときはMermaid CLI（`mmdc`）などで描画します。
 
 ## レビュー用CSV
 
@@ -107,10 +107,23 @@ rdra-ish diagram src/ --kind rdra --format mermaid --buc BucOrder
 
 1. 1段階だけモデルを足す（[段階的モデリング](/projects/rdra-ish/incremental-modeling/)）
 2. `rdra-ish check src/` で型・整合性を確認
-3. `--buc` フィルタ付きdiagram / csvでその段階の関心だけレビュー
-4. 次の段階へ
+3. `--buc` フィルタ付きのdiagram / `states`（csvは `--kind` で絞る）で、その段階の関心だけレビュー
+4. `rdra-ish next src/` で各BUCのStageと、次の段階で足すものを確認
+5. 次の段階へ
 
 `warning` はレビュー信号、`error` はブロッカーとして扱います。
+
+## v0.2.0のモデルを移行する
+
+v1.0.0は最初の安定版です。以降はセマンティックバージョニングに従い、読み込めるモデルは次のメジャーリリースまで読み込めます。一方、v0.2.0からv1.0.0までの間に構文が変わりました。v0.2.0で書いたモデルの多くは、そのままでは読み込めません。古い形は、書き換え後の行を示すエラーで止まります。upstreamのスクリプトを順に実行して書き換えます。
+
+```bash
+python3 scripts/migrate-phase3.py src/      # v0.3.0: timing → timer、UCが駆動する transitions
+python3 scripts/migrate-syntax-v2.py src/   # v0.4.0: transitions(UC, Entity.col, ...) など
+python3 scripts/migrate-syntax-v3.py src/   # v1.0.0: sets(UC, Entity.col == v) など
+```
+
+スクリプトが扱わない箇所は、エラーメッセージに従って手で直します。たとえば `state` 宣言と `location` の削除、`belongs(...)` の `.where(...)` の削除、タイマーをどのUCにつなぐかです。変更の一覧はupstreamの [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/CHANGELOG.md) にあります。
 
 ## 次に読む
 

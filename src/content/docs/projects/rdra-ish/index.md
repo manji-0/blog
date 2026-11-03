@@ -6,7 +6,7 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl) · 対象バージョン: **v0.2.0**
+> ソースリポジトリ: [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl) · 対象バージョン: **v1.0.0**
 
 **rdra-ish** は、要件モデルを `.rdra` で書いて、型チェック・図表・状態導出・形式検証まで同じモデルから回すCLIとコンパイラ群です。
 
@@ -23,9 +23,9 @@ Wordや表に散らばりがちな「誰が・何を・どのデータに触る�
 | 文書 | 内容 |
 | --- | --- |
 | [使い方](/projects/rdra-ish/usage/) | インストールと初回の一周 |
-| [段階的モデリング](/projects/rdra-ish/incremental-modeling/) | Stage 0–6 の精緻化フロー |
+| [段階的モデリング](/projects/rdra-ish/incremental-modeling/) | Stage 0–7 の精緻化フロー |
 | [形式検証](/projects/rdra-ish/formal-verification/) | `export --kind tla` と `verify --backend tlc` |
-| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/main/CHANGELOG.md) | 破壊的変更の一覧 |
+| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.0.0/CHANGELOG.md) | 破壊的変更の一覧 |
 
 ## 目標
 
@@ -39,7 +39,7 @@ Wordや表に散らばりがちな「誰が・何を・どのデータに触る�
 
 ## シナリオ
 
-1. Stage 0から段階的に `.rdra` を足し、各段階のあと `check` と `--buc` 付きdiagramでレビューする
+1. Stage 0から段階的に `.rdra` を足し、各段階のあと `check` と `--buc` 付きdiagramでレビューし、`next` で次の段階を確かめる
 2. CRUDマトリクスとシーケンス図でBUCのギャップを洗い、`states` でライフサイクルを確認する
 3. `export --kind openapi` や `dbml` でたたき台を出し、差分を実装と揃える
 
@@ -52,7 +52,8 @@ BUCはビジネス価値のスライス、ビジネスフローは時間順の�
 
 ## 制約
 
-- 生成系サブコマンド（`diagram` / `csv` / `list` / `export` / `states` / `verify`）はモデルにerrorがあるとき **fail-closed** です
+- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。状態診断のerrorでは、ライフサイクルを印字する出力（`list` / `diagram --kind state` / 多くの `csv`）が **fail-closed** です。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。データ層だけを読む図やexportは書き出し、noteを出します。`export --kind tla` と `verify` は状態診断では止まらず、性質の違反はTLCが反例として報告します
+- v1.0.0から互換性の約束があります。読み込めるモデルは次のメジャーリリースまで読み込め、`check` と `verify` は同じ範囲で同じ判定を返します
 - `warning` はレビュー信号（探索中は意図的に残してよい）
 - `error` はモデル信頼性を損なうためブロッカーです
 - `--buc` フィルタで1スライスだけ検証できます
@@ -66,13 +67,13 @@ BUCはビジネス価値のスライス、ビジネスフローは時間順の�
 ## 依存
 
 - Rust製CLI。PyPI/uv経由の `rdra-ish` バイナリが主な配布経路です
-- diagramのMermaid出力は追加依存なし。PlantUMLはJavaと `plantuml.jar` が要ります
+- diagramの出力はMermaidテキストだけで、追加依存はありません（PlantUML出力はv0.3.0で削除）
 - TLA+/TLCは [形式検証](/projects/rdra-ish/formal-verification/) の手順で別途入れます
 
 ## 検討して捨てた案
 
 1. **RDRA原典の完全互換** — 実装レビュー向けの語彙を足したRDRA-ISHとして切りました
-2. **単一の巨大 `.rdra`** — Stage 0–6と `shared/` / `buc/` 配置で段階的精緻化を採用しました
+2. **単一の巨大 `.rdra`** — Stage 0–7と `shared/` / `buc/` 配置で段階的精緻化を採用しました
 3. **生成物を正とする運用** — exportはレビュー起点のたたき台とし、モデル更新後の再生成を前提にしました
 
 ## 次に読む
