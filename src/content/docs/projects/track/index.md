@@ -6,7 +6,7 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [track](https://github.com/manji-0/track) · 対象バージョン: **v0.9.0**
+> ソースリポジトリ: [track](https://github.com/manji-0/track) · 対象バージョン: **v0.10.0**
 
 **track** は、いま着手している開発タスクをコンテキストとして束ね、コーディング用ワークスペースまで所有する軽量CLIです。
 
@@ -62,11 +62,12 @@ sidebar:
 - 新規DBの既定は `vcs-mode=git` です
 - 既存DBでタスクがあり `vcs-mode` を一度も書いていないものは **jj** のままです
 - 実装は例外なく `.worktrees/<slug>/` の中で行います
+- `context-mode` の既定は `single` です。暗黙のカレントタスクに対して動きます。`multi` にすると、`--task <ref>` のないタスク単位のコマンドを拒否し、`track switch` も使えません
 - `track archive --force` はdirtyチェックを飛ばすだけで、ディレクトリは削除されます
 
 ## インタフェース
 
-- CLI: `track <subcommand>`（mutatingは `--json` 可）
+- CLI: `track <subcommand>`（mutatingは `--json` 可。全コマンドでグローバルな `--task <ref>` を受け付ける）
 - エージェント： スキル `track` / `track-task-setup` / `track-task-execute` / `track-advanced` と `track llm-help`
 - ブラウザ： `track webui`（[Web UI](/projects/track/webui/)）
 - 永続化： SQLite（`$HOME/.local/share/track/track.db`、XDG Base Directory）

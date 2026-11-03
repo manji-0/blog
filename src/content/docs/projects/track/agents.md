@@ -47,6 +47,7 @@ gitモードならだいたい次の形です。見るのは `hint.next_command`
 ```json
 {
   "vcs_mode": "git",
+  "context_mode": "single",
   "workflow": {
     "phase": "execute",
     "next_action": {
@@ -65,7 +66,18 @@ gitモードならだいたい次の形です。見るのは `hint.next_command`
 
 jjモードでは `git` キーを省略し、`jj` キーを返します。`start_command` は `track sync`、`path_command` は `cd "<path>"` です。`must_use_jj_skill` は常に `false` です。フルスキーマはupstreamの [LLM_INTEGRATION.md](https://github.com/manji-0/track/blob/main/docs/LLM_INTEGRATION.md) へ。
 
-Web UI起動中は `GET /api/status` でも同じ状態が取れます。フィールドの意味はこのページと同じです。
+Web UI起動中は `GET /api/status` でも同じ状態が取れます。フィールドの意味はこのページと同じです。対象タスクは `?task=<ref>` で指定できます。
+
+## 複数タスクの並行作業
+
+複数のエージェントや端末が別々のタスクを同時に進めるときは、`track config set context-mode multi` にします。`single`（既定）では、誰かの `track switch` がほかのセッションの書き込み先まで変えてしまいます。
+
+- `--task <ref>` がないと、タスク単位のコマンドは失敗します。`track --task 3 todo add "..."` のように毎回指定します
+- `track switch` は使えません
+- `hint.next_command` と `workflow.next_action.command` には `--task <id>` が最初から入っています。そのまま実行してください
+- `track status --json` と `track list --json` に `context_mode` が入ります
+- multiのとき、`track list --json` の `current_task_id` は `null` です
+- Web UIの `/api/status` も、タスク指定のないリクエストを400で拒否します
 
 ## ガードレール
 
@@ -74,6 +86,7 @@ Web UI起動中は `GET /api/status` でも同じ状態が取れます。フィ�
 - `track archive --force` は、利用者がdirtyチェックのスキップを明示したときだけです。ディレクトリは消えます。
 - 完了したTODOの再オープンはできません。続きは新しいTODOです。
 - aggressive modeでは、公開済みSHAを書き換えません。
+- `context_mode` が `multi` なら、提示されたコマンドの `--task <id>` を外しません。
 
 ## 次に読む
 

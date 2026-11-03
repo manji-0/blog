@@ -1,6 +1,6 @@
 ---
 title: "ワークスペース"
-description: "track が所有する git / jj ワークスペース（v0.9.0）"
+description: "track が所有する git / jj ワークスペース（v0.10.0）"
 sidebar:
   order: 4
   label: "ワークスペース"
@@ -68,7 +68,7 @@ jj git push --named track/proj-123
 gh pr create --base main
 ```
 
-実装の合間にtrackへメモを残すのは、どのディレクトリからでも大丈夫です。アクティブタスクに載ります。
+実装の合間にtrackへメモを残すのは、どのディレクトリからでも大丈夫です。アクティブタスクに載ります。`context-mode=multi` では `--task <ref>` で対象タスクを指定します（[CLI リファレンス](/projects/track/cli-reference/)）。
 
 ```bash
 track scrap add "Chose sliding window over fixed window for burst traffic"
@@ -85,9 +85,19 @@ track archive
 
 `track archive` はワークスペースディレクトリを削除します。`--force` はdirtyチェックを飛ばすだけで、ファイルは残しません。確認プロンプトはTTY以外では失敗します。エージェント向けの待ち方は [エージェント](/projects/track/agents/) へ。
 
+## ワークスペースのベース
+
+新しいワークスペースは、できるかぎり `origin` から始まります。まずベストエフォートで `git fetch origin`（gitモード）か `jj git fetch --remote origin`（jjモード）を実行し、次の順でベースを選びます。
+
+1. 登録済みのベース（`track repo add --base`、または `repo add` 時のrevision上のbookmark）があれば、そのリモート側（gitモードは `origin/<name>`、jjモードは `<name>@origin`）を使う
+2. 登録名がなければ、リモートの既定ブランチ（`origin/HEAD`、次に `main`、次に `master`）を使う
+3. リモートの参照がなければ（オフライン、または `origin` なし）、ローカルのベースに戻る
+
+未コミットの変更があるベースのチェックアウトを拒否するのは、3のローカルに戻る場合だけです。リモートのベースは手元の変更を拾わないので、`main` がdirtyでも `track repo add` / `track sync` は止まりません。未pushのローカルコミットから始めたいときは、`origin` に対応のないベース（コミットIDなど）を登録します。
+
 ## gitモード
 
-`vcs-mode=git` では `<repo>/.worktrees/<slug>/` に `git worktree add` します。ベースブランチのfetchはベストエフォートです。`.worktrees/` は `.git/info/exclude` で無視します。利用者が `git worktree` を手で叩く必要はありません。
+`vcs-mode=git` では `<repo>/.worktrees/<slug>/` に `git worktree add` します。ベースは前節の順で選びます。タスクブランチは `--no-track` で作るので、`origin/<base>` をupstreamとして引き継ぎません。`.worktrees/` は `.git/info/exclude` で無視します。利用者が `git worktree` を手で叩く必要はありません。
 
 ## jjモード
 
