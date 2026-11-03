@@ -1,7 +1,7 @@
 <!-- diagram-design: flowchart · fit · simplified · mixed · manj-io -->
 <svg viewBox="0 0 960 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dagayn-hook-loop-title dagayn-hook-loop-desc">
-  <title id="dagayn-hook-loop-title">保存のたびにグラフが追いつく</title>
-  <desc id="dagayn-hook-loop-desc">ファイル保存で hook が dagayn update を走らせ、次のレビューは新しい graph.db を読む。</desc>
+  <title id="dagayn-hook-loop-title">編集のたびにグラフが追いつく</title>
+  <desc id="dagayn-hook-loop-desc">エージェントの編集で hook が更新をキューに積み、worker が処理したあとのレビューは新しい graph.db を読む。</desc>
   <defs>
     <marker id="dagayn-hook-loop-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
     <marker id="dagayn-hook-loop-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
@@ -18,13 +18,13 @@
 
   <rect x="80" y="56" width="172" height="80" rx="6" class="n-mask"/>
   <rect x="80" y="56" width="172" height="80" rx="6" class="n-input"/>
-  <text x="166" y="92" class="dd-name" text-anchor="middle">ファイル保存</text>
-  <text x="166" y="112" class="dd-sub" text-anchor="middle">staged も未追跡も</text>
+  <text x="166" y="92" class="dd-name" text-anchor="middle">エージェントの編集</text>
+  <text x="166" y="112" class="dd-sub" text-anchor="middle">Edit / Write のあと</text>
 
   <rect x="316" y="56" width="240" height="80" rx="6" class="n-mask"/>
   <rect x="316" y="56" width="240" height="80" rx="6" class="n-focal"/>
-  <text x="436" y="92" class="dd-name" text-anchor="middle">dagayn update</text>
-  <text x="436" y="112" class="dd-sub" text-anchor="middle">--skip-flows</text>
+  <text x="436" y="92" class="dd-name" text-anchor="middle">dagayn queue</text>
+  <text x="436" y="112" class="dd-sub" text-anchor="middle">add update</text>
 
   <rect x="620" y="56" width="200" height="80" rx="6" class="n-mask"/>
   <rect x="620" y="56" width="200" height="80" rx="6" class="n-store"/>
@@ -33,5 +33,5 @@
 
   <line x1="80" y1="212" x2="820" y2="212" class="dd-hairline"/>
   <text x="80" y="236" class="dd-legend">DEFAULT</text>
-  <text x="168" y="236" class="dd-legend-item">日常はフロー再計算を省略する。重いのは週次や大きな refactor のあと。</text>
+  <text x="168" y="236" class="dd-legend-item">保存ごとに更新をキューへ積み、1つの worker がまとめて処理する。</text>
 </svg>

@@ -14,7 +14,7 @@ sidebar:
 | Python | 3.12以上（CIは3.13想定） |
 | ディスク | リポジトリ規模に応じて `.dagayn/` に数百MB〜数GB |
 | ネットワーク | `fts-only` なら不要。埋め込みsidecar初回はモデル取得で必要 |
-| Rust toolchain | Git/sourceインストール時のみ |
+| Rust toolchain | Git/sourceインストール時のみ（1.98以上） |
 
 ## インストール
 
@@ -41,7 +41,7 @@ pip install git+https://github.com/manji-0/dagayn.git
 uv tool install --from git+https://github.com/manji-0/dagayn.git dagayn
 ```
 
-Git/sourceインストールはPyO3 Rust拡張をローカルでビルドします。Rust toolchain、Cコンパイラ、macOSではCommand Line Toolsが必要になります。
+Git/sourceインストールはPyO3 Rust拡張をローカルでビルドします。Rust toolchain（1.98以上）、Cコンパイラ、macOSではCommand Line Toolsが必要になります。
 
 ```bash
 dagayn --version
@@ -80,13 +80,13 @@ dagayn build
 dagayn status
 ```
 
-初回の `build` は規模に比例して時間がかかります。終わると `.dagayn/graph.db` に載ります。`status` ではノード数、最終更新、埋め込みカバレッジ、鮮度（`complete` / `partial` / `stale` など）が見えます。
+初回の `build` は規模に比例して時間がかかります。終わると `.dagayn/graph.db` に載ります。`status` ではノード数、最終更新、グラフの鮮度（`Graph state:`）、埋め込みカバレッジ（`complete` / `partial` / `stale` など）が見えます。
 
 ## 日常更新
 
 ```bash
 dagayn update
-dagayn update --skip-flows   # hookの既定に近い
+dagayn update --skip-flows   # コミュニティ検出を省略
 ```
 
 フルでやり直したいときだけ：
@@ -98,13 +98,35 @@ dagayn build --force-full-build
 ```diagram-design dagayn-hook-loop
 ```
 
-hookは `dagayn install` が登録します。週次や大きなrefactorのあとだけ、フロー込みの `update` かフル `build` を走らせると安心です。
+hookは `dagayn install` が登録します。編集hookは `dagayn queue add update` で更新をキューに積み、workerが構造だけをまとめて更新します。コミット前のgit hookは `dagayn update --skip-flows` と `dagayn detect-changes --brief` を、コミット後は `dagayn update` を走らせます。
+
+## SCIPで呼び出し先を確定する
+
+`dagayn build --scip` は、インストール済みのSCIPインデクサで `CALLS` エッジの呼び出し先を確定してから後処理に進みます。
+
+```bash
+dagayn build --scip
+```
+
+| 言語 | インデクサ | 扱い |
+| --- | --- | --- |
+| Rust / TypeScript・JavaScript | `rust-analyzer scip` / `scip-typescript` | dagaynの解決を置き換える |
+| Go、Python、C/C++、C#、Ruby、Dart、PHP、R | `scip-go`、`scip-python` など | dagaynが解決できなかった分を埋める |
+| Java / Kotlin | `scip-java` | 埋める。`DAGAYN_SCIP_ALLOW_BUILD=1` のときだけ走る |
+
+インデクサが無い言語は `hint:` にインストール手順が出て、dagayn自身の解決のままです。SCIPで確定したエッジは `resolved_by: "scip"` を持ちます。SCIPの反映はフル `build` のときだけです。`update` は次の `build --scip` まで通常の解決を使います。
+
+## アップグレード後
+
+1. MCPサーバを再起動します（Claude Codeなら `/mcp` から `dagayn` を再接続）。新しいネイティブ拡張を読み込むためです。
+2. `dagayn update` を実行します。抽出器のバージョンが変わった言語のファイルだけが再パースされます。手動のフルビルドは要りません。
+3. `dagayn install` を再実行します。CLAUDE.mdやAGENTS.mdに書いた古い指示セクションを更新します。
 
 ## エージェントからの利用
 
 CursorやClaude Code、CodexなどからMCPツールを呼びます。IDE側でMCPが登録されているかを確認し、ツール一覧は `dagayn tool --list` でも見られます。
 
-`--mode fts-only` では埋め込みを作りません。最初に試すなら `review_tool` と `query_graph_tool` の構造クエリが向いています。意味検索を本格利用するときは埋め込みモードで入れ直すか [グラフモデル](/projects/dagayn/graph-model/) の検索節を読んでください。
+`--mode fts-only` では埋め込みを作りません。最初に試すなら `review_tool` と `query_graph_tool` の構造クエリが向いています。主要ツールの応答は最後に `next`（次に呼ぶ最大3件の呼び出しと理由）を返すので、エージェントはそれに沿って辿れます。意味検索を本格利用するときは埋め込みモードで入れ直すか [グラフモデル](/projects/dagayn/graph-model/) の検索節を読んでください。
 
 MCPなしでも差分は取れます。
 
@@ -149,7 +171,7 @@ uvx maturin develop --release
 
 ### hookが重い
 
-hookは既定で `dagayn update --skip-flows` を実行します。対象リポジトリが非常に大きい、または一度に大量ファイルを保存した場合、日常運用では `--skip-flows` のままにしてください。週次や大変更後に `dagayn build` でフロー込み再計算します。
+編集hookは更新をキューに積むだけで、連続した編集は1回の構造更新にまとまります。hook経由の更新は既定120秒の予算（`--budget-seconds`）を超えると止まります。重いと感じたら `dagayn queue status` で滞留を確認してください。`.dagayn/hook-skip` を置くとhook経由の更新を止められます。
 
 ### セマンティック検索が効かない
 

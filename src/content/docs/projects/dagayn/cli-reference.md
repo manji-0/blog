@@ -13,7 +13,7 @@ sidebar:
 | --- | --- |
 | `dagayn build` | フルビルド（初回または再構築） |
 | `dagayn update` | 変更ファイルのインクリメンタル更新 |
-| `dagayn postprocess` | フロー・コミュニティ・FTS等の後処理のみ |
+| `dagayn postprocess` | コミュニティ・FTS等の後処理のみ（`--no-communities` / `--no-fts`） |
 | `dagayn watch` | ファイル変更を監視して自動更新 |
 | `dagayn status` | グラフの有無・鮮度・統計・埋め込みカバレッジ |
 
@@ -23,7 +23,10 @@ sidebar:
 dagayn build
 dagayn build --force-full-build   # graph.db を削除してクリーンビルド
 dagayn build --local-embedding    # ビルド後にローカル埋め込み生成
+dagayn build --scip               # SCIPインデクサで呼び出し先を確定
 ```
+
+`--skip-flows` はコミュニティ検出を省略し、`--skip-postprocess` は後処理をすべて省略します。`--scip` の詳細は [使い方](/projects/dagayn/usage/) のSCIP節へ。
 
 ### update
 
@@ -31,13 +34,16 @@ dagayn build --local-embedding    # ビルド後にローカル埋め込み生�
 
 ```bash
 dagayn update
-dagayn update --skip-flows          # フロー再計算を省略（hook 既定）
+dagayn update --skip-flows          # コミュニティ検出を省略（コミット前hook）
 dagayn update --local-embedding
+dagayn update --budget-seconds 60   # 指定秒数で打ち切る
 ```
+
+diff baseの既定はグラフをビルドしたコミットです。記録が無ければ `HEAD~1` を使います。hook経由（`DAGAYN_HOOK_UPDATE=1`）の更新は既定120秒で打ち切られます。
 
 ### status
 
-グラフ合計、embedding coverage、provider別ベクトル数、`complete` / `partial` / `stale` / `empty` / `not_indexed` の状態を表示します。
+グラフ合計、embedding coverage、provider別ベクトル数、`complete` / `partial` / `stale` / `empty` / `not_indexed` の状態を表示します。`Graph state:` にはグラフの鮮度と、それを解消するコマンドが出ます。
 
 ## dagayn install
 
@@ -49,11 +55,11 @@ dagayn install [--platform <name>] [--mode <mode>] [--dry-run] [-y]
 
 | プラットフォーム例 | 主な書き込み先 |
 | --- | --- |
-| cursor | リポジトリローカル MCP 設定 |
+| cursor | リポジトリローカル MCP 設定, `~/.cursor/mcp.json`, Cursorのhook |
 | codex | `~/.codex/config.toml`, `~/.codex/hooks.json` |
-| claude | `~/.claude/settings.json`, `~/.claude/CLAUDE.md` |
+| claude | リポジトリの `.mcp.json`, `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/skills/<name>/SKILL.md` |
 
-hookは `dagayn update --skip-flows` をファイル保存後やセッション開始時に実行します。`DAGAYN_HOOK_UPDATE=1` が設定され、重複実行は抑制されます。
+編集hookは `dagayn queue add update` で更新をキューに積み、1つのworkerがまとめて処理します。セッション開始hookは `dagayn session prepare --budget-seconds 45` を実行します。workerは `DAGAYN_HOOK_UPDATE=1` で動き、重複実行は抑制されます。git hookはコミット前に `dagayn update --skip-flows` と `dagayn detect-changes --brief`、コミット後に `dagayn update` を実行します。
 
 ## 分析・レビュー
 
@@ -61,17 +67,22 @@ hookは `dagayn update --skip-flows` をファイル保存後やセッション�
 | --- | --- |
 | `dagayn detect-changes` | Git差分＋worktreeから変更ノードを検出 |
 | `dagayn tool --list` | 利用可能なMCPツール名一覧 |
-| `dagayn visualize` | GraphML / Mermaid C4 / SVG 等のエクスポート |
+| `dagayn visualize --format <fmt>` | GraphML / Mermaid C4 / SVG / Cypher / Obsidian のエクスポート |
 | `dagayn wiki` | リポジトリWikiページ生成 |
-| `dagayn eval` | 検索・guidance精度のベンチマーク |
+| `dagayn eval` | 検索品質・影響範囲・エントリポイント検出などのベンチマーク |
+| `dagayn sdp-metrics` / `detect-sdp` | 宣言されたユニット単位のSDP指標と違反 |
+| `dagayn sap-metrics` / `detect-sap` | 宣言されたユニット単位のSAP指標と違反 |
+
+SDP / SAPのコマンドは `architecture_analysis_tool` の同名モードと同じ答えを返します。`package` は宣言されたユニット（Cargo crate、npm package、Go module、Python import package、Terraform module）を指し、ディレクトリではありません。
 
 ### detect-changes
 
 ```bash
 dagayn detect-changes --base HEAD~1
+dagayn detect-changes --brief       # サマリと finding を1行ずつ
 ```
 
-レスポンスには `change_file_sources`（base_diff / worktree / staged / unstaged / untracked）と、ノード・エッジの `change_status`（existing / added / unknown）が含まれます。
+`--base` の既定は、追跡ファイルに未コミットの変更があれば `HEAD`、なければ `HEAD~1` です。レスポンスには `change_file_sources`（base_diff / worktree / staged / unstaged / untracked）と、ノード・エッジの `change_status`（existing / added / unknown）が含まれます。
 
 ## MCPサーバ
 
@@ -79,7 +90,21 @@ dagayn detect-changes --base HEAD~1
 dagayn serve
 ```
 
-MCPクライアントはstdioまたは設定ファイル経由で `dagayn serve` を起動します。`dagayn install` が各ツール向けの起動引数を書き込みます。
+MCPクライアントはstdioまたは設定ファイル経由で `dagayn serve` を起動します。`dagayn install` が各ツール向けの起動引数を書き込みます。stdioではMCPのハンドシェイクと既定ツールの多くにRustのフロントエンドが応答し、残りだけPythonサーバが受けます。
+
+```bash
+dagayn serve --tools all          # 拡張面も含めて全ツールを公開
+dagayn serve --http --port 5555   # localhostでStreamable HTTP
+```
+
+## セッション・キュー・worktree
+
+| コマンド | 用途 |
+| --- | --- |
+| `dagayn session prepare` | セッション開始時に予算内でグラフを使える状態にする |
+| `dagayn queue add` / `run` / `status` / `clear` | hook用のバックグラウンド更新キュー |
+| `dagayn worktree sync` / `info` | メインcheckoutのグラフをworktreeへ引き継ぐ |
+| `dagayn hook-repo` | hookのJSONペイロードからリポジトリルートを出す |
 
 ## ローカル埋め込み
 
@@ -102,6 +127,10 @@ dagayn build --local-embedding none                 # 埋め込みなし（明�
 | 変数 | 意味 |
 | --- | --- |
 | `DAGAYN_HOOK_UPDATE=1` | hook 経由の更新中を示す |
+| `CRG_TOOLS` | `dagayn serve` で公開するツールの許可リスト（`--tools` と同じ） |
+| `CRG_DATA_DIR` | グラフデータを作業ツリーの外に置く |
+| `DAGAYN_PYTHON_CLI=1` | Rust CLIを使わず全コマンドをPython CLIで実行 |
+| `DAGAYN_SCIP_ALLOW_BUILD=1` | `--scip` で `scip-java` の実行（プロジェクトのビルドを伴う）を許可 |
 | `CRG_OPENAI_BATCH_SIZE` | リモート埋め込みAPIのバッチサイズ（sidecar 既定は1） |
 
 ## 次に読む
