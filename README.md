@@ -1,42 +1,48 @@
 # manj.io blog
 
-Astro + Starlight で構築した個人サイトです。  
-ブログ、コーディングメモ、履歴書ページを `docs` コンテンツとして公開しています。
+Personal site built with Astro + Starlight.
+The blog, coding notes, and resume are published as `docs` content.
 
 ## Stack
 
-- Astro 5
+- Astro 6
 - @astrojs/starlight
-- beautiful-mermaid (Mermaid コードブロックをビルド時に SVG 化)
+- beautiful-mermaid (renders Mermaid code blocks to SVG at build time)
+- [Void](https://void.cloud) (serves the built site and its API routes on Cloudflare Workers)
 
 ## Site structure
 
-- `src/content/docs/index.md`: トップページ
-- `src/content/docs/resume.md`: 履歴書ページ
-- `src/content/docs/blog/<year>/`: ブログ記事
-- `src/content/docs/coding/`: コーディングメモ
-- `src/content/docs/assets/`: 記事内で使う静的アセット
-- `src/plugins/remark-beautiful-mermaid.mjs`: Mermaid レンダリング用 remark plugin
-- `src/styles/custom.css`: サイト共通の追加スタイル
+- `src/content/docs/index.md`: top page
+- `src/content/docs/resume.md`: resume
+- `src/content/docs/blog/<year>/`: blog posts
+- `src/content/docs/coding/`: coding notes
+- `src/content/docs/assets/`: static assets used in posts
+- `src/plugins/remark-beautiful-mermaid.mjs`: remark plugin for Mermaid rendering
+- `src/styles/custom.css`: site-wide styles
+- `slides/`: Slidev decks
+- `site-worker/`: Void app that serves the site, decks, and `/api/*`
 
 ## Code block rendering
 
-`astro.config.mjs` の `starlight({ expressiveCode: ... })` でコードブロック表示を調整しています。
+`starlight({ expressiveCode: ... })` in `astro.config.mjs` tunes code blocks:
 
-- dark/light テーマ自動切替
-- コントラスト最適化
-- デフォルト折り返し (シェル系は折り返し無効)
-- 文字サイズ・行間・余白の調整
-- コピー操作 UI の調整
+- automatic dark/light theme switching
+- contrast optimization
+- wrapping by default (disabled for shell languages)
+- font size, line height, and padding
+- copy button UI
 
 ## Development
 
+The toolchain (Node.js 26, pnpm, fonttools, SQLite) is pinned by the Nix flake.
+
 ```bash
+nix develop
 pnpm install
 pnpm run dev
 ```
 
-ローカル起動先: `http://localhost:4321`
+The dev server runs at `http://localhost:4321`.
 
 ## Build
 
@@ -45,16 +51,18 @@ pnpm run build
 pnpm run preview
 ```
 
-ビルド成果物は `dist/` に出力されます。
+The build output goes to `dist/`.
 
 ## Deploy
 
-`www.manj.io` は Cloudflare Workers Static Assets (`site-worker/`) で配信します。
+`www.manj.io` is deployed to Cloudflare Workers as a Void app (`site-worker/`).
+The same Worker serves the latest Fediverse and Bluesky posts and the Cloudflare and GitHub Status proxies under `/api/*`.
 
 ```bash
-pnpm run cf:deploy:local   # ビルド + assemble (R2 upload 含む)
-pnpm --filter site-worker run dev
-pnpm run cf:deploy           # Worker へデプロイ
+pnpm run cf:deploy:local   # build and assemble (includes the R2 upload)
+pnpm --filter site-worker run preview
+pnpm run cf:deploy         # deploy with Void
 ```
 
-Slidev デッキは `slides/` にあり、ビルド後 `site-worker/public/slides/` に配置されます。
+Slidev decks live in `slides/` and are built into `site-worker/public/slides/`.
+See `site-worker/README.md` for routes and deployment details.

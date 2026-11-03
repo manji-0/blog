@@ -8,8 +8,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-cloudflare-workers
+  cancel-in-progress: false
+
 env:
   R2_ASSET_BUCKET: manjio-assets
+
+defaults:
+  run:
+    shell: nix develop --command bash -e {0}
 
 jobs:
   deploy:
@@ -23,25 +31,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install font subset tools
-        run: python -m pip install "fonttools[woff]"
+      - name: Setup toolchain
+        uses: ./.github/actions/setup
 
       - name: Generate font subsets
         run: pnpm run fonts:subset
@@ -61,13 +52,10 @@ jobs:
       - name: Build Slidev decks
         run: pnpm --filter slides run build
 
-      - name: Generate Worker types
-        run: pnpm --filter site-worker run types
-
       - name: Type check
         run: pnpm --filter site-worker run check
 
-      - name: Deploy Worker
+      - name: Deploy with Void
         run: pnpm --filter site-worker run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

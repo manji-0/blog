@@ -1,11 +1,11 @@
-export const CLOUDFLARE_STATUS_PROXY_URL = 'https://cloudflare-status-proxy.manji.app/status';
-export const CLOUDFLARE_STATUS_UPSTREAM_URL = 'https://www.cloudflarestatus.com/api/v2/status.json';
+// Fetched at build time, so the upstream API is called directly.
+export const CLOUDFLARE_STATUS_URL = 'https://www.cloudflarestatus.com/api/v2/status.json';
 
 /**
  * @returns {{ status: string, description: string, fetchedAt: string }}
  */
 export async function fetchCloudflareStatus() {
-	const payload = await fetchJsonWithFallback(CLOUDFLARE_STATUS_PROXY_URL, CLOUDFLARE_STATUS_UPSTREAM_URL);
+	const payload = await fetchJson(CLOUDFLARE_STATUS_URL);
 	return {
 		status: payload.status?.indicator ?? 'unknown',
 		description: payload.status?.description ?? 'Unknown',
@@ -19,14 +19,6 @@ export function createFallbackCloudflareStatus() {
 		description: 'Unknown',
 		fetchedAt: new Date().toISOString(),
 	};
-}
-
-async function fetchJsonWithFallback(primaryUrl, fallbackUrl) {
-	try {
-		return await fetchJson(primaryUrl);
-	} catch {
-		return fetchJson(fallbackUrl);
-	}
 }
 
 async function fetchJson(url) {

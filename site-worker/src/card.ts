@@ -1,3 +1,11 @@
+import { env } from 'void/env';
+// The card page and vCard are built by Astro, then moved out of the public
+// asset directory by scripts/assemble-public.mjs. Void serves public files
+// without running routes, so the CARD_KEY check holds only for files that are
+// bundled into the Worker here.
+import cardHtml from '../private/card/index.html?raw';
+import vcard from '../private/card/manji0.vcf?raw';
+
 export const CARD_PATH = '/card';
 export const CARD_KEY_PARAM = 'k';
 
@@ -19,10 +27,6 @@ const DENY_HEADERS = {
 	'X-Robots-Tag': 'noindex, nofollow, noarchive',
 } as const;
 
-export function isCardPath(pathname: string): boolean {
-	return pathname === CARD_PATH || pathname.startsWith(CARD_ASSET_PATH);
-}
-
 function ndefUrlBytes(url: URL): number {
 	const href = url.href.startsWith(ABBREVIATED_URI_PREFIX)
 		? url.href.slice(ABBREVIATED_URI_PREFIX.length)
@@ -39,7 +43,7 @@ async function keyMatches(candidate: string, expected: string): Promise<boolean>
 	return crypto.subtle.timingSafeEqual(a, b);
 }
 
-async function isAuthorized(url: URL, env: Env): Promise<boolean> {
+async function isAuthorized(url: URL): Promise<boolean> {
 	if (!env.CARD_KEY || ndefUrlBytes(url) > NTAG215_URL_BUDGET) {
 		return false;
 	}
@@ -56,41 +60,37 @@ function notFound(): Response {
 	return new Response('Not Found', { status: 404, headers: DENY_HEADERS });
 }
 
-function resolveAssetPath(pathname: string): string | null {
+type CardDocument = { body: string; contentType: string; disposition?: string };
+
+function resolveDocument(pathname: string): CardDocument | null {
 	if (CARD_ALIASES.has(pathname)) {
-		return CARD_ASSET_PATH;
+		return { body: cardHtml, contentType: 'text/html; charset=utf-8' };
 	}
-	return pathname === VCARD_PATH ? VCARD_PATH : null;
+	if (pathname === VCARD_PATH) {
+		return { body: vcard, contentType: 'text/vcard; charset=utf-8', disposition: vcardDisposition() };
+	}
+	return null;
 }
 
 function vcardDisposition(): string {
 	return `attachment; filename="${VCARD_FALLBACK_FILENAME}"; filename*=UTF-8''${encodeURIComponent(VCARD_FILENAME)}`;
 }
 
-export async function handleCard(request: Request, env: Env): Promise<Response> {
+export async function handleCard(request: Request): Promise<Response> {
 	const url = new URL(request.url);
-	const assetPath = resolveAssetPath(url.pathname);
-	if (!assetPath || !(await isAuthorized(url, env))) {
+	const document = resolveDocument(url.pathname);
+	if (!document || !(await isAuthorized(url))) {
 		return notFound();
 	}
 
-	const asset = await env.ASSETS.fetch(
-		new Request(new URL(assetPath, url.origin), {
-			method: request.method,
-			headers: request.headers,
-		}),
-	);
-	if (!asset.ok) {
-		return notFound();
+	const headers = new Headers({
+		'Content-Type': document.contentType,
+		'Cache-Control': 'private, no-store',
+		'X-Robots-Tag': 'noindex, nofollow, noarchive',
+		'Referrer-Policy': 'no-referrer',
+	});
+	if (document.disposition) {
+		headers.set('Content-Disposition', document.disposition);
 	}
-
-	const headers = new Headers(asset.headers);
-	headers.set('Cache-Control', 'private, no-store');
-	headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
-	headers.set('Referrer-Policy', 'no-referrer');
-	if (assetPath === VCARD_PATH) {
-		headers.set('Content-Type', 'text/vcard; charset=utf-8');
-		headers.set('Content-Disposition', vcardDisposition());
-	}
-	return new Response(asset.body, { status: asset.status, headers });
+	return new Response(request.method === 'HEAD' ? null : document.body, { headers });
 }

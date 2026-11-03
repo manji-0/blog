@@ -1,3 +1,5 @@
+import { jsonResponse } from "./http";
+
 const FEDIVERSE_STATUSES_ENDPOINT = "https://fedi.manji.app/users/manji0/statuses";
 const BLUESKY_AUTHOR_FEED_ENDPOINT =
   "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed";
@@ -54,34 +56,8 @@ type BlueskyFeedResponse = {
   feed?: unknown;
 };
 
-function corsHeaders(): HeadersInit {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-    "Access-Control-Allow-Headers": "Accept",
-  };
-}
-
-function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(body), {
-    ...init,
-    headers: {
-      ...corsHeaders(),
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-      ...init.headers,
-    },
-  });
-}
-
 function cachedJsonResponse(body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    headers: {
-      ...corsHeaders(),
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": cacheControl,
-    },
-  });
+  return jsonResponse(body, { headers: { "Cache-Control": cacheControl } });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -187,7 +163,7 @@ async function fetchJson(upstreamUrl: string): Promise<unknown> {
   const response = await fetch(upstreamUrl, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "latest-statuses-proxy",
+      "User-Agent": "manj.io-latest-statuses",
     },
   });
 
@@ -234,7 +210,7 @@ async function fetchLatestStatuses() {
   };
 }
 
-async function handleStatuses(): Promise<Response> {
+export async function handleStatuses(): Promise<Response> {
   const body = await fetchLatestStatuses();
   if (body.statuses.length === 0) {
     return jsonResponse({ error: "statuses_unavailable", errors: body.errors ?? [] }, { status: 502 });
@@ -242,29 +218,3 @@ async function handleStatuses(): Promise<Response> {
 
   return cachedJsonResponse(body);
 }
-
-async function handleRequest(request: Request): Promise<Response> {
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: { ...corsHeaders(), "Cache-Control": "no-store" },
-    });
-  }
-
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    return jsonResponse({ error: "method_not_allowed" }, { status: 405 });
-  }
-
-  const { pathname } = new URL(request.url);
-  if (pathname === "/" || pathname === "/statuses") {
-    return handleStatuses();
-  }
-
-  return jsonResponse({ error: "not_found" }, { status: 404 });
-}
-
-export default {
-  fetch(request: Request): Promise<Response> {
-    return handleRequest(request);
-  },
-} satisfies ExportedHandler<Env>;

@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,6 +7,11 @@ const repoRoot = join(siteWorkerRoot, '..');
 const distDir = join(repoRoot, 'dist');
 const publicDir = join(siteWorkerRoot, 'public');
 const redirectsPath = join(publicDir, '_redirects');
+// Void serves files in public/ before routes run, so the key-gated card must
+// not be there. src/card.ts bundles these files into the Worker instead.
+const cardPublicDir = join(publicDir, 'card');
+const cardPrivateDir = join(siteWorkerRoot, 'private', 'card');
+const cardFiles = ['index.html', 'manji0.vcf'];
 
 const legacyRedirects = [
 	'/docs/kamae-rs/*  /projects/kamae-rs/:splat  308',
@@ -21,6 +26,15 @@ if (!existsSync(distDir)) {
 rmSync(publicDir, { recursive: true, force: true });
 mkdirSync(publicDir, { recursive: true });
 cpSync(distDir, publicDir, { recursive: true });
+
+for (const file of cardFiles) {
+	if (!existsSync(join(cardPublicDir, file))) {
+		throw new Error(`Missing card build output ${join(cardPublicDir, file)}.`);
+	}
+}
+rmSync(cardPrivateDir, { recursive: true, force: true });
+mkdirSync(dirname(cardPrivateDir), { recursive: true });
+renameSync(cardPublicDir, cardPrivateDir);
 
 const existingRedirects = existsSync(redirectsPath)
 	? readFileSync(redirectsPath, 'utf8').trimEnd()
