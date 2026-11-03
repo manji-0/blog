@@ -85,7 +85,7 @@ changed file
 | ネイティブ橋 | Python ↔ Rust、FFI、WebAssembly の `CROSS_ARTIFACT` | — |
 | FTS5 索引 | `nodes_fts` | 常に実行（build 後） |
 | コミュニティ | Leiden 分割 + cohesion | `--skip-flows` |
-| Centrality | `hub_scores`, `bridge_scores` | — |
+| Centrality | `hub_scores`, `bridge_scores`（v10.0.0ではMCPツールに読み手なし） | — |
 | 埋め込み | `graph.db` の `embeddings` | `--local-embedding` 時のみ |
 
 保存フローはv10.0.0で廃止され、スキーマ18で `flows` 系テーブルは削除されます。エントリポイントはクエリ時に計算します。
@@ -125,7 +125,7 @@ GraphML、Mermaid C4、SVG、Cypher、Obsidian形式などへエクスポート�
 | 保存時に DAG 制約なし | 循環を観測可能にする。検出は問い合わせ時 |
 | ファイル単位 replace 更新 | incremental diff より単純で速い |
 | edge kind を分離 | 探索時の index selector 兼意味分類 |
-| 派生テーブル materialize | MCP レイテンシを抑える |
+| 派生テーブル materialize | MCP レイテンシを抑える（centralityは現在読み手なし） |
 
 ## ソース開発
 
