@@ -84,7 +84,7 @@ changed file
 | 呼び出し先解決 | re-export、戻り値型、標準ライブラリ・パッケージ、`TESTED_BY` の整合 | — |
 | ネイティブ橋 | Python ↔ Rust、FFI、WebAssembly の `CROSS_ARTIFACT` | — |
 | リクエスト境界 | Cloudflare Workerのテストの `SELF.fetch` やHonoの `app.route` / `app.fetch` / `app.request` を `CALLS` にする | — |
-| FTS5 索引 | `nodes_fts` | 常に実行（build 後） |
+| FTS5 索引 | `nodes_fts` | 既定で実行（`build --skip-postprocess` と `postprocess --no-fts` で省略） |
 | コミュニティ | Leiden 分割 + cohesion | `--skip-flows` |
 | 埋め込み | `graph.db` の `embeddings` | `--local-embedding` 時のみ |
 

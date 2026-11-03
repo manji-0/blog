@@ -28,11 +28,7 @@ uv tool install dagayn
 pip install dagayn
 ```
 
-v11.0.0のwheelはGitHub Releases（`v11.0.0`）に添付されています。2026-11-04時点のPyPIは10.0.0までなので、v11.0.0を確実に入れるときはタグを指定します。
-
-```bash
-uv tool install --from git+https://github.com/manji-0/dagayn.git@v11.0.0 dagayn
-```
+v11.0.0のwheelは、PyPIとGitHub Releases（`v11.0.0`）の両方で配布されています。
 
 一時的に実行だけしたい場合：
 

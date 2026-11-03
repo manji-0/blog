@@ -191,7 +191,7 @@ dagayn update --local-embedding
 
 ### FTS5索引
 
-build後は常に利用可能です。日本語はLindera IPADIC + CJKバイグラムで索引します。クエリは全文BM25と識別子トークン（snake_case / PascalCase）の二段発火です。
+既定のbuildの後処理で作られます（`build --skip-postprocess` や `postprocess --no-fts` では作られません）。日本語はLindera IPADIC + CJKバイグラムで索引します。クエリは全文BM25と識別子トークン（snake_case / PascalCase）の二段発火です。
 
 ### ベクトル検索
 
