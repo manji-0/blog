@@ -12,7 +12,7 @@ sidebar:
 ```diagram-design dagayn-pipeline
 ```
 
-dagaynはリポジトリ内容をローカル知識グラフに変換し、CLIとMCPから同じデータセットをクエリします。中核は **Tree-sitter + SQLite** で、ホットパスは **Rust（`dagayn_core`）** が担います。
+dagaynはリポジトリ内容をローカル知識グラフに変換し、CLIとMCPから同じデータセットをクエリします。中核は **Tree-sitter + SQLite** で、ホットパスは **Rust拡張（`dagayn._core`）** が担います。`build` / `update` / `status` のCLIと既定のMCPツールもRust側が応答し、扱えない場合だけPythonに回します。
 
 ## 処理パイプライン
 
@@ -22,26 +22,27 @@ dagaynはリポジトリ内容をローカル知識グラフに変換し、CLI�
 
 ### パーサ抽出
 
-Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得します。
+Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得します。Tree-sitterは0.27系で、grammarはCargo featureとして個別に有効化できます。
 
 | 形式 | 備考 |
 | --- | --- |
 | Terraform | fork `tree-sitter-terraform`。`.tf` / `.tfvars` |
 | Markdown | fork `tree-sitter-markdown`。directive コメント対応 |
 | Notebook | セル単位。marimo `.py` / `.md`。span overlap で行番号ずれに耐性 |
-| Rust / Python / JS・TS 系 | Rust 所有パスが既定 |
+| Python | Ruffのパーサ（`ruff_python_parser`）で抽出 |
+| JS・TS 系 | 言語仕様から作り直した抽出器。`docs/TYPESCRIPT-EXTRACTION.md` に仕様 |
 
 パーサ出力は常に **ファイル単位** のノード・エッジ列です。qualified nameはリポジトリ内で一意です。
 
 ### SQLite永続化
 
-`.dagayn/graph.db` に書き込みます。パスはリポジトリルート相対で正規化し、symlink経由の一時パス差を吸収します。埋め込みは別ファイル `embeddings.db` に分離します。
+`.dagayn/graph.db` に書き込みます。パスはリポジトリルート相対で正規化し、symlink経由の一時パス差を吸収します。埋め込みも同じ `graph.db` 内の `embeddings` テーブルに入ります。
 
 | パス | 内容 |
 | --- | --- |
 | `.dagayn/graph.db` | ノード・エッジ・派生テーブル |
-| `.dagayn/embeddings.db` | ベクトル埋め込み（任意） |
-| `.dagayn/` 配下その他 | フローJSON、コミュニティ、Wiki生成物など |
+| `.dagayn/task_queue.db` | hook用のバックグラウンド更新キュー |
+| `.dagayn/` 配下その他 | Wiki生成物（`wiki/`）、SCIPインデックス（`scip/`）など |
 
 グラフはローカル完結です。チーム共有は通常gitignoreのまま、各開発者がローカルで `dagayn build` する運用を基本とします。
 
@@ -57,10 +58,10 @@ Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得しま
 PRAGMA journal_mode=WAL;
 PRAGMA synchronous=NORMAL;
 PRAGMA cache_size=-64000;
-PRAGMA mmap_size=268435456;
+PRAGMA mmap_size=0;
 ```
 
-WALはhookによる頻繁な `update` とMCPクエリの並行に向きます。
+WALはhookによる頻繁な `update` とMCPクエリの並行に向きます。`mmap_size` は0です。WALとmmapの併用で、別接続のcheckpoint時に `sqlite_master` が壊れたためです。
 
 ### インクリメンタル更新
 
@@ -79,11 +80,15 @@ changed file
 
 | 処理 | 出力 | スキップ |
 | --- | --- | --- |
+| SCIPオーバーレイ | `CALLS` の呼び出し先を確定 | `build --scip` 時のみ |
+| 呼び出し先解決 | re-export、戻り値型、標準ライブラリ・パッケージ、`TESTED_BY` の整合 | — |
+| ネイティブ橋 | Python ↔ Rust、FFI、WebAssembly の `CROSS_ARTIFACT` | — |
 | FTS5 索引 | `nodes_fts` | 常に実行（build 後） |
-| コミュニティ | Leiden 分割 + cohesion | — |
+| コミュニティ | Leiden 分割 + cohesion | `--skip-flows` |
 | Centrality | `hub_scores`, `bridge_scores` | — |
-| フロー | エントリ→葉の経路 | hook では `--skip-flows` |
-| 埋め込み | `embeddings.db` | `--local-embedding` 時のみ |
+| 埋め込み | `graph.db` の `embeddings` | `--local-embedding` 時のみ |
+
+保存フローはv10.0.0で廃止され、スキーマ18で `flows` 系テーブルは削除されます。エントリポイントはクエリ時に計算します。
 
 派生データはmaterializeして保持します。リクエスト時に毎回NetworkXを組み立てません。
 
@@ -124,7 +129,7 @@ GraphML、Mermaid C4、SVG、Cypher、Obsidian形式などへエクスポート�
 
 ## ソース開発
 
-dagayn本体のパッチ提出向け手順はupstreamリポジトリの `docs/` にあります。ローカル開発は `uv sync` と `uvx maturin develop --release` が基本です。`ARCHITECTURE.md`、`SCHEMA.md`、`COMMANDS.md` を参照してください。
+dagayn本体のパッチ提出向け手順はupstreamリポジトリの `docs/` にあります。ローカル開発は `uv sync --extra dev` が基本です。PyO3拡張（`dagayn._core`）もこのときビルドされ、Rust 1.98以上とCコンパイラが要ります。`ARCHITECTURE.md`、`SCHEMA.md`、`COMMANDS.md` を参照してください。
 
 ## 次に読む
 

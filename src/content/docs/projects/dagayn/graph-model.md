@@ -11,12 +11,12 @@ sidebar:
 
 | 種別 | 拡張子 / 形式 | 備考 |
 | --- | --- | --- |
-| ソースコード | `.py`, `.rs`, `.ts`, `.go`, `.java` 等 | 40言語以上 |
+| ソースコード | `.py`, `.rs`, `.ts`, `.go`, `.zig` 等 | 約30言語 |
 | Markdown | `.md` | directive、コードスパン |
 | Terraform | `.tf`, `.tfvars` | block 種別ごとのノード |
 | Notebook | `.ipynb`、marimo の `.py` / `.md` | セル単位。marimoは `notebook_format: "marimo"` |
 
-フロントエンド（Vue / Svelte / Astro）、スクリプト（Bash / PowerShell）、スマートコントラクト（Solidity）も同一グラフに載ります。
+フロントエンド（Vue / Svelte / Astro）、スクリプト（Bash / PowerShell）、Zigも同一グラフに載ります。LuauとSolidityはv5.0.0でパース対象から外れました。
 
 ## ノード種別
 
@@ -46,7 +46,8 @@ sidebar:
 | --- | --- | --- |
 | `resource` / `data` / `module` | Class | `resource.aws_s3_bucket.logs` |
 | `variable` / `local` / `output` | Function | `var.region` |
-| `check` | Test | `check.valid` |
+| `check` | Class | `check.valid` |
+| `run`（`.tftest.hcl`） | Test | `run.plan_ok` |
 
 ## エッジ種別
 
@@ -64,6 +65,8 @@ sidebar:
 
 エッジkindは **意味分類** です。同時に **探索時の index selector** でもあります。
 
+標準ライブラリや依存パッケージへの呼び出しは、同名のプロジェクト関数ではなくパッケージ自体を指します。たとえばPythonの `len(x)` は `CALLS -> builtins`、Nodeの `fs.readFile()` は `CALLS -> node:fs` です。こうしたエッジは `external`、`stdlib`、`external_package`、`external_symbol` を持ちます。`LOW` は、何も説明できない呼び出しにだけ残ります。`TESTED_BY` はテストの `CALLS` に従い、ノードでないシンボルからの辺は捨てられます。
+
 ### kindごとの使い分け
 
 | 分析 | 含める kind | 除外する kind |
@@ -72,7 +75,7 @@ sidebar:
 | Impact radius（呼び出し） | `CALLS` 含む | — |
 | Doc 影響 | `CROSS_ARTIFACT`, `DEPENDS_ON` | — |
 
-動的言語で `CALLS` を依存分析に混ぜると `len()` 等でノイズが増えます。
+`CALLS` は実装上の結合で、パッケージ依存とは別物です。依存分析に混ぜると、宣言上の依存より広い結合まで循環や違反として数えてしまいます。
 
 ## CROSS_ARTIFACT解決
 
@@ -84,9 +87,21 @@ Markdownのインラインコードスパン `` `SymbolName` `` は後処理で�
 | 1 | `CROSS_ARTIFACT` 保持（confidence HIGH） |
 | 2+ | エッジ破棄（曖昧） |
 
-識別子ルール（要約）：3文字未満かつ `_` / `.` なしはスキップ。英数字・`_`・`.` のドット区切り識別子を対象とします。`dagayn:` 形式のdirectiveは作者宣言の依存として未解決でも `DEPENDS_ON` に残る場合があります。
+識別子ルール（要約）：3文字未満かつ `_` / `.` なしはスキップ。英数字・`_`・`.` のドット区切り識別子を対象とします。`<!-- dagayn: implemented-by path::symbol -->` 形式のdirectiveは作者宣言の依存です。対象の節やシンボルが無いあいだは `LOW` に格下げされ、対象ができると元の確度に戻ります。
 
 `query_graph_tool` の `docs_for`（コード→doc）と `implementations_of`（doc→実装）がこの向きをたどります。
+
+### 言語をまたぐ橋
+
+v6.0.0以降、コードとビルド設定が書いているものに完全一致したときだけ、言語をまたぐ `CROSS_ARTIFACT`（`HIGH`）を張ります。ネイティブ側の変更が、別言語の呼び出し元まで影響分析で届きます。
+
+| 橋 | 例 |
+| --- | --- |
+| Python ↔ Rust | maturinモジュールのimport（`loads_native_module`）、`#[pyfunction]` / `#[pyclass]` の呼び出し（`calls_native_function`） |
+| 共有ライブラリ | `ctypes.CDLL` や `System.loadLibrary` などのローダ（`loads_shared_library`）→ C / C++ / Rust / Zig のライブラリ |
+| FFI | C# `[DllImport]`、JNI、cgo、cxx、UniFFI、pybind11、napi-rs など |
+| WebAssembly | JS / TS → wasm-bindgen、Go、TinyGo、AssemblyScript、Emscripten |
+| ビルド設定 | `Cargo.toml` などのビルド設定 → ソース（`builds_from_source`） |
 
 ## Markdown連携
 
@@ -103,7 +118,7 @@ GitHub Markdown互換：英数字は小文字化、空白・ハイフンは `-` 
 <!-- derived-from ./research/background.md#findings -->
 ```
 
-各directiveは `DEPENDS_ON` エッジです。`markdown_directive_kind` 属性に種別が記録されます。
+各directiveは `DEPENDS_ON` エッジです。`markdown_directive_kind` 属性に種別が記録されます。コメントが行頭から始まっていれば、節の中のどこに置いても数えます。インラインコードやフェンス内のdirectiveは例示として扱い、エッジを作りません。`importers_of` / `imports_of` に `import_kind="directive"` か `"link"` を渡すと、directiveとリンクを分けて辿れます。
 
 ### リンク形式
 
@@ -129,29 +144,29 @@ fork `tree-sitter-terraform` で `.tf` / `.tfvars` をパースします。
 
 ## 構造メトリクス
 
-`dagayn build` 後処理で計算します。`architecture_analysis_tool` が1ショットで返します。
+`dagayn build` 後処理と、クエリ時の計算で求めます。入口は `architecture_analysis_tool` です。
 
 ### コミュニティ
 
 Leidenアルゴリズムで分割し、凝集度（cohesion = コミュニティ内エッジ数 / 接続全エッジ数）を計算します。低い凝集度の大きな塊は内部境界が無い候補です。
 
-### Hub / Bridge
+### 宣言ユニットの地図
 
-入次数・出次数が異常に高いhub、betweenness centralityが高いbridgeは変更の波及コストが大きいチョークポイントです。
+`mode="overview"` は、マニフェストが宣言するユニット（Cargo crate、npm package、Go module、Python import package、Terraform module）と、その間の依存（`unit_edges`）を返します。`detail_level="standard"` では各ユニットの `surface`（外から多く使われるシンボル）も付きます。以前のhub / bridge分析は、v10.0.0でこの `surface` に置き換わりました。
 
-### 実行フロー
+### エントリポイント
 
-CLIコマンド、HTTPハンドラ、MCPツールハンドラなどのエントリポイントから葉に向かう経路を事前計算します。hook日常運用では `--skip-flows` で省略し、大きな変更後にフル再計算します。
+`flow_tool(mode="entry_points")` が、`main`、フレームワークのハンドラ、FFI export、トレイトやフレームワークからだけ呼ばれるメソッドなどをクエリ時に検出します。`target` を渡すと、そのシンボルに届くエントリポイントを最短の呼び出し経路つきで返します。以前の保存フローはv10.0.0で廃止されました。
 
 ### ADP / SDP / SAP
 
 | 原則 | 問い |
 | --- | --- |
-| **ADP** | 依存部分グラフに循環がないか |
+| **ADP** | 依存部分グラフに循環がないか（`import_cycle` finding、`mode="import_cycles"`） |
 | **SDP** | 依存の向きが安定度（instability）に沿っているか |
 | **SAP** | 抽象度と安定度のバランスが main sequence 近傍か |
 
-ADPの母集団は `IMPORTS_FROM`, `DEPENDS_ON`, `INHERITS`, `IMPLEMENTS` です。`CALLS` は含めません。CLIは `detect-adp` / `sdp-metrics` 等、MCPは `detect_adp_violations_tool` 等が相当します。
+既定の母集団（`dependency_profile="strict_static"`）は `IMPORTS_FROM`, `DEPENDS_ON`, `INHERITS`, `IMPLEMENTS` です。`CALLS` は含めません。v8.0.0以降、SDPとSAPはディレクトリではなく宣言ユニット単位で計算します。CLIは `sdp-metrics` / `detect-sdp` / `sap-metrics` / `detect-sap`、MCPは `architecture_analysis_tool` の同名モードが相当します。import循環は `mode="import_cycles"` が列挙します。`detect-adp` と `adp_violations` モードはv10.0.0で削除されました。
 
 ## ハイブリッド検索
 
@@ -177,7 +192,7 @@ build後は常に利用可能です。日本語はLindera IPADIC + CJKバイグ�
 
 ### ベクトル検索
 
-`embeddings.db` にcosine similarityで近傍を取ります。`material`（名前・docstring中心）と `narrative`（呼び出し・ループ等の静的ファクト）の2種ベクトルを保持できます。
+`graph.db` の `embeddings` テーブルからcosine similarityで近傍を取ります。`material`（名前・docstring中心）と `narrative`（呼び出し・ループ等の静的ファクト）の2種ベクトルを保持できます。
 
 ### フォールバック
 

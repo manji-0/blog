@@ -6,7 +6,7 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [dagayn](https://github.com/manji-0/dagayn) · 対象バージョン: **v4.14.0**
+> ソースリポジトリ: [dagayn](https://github.com/manji-0/dagayn) · 対象バージョン: **v10.0.0**
 
 **DAG is All You Need**。dagaynは、リポジトリをローカルの有向グラフとして持ち、AIコーディングアシスタントが構造クエリでコードベースを辿れるようにするツールです。
 
@@ -39,21 +39,21 @@ grepとLSPが足りる小さな単一言語リポジトリには向きません�
 ## シナリオ
 
 1. 開発者が認証モジュールの関数シグネチャを変更し、ステージしてコミット前にCursorでレビューを依頼する。
-2. エージェントが `review_tool(mode="changes")` で差分ノードと `guidance` を取得する。
+2. エージェントが `review_tool(mode="changes")` で、差分の外で確認すべき `findings` と次の呼び出し `next` を取得する。
 3. `query_graph_tool(pattern="callers_of")` と `tests_for` で呼び出し元とテスト不足を確認する。
 4. 設計書の `CROSS_ARTIFACT` 先を `docs_for` でたどり、doc更新の要否を判断する。
-5. hookが走った `dagayn update --skip-flows` 後のグラフを読み、影響範囲の指摘を返す。
+5. 編集hookが積んだ `dagayn queue add update` の更新後のグラフを読み、影響範囲の指摘を返す。
 
 ## 構成
 
 ```diagram-design dagayn-pipeline
 ```
 
-対応言語のソース、Markdown、Terraform、ノートブック（`.ipynb` とmarimoの `.py` / `.md`）をTree-sitterでパースし、SQLiteに載せます。グラフエンジン、フロー、コミュニティ、FTSはRustコア（`dagayn._core`）です。その上で日本語向けFTS（Lindera IPADIC + CJKバイグラム）、実行フロー、各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。
+対応言語のソース、Markdown、Terraform、ノートブック（`.ipynb` とmarimoの `.py` / `.md`）をパースし、SQLiteに載せます。パーサは基本がTree-sitterで、PythonだけはRuffのパーサを使います。グラフエンジン、コミュニティ、FTS、エントリポイント検出はRustコア（`dagayn._core`）です。既定のMCPツールと `build` / `update` / `status` もRust側が応答します。その上で日本語向けFTS（Lindera IPADIC + CJKバイグラム）と各種メトリクスを計算し、MCP経由でエージェントから問い合わせます。
 
 ## 制約
 
-グラフは各開発者の `.dagayn/` にローカル保存され、チーム共有はgitignoreのまま各自ビルドが基本です。hookの既定は `dagayn update --skip-flows` です。フロー再計算は重いため、日常では省略します。MCPのコンパクト面はレビュー向けツールに絞り、拡張面は `--tools all` や `CRG_TOOLS` で出します。
+グラフは各開発者の `.dagayn/` にローカル保存され、チーム共有はgitignoreのまま各自ビルドが基本です。編集hookは `dagayn queue add update` で更新をキューに積み、1つのworkerがまとめて構造だけを更新します。MCPのコンパクト面はレビュー向けツールに絞り、拡張面は `--tools all` や `CRG_TOOLS` で出します。
 
 ## インタフェース
 
@@ -70,9 +70,9 @@ grepとLSPが足りる小さな単一言語リポジトリには向きません�
 | 依存 | 役割 |
 | --- | --- |
 | Python 3.12+ | CLI・MCP・オーケストレーション |
-| `dagayn._core`（Rust/PyO3） | パース、SQLite、FTS、フロー、コミュニティ |
-| Tree-sitter grammars | 40言語以上、Markdown/Terraform fork |
-| SQLite | `graph.db` / `embeddings.db` |
+| `dagayn._core`（Rust/PyO3） | パース、SQLite、FTS、コミュニティ、既定MCPツールの応答 |
+| Tree-sitter grammars | 約30言語、Markdown/Terraform fork（PythonはRuffのパーサ） |
+| SQLite | `graph.db`（埋め込みも同じDB） |
 | Git worktree | 変更検出（staged / unstaged / untracked） |
 
 同じリポジトリに [rdra-ish](/projects/rdra-ish/) やkamae系を置くと `CROSS_ARTIFACT` で設計書と実装をつなげます。どれも必須ではありません。
@@ -81,7 +81,7 @@ grepとLSPが足りる小さな単一言語リポジトリには向きません�
 
 **リモート常時同期グラフ**：エージェントが触るのは手元リポジトリの構造であり、ネットワークグラフDBの運用コストに見合いませんでした。
 
-**リクエスト時のNetworkX組み立て**：MCPレイテンシを抑えるため、フロー・コミュニティ・FTSをビルド後にmaterializeする方式を採りました。
+**リクエスト時のNetworkX組み立て**：MCPレイテンシを抑えるため、コミュニティ・FTS・centralityをビルド後にmaterializeする方式を採りました。
 
 **Pythonのみのグラフエンジン**：大規模リポジトリのパースと探索でRustコアへ移行済みです。`DAGAYN_BACKEND=python` はエラーになります。
 
