@@ -72,12 +72,9 @@ base refのdiffとローカルworktree変更を区別したいときは `change_
 
 エッジkindでフィルタできます。依存分析では `CALLS` を除外し、impact分析では含める使い分けが可能です。
 
-### 実装方式
+### MCPでの調べ方
 
-- **Recursive CTE**：到達集合を一括取得
-- **Frontier batching**：kind重み付け、depth制限、token budget、応答整形が必要な場合
-
-MCPでは `review_tool(mode="impact")`、または `depth` 付きの `query_graph_tool(pattern="callers_of")` / `importers_of` が相当します。
+MCPでは `depth`（1〜6）付きの `query_graph_tool(pattern="callers_of")` / `importers_of` / `imports_of` が相当します。各行は `depth` と `via` を持ち、集合が閉じたかどうかは `reachability` で分かります。以前の `review_tool(mode="impact")` はv11.0.0で削除されました。
 
 ## 構造クエリとの組み合わせ
 

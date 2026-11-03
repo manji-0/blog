@@ -6,7 +6,7 @@ sidebar:
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [dagayn](https://github.com/manji-0/dagayn) · 対象バージョン: **v10.0.0**
+> ソースリポジトリ: [dagayn](https://github.com/manji-0/dagayn) · 対象バージョン: **v11.0.0**
 
 **DAG is All You Need**。dagaynは、リポジトリをローカルの有向グラフとして持ち、AIコーディングアシスタントが構造クエリでコードベースを辿れるようにするツールです。
 
@@ -18,7 +18,7 @@ sidebar:
 
 CursorやClaude Codeのようなエージェントは、タスクのたびにファイルを開き全文検索で関連箇所を探します。リポジトリが大きいほど、その反復がトークンと待ち時間を消費します。「この関数のcallerは誰か」「この変更の影響範囲はどこまでか」「この設計書はどの実装を指しているか」は、毎回読み直すより一度パースした構造に聞く方が合理的です。
 
-コアの着想は [code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、宣言済みユニットのSDP / SAPとimport循環の検出、marimoノートブック、日本語FTS、複数ツール向けの `dagayn install` などを足しています。Pythonのグラフエンジンは廃止済みで、`DAGAYN_BACKEND=python` はエラーになります。
+コアの着想は [code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、宣言済みユニットの依存地図とimport循環の検出、marimoノートブック、日本語FTS、複数ツール向けの `dagayn install` などを足しています。Pythonのグラフエンジンは廃止済みで、`DAGAYN_BACKEND=python` はエラーになります。
 
 ## 関連文書
 
@@ -81,9 +81,19 @@ grepとLSPが足りる小さな単一言語リポジトリには向きません�
 
 **リモート常時同期グラフ**：エージェントが触るのは手元リポジトリの構造であり、ネットワークグラフDBの運用コストに見合いませんでした。
 
-**リクエスト時のNetworkX組み立て**：MCPレイテンシを抑えるため、コミュニティ・FTS・centralityをビルド後にmaterializeする方式を採りました。v10.0.0では、centralityの表を読むMCPツールはありません。
+**リクエスト時のNetworkX組み立て**：MCPレイテンシを抑えるため、コミュニティとFTSをビルド後にmaterializeする方式を採りました。読み手のいなくなったcentralityの計算と表は、v11.0.0で削除されました。
 
 **Pythonのみのグラフエンジン**：大規模リポジトリのパースと探索でRustコアへ移行済みです。`DAGAYN_BACKEND=python` はエラーになります。
+
+## v11での主な変更
+
+v11.0.0は、人が眺めるための面と、ほかのツールが同じ答えを返すツールを削除しました。
+
+- 削除：`dagayn wiki` と `generate_wiki_tool` / `get_wiki_page_tool`、`dagayn visualize` とそのエクスポート、VS Code拡張 `dagayn-vscode`
+- 削除したツール：`traverse_graph_tool`、`find_large_functions_tool`、`dagayn sdp-metrics` などのCLI
+- 削除したモードと値：`review_tool` の `impact` / `context`、`architecture_analysis_tool` の `communities` / `community` とSDP / SAPのモード、`risk_score`、centrality
+- 置き換え先：推移的な呼び出し元は `depth` 付きの `query_graph_tool(pattern="callers_of")`、大きな関数は `refactor_tool(mode="suggest")` の `complex_hotspot`、ユニット間の安定度は `unstable_dependency` finding
+- 追加：Goのパッケージが宣言ユニットに、Goのテストが `Test` ノードになりました。`build --scip` はTypeScriptとPythonのインデクサを同梱し、Go・Pythonの答えもdagaynの解決を置き換えます。`callers_of` / `callees_of` の行は `resolved_by: "scip"` を返します。Cloudflare WorkerとHonoのリクエスト、Terraformのmodule入力もグラフでたどれます
 
 ## 次に読む
 

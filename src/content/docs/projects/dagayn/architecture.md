@@ -42,7 +42,7 @@ Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得しま
 | --- | --- |
 | `.dagayn/graph.db` | ノード・エッジ・派生テーブル |
 | `.dagayn/task_queue.db` | hook用のバックグラウンド更新キュー |
-| `.dagayn/` 配下その他 | Wiki生成物（`wiki/`）、SCIPインデックス（`scip/`）など |
+| `.dagayn/` 配下その他 | SCIPインデックス（`scip/`）など |
 
 グラフはローカル完結です。チーム共有は通常gitignoreのまま、各開発者がローカルで `dagayn build` する運用を基本とします。
 
@@ -83,12 +83,12 @@ changed file
 | SCIPオーバーレイ | `CALLS` の呼び出し先を確定 | `build --scip` 時のみ |
 | 呼び出し先解決 | re-export、戻り値型、標準ライブラリ・パッケージ、`TESTED_BY` の整合 | — |
 | ネイティブ橋 | Python ↔ Rust、FFI、WebAssembly の `CROSS_ARTIFACT` | — |
-| FTS5 索引 | `nodes_fts` | 常に実行（build 後） |
+| リクエスト境界 | Cloudflare Workerのテストの `SELF.fetch` やHonoの `app.route` / `app.fetch` / `app.request` を `CALLS` にする | — |
+| FTS5 索引 | `nodes_fts` | 既定で実行（`build --skip-postprocess` と `postprocess --no-fts` で省略） |
 | コミュニティ | Leiden 分割 + cohesion | `--skip-flows` |
-| Centrality | `hub_scores`, `bridge_scores`（v10.0.0ではMCPツールに読み手なし） | — |
 | 埋め込み | `graph.db` の `embeddings` | `--local-embedding` 時のみ |
 
-保存フローはv10.0.0で廃止され、スキーマ18で `flows` 系テーブルは削除されます。エントリポイントはクエリ時に計算します。
+保存フローはv10.0.0で廃止され、スキーマ18で `flows` 系テーブルは削除されます。エントリポイントはクエリ時に計算します。v11.0.0では、スキーマ19がcentralityの表（`hub_scores`、`bridge_scores`）を、スキーマ20が `community_summaries` を削除します。
 
 派生データはmaterializeして保持します。リクエスト時に毎回NetworkXを組み立てません。
 
@@ -105,17 +105,13 @@ changed file
 
 ## グラフ探索の2方式
 
-**Frontier batching**：BFS / DFSでnodeごとにSQLを投げるとN+1になります。frontierを層ごとにまとめ、edge kindごとの重み、token budget、応答整形が必要ならアプリ側traversalを選びます。
+**Frontier batching**：BFS / DFSでnodeごとにSQLを投げるとN+1になります。frontierを層ごとにまとめ、edge kindごとの重み、token budget、応答整形が必要ならアプリ側traversalを選びます。`depth` 付きの `query_graph_tool(pattern="callers_of")` などがこの方式です。
 
-**Recursive CTE**：届くノード集合だけ欲しいときはSQLiteのrecursive CTEが相性良いです。impact radiusの到達集合を一括取得する用途に使います。詳細は [レビューと影響分析](/projects/dagayn/review-analysis/) を参照。
+**一時表による層ごとの展開**：届くノード集合だけ欲しいときは、訪問済みノードを一時表に置き、1層ずつ `INSERT OR IGNORE` で広げます。各ノードは最短の深さで1回だけ展開されます。以前のrecursive CTEは、同じノードを届いた深さごとに展開し直していたため置き換えられました。GraphStoreのimpact radius（`crates/dagayn-graph/src/impact_radius.rs`）がこの方式です。v11.0.0では `review_tool(mode="impact")` が削除され、MCPツールからは使われません。詳細は [レビューと影響分析](/projects/dagayn/review-analysis/) を参照。
 
 ## マルチリポジトリ
 
 レジストリに複数リポジトリを登録し、`cross_repo_search_tool` で横断検索できます。daemon設定はupstream `docs/DAEMON-CONFIG.md` を参照してください。
-
-## エクスポート
-
-GraphML、Mermaid C4、SVG、Cypher、Obsidian形式などへエクスポート可能です。`dagayn visualize` / `generate_wiki_tool` が相当します。
 
 ## 設計上の判断
 
@@ -125,11 +121,11 @@ GraphML、Mermaid C4、SVG、Cypher、Obsidian形式などへエクスポート�
 | 保存時に DAG 制約なし | 循環を観測可能にする。検出は問い合わせ時 |
 | ファイル単位 replace 更新 | incremental diff より単純で速い |
 | edge kind を分離 | 探索時の index selector 兼意味分類 |
-| 派生テーブル materialize | MCP レイテンシを抑える（centralityは現在読み手なし） |
+| 派生テーブル materialize | MCP レイテンシを抑える |
 
 ## ソース開発
 
-dagayn本体のパッチ提出向け手順はupstreamリポジトリの `docs/` にあります。ローカル開発は `uv sync --extra dev` が基本です。PyO3拡張（`dagayn._core`）もこのときビルドされ、Rust 1.98以上とCコンパイラが要ります。`ARCHITECTURE.md`、`SCHEMA.md`、`COMMANDS.md` を参照してください。
+dagayn本体のパッチ提出向け手順はupstreamリポジトリの `docs/` にあります。ローカル開発は `uv sync --extra dev` が基本です。PyO3拡張（`dagayn._core`）もこのときビルドされ、Rust 1.99以上とCコンパイラが要ります。`ARCHITECTURE.md`、`SCHEMA.md`、`COMMANDS.md` を参照してください。
 
 ## 次に読む
 

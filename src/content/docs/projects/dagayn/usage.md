@@ -14,7 +14,7 @@ sidebar:
 | Python | 3.12以上（CIは3.13想定） |
 | ディスク | リポジトリ規模に応じて `.dagayn/` に数百MB〜数GB |
 | ネットワーク | `fts-only` なら不要。埋め込みsidecar初回はモデル取得で必要 |
-| Rust toolchain | Git/sourceインストール時のみ（1.98以上） |
+| Rust toolchain | Git/sourceインストール時のみ（1.99以上） |
 
 ## インストール
 
@@ -27,6 +27,8 @@ uv tool install dagayn
 # pip でも可
 pip install dagayn
 ```
+
+v11.0.0のwheelは、PyPIとGitHub Releases（`v11.0.0`）の両方で配布されています。
 
 一時的に実行だけしたい場合：
 
@@ -41,7 +43,7 @@ pip install git+https://github.com/manji-0/dagayn.git
 uv tool install --from git+https://github.com/manji-0/dagayn.git dagayn
 ```
 
-Git/sourceインストールはPyO3 Rust拡張をローカルでビルドします。Rust toolchain（1.98以上）、Cコンパイラ、macOSではCommand Line Toolsが必要になります。
+Git/sourceインストールはPyO3 Rust拡張をローカルでビルドします。Rust toolchain（1.99以上）、Cコンパイラ、macOSではCommand Line Toolsが必要になります。
 
 ```bash
 dagayn --version
@@ -102,7 +104,7 @@ hookは `dagayn install` が登録します。編集hookは `dagayn queue add up
 
 ## SCIPで呼び出し先を確定する
 
-`dagayn build --scip` は、インストール済みのSCIPインデクサで `CALLS` エッジの呼び出し先を確定してから後処理に進みます。
+`dagayn build --scip` は、SCIPインデクサで `CALLS` エッジの呼び出し先を確定してから後処理に進みます。TypeScriptとPythonのインデクサはdagaynに同梱されており、別途のインストールは要りません。
 
 ```bash
 dagayn build --scip
@@ -110,11 +112,14 @@ dagayn build --scip
 
 | 言語 | インデクサ | 扱い |
 | --- | --- | --- |
-| Rust / TypeScript・JavaScript | `rust-analyzer scip` / `scip-typescript` | dagaynの解決を置き換える |
-| Go、Python、C/C++、C#、Ruby、Dart、PHP、R | `scip-go`、`scip-python` など | dagaynが解決できなかった分を埋める |
+| Rust | `rust-analyzer scip` | dagaynの解決を置き換える |
+| TypeScript・JavaScript | 同梱（tsrsのchecker）。`node_modules` が無ければ `hint:` を出し、パッケージへの呼び出しは未確定のまま | dagaynの解決を置き換える |
+| Go | `scip-go` | dagaynの解決を置き換える |
+| Python | 同梱（tyのchecker）。プロジェクトの `.venv`、無ければ `VIRTUAL_ENV` を環境として渡す | dagaynの解決を置き換える |
+| C/C++、C#、Ruby、Dart、PHP、R | `scip-clang`、`scip-dotnet` など | dagaynが解決できなかった分を埋める |
 | Java / Kotlin | `scip-java` | 埋める。`DAGAYN_SCIP_ALLOW_BUILD=1` のときだけ走る |
 
-インデクサが無い言語は `hint:` にインストール手順が出て、dagayn自身の解決のままです。SCIPで確定したエッジは `resolved_by: "scip"` を持ちます。SCIPの反映はフル `build` のときだけです。`update` は次の `build --scip` まで通常の解決を使います。
+インデクサが無い言語は `hint:` にインストール手順が出て、dagayn自身の解決のままです。失敗したインデクサは `WARNING:` 行に出ます。SCIPで確定した呼び出しは、`query_graph_tool` の `callers_of` / `callees_of` の行に `resolved_by: "scip"` が付きます。SCIPの反映はフル `build` のときだけです。`update` は次の `build --scip` まで通常の解決を使います。
 
 ## アップグレード後
 

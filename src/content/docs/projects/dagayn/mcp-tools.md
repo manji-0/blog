@@ -32,24 +32,24 @@ sidebar:
 
 ### review_tool
 
-変更検出・レビューコンテキスト・変更に届くエントリポイント・impact radiusをモード切替で取得します。
+変更検出と、変更に届くエントリポイントをモード切替で取得します。
 
 | mode | 用途 |
 | --- | --- |
 | `changes` | 差分起点のレビュー（まずここから） |
-| `impact` | 影響範囲（blast radius）の分析 |
-| `context` | レビュー用コンテキスト取得 |
 | `affected_flows` | 変更された関数に届くエントリポイントと呼び出し経路 |
+
+変更したシンボルの呼び出し元は `depth` 付きの `query_graph_tool(pattern="callers_of")`、ソースは `source_of` で取ります。以前の `impact` / `context` モードはv11.0.0で削除されました。
 
 ```text
 review_tool(mode="changes", detail_level="minimal")
 ```
 
-`mode="changes"` は `findings` を返します。差分そのものには見えないが、マージ前に確認すべきことの一覧です。種類は `dangling_reference`、`unchanged_caller`、`contract_doc_not_updated`、`bridge_touched`、`unstable_dependency`、`untested_change`、`tests_to_run` です。各findingは `kind`、見る場所、`claim`、`evidence` または `sites`、`action` を持ちます。空なら差分以外に確認すべきことはありません。`base` を省くと、未コミットの変更があれば `HEAD`、なければ `HEAD~1` と比べます。
+`mode="changes"` は `findings` を返します。差分そのものには見えないが、マージ前に確認すべきことの一覧です。種類は `dangling_reference`、`unchanged_caller`、`contract_doc_not_updated`、`bridge_touched`、`unstable_dependency`、`untested_change`、`tests_to_run` です。各findingは `kind`、見る場所、`claim`、`evidence` または `sites`、`action` を持ちます。空なら差分以外に確認すべきことはありません。`unstable_dependency` は、依存元と依存先の両ユニットのinstabilityと、依存先のSAP上の位置を示します。`base` を省くと、未コミットの変更があれば `HEAD`、なければ `HEAD~1` と比べます。
 
 ### get_minimal_context_tool
 
-タスクの説明から最初に呼ぶべきツールを `next` で返し、グラフの鮮度（`sync.state`）と `graph_health` を報告します。グラフが空や古いときはバックグラウンドで更新を積みます。タスクがノードやファイルを名指ししていない場合や、グラフが古いかもしれない場合に呼びます。対象が分かっているなら、その用途のツールを直接呼ぶ方が速いです。
+タスクの説明から最初に呼ぶべきツールを `next` で返し、グラフの鮮度（`sync.state`）と `graph_health` を報告します。グラフが空や古いときはバックグラウンドで更新を積みます。`changed_files` を省くと、`review_tool(mode="changes")` と同じく `base` との差分を検出して `changes` を返します。タスクがノードやファイルを名指ししていない場合や、グラフが古いかもしれない場合に呼びます。対象が分かっているなら、その用途のツールを直接呼ぶ方が速いです。
 
 ## グラフ探索
 
@@ -71,31 +71,26 @@ review_tool(mode="changes", detail_level="minimal")
 | `inheritors_of` / `children_of` | 継承先 / ファイルやクラスのメンバー |
 | `bridges_from` | 高信頼のクロスアーティファクト橋 |
 
-`callers_of`、`importers_of`、`imports_of` は `depth`（1〜6）を取り、推移的な連鎖を1回で返します。各行は `depth` と `via` を持ちます。集合が閉じたかどうかは `reachability` で分かります。`importers_of` / `imports_of` は `import_kind`（`directive`、`link`、`lazy_export`、`path`、`statement`）で辿る辺の種類を絞れます。`path_prefix="src/"` を渡すと、そのパス配下の行だけを残します。出力予算で切られた応答も、見つかった行のファイルを `files` に並べます（最大200件、`minimal` では60件）。`tests_for` は最寄りのテストまでの距離を `test_reach` で返します。
+`callers_of`、`importers_of`、`imports_of` は `depth`（1〜6）を取り、推移的な連鎖を1回で返します。各行は `depth` と `via` を持ちます。集合が閉じたかどうかは `reachability` で分かります。`importers_of` / `imports_of` は `import_kind`（`directive`、`link`、`lazy_export`、`path`、`statement`）で辿る辺の種類を絞れます。`path_prefix="src/"` を渡すと、そのパス配下の行だけを残します。出力予算で切られた応答も、見つかった行のファイルを `files` に並べます（最大200件、`minimal` では60件）。`tests_for` は最寄りのテストまでの距離を `test_reach` で返します。テストを探す呼び出し元のhop数は、TypeScript・JavaScriptが8、PythonとGoが4で、Rustは上限がありません。
+
+SCIPで確定した呼び出しは、`callers_of` / `callees_of` の行に `resolved_by: "scip"` が付きます。最後の `build --scip` のあとに `dagayn update` で再パースしたファイルの呼び出しには付きません。ノードはあるが求めた種類のエッジが無いときは、`zero_result_reason` が `node_has_no_matching_edges` になります。
 
 ### semantic_search_nodes_tool
 
 FTS5と埋め込みベクトルのハイブリッド検索です。埋め込みが無い場合はFTSにフォールバックします。詳細は [グラフモデル](/projects/dagayn/graph-model/) の検索節を参照してください。
 
-### traverse_graph_tool
-
-検索語で起点を選び、BFSかDFSで深さ1〜6までグラフを走査します。既定のコンパクト面には含まれません（拡張面）。
-
 ## アーキテクチャ分析
 
 ### architecture_analysis_tool
 
-`mode="overview"` は、リポジトリが宣言するユニット（Cargo crate、npm package、Go module、Python import package、Terraform module）の地図を `units` と `unit_edges` で返し、構造上の `findings` を添えます。findingの種類は `import_cycle`、`unstable_dependency`、`untested_core`、`broken_doc_link` です。リポジトリ初見診断の起点として使います。
+`mode="overview"` は、リポジトリが宣言するユニット（Cargo crate、npm package、Go package、Python import package、Terraform module）の地図を `units` と `unit_edges` で返し、構造上の `findings` を添えます。findingの種類は `import_cycle`、`unstable_dependency`、`untested_core`、`broken_doc_link` です。リポジトリ初見診断の起点として使います。
 
 | mode | 用途 |
 | --- | --- |
 | `overview` | ユニットの地図と構造findings |
-| `communities` / `community` | コミュニティ一覧と個別詳細 |
-| `sdp_metrics` / `sdp_violations` | 宣言ユニット単位のSDP |
-| `sap_metrics` / `sap_violations` | 宣言ユニット単位のSAP |
 | `import_cycles` | ファイル・ディレクトリ・ユニット間のimport循環をすべて列挙 |
 
-以前の `hubs`、`bridges`、`knowledge_gaps`、`surprising_connections`、`adp_violations` モードはv10.0.0で削除されました。
+以前の `hubs`、`bridges`、`knowledge_gaps`、`surprising_connections`、`adp_violations` モードはv10.0.0で削除されました。`communities`、`community`、`sdp_metrics`、`sdp_violations`、`sap_metrics`、`sap_violations` モードはv11.0.0で削除されました。
 
 ### flow_tool
 
@@ -113,14 +108,12 @@ FTS5と埋め込みベクトルのハイブリッド検索です。埋め込み�
 | `list_graph_stats_tool` | ノード数、最終更新等 | 拡張 |
 | `embed_graph_tool` | 埋め込み生成 | 拡張 |
 
-## リファクタ・Wiki
+## リファクタ・ドキュメント
 
 | ツール | 用途 |
 | --- | --- |
-| `refactor_tool` | 既定の `suggest` は `findings`（`unused_symbol`、`complex_hotspot`、`undocumented_surface`）を返す。`dead_code` と `rename` プレビューも持つ |
+| `refactor_tool` | 既定の `suggest` は `findings`（`unused_symbol`、`complex_hotspot`）を返す。大きな関数は `complex_hotspot` の `line_count` で分かる。`dead_code` と `rename` プレビューも持つ |
 | `apply_refactor_tool` | `rename` プレビューの適用。同じ `dagayn serve` セッション内で使う（拡張面） |
-| `find_large_functions_tool` | 大きな関数の検出 |
-| `generate_wiki_tool` / `get_wiki_page_tool` | リポジトリWiki生成 |
 | `get_docs_section_tool` | Markdown セクション取得 |
 
 ## マルチリポジトリ
