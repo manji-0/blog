@@ -15,7 +15,7 @@ track webui --port 8080
 track webui --open       # 起動してブラウザも開く
 ```
 
-AxumとMiniJinja、HTMX 2、SSEで動くリアルタイムUIです。名前付きSSEイベントが `hx-trigger` を駆動し、mutationの応答HTMLで画面を差し替えます。裏のデータはCLIと同じ `~/.local/share/track/track.db` です。
+AxumとMiniJinja、HTMX 2、SSEで動くリアルタイムUIです。名前付きSSEイベントが `hx-trigger` を駆動し、mutationの応答HTMLで画面を差し替えます。裏のデータはCLIと同じSQLiteのDBです。
 
 ## タブごとに1タスク
 

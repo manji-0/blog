@@ -22,13 +22,13 @@ track <SUBCOMMAND> [OPTIONS]
 | `single`（既定） | カレントタスク（`track switch` で選んだもの） | そのコマンドだけ指定タスク |
 | `multi` | タスク単位のコマンドは失敗する。`track switch` は使えない | 指定タスク |
 
-`<ref>` は数値ID、`t:<ticket>`、`a:<alias>`（素のエイリアスも可）、アクティブなタスクの正確な名前のどれかです。`today` は `track switch` だけで使えます。`track new`、`list`、`config`、`import`、`webui`、`llm-help` はタスクを必要としません。
+`<ref>` は数値ID、`t:<ticket>`、`a:<alias>`（素のエイリアスも可）、アクティブなタスクの正確な名前のどれかです。`today` は `track switch` だけで使えます。`track new`、`list`、`config`、`import`、`webui`、`llm-help`、`completion`、`migrate`、`notes` はタスクを必要としません。
 
 ## タスク
 
 | コマンド | 説明 |
 |---|---|
-| `track new <name> [--json]` | タスク作成しアクティブ化 |
+| `track new <name> [--json]` | タスク作成（singleモードではアクティブ化） |
 | `track new <name> --template <task_ref>` | 既存タスクをテンプレートにTODOをコピー |
 | `track list [--all] [--json]` | タスク一覧 |
 | `track switch <task_id> [--json]` | タスク切替 |

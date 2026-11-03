@@ -70,7 +70,7 @@ sidebar:
 - CLI: `track <subcommand>`（mutatingは `--json` 可。全コマンドでグローバルな `--task <ref>` を受け付ける）
 - エージェント： スキル `track` / `track-task-setup` / `track-task-execute` / `track-advanced` と `track llm-help`
 - ブラウザ： `track webui`（[Web UI](/projects/track/webui/)）
-- 永続化： SQLite（`$HOME/.local/share/track/track.db`、XDG Base Directory）
+- 永続化： SQLite（Linuxは `~/.local/share/track/track.db`、macOSは `~/Library/Application Support/track/track.db`）
 
 ## 依存
 
