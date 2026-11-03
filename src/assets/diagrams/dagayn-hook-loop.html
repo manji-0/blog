@@ -23,8 +23,8 @@
 
   <rect x="316" y="56" width="240" height="80" rx="6" class="n-mask"/>
   <rect x="316" y="56" width="240" height="80" rx="6" class="n-focal"/>
-  <text x="436" y="92" class="dd-name" text-anchor="middle">dagayn update</text>
-  <text x="436" y="112" class="dd-sub" text-anchor="middle">--skip-flows</text>
+  <text x="436" y="92" class="dd-name" text-anchor="middle">dagayn queue</text>
+  <text x="436" y="112" class="dd-sub" text-anchor="middle">add update</text>
 
   <rect x="620" y="56" width="200" height="80" rx="6" class="n-mask"/>
   <rect x="620" y="56" width="200" height="80" rx="6" class="n-store"/>
@@ -33,5 +33,5 @@
 
   <line x1="80" y1="212" x2="820" y2="212" class="dd-hairline"/>
   <text x="80" y="236" class="dd-legend">DEFAULT</text>
-  <text x="168" y="236" class="dd-legend-item">日常はフロー再計算を省略する。重いのは週次や大きな refactor のあと。</text>
+  <text x="168" y="236" class="dd-legend-item">保存ごとに更新をキューへ積み、1つの worker がまとめて処理する。</text>
 </svg>
