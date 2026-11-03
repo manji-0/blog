@@ -21,6 +21,9 @@ export default defineConfig({
 	cloudflare: {
 		name: 'manjio',
 		workers_dev: true,
+		// The Custom Domain was attached in the dashboard. Declaring it keeps
+		// `void deploy` from dropping it when it updates triggers.
+		routes: [{ pattern: 'www.manj.io', custom_domain: true }],
 		r2_buckets: [{ binding: 'R2_ASSETS', bucket_name: 'manjio-assets' }],
 		observability: { enabled: true, head_sampling_rate: 1 },
 	},
