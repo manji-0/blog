@@ -10,7 +10,7 @@ sidebar:
 
 ## インストール
 
-rdra-ishはRust製CLIです。PyPI/uv経由のバイナリ配布が主なインストール方法です。GitHub Releaseにもプラットフォーム別のアーカイブがあります。2026-11-04時点では、PyPIとGitHub Releaseの最新はv1.0.0です。v1.1.0はリポジトリのタグだけで公開されているので、使うにはタグのソースからビルドします（`nix build`、または `cargo build --release -p rdra-ish-cli`）。
+rdra-ishはRust製CLIです。PyPI/uv経由のバイナリ配布が主なインストール方法です。GitHub Releaseにもプラットフォーム別のアーカイブがあります。どちらもv1.1.0を配布しています。
 
 ```bash
 uv tool install rdra-ish
