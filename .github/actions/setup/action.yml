@@ -1,0 +1,36 @@
+name: Setup toolchain
+description: Install Nix, enter the flake devShell, and install pnpm dependencies.
+
+runs:
+  using: composite
+  steps:
+    - name: Install Nix
+      uses: cachix/install-nix-action@v31
+      with:
+        github_access_token: ${{ github.token }}
+
+    - name: Cache Nix store
+      uses: nix-community/cache-nix-action@v6
+      with:
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock') }}
+        restore-prefixes-first-match: nix-${{ runner.os }}-
+
+    - name: Build devShell
+      shell: bash
+      run: nix develop --command true
+
+    - name: Locate pnpm store
+      id: pnpm-store
+      shell: nix develop --command bash -e {0}
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-store.outputs.path }}
+        key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-${{ runner.os }}-
+
+    - name: Install dependencies
+      shell: nix develop --command bash -e {0}
+      run: pnpm install --frozen-lockfile

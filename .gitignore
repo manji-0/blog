@@ -33,3 +33,10 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# Void (site-worker)
+site-worker/private/
+site-worker/dist/
+site-worker/.void/
+site-worker/.cloudflare/
+site-worker/.void-wrangler.jsonc

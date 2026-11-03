@@ -1,5 +1,10 @@
 (function () {
-	const LIVE_URL = 'https://latest-statuses.manji.app/statuses';
+	// Served by site-worker/routes/api/statuses.ts. `astro dev` has no Worker,
+	// so local previews read the production endpoint (it allows any origin).
+	const LIVE_URL =
+		location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+			? 'https://www.manj.io/api/statuses'
+			: '/api/statuses';
 
 	const formatter = new Intl.DateTimeFormat('ja-JP', {
 		dateStyle: 'medium',

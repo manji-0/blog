@@ -2,9 +2,11 @@
 export const CLOUDFLARE_PAGES_COMPONENT_ID = 'vgxj684rcw7t';
 export const CLOUDFLARE_WORKERS_COMPONENT_ID = '57srcl8zcn7c';
 
-export const CLOUDFLARE_STATUS_SUMMARY_URL = 'https://cloudflare-status-proxy.manji.app/summary';
-export const CLOUDFLARE_STATUS_INCIDENTS_URL = 'https://cloudflare-status-proxy.manji.app/incidents';
-export const CLOUDFLARE_STATUS_URL = 'https://cloudflare-status-proxy.manji.app/status';
+// Fetched at build time, so the upstream API is called directly. Browsers use
+// the same data through the site's /api/status/cloudflare/* routes.
+export const CLOUDFLARE_STATUS_SUMMARY_URL = 'https://www.cloudflarestatus.com/api/v2/summary.json';
+export const CLOUDFLARE_STATUS_INCIDENTS_URL = 'https://www.cloudflarestatus.com/api/v2/incidents.json';
+export const CLOUDFLARE_STATUS_URL = 'https://www.cloudflarestatus.com/api/v2/status.json';
 
 /** Incidents below this impact level are excluded from uptime (build/deploy noise, etc.). */
 const GLOBAL_INFRASTRUCTURE_IMPACTS = new Set(['critical', 'major', 'maintenance']);
