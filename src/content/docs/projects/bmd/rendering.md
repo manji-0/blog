@@ -22,18 +22,18 @@ src/
 └── error.rs
 ```
 
-pulldown-cmarkでMarkdownをドメインモデルに変換し、ratatuiでTUIに描画します。コードブロックはsyntectでハイライトします。編集やチェックボックスのファイル書き戻しは行いません。
+pulldown-cmarkでMarkdownをドメインモデルに変換し（reStructuredTextとAsciiDocは専用のパーサーで変換し）、ratatuiでTUIに描画します。コードブロックはsyntectでハイライトします。編集やチェックボックスのファイル書き戻しは行いません。
 
 ## Mermaid描画
 
-Mermaidコードブロックは [merman](https://crates.io/crates/merman) でラスター化します。外部のNode CLIやブラウザランタイムは要りません。
+Mermaidコードブロックは [merman](https://crates.io/crates/merman) でラスター化します。外部のNode CLIやブラウザランタイムは要りません。図はmerman 0.9の既定の見た目で描きます。背景は透明なので、端末の背景色の上に表示されます。
 
 | 端末 | 描画方式 |
 | --- | --- |
 | Kitty、Ghostty、iTerm2、WezTerm等 | グラフィックスプロトコルでインライン表示 |
-| その他 | Unicodeハーフブロックにフォールバック |
+| その他 | PNGに書き出し、OSの既定ビューア（`open` / `xdg-open`）で開く |
 
-Previewモードでは `+` / `-` / `0` でズーム、`Esc` / `o` で閉じます。Mermaidブロック由来のリンクは `o` / `Enter` で描画プレビューを開きます。
+Previewモードでは `+` / `-` / `0` でズーム、`Esc` / `o` / `O` で閉じます。Mermaidブロック由来のリンクは `o` / `Enter` で描画プレビューを開きます。
 
 ## 画像プレビュー
 
@@ -41,19 +41,25 @@ Previewモードでは `+` / `-` / `0` でズーム、`Esc` / `o` で閉じま�
 
 ## タスクリスト
 
-チェックボックスはセッション内でのトグルのみです。`x` キーまたは左クリックで切り替えますが、Markdownファイルへは書き戻しません。マーカー表示は `BMD_CHECKLIST_STYLE` または [設定](/projects/bmd/configuration/) の `auto` / `unicode` / `emoji` で選べます。
+チェックボックスはセッション内でのトグルのみです。左クリックで切り替えますが、Markdownファイルへは書き戻しません。キーで切り替えたい場合は `toggle_checklist` にキーを割り当てます（既定は未割り当て）。マーカー表示は `BMD_CHECKLIST_STYLE` または [設定](/projects/bmd/configuration/) の `[view] checklist` で `auto` / `unicode` / `emoji` / `ascii` から選べます。
+
+## 表示幅とステータスバー
+
+端末幅が `[view] max_width`（既定100）より広いとき、文書はその幅で折り返し、カラムを中央に寄せます。`0` で上限を外せます。
+
+脚注は本文の下にまとめて描きます。ステータスバーは現在のセクション（`Guide › Install › From source` の形）と、選択中のリンクURLまたは脚注ラベルを示します。幅が足りないときは優先度の低い項目から省き、長いファイル名は末尾を残します。
 
 ## リンク処理
 
 | 種類 | 例 | 動作 |
 | --- | --- | --- |
-| Web | `[text](https://…)` | OSのブラウザで開く |
+| Web | `[text](https://…)` | OSのブラウザで開く。対応形式の文書を指すGitHubのblob URLは、bmdの中で開く |
 | Anchor | `[text](#section)` | 見出しへジャンプ（履歴スタックあり） |
-| Document | `[text](./other.md)` | 同ビューで開く（ファイルスタック） |
+| Document | `[text](./other.md)` | 同ビューで開く（ファイルスタック）。`#section` 付きならその見出しで開く |
 | Image | `![alt](path.png)` | フローティングプレビュー |
 | Mermaid | mermaidコードブロック | 描画プレビュー |
 
-`O` はプレビュー閉鎖とナビ戻りの両方に使います。アンカーと文書ナビが両方あるときはアンカーが優先されます。
+`O` と `Esc` は、どちらも1段戻る操作です。プレビューが開いていれば閉じ、無ければ直前のジャンプへ戻ります。アンカーと文書ナビが両方あるときはアンカーが優先されます。戻り先はステータスバーに `back → README.md` の形で出ます。`other.md#section` から戻るときは、1回の `Esc` でリンク元の文書へ戻ります。
 
 ## 主要依存
 
@@ -62,7 +68,7 @@ Previewモードでは `+` / `-` / `0` でズーム、`Esc` / `o` で閉じま�
 | TUI | ratatui、crossterm |
 | Markdown | pulldown-cmark |
 | ハイライト | syntect |
-| Mermaid | merman（raster） |
+| Mermaid | merman（PNGラスター） |
 | 画像 | ratatui-image、image |
 
 ## ソース開発
@@ -86,7 +92,7 @@ devbox run prek
 |---|---|
 | `build` / `build-release` | デバッグ / リリース |
 | `build-linux-x86_64` | macOSから静的Linux x86_64（musl） |
-| `package` | `dist/*.tar.gz` とcrates.io用クレート |
+| `package` | `dist/*.tar.gz` を作り、crates.ioへ公開する（`cargo publish` まで実行する） |
 
 devboxはプロジェクトローカルの `RUSTUP_HOME` / `CARGO_HOME` / `SCCACHE_DIR` と `RUSTFLAGS="-C linker=clang"`、`RUSTC_WRAPPER=sccache` を設定します。devboxと素の `cargo` を混ぜると `RUSTFLAGS` 差でインクリメンタルが壊れやすいです。
 
