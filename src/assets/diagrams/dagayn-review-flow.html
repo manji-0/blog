@@ -1,7 +1,7 @@
 <!-- diagram-design: flowchart · fit · simplified · mixed · manj-io -->
 <svg viewBox="0 0 960 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dagayn-review-flow-title dagayn-review-flow-desc">
   <title id="dagayn-review-flow-title">差分から findings を取り、必要なところだけ深掘りする</title>
-  <desc id="dagayn-review-flow-desc">review_tool が findings と next を返し、影響範囲・テスト・設計書は必要なものだけ個別に聞く。</desc>
+  <desc id="dagayn-review-flow-desc">review_tool が findings と next を返し、呼び出し元・テスト・設計書は必要なものだけ個別に聞く。</desc>
   <defs>
     <marker id="dagayn-review-flow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
     <marker id="dagayn-review-flow-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
@@ -28,7 +28,7 @@
   <rect x="676" y="60" width="244" height="80" rx="6" class="n-mask"/>
   <rect x="676" y="60" width="244" height="80" rx="6" class="n-backend"/>
   <text x="798" y="96" class="dd-name" text-anchor="middle">深掘り</text>
-  <text x="798" y="116" class="dd-sub" text-anchor="middle">impact · tests · docs</text>
+  <text x="798" y="116" class="dd-sub" text-anchor="middle">callers · tests · docs</text>
 
   <line x1="64" y1="176" x2="920" y2="176" class="dd-hairline"/>
   <text x="64" y="200" class="dd-legend">ORDER</text>

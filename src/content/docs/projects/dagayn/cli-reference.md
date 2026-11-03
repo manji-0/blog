@@ -26,7 +26,7 @@ dagayn build --local-embedding    # ビルド後にローカル埋め込み生�
 dagayn build --scip               # SCIPインデクサで呼び出し先を確定
 ```
 
-`--skip-flows` はコミュニティ検出を省略し、`--skip-postprocess` は後処理をすべて省略します。`--scip` の詳細は [使い方](/projects/dagayn/usage/) のSCIP節へ。
+`--skip-flows` はコミュニティ検出を省略し、`--skip-postprocess` は後処理をすべて省略します。失敗したインデクサや後処理などのビルドの警告は、stderrに `WARNING:` 行で出ます。`--scip` の詳細は [使い方](/projects/dagayn/usage/) のSCIP節へ。
 
 ### update
 
@@ -67,13 +67,9 @@ dagayn install [--platform <name>] [--mode <mode>] [--dry-run] [-y]
 | --- | --- |
 | `dagayn detect-changes` | Git差分＋worktreeから変更ノードを検出 |
 | `dagayn tool --list` | 利用可能なMCPツール名一覧 |
-| `dagayn visualize --format <fmt>` | GraphML / Mermaid C4 / SVG / Cypher / Obsidian のエクスポート |
-| `dagayn wiki` | リポジトリWikiページ生成 |
 | `dagayn eval` | 検索品質・影響範囲・エントリポイント検出などのベンチマーク |
-| `dagayn sdp-metrics` / `detect-sdp` | 宣言されたユニット単位のSDP指標と違反 |
-| `dagayn sap-metrics` / `detect-sap` | 宣言されたユニット単位のSAP指標と違反 |
 
-SDP / SAPのコマンドは `architecture_analysis_tool` の同名モードと同じ答えを返します。`package` は宣言されたユニット（Cargo crate、npm package、Go module、Python import package、Terraform module）を指し、ディレクトリではありません。
+ユニット間の安定度は `architecture_analysis_tool(mode="overview")` の `unstable_dependency` findingで見ます。
 
 ### detect-changes
 
@@ -105,6 +101,7 @@ dagayn serve --http --port 5555   # localhostでStreamable HTTP
 | `dagayn queue add` / `run` / `status` / `clear` | hook用のバックグラウンド更新キュー |
 | `dagayn worktree sync` / `info` | メインcheckoutのグラフをworktreeへ引き継ぐ |
 | `dagayn hook-repo` | hookのJSONペイロードからリポジトリルートを出す |
+| `dagayn daemon start` / `stop` / `restart` / `status` / `logs` / `add` / `remove` | 複数リポジトリを監視するwatch daemon |
 
 ## ローカル埋め込み
 
@@ -120,7 +117,7 @@ dagayn build --local-embedding none                 # 埋め込みなし（明�
 
 ## マルチリポジトリ
 
-複数リポジトリを登録して横断検索する場合は `dagayn` のレジストリ機能と `cross_repo_search_tool`（MCP）を使います。daemon設定はupstreamの `docs/DAEMON-CONFIG.md` を参照してください。
+複数リポジトリを登録して横断検索する場合は `dagayn` のレジストリ機能と `cross_repo_search_tool`（MCP）を使います。daemon設定はupstreamの `docs/DAEMON-CONFIG.md` を参照してください。別コマンドだった `dagayn-daemon` はv11.0.0で削除され、`dagayn daemon` だけが残ります。
 
 ## 環境変数
 

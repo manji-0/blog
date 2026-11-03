@@ -67,11 +67,13 @@ sidebar:
 
 標準ライブラリや依存パッケージへの呼び出しは、同名のプロジェクト関数ではなくパッケージ自体を指します。たとえばPythonの `len(x)` は `CALLS -> builtins`、Nodeの `fs.readFile()` は `CALLS -> node:fs` です。こうしたエッジは `external`、`stdlib`、`external_package`、`external_symbol` を持ちます。`LOW` は、何も説明できない呼び出しにだけ残ります。`TESTED_BY` はテストの `CALLS` に従い、ノードでないシンボルからの辺は捨てられます。
 
+v11.0.0から、リクエストも呼び出しとして数えます。`cloudflare:test` の `SELF.fetch` を呼ぶテストは、最寄りの `wrangler.toml` などの `main` が指すWorkerの `default.fetch` を呼びます。Honoのアプリ（`new Hono()`）の `app.route(prefix, sub)`、`app.fetch(..)`、`app.request(..)` は、ルートを登録するファイルを呼びます。Goでは `_test.go` の `TestX`、`BenchmarkX`、`FuzzX`、`ExampleX` が `Test` ノードになります。
+
 ### kindごとの使い分け
 
 | 分析 | 含める kind | 除外する kind |
 | --- | --- | --- |
-| ADP / SDP / SAP | `IMPORTS_FROM`, `DEPENDS_ON`, `INHERITS`, `IMPLEMENTS` | `CALLS`, `REFERENCES` |
+| ユニット間の依存・import循環 | `IMPORTS_FROM`, `DEPENDS_ON`, `INHERITS`, `IMPLEMENTS` | `CALLS`, `REFERENCES` |
 | Impact radius（呼び出し） | `CALLS` 含む | — |
 | Doc 影響 | `CROSS_ARTIFACT`, `DEPENDS_ON` | — |
 
@@ -142,31 +144,32 @@ fork `tree-sitter-terraform` で `.tf` / `.tfvars` をパースします。
 
 `module` blockの `source` がローカルパスの場合、impact radiusがモジュール境界を越えて追跡できます。`.tfvars` のトップレベル属性は `var.name` ノードとなり、対応する `variable` blockへ `REFERENCES` で接続されます。
 
+v11.0.0から、module呼び出しの入力もコードまでたどれます。リテラルをmoduleの `var.<input>`、`locals`、入れ子のmodule呼び出しへと追います。`filename`、`source_dir`、`handler`、`entry_point`、`data "external"` の `program` / `query` に届けば、そのコードへの `CROSS_ARTIFACT` を張ります（`binding: module_input`）。ディレクトリを指すパスは、その下の索引済みコードファイルそれぞれへの `CROSS_ARTIFACT` になります。
+
 ## 構造メトリクス
 
 `dagayn build` 後処理と、クエリ時の計算で求めます。入口は `architecture_analysis_tool` です。
 
 ### コミュニティ
 
-Leidenアルゴリズムで分割し、凝集度（cohesion = コミュニティ内エッジ数 / 接続全エッジ数）を計算します。低い凝集度の大きな塊は内部境界が無い候補です。
+Leidenアルゴリズムで分割し、凝集度（cohesion = コミュニティ内エッジ数 / 接続全エッジ数）を計算します。v11.0.0でコミュニティを一覧するモードは削除されました。検出は残り、`refactor_tool(mode="suggest")` が関数の呼び出し先コミュニティを重みづけに使い、`get_minimal_context_tool` が大きい順に3つを挙げます。
 
 ### 宣言ユニットの地図
 
-`mode="overview"` は、マニフェストが宣言するユニット（Cargo crate、npm package、Go module、Python import package、Terraform module）と、その間の依存（`unit_edges`）を返します。`detail_level="standard"` では各ユニットの `surface`（外から多く使われるシンボル）も付きます。以前のhub / bridge分析は、v10.0.0でこの `surface` に置き換わりました。
+`mode="overview"` は、マニフェストが宣言するユニット（Cargo crate、npm package、Go package、Python import package、Terraform module）と、その間の依存（`unit_edges`）を返します。`detail_level="standard"` では各ユニットの `surface`（外から多く使われるシンボル）も付きます。以前のhub / bridge分析は、v10.0.0でこの `surface` に置き換わりました。v11.0.0から、Goは `go.mod` 配下の、テスト以外の `.go` を持つディレクトリがimport pathを名前とする `go_package` になります。
 
 ### エントリポイント
 
 `flow_tool(mode="entry_points")` が、`main`、フレームワークのハンドラ、FFI export、トレイトやフレームワークからだけ呼ばれるメソッドなどをクエリ時に検出します。`target` を渡すと、そのシンボルに届くエントリポイントを最短の呼び出し経路つきで返します。以前の保存フローはv10.0.0で廃止されました。
 
-### ADP / SDP / SAP
+### 依存の向きと循環
 
-| 原則 | 問い |
-| --- | --- |
-| **ADP** | 依存部分グラフに循環がないか（`import_cycle` finding、`mode="import_cycles"`） |
-| **SDP** | 依存の向きが安定度（instability）に沿っているか |
-| **SAP** | 抽象度と安定度のバランスが main sequence 近傍か |
+| 原則 | 問い | 入口 |
+| --- | --- | --- |
+| **ADP** | 依存部分グラフに循環がないか | `import_cycle` finding、`mode="import_cycles"` |
+| **SDP / SAP** | より不安定なユニットに依存していないか | `unstable_dependency` finding |
 
-既定の母集団（`dependency_profile="strict_static"`）は `IMPORTS_FROM`, `DEPENDS_ON`, `INHERITS`, `IMPLEMENTS` です。`CALLS` は含めません。v8.0.0以降、SDPとSAPはディレクトリではなく宣言ユニット単位で計算します。CLIは `sdp-metrics` / `detect-sdp` / `sap-metrics` / `detect-sap`、MCPは `architecture_analysis_tool` の同名モードが相当します。import循環は `mode="import_cycles"` が列挙します。`detect-adp` と `adp_violations` モードはv10.0.0で削除されました。
+数える辺は `IMPORTS_FROM`, `DEPENDS_ON`, `INHERITS`, `IMPLEMENTS` です。`CALLS` は含めません。`unstable_dependency` は宣言ユニット単位で、依存元と依存先のinstability、依存先のSAP上の位置（abstractnessとdistance）を示します。依存先のinstabilityが依存元より0.1を超えて高いときに報告します。SDP / SAPの指標を返すモードとCLI（`sdp-metrics` など）、`dependency_profile` 引数はv11.0.0で削除されました。
 
 ## ハイブリッド検索
 
