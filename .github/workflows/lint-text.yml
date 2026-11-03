@@ -8,6 +8,8 @@ on:
       - '.textlintignore'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'flake.nix'
+      - 'flake.lock'
   push:
     branches: [main]
     paths:
@@ -16,9 +18,15 @@ on:
       - '.textlintignore'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'flake.nix'
+      - 'flake.lock'
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    shell: nix develop --command bash -e {0}
 
 jobs:
   textlint:
@@ -27,17 +35,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup toolchain
+        uses: ./.github/actions/setup
 
       - name: Run textlint
         run: pnpm run lint:text

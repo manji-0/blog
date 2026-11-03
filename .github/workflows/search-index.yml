@@ -9,6 +9,8 @@ on:
       - "public/_headers"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/search-index.yml"
   push:
     branches: [main]
@@ -19,11 +21,17 @@ on:
       - "public/_headers"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/search-index.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    shell: nix develop --command bash -e {0}
 
 jobs:
   build-search-index:
@@ -32,20 +40,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install SQLite
-        run: sudo apt-get update && sudo apt-get install -y sqlite3
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup toolchain
+        uses: ./.github/actions/setup
 
       - name: Build search index
         run: pnpm run search:index
