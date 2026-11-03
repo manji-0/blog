@@ -21,10 +21,10 @@ sidebar:
 
 主要ツール（`get_minimal_context_tool`、`semantic_search_nodes_tool`、`query_graph_tool`、`review_tool`、`flow_tool`、`architecture_analysis_tool`、`refactor_tool`）の応答は、最後に `next` を返します。`next` は次に呼ぶ最大3件の呼び出しで、各要素が完全な引数と理由（`why`）を持ちます。答えが完結していれば `[]` です。
 
-- `detail_level="minimal"` は8K文字、`"standard"` は32K文字に収まります。収まらない分は `truncated` や `*_omitted` で件数が示されます。
+- `detail_level` を取る6つの分析ツールでは、`"minimal"` は8K文字、`"standard"` は32K文字に収まります。収まらない分は `truncated` や `*_omitted` で件数が示されます。
 - `missingness` は、その応答を制限している欠落（別コミットのグラフ、未コミットの編集、曖昧な対象など）だけを挙げます。
 - 対象が曖昧なときは `status="ambiguous"` になり、候補ごとの再試行が `next` に入ります。
-- 以前の `_hints`、`next_action`、`next_tool_suggestions`、`guidance` は返しません。
+- 以前の `_hints`、`next_action`、`next_tool_suggestions` は返しません。`guidance` は `detail_level="verbose"` のときだけ返します。
 
 ワークフロー全体は `get_docs_section_tool(section_name="workflow")`、証拠の強さの順位は `section_name="trust"` で読めます。
 
@@ -71,7 +71,7 @@ review_tool(mode="changes", detail_level="minimal")
 | `inheritors_of` / `children_of` | 継承先 / ファイルやクラスのメンバー |
 | `bridges_from` | 高信頼のクロスアーティファクト橋 |
 
-`callers_of`、`importers_of`、`imports_of` は `depth`（1〜6）を取り、推移的な連鎖を1回で返します。各行は `depth` と `via` を持ちます。集合が閉じたかどうかは `reachability` で分かります。`importers_of` / `imports_of` は `import_kind`（`directive`、`link`、`lazy_export`、`path`、`statement`）で辿る辺の種類を絞れます。`path_prefix="src/"` を渡すと、そのパス配下の行だけを残します。出力予算で切られた応答も、見つかった全行のファイルを `files` に並べます。`tests_for` は最寄りのテストまでの距離を `test_reach` で返します。
+`callers_of`、`importers_of`、`imports_of` は `depth`（1〜6）を取り、推移的な連鎖を1回で返します。各行は `depth` と `via` を持ちます。集合が閉じたかどうかは `reachability` で分かります。`importers_of` / `imports_of` は `import_kind`（`directive`、`link`、`lazy_export`、`path`、`statement`）で辿る辺の種類を絞れます。`path_prefix="src/"` を渡すと、そのパス配下の行だけを残します。出力予算で切られた応答も、見つかった行のファイルを `files` に並べます（最大200件、`minimal` では60件）。`tests_for` は最寄りのテストまでの距離を `test_reach` で返します。
 
 ### semantic_search_nodes_tool
 
@@ -79,7 +79,7 @@ FTS5と埋め込みベクトルのハイブリッド検索です。埋め込み�
 
 ### traverse_graph_tool
 
-任意の起点からエッジ種別を指定してグラフを走査します。既定のコンパクト面には含まれません（拡張面）。
+検索語で起点を選び、BFSかDFSで深さ1〜6までグラフを走査します。既定のコンパクト面には含まれません（拡張面）。
 
 ## アーキテクチャ分析
 

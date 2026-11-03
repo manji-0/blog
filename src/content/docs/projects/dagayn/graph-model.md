@@ -54,7 +54,7 @@ sidebar:
 | kind | 方向性 | 典型用途 |
 | --- | --- | --- |
 | `CONTAINS` | 親→子 | ファイル→シンボル、見出し階層 |
-| `CALLS` | 呼び出し元→先 | impact 分析、フロー |
+| `CALLS` | 呼び出し元→先 | impact 分析、エントリーポイント |
 | `IMPORTS_FROM` | 依存元→先 | パッケージ依存 |
 | `INHERITS` | 子→親 | 継承 |
 | `IMPLEMENTS` | 実装→契約 | trait / interface 適合 |

@@ -50,7 +50,7 @@ Tree-sitterを基本とし、fork固有grammarは **commit pin** で取得しま
 
 ノードは `kind`、`qualified_name`（**UNIQUE**）、`file_path`、行番号、`extra` JSONなどを持ちます。エッジは **`qualified_name` 文字列** で結びます。パーサがnode IDを知らない段階でエッジを吐け、ファイル単位の差し替え更新が単純になります。
 
-保存時にDAG制約は入れません。import循環やdoc相互参照は現実に存在するため、ADPなどの検査は後処理で依存部分グラフに対して行います。
+保存時にDAG制約は入れません。import循環やdoc相互参照は現実に存在するため、循環は問い合わせ時に検出します（`architecture_analysis_tool(mode="import_cycles")`）。
 
 接続設定の例：
 
@@ -122,7 +122,7 @@ GraphML、Mermaid C4、SVG、Cypher、Obsidian形式などへエクスポート�
 | 判断 | 理由 |
 | --- | --- |
 | qualified name でエッジ結合 | パーサ単純化、クロスアーティファクト、人間可読レスポンス |
-| 保存時に DAG 制約なし | 循環を観測可能にする。ADP は後処理 |
+| 保存時に DAG 制約なし | 循環を観測可能にする。検出は問い合わせ時 |
 | ファイル単位 replace 更新 | incremental diff より単純で速い |
 | edge kind を分離 | 探索時の index selector 兼意味分類 |
 | 派生テーブル materialize | MCP レイテンシを抑える |

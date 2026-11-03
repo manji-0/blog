@@ -18,7 +18,7 @@ sidebar:
 
 CursorやClaude Codeのようなエージェントは、タスクのたびにファイルを開き全文検索で関連箇所を探します。リポジトリが大きいほど、その反復がトークンと待ち時間を消費します。「この関数のcallerは誰か」「この変更の影響範囲はどこまでか」「この設計書はどの実装を指しているか」は、毎回読み直すより一度パースした構造に聞く方が合理的です。
 
-コアの着想は [code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、パッケージ健全性のADP / SDP / SAP、marimoノートブック、日本語FTS、複数ツール向けの `dagayn install` などを足しています。Pythonのグラフエンジンは廃止済みで、`DAGAYN_BACKEND=python` はエラーになります。
+コアの着想は [code-review-graph](https://github.com/tirth8205/code-review-graph) にあります。dagaynはTerraform、Markdown directive、設計書とコードをつなぐ `CROSS_ARTIFACT`、宣言済みユニットのSDP / SAPとimport循環の検出、marimoノートブック、日本語FTS、複数ツール向けの `dagayn install` などを足しています。Pythonのグラフエンジンは廃止済みで、`DAGAYN_BACKEND=python` はエラーになります。
 
 ## 関連文書
 

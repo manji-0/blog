@@ -55,9 +55,9 @@ dagayn install [--platform <name>] [--mode <mode>] [--dry-run] [-y]
 
 | プラットフォーム例 | 主な書き込み先 |
 | --- | --- |
-| cursor | リポジトリローカル MCP 設定 |
+| cursor | リポジトリローカル MCP 設定, `~/.cursor/mcp.json`, Cursorのhook |
 | codex | `~/.codex/config.toml`, `~/.codex/hooks.json` |
-| claude | `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/skills/<name>/SKILL.md` |
+| claude | リポジトリの `.mcp.json`, `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/skills/<name>/SKILL.md` |
 
 編集hookは `dagayn queue add update` で更新をキューに積み、1つのworkerがまとめて処理します。セッション開始hookは `dagayn session prepare --budget-seconds 45` を実行します。workerは `DAGAYN_HOOK_UPDATE=1` で動き、重複実行は抑制されます。git hookはコミット前に `dagayn update --skip-flows` と `dagayn detect-changes --brief`、コミット後に `dagayn update` を実行します。
 
