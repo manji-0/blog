@@ -1,6 +1,8 @@
 ---
 title: エージェントを迷子にさせない、trackとdagaynの合わせ技
 description: trackとdagaynを連携させ、AIエージェントが正しい場所と正しい文脈で作業できる開発ワークフローを実現した。課題の整理、各ツールの役割、仮想モノレポでの一周を紹介する
+summary: "`track` decides where an agent works; `dagayn` keeps a code graph for that workspace. Together they let parallel AI agents work in the right place with the right context, shown end to end on a fictional monorepo."
+tags: [workflow, ai, knowledge-graph, jj]
 ---
 
 `track` と `dagayn` を連携させて、1つの開発ワークフローとして動くようにした。今回はその話を書く。

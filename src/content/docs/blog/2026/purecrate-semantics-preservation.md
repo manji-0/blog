@@ -1,6 +1,8 @@
 ---
 title: RustのドメインロジックをTypeScriptへ「意味ごと」移す
 description: Rustのドメインロジックを素のTypeScriptへ翻訳するPureCrateで、セマンティクスを保つために決めた等価性の定義、意味を保てない形を拒否する制約、TSの型検査と噛み合うナローイングの書き方をまとめる
+summary: "`purecrate-ts` translates pure Rust domain logic into plain TypeScript and checks that both return the same results. How it defines equivalence, refuses what cannot keep its meaning, and writes TS that narrows as the Rust types do."
+tags: [rust, typescript, semantics, type-narrowing]
 ---
 
 [PureCrate](https://github.com/manji-0/purecrate-ts)（`purecrate-ts`）というツールを作っている。Rustで書いた純粋なドメインロジック（代数的データ型と状態遷移）を、WASMやシリアライズ境界を挟まずに、素のTypeScriptの値と関数へ翻訳するものだ。型だけでなく、振る舞いを共有する。サーバーのRustとフロントエンドのTSが、同じ注文の状態遷移や同じ料金計算を同じ結果で実行できるようにしたい。

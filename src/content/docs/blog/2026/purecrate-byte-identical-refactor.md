@@ -1,6 +1,8 @@
 ---
 title: 出力を1バイトも変えずに変換器をリファクタする
 description: RustのドメインロジックをTypeScriptへ翻訳するPureCrateで、2回の大きなリファクタを生成物の一致だけを合格条件にして進めた話。ゲートの作り方、ゲートが拾った誤り、重複を1か所にまとめたら出てきたバグ、あえてまとめなかったものをまとめる
+summary: "Two large refactors of `purecrate-ts` were gated on one condition: every generated file stays byte for byte the same. What the gate caught, the bugs that duplicated code had already grown, and what was left unmerged on purpose."
+tags: [rust, typescript, refactoring, testing]
 ---
 
 [PureCrate](https://github.com/manji-0/purecrate-ts)は、純粋なRustのドメインロジックを素のTypeScriptへ翻訳し、両者が同じ値を返すことを確かめる変換器である。[1本目](/blog/2026/purecrate-semantics-preservation/)では意味を保つための制約を、[2本目](/blog/2026/purecrate-wire-serde-json/)ではJSONの境界を扱った。今回は変換器そのものの話で、リファクタの進め方を書く。

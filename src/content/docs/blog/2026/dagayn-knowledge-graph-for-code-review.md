@@ -3,6 +3,8 @@ title: すべてを有向グラフにする、俺とAI以外のやつが
 description: すべてを有向グラフに表現して解析できるツールを作った
 sidebar:
   order: 2
+summary: "`dagayn` is a local knowledge graph for repositories: Tree-sitter parsing, SQLite storage, dependency edges, communities, flows, and MCP tools for AI coding agents. DAG is All You Need."
+tags: [knowledge-graph, ai, architecture, code-review]
 ---
 
 `dagayn` というツールについて書く。
