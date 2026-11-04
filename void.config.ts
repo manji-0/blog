@@ -2,8 +2,9 @@ import { defineConfig } from 'void/config';
 
 export default defineConfig({
 	inference: {
-		// `void deploy` runs this instead of a bare `astro build`. The R2 upload
-		// rewrites image URLs in the built HTML, so it has to run inside the build.
+		// `void deploy` runs this instead of a bare `astro build`. It points image
+		// URLs at /assets/r2/ but does not upload: Void strips Cloudflare
+		// credentials from the build, so CI uploads the images in an earlier step.
 		build: 'pnpm run build:deploy',
 	},
 	routing: {

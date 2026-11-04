@@ -17,9 +17,10 @@
     "lint:text": "textlint \"src/content/**/*.md\"",
     "lint:text:fix": "textlint --fix \"src/content/**/*.md\"",
     "prepare": "husky",
-    "build:deploy": "pnpm run fonts:subset && pnpm --filter slides run build && pnpm run build && pnpm run r2:upload-assets",
+    "build:deploy": "pnpm run fonts:subset && pnpm --filter slides run build && pnpm run build && pnpm run r2:rewrite-html",
     "check": "void prepare && astro sync && tsc --noEmit",
-    "deploy": "void deploy --platform cloudflare"
+    "deploy": "void deploy --platform cloudflare",
+    "r2:rewrite-html": "R2_ASSET_UPLOAD=0 node scripts/upload-r2-assets.mjs"
   },
   "lint-staged": {
     "src/content/**/*.md": "textlint"
