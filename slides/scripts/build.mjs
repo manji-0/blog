@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const slidesRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const decksRoot = join(slidesRoot, 'decks');
-const outputRoot = join(slidesRoot, '..', 'site-worker', 'public', 'slides');
+const outputRoot = join(slidesRoot, '..', 'public', 'slides');
 
 const deckSetupSource = `import { defineRootSetup } from '@slidev/types'
 import '../../../styles/manjio.css'

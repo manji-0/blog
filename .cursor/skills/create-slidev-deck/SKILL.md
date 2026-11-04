@@ -20,10 +20,10 @@ Slidev デッキを `slides/decks/{deck-id}/` に追加し、Cloudflare Worker �
    ```bash
    pnpm --filter slides run build
    ```
-7. **Worker で確認**（site-worker が assemble 済みの場合）
+7. **Worker で確認**（ビルド後のサイトを workerd で配信）
    ```bash
-   pnpm --filter site-worker run dev
-   # http://127.0.0.1:8788/slides/{deck-id}/
+   pnpm run build && pnpm run preview
+   # http://localhost:4321/slides/{deck-id}/
    ```
 
 ## Repository layout
@@ -41,7 +41,7 @@ slides/
       components/        # 任意 — デッキ固有 Vue SFC
   scripts/build.mjs      # 全デッキをビルド
   package.json           # @slidev/cli, theme-seriph
-site-worker/public/slides/   # ビルド成果物（gitignore、編集しない）
+public/slides/   # ビルド成果物（gitignore、編集しない）
 ```
 
 `slides/` を cwd にして `slidev build decks/{id}/slides.md` すると、`slides/components/` が全デッキから auto-import される。CSS は各デッキの `setup/main.ts` 経由（テンプレートに同梱）。
@@ -107,7 +107,7 @@ fonts:
 
 | コマンド | 作用 |
 |----------|------|
-| `pnpm --filter slides run build` | 全デッキ → `site-worker/public/slides/` + `manifest.json` |
+| `pnpm --filter slides run build` | 全デッキ → `public/slides/` + `manifest.json` |
 | `pnpm run cf:deploy:local` | Astro + assemble + slides ビルド |
 | `pnpm run cf:deploy` | 上記 + Worker デプロイ |
 
@@ -119,11 +119,11 @@ fonts:
 - [ ] deck-id が既存デッキと重複していない（`slides/decks/` を確認）
 - [ ] `pnpm --filter slides run build` が成功する
 - [ ] ローカル or workers.dev で `/slides/{deck-id}/` と深いリンク `/slides/{deck-id}/2` を確認
-- [ ] `site-worker/public/` を直接編集していない（常に build 経由）
+- [ ] `public/slides/` を直接編集していない（常に build 経由）
 
 ## Do not
 
-- `site-worker/public/slides/` を手編集しない（生成物）
+- `public/slides/` を手編集しない（生成物）
 - deck-id に `/` やスペースを含めない
 - Pages 向け `_redirects` をデッキに足さない（Worker が SPA フォールバックを担当）
 
@@ -131,4 +131,4 @@ fonts:
 
 - 詳細 frontmatter・コンポーネント: [reference.md](reference.md)
 - サンプルデッキ: `slides/decks/sample/slides.md`
-- 配信アーキテクチャ: `site-worker/README.md`
+- 配信アーキテクチャ: `README.md`

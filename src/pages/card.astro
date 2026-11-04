@@ -1,10 +1,17 @@
 ---
 import { Picture } from 'astro:assets';
-import { Icon } from '@astrojs/starlight/components';
 import avatar from '../assets/card/manji0.jpg';
+import { cardIcons, type CardIconName } from '../lib/card-icons';
 import { profile, VCARD_PATH } from '../lib/card-profile';
+import { CARD_HEADERS, denyCardAccess } from '../server/card';
 
-const links = [
+export const prerender = false;
+
+const denied = await denyCardAccess(Astro.url);
+if (denied) return denied;
+for (const [name, value] of Object.entries(CARD_HEADERS)) Astro.response.headers.set(name, value);
+
+const links: { label: string; value: string; href: string; copy: string; icon: CardIconName }[] = [
 	{
 		label: 'Email',
 		value: profile.email,
@@ -91,7 +98,7 @@ const links = [
 							<div class="row">
 								<a class="link" href={link.href} rel="noopener noreferrer" target={link.href.startsWith('http') ? '_blank' : undefined}>
 									<span class="link-icon">
-										<Icon name={link.icon} size="1.25rem" />
+										<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" set:html={cardIcons[link.icon]} />
 									</span>
 									<span class="link-body">
 										<span class="link-label">{link.label}</span>
@@ -480,6 +487,12 @@ const links = [
 	.toast.is-visible {
 		opacity: 1;
 		transform: translate(-50%, 0);
+	}
+
+	.link-icon svg {
+		width: 1.25rem;
+		height: 1.25rem;
+		overflow: visible;
 	}
 
 	.link-icon {

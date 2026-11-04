@@ -150,7 +150,7 @@ clicks: 2
 
 `pnpm --filter slides run build` 後:
 
-- `site-worker/public/slides/manifest.json` — デッキ一覧
+- `public/slides/manifest.json` — デッキ一覧
 - `GET /slides` — manifest JSON（Worker）
 
 ## Troubleshooting
@@ -160,5 +160,5 @@ clicks: 2
 | ビルドで deck が見つからない | `slides/decks/{id}/slides.md` のパスを確認 |
 | `AgendaToc` が unknown component | `pnpm --filter slides run build` を `slides/` cwd で実行しているか確認 |
 | 画像 404 | `public/` 相対パスか確認。ビルド後 hashed 名になるのは正常 |
-| `/slides/{id}/3` が 404 | `pnpm --filter site-worker run dev` で Worker SPA フォールバックを確認 |
+| `/slides/{id}/3` が 404 | `pnpm run build && pnpm run preview` で Worker の SPA フォールバックを確認 |
 | フォントが違う | frontmatter `fonts:` を確認 |

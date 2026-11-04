@@ -1,6 +1,6 @@
 # Slides (Slidev)
 
-Slidev デッキのソースとビルドスクリプト。成果物は `site-worker/public/slides/` に出力される。
+Slidev デッキのソースとビルドスクリプト。成果物は `public/slides/` に出力される。
 
 新規デッキ作成は Cursor skill **create-slidev-deck**（`.cursor/skills/create-slidev-deck/`）を参照。
 
@@ -19,7 +19,7 @@ Slidev デッキのソースとビルドスクリプト。成果物は `site-wor
 ```bash
 pnpm --filter slides exec slidev decks/{deck-id}/slides.md --open   # 任意デッキのプレビュー
 pnpm --filter slides run dev:sample   # sample デッキのプレビュー
-pnpm --filter slides run build        # site-worker/public/slides/ へ出力
+pnpm --filter slides run build        # public/slides/ へ出力
 ```
 
 ## デッキ追加

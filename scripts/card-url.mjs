@@ -32,4 +32,4 @@ console.log(`url: ${url}`);
 console.log(`ndef: ${bytes} / ${NTAG215_USER_BYTES} bytes`);
 console.log('');
 console.log('register the key:');
-console.log('  pnpm --filter site-worker exec wrangler secret put CARD_KEY');
+console.log('  pnpm exec void secret put CARD_KEY');

@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
 import starlight from '@astrojs/starlight';
+import { voidPlugin } from 'void';
 import remarkBeautifulMermaid from './src/plugins/remark-beautiful-mermaid.mjs';
 import remarkDiagramDesign from './src/plugins/remark-diagram-design.mjs';
 import remarkHatenaFootnotes from './src/plugins/remark-hatena-footnotes.mjs';
@@ -27,18 +29,30 @@ export default defineConfig({
 	build: {
 		inlineStylesheets: 'auto',
 	},
+	adapter: cloudflare({
+		configPath: './.void-wrangler.jsonc',
+		// Build-time code reads src/content with node:fs and git, which workerd
+		// cannot do. Only /card and the API routes render on demand.
+		prerenderEnvironment: 'node',
+		// Optimize images with sharp at build time instead of the IMAGES binding.
+		imageService: 'compile',
+	}),
+	// No page uses Astro sessions; without this the adapter adds a SESSION KV
+	// binding that `void deploy` would provision.
+	session: false,
 	prefetch: {
 		prefetchAll: false,
 		defaultStrategy: 'viewport',
 	},
 	vite: {
+		plugins: [voidPlugin()],
 		optimizeDeps: {
 			exclude: ['@sqlite.org/sqlite-wasm'],
 		},
 		resolve: {
 			alias: {
 				'@starlight/navigation': fileURLToPath(
-					new URL('./node_modules/@astrojs/starlight/utils/navigation.ts', import.meta.url),
+					new URL('./node_modules/@astrojs/starlight/dist/utils/navigation.js', import.meta.url),
 				),
 			},
 		},

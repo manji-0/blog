@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const distDir = process.env.DIST_DIR || 'dist';
+const distDir = process.env.DIST_DIR || 'dist/client';
 const astroAssetDir = join(distDir, '_astro');
 const bucket = process.env.R2_ASSET_BUCKET || 'manjio-assets';
 const keyPrefix = trimSlashes(process.env.R2_ASSET_PREFIX || 'astro');
