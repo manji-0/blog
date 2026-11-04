@@ -1,19 +1,9 @@
 import { defineMiddleware } from 'astro:middleware';
+import { legacyDocsLocation } from './server/legacy-docs';
 
-const legacyDocPrefixes = [
-	['/docs/kamae-rs', '/projects/kamae-rs'],
-	['/docs/kamae-py', '/projects/kamae-py'],
-	['/docs/kamae-scala', '/projects/kamae-scala'],
-] as const;
-
+// Turns the legacy pages still in src/content/docs/docs/ into redirect pages at
+// build time, and answers the on-demand routes in src/pages/docs/ at runtime.
 export const onRequest = defineMiddleware((context, next) => {
-	const { pathname } = new URL(context.request.url);
-
-	for (const [from, to] of legacyDocPrefixes) {
-		if (pathname === from || pathname.startsWith(`${from}/`)) {
-			return context.redirect(`${to}${pathname.slice(from.length)}`, 308);
-		}
-	}
-
-	return next();
+	const location = legacyDocsLocation(context.url);
+	return location ? context.redirect(location, 308) : next();
 });

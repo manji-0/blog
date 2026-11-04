@@ -85,7 +85,7 @@ Commit `void.lock.json` whenever `void deploy` creates or updates it.
 | `/slides/{deck}/{n}` | Slidev SPA fallback |
 | `/api/statuses` | Latest 5 public posts from the Fediverse (`fedi.manji.app`) and Bluesky (`manj.io`) |
 | `/api/status/{cloudflare,github}[/status\|/summary\|/incidents]` | Statuspage API proxy, cached for one day |
-| `/docs/kamae-*` | 308 to `/projects/kamae-*` via `public/_redirects` |
+| `/docs/kamae-{rs,py,scala}/*` | 308 to `/projects/kamae-*/*` (`src/pages/docs/`) |
 
 If one source of `/api/statuses` fails, the route returns the posts it fetched plus an `errors` array. If both fail, it returns `502`.
 
