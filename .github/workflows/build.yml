@@ -1,0 +1,51 @@
+name: Build
+
+# Runs what `void deploy` builds, minus the R2 upload and the deploy, so a
+# pull request proves the site still builds in the Nix toolchain.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: nix develop --command bash -e {0}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: ./.github/actions/setup
+
+      - name: Type check
+        run: pnpm run check
+
+      - name: Generate font subsets
+        run: pnpm run fonts:subset
+
+      - name: Build Slidev decks
+        run: pnpm --filter slides run build
+
+      - name: Build site
+        run: pnpm run build
+
+      - name: Verify Worker output
+        run: |
+          test -f dist/server/entry.mjs
+          test -f dist/client/index.html
+          test -f dist/client/slides/manifest.json
+          test ! -e dist/client/card
+          node -e '
+            const config = require("./dist/server/wrangler.json");
+            const bindings = [config.assets?.binding, ...(config.r2_buckets ?? []).map((b) => b.binding), ...(config.kv_namespaces ?? []).map((b) => b.binding)];
+            if (bindings.join() !== "ASSETS,R2_ASSETS") throw new Error(`Unexpected bindings: ${bindings.join()}`);
+            console.log(`bindings: ${bindings.join()}`);
+          '
