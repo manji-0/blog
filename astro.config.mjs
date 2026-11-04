@@ -38,7 +38,7 @@ export default defineConfig({
 		resolve: {
 			alias: {
 				'@starlight/navigation': fileURLToPath(
-					new URL('./node_modules/@astrojs/starlight/utils/navigation.ts', import.meta.url),
+					new URL('./node_modules/@astrojs/starlight/dist/utils/navigation.js', import.meta.url),
 				),
 			},
 		},
