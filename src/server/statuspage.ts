@@ -17,15 +17,23 @@ export type Statuspage = {
 	origin: string;
 };
 
-export const GITHUB_STATUSPAGE: Statuspage = { name: 'github', origin: 'https://www.githubstatus.com' };
-export const CLOUDFLARE_STATUSPAGE: Statuspage = { name: 'cloudflare', origin: 'https://www.cloudflarestatus.com' };
+const STATUSPAGES: Record<string, Statuspage> = {
+	github: { name: 'github', origin: 'https://www.githubstatus.com' },
+	cloudflare: { name: 'cloudflare', origin: 'https://www.cloudflarestatus.com' },
+};
 
-export function parseStatuspageEndpoint(value: string): StatuspageEndpoint | null {
-	return (ENDPOINTS as readonly string[]).includes(value) ? (value as StatuspageEndpoint) : null;
+export function parseStatuspage(value: string | undefined): Statuspage | null {
+	return value && Object.hasOwn(STATUSPAGES, value) ? STATUSPAGES[value] : null;
 }
 
-export async function proxyStatuspage(page: Statuspage, endpoint: StatuspageEndpoint | null): Promise<Response> {
-	if (!endpoint) {
+/** An empty endpoint (`/api/status/github`) is an alias of `status`. */
+export function parseStatuspageEndpoint(value: string | undefined): StatuspageEndpoint | null {
+	const endpoint = value || 'status';
+	return (ENDPOINTS as readonly string[]).includes(endpoint) ? (endpoint as StatuspageEndpoint) : null;
+}
+
+export async function proxyStatuspage(page: Statuspage | null, endpoint: StatuspageEndpoint | null): Promise<Response> {
+	if (!page || !endpoint) {
 		return jsonResponse({ error: 'not_found' }, { status: 404 });
 	}
 

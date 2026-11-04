@@ -1,6 +1,6 @@
 # build output
 dist/
-site-worker/public/
+public/slides/
 public/search/
 public/cloudflare-platform-uptime.json
 public/github-pages-uptime.json
@@ -34,9 +34,7 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# Void (site-worker)
-site-worker/private/
-site-worker/dist/
-site-worker/.void/
-site-worker/.cloudflare/
-site-worker/.void-wrangler.jsonc
+# Void
+.void/
+.cloudflare/
+.void-wrangler.jsonc

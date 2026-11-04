@@ -2,6 +2,10 @@
   "version": 1,
   "source": {
     "name": "manjio",
+    "compatibility_date": "2026-07-07",
+    "compatibility_flags": [
+      "nodejs_als"
+    ],
     "workers_dev": true,
     "preview_urls": true,
     "routes": [
@@ -24,6 +28,7 @@
   "resolved": {
     "name": "manjio",
     "workers_dev": true,
+    "preview_urls": true,
     "routes": [
       {
         "pattern": "www.manj.io",
@@ -41,7 +46,10 @@
       "head_sampling_rate": 1
     },
     "account_id": "7ac56317ce7baa33a74236fb2edc0b11",
-    "preview_urls": true
+    "compatibility_date": "2026-07-07",
+    "compatibility_flags": [
+      "nodejs_als"
+    ]
   },
-  "text": "{\n  \"name\": \"manjio\",\n  \"workers_dev\": true,\n  \"routes\": [\n    {\n      \"pattern\": \"www.manj.io\",\n      \"custom_domain\": true\n    }\n  ],\n  \"r2_buckets\": [\n    {\n      \"binding\": \"R2_ASSETS\",\n      \"bucket_name\": \"manjio-assets\"\n    }\n  ],\n  \"observability\": {\n    \"enabled\": true,\n    \"head_sampling_rate\": 1\n  },\n  \"account_id\": \"7ac56317ce7baa33a74236fb2edc0b11\",\n  \"preview_urls\": true\n}\n"
+  "text": "{\n  \"name\": \"manjio\",\n  \"workers_dev\": true,\n  \"preview_urls\": true,\n  \"routes\": [\n    {\n      \"pattern\": \"www.manj.io\",\n      \"custom_domain\": true\n    }\n  ],\n  \"r2_buckets\": [\n    {\n      \"binding\": \"R2_ASSETS\",\n      \"bucket_name\": \"manjio-assets\"\n    }\n  ],\n  \"observability\": {\n    \"enabled\": true,\n    \"head_sampling_rate\": 1\n  },\n  \"account_id\": \"7ac56317ce7baa33a74236fb2edc0b11\",\n  \"compatibility_date\": \"2026-07-07\",\n  \"compatibility_flags\": [\n    \"nodejs_als\"\n  ]\n}\n"
 }

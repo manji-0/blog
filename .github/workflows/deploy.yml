@@ -34,29 +34,13 @@ jobs:
       - name: Setup toolchain
         uses: ./.github/actions/setup
 
-      - name: Generate font subsets
-        run: pnpm run fonts:subset
-
-      - name: Build site
-        run: pnpm run build
-
-      - name: Upload generated image assets to R2
-        run: pnpm run r2:upload-assets
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-      - name: Assemble Worker assets
-        run: pnpm --filter site-worker run assemble
-
-      - name: Build Slidev decks
-        run: pnpm --filter slides run build
-
       - name: Type check
-        run: pnpm --filter site-worker run check
+        run: pnpm run check
 
-      - name: Deploy with Void
-        run: pnpm --filter site-worker run deploy
+      # `void deploy` runs `pnpm run build:deploy` (fonts, Slidev, Astro, and
+      # the R2 upload) before it uploads the Worker.
+      - name: Build and deploy with Void
+        run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

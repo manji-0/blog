@@ -2,24 +2,20 @@ import { defineConfig } from 'void/config';
 
 export default defineConfig({
 	inference: {
-		// public/ is pre-built static output; routes/ adds the Worker.
-		appType: 'void',
+		// `void deploy` runs this instead of a bare `astro build`. The R2 upload
+		// rewrites image URLs in the built HTML, so it has to run inside the build.
+		build: 'pnpm run build:deploy',
 	},
 	routing: {
-		notFound: '404-page',
-		// Pages are pre-built into public/; nothing renders on the edge. Saying
+		// Pages are prerendered by Astro; nothing renders on the edge. Saying
 		// so up front keeps `void deploy` from asking about an ISR cache in CI.
 		isr: false,
-		// The catch-all card route does not match an empty rest segment.
-		redirects: {
-			'/card/': { to: '/card', status: 308 },
-		},
-	},
-	worker: {
-		compatibility_date: '2026-07-07',
 	},
 	cloudflare: {
 		name: 'manjio',
+		compatibility_date: '2026-07-07',
+		// `void/env` (CARD_KEY) needs AsyncLocalStorage in Astro.
+		compatibility_flags: ['nodejs_als'],
 		// Visibility and the Custom Domain match what the dashboard set on the
 		// existing Worker; `void deploy` refuses to republish undeclared ones.
 		workers_dev: true,

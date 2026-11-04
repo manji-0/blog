@@ -3,6 +3,13 @@ import { Picture } from 'astro:assets';
 import avatar from '../assets/card/manji0.jpg';
 import { cardIcons, type CardIconName } from '../lib/card-icons';
 import { profile, VCARD_PATH } from '../lib/card-profile';
+import { CARD_HEADERS, denyCardAccess } from '../server/card';
+
+export const prerender = false;
+
+const denied = await denyCardAccess(Astro.url);
+if (denied) return denied;
+for (const [name, value] of Object.entries(CARD_HEADERS)) Astro.response.headers.set(name, value);
 
 const links: { label: string; value: string; href: string; copy: string; icon: CardIconName }[] = [
 	{
