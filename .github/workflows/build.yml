@@ -25,11 +25,13 @@ jobs:
       - name: Setup toolchain
         uses: ./.github/actions/setup
 
-      - name: Type check
-        run: pnpm run check
-
+      # astro.config.mjs reads the generated fonts.css, and `astro sync` in
+      # the type check loads that config.
       - name: Generate font subsets
         run: pnpm run fonts:subset
+
+      - name: Type check
+        run: pnpm run check
 
       - name: Build Slidev decks
         run: pnpm --filter slides run build
