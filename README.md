@@ -67,8 +67,9 @@ pnpm run check    # Void codegen and TypeScript
 pnpm run deploy   # void deploy --platform cloudflare
 ```
 
-`void deploy` runs `pnpm run build:deploy`, which subsets the fonts, builds the Slidev decks into `public/slides/`, builds the site, and uploads large images to R2.
-The R2 upload rewrites image URLs in `dist/client/`, so it needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+`void deploy` runs `pnpm run build:deploy`, which subsets the fonts, builds the Slidev decks into `public/slides/`, builds the site, and points image URLs in `dist/client/` at `/assets/r2/`.
+Void strips Cloudflare credentials from that build, so upload the images first with `pnpm run build && pnpm run r2:upload-assets` (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`).
+Image file names are content hashes, so the rebuild references the same R2 keys.
 CI (`.github/workflows/deploy.yml`) deploys on every push to `main`.
 Commit `void.lock.json` whenever `void deploy` creates or updates it.
 
