@@ -1,6 +1,6 @@
 ---
 title: "CLI リファレンス"
-description: "rdra-ish CLI サブコマンド一覧（v1.1.0）"
+description: "rdra-ish CLI サブコマンド一覧（v1.2.0）"
 sidebar:
   order: 5
 ---
@@ -28,7 +28,7 @@ rdra-ish <SUBCOMMAND> <INPUTS...> [OPTIONS]
 | `diagram --kind state` | 状態モデルの初期状態と到達状態 | 止まる。errorがデッドロックだけなら、デッドロックを色分けして図を書く |
 | `state` 以外の `diagram`（`sequence` を含む） | 宣言された事実 | noteを出して書く |
 | `export --kind typescript-states` | 到達状態 | 止まる |
-| `export --kind tla` | `--instance-count` / `--int-range-max` で組み立てた遷移系 | noteを出して書く。noteは、TLC単体ではデッドロックとwitnessを検査しないので `verify` を使うよう促す。遷移系の構築時のerrorでは止まる |
+| `export --kind tla` | `--instance-count` / `--int-range-max` で組み立てた遷移系 | noteを出して書く。noteは、モデル全体の `.cfg` が規則だけを検査すること、デッドロックとwitnessは隣の `StateModel_*` specでTLCにかけられること、デッドロックを判定するのは `verify` であることを伝える。遷移系の構築時のerrorでは止まる |
 | ほかの `export` | データ層 | noteを出して書く |
 | `states` | 導出そのもの | `[error]` 行を含めて表を出し、終了コード1 |
 
@@ -64,6 +64,12 @@ v1.1.0で次の所見が加わりました。
 - warning `GuardReadsLaterStep`：分割したUCに適用した `holds` 本体が、後のトランザクションでしか作られないエンティティを比べている。ガードは最初のトランザクションの前に読まれるため、多くの場合成り立たない
 - warning `DrivenComparisonColumnWritten`：`drives` で駆動する比較が読む列をUCが `sets` で書き換えるのに、その比較を駆動していない
 - info `DefaultOnVariationIgnored`：バリエーション型の列の `@default` は初期値を選ばない。作成するUCが列を `sets` しないと、行はバリエーションのどの値からでも始まる
+
+v1.2.0では、`sets(..).when(Cond)`（[言語リファレンス](/projects/rdra-ish/language-reference/#条件に従う値)）に合わせて次の所見が加わりました。
+
+- error `SetsWhenOnCopy`：値のコピー（`Entity.col == Source.col`）に `.when` を付けた。UC全体をガードするなら `applies_to(Cond, UC)` を書く
+- 既存のerror `ConflictingEffects` は、ガード付きの `sets` と同じ列へのガードなしの `sets` やコピーが並ぶ場合にも出る
+- 既存のwarning `ValueNeverChosen` は、UCが実行される状態でガードが一度も成り立たず、残されることのない `sets` の値にも出る
 
 | オプション | 説明 |
 |---|---|
@@ -160,7 +166,7 @@ rdra-ish export src/ --kind openapi [--out out/]
 rdra-ish export src/ --kind tla -o /tmp/rdra-tla
 ```
 
-`--kind tla` は `.tla` と兄弟 `.cfg` を書きます。`--instance-count` と `--int-range-max` で探索範囲を変えられます。`check` がライフサイクルのerrorを見つけるモデルでも書き出して終了コード0で終わり、error件数と `verify` を促すnoteを出します。詳細は [形式検証](/projects/rdra-ish/formal-verification/)。
+`--kind tla` は `.tla` と兄弟 `.cfg` を書きます。v1.2.0からは、その隣に状態モデルを持つエンティティのconeごとに `StateModel_<E>.tla`、`StateModel_<E>.cfg`、`StateModel_<E>_witnesses.cfg` も書きます。これらでデッドロックとwitnessの欠如をTLC単体で検査できます。`--instance-count` と `--int-range-max` で探索範囲を変えられます。`check` がライフサイクルのerrorを見つけるモデルでも書き出して終了コード0で終わり、error件数と `StateModel_*` spec、`verify` を案内するnoteを出します。`export` は前回書いた `StateModel_` ファイルを消さないので、空のディレクトリに書き出してください。詳細は [形式検証](/projects/rdra-ish/formal-verification/#tlc単体で状態モデルを検査する)。
 
 ## verify
 
@@ -171,6 +177,8 @@ rdra-ish verify src/ --backend tlc -o /tmp/rdra-tla
 ```
 
 `--instance-count`（既定 `2`）、`--int-range-max`（既定 `5`）、`--temporal-budget`（既定 `300` 秒）、`--deny-undecided`、`--buc` / `--entity` を受け付けます。
+
+v1.2.0から、`verify` は各coneを独立した部分ライフサイクルで簡約してから探索します（[形式検証](/projects/rdra-ish/formal-verification/#独立した部分ライフサイクルによる簡約)）。判定、error名、`// expect` の結果は変わりません。印字される状態数は小さくなります。状態数は互換性契約の対象外です。反例トレースは簡約前のconeの経路に戻してから印字するので、簡約後より長くなることがあり、部分ライフサイクル側のUCがステップに出ることもあります。`check` と `states` は簡約しません。
 
 ## list
 
@@ -190,7 +198,7 @@ kindの例：`actor` / `buc` / `usecase` / `entity` / `api` / `requirement` / `s
 
 ## プロジェクトマニフェスト
 
-モデルのルートに `rdra.toml` を置けます。`[model] name` が必須です。`[dependencies]` は読み込まれますが、v1.1.0でもまだ出力を変えません。不正なマニフェストは読み込み系コマンドを終了コード1で止めます（`files` と `fmt` はマニフェストを読みません）。
+モデルのルートに `rdra.toml` を置けます。`[model] name` が必須です。`[dependencies]` は読み込まれますが、v1.2.0でもまだ出力を変えません。不正なマニフェストは読み込み系コマンドを終了コード1で止めます（`files` と `fmt` はマニフェストを読みません）。
 
 ```toml
 [model]
@@ -205,7 +213,7 @@ name = "shop"
 | 1 | parse/model error、または `check` / `fmt --check` / 生成系の fail-closed / TLC 失敗、必要なツールが動かない |
 | 2 | 使い方の誤り（未知のサブコマンドやフラグ、kindが受け付けない `--format`） |
 
-v1.0.0から、サブコマンドとフラグ、終了コード、JSON/CSVの出力列はupstreamの [compatibility.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.1.0/docs/compatibility.md) で互換性が約束されています。
+v1.0.0から、サブコマンドとフラグ、終了コード、JSON/CSVの出力列はupstreamの [compatibility.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.2.0/docs/compatibility.md) で互換性が約束されています。
 
 ## VS CodeとLSP
 

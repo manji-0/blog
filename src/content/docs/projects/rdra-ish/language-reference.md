@@ -1,11 +1,11 @@
 ---
 title: "言語リファレンス"
-description: "rdra-ish DSL（.rdra）の構文概要（v1.1.0）"
+description: "rdra-ish DSL（.rdra）の構文概要（v1.2.0）"
 sidebar:
   order: 6
 ---
 
-このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.1.0/docs/language-reference.md) も参照してください。
+このページは `.rdra` の構文と、同じモデルから出せる図表・表・エクスポートの概要です。完全な仕様はupstreamの [language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v1.2.0/docs/language-reference.md) も参照してください。
 
 ## ファイル構造
 
@@ -121,7 +121,7 @@ entity Order "Order" {
 | `triggers(Event\|Timer, Usecase\|Buc\|ExtSystem)` | イベントやタイマーがUC・BUCを起動する（タイマーは外部システムを起動できない） |
 | `transitions(Usecase, Entity.col, from -> to)` | Enum 列上の遷移。遷移を起こすのはUC |
 | `transitions(Usecase, Entity.col, (a, b) -> to)` | 遷移元を並べる形（v1.1.0）。遷移元ごとに1行ずつ書いたのと同じ |
-| `sets(Usecase, Entity.col == val)` | 列への代入。`Entity.col == Source.col` で値をコピーする。`Date` / `DateTime` 列には `now` の時計上の点として数値を書ける（v1.1.0） |
+| `sets(Usecase, Entity.col == val)` | 列への代入。`Entity.col == Source.col` で値をコピーする。`Date` / `DateTime` 列には `now` の時計上の点として数値を書ける（v1.1.0）。リテラルの値には `.when(Cond)` を付けられる（v1.2.0、[条件に従う値](#条件に従う値)） |
 | `drives(Usecase, Entity.col op rhs, true\|false)` | 比較命題の真偽を駆動する |
 | `chooses(Usecase, Entity.col)` | バリエーション列の値をアクターが選び直す |
 | `links(Usecase, Child, Parent)` | 既存の子の行を既存の親の行につなぐ（v1.1.0） |
@@ -165,6 +165,36 @@ invariant(Case).when(status == assigned).has(Handler)
 - `links` はまだつながっていない子だけをつなぎます。つながっている子は動かしません。動かすのは `relinks`（必須キーも可）、外すのは `unlinks`（`.optional()` キーのみ）です
 - キーがなければ `LinkWithoutKey`、`links` / `unlinks` のキーが必須なら `LinkOnMandatoryKey`、キーが複数あって `.role(role)` で選んでいなければ `AmbiguousOwnerLink` です。1つのUCが同じキーに2つの形を書くと `ConflictingLinks` です
 - `check`、`states`、TLA+出力、`verify` は、作成時に設定するキーと同じようにこのつながりを読みます
+
+#### 条件に従う値
+
+v1.2.0から、`sets(UC, Entity.col == value).when(Cond)` と書けます。条件 `Cond` の `holds` 本体が成り立つときだけ、UCはその値を残します。値ごとに1行書けば、行自身の列でUCが残す値を選べます。たとえば、延長の理由に応じて期限を決められます。
+
+```rdra
+condition DisasterArea "A disaster-area survey"
+holds(DisasterArea, Extension.reason == disaster_area)
+condition ExpertInquiry "An expert inquiry"
+holds(ExpertInquiry, Extension.reason == expert_inquiry)
+
+sets(ExtendPeriod, Extension.due_on == 2).when(DisasterArea)
+sets(ExtendPeriod, Extension.due_on == 3).when(ExpertInquiry)
+
+// タイマーのUCは、行の期限が来るのを待つ
+condition DeadlinePassed "The extended deadline has come"
+holds(DeadlinePassed, Extension.due_on <= now)
+transitions(FlagOverdue, Claim.period, extended -> overdue).when(DeadlinePassed)
+```
+
+- ガードは `chooses(..).when(Cond)` の値のガードと同じように読みます。UCが作る行ではステップ後の行を読むので、作成時にアクターが選んだバリエーションの値が見えます。UCが更新する行ではステップ前の状態を読みます
+- 1つの列の行は1つの選択です。UCはガードが成り立つ行の値を残します。どの行も有効でなければ、UCは実行されません。2つの行のガードが同時に成り立つと、両方の値がそれぞれ1回の実行として残るので、ガードは互いに排他にします
+- ガード付きの行と同じ列に、ガードなしの `sets` やコピーを並べると `ConflictingEffects` です。同じ列の `chooses` は、ほかの `sets` と同じく `ChoosesAndSets` です
+- ガードを付けられるのはリテラルだけです。コピー（`Entity.col == Source.col`）への `.when` はerror `SetsWhenOnCopy` です。UC全体をガードするなら `applies_to(Cond, UC)` を書きます
+- UCが実行される状態でガードが一度も成り立たない値は、warning `ValueNeverChosen` です
+- シーケンス図は値の後ろに `[...]` でガードを書きます。`check`、`states`、TLA+出力、`verify` は、ガード付きの `chooses` と同じように読みます
+
+タイマーに引数は要りません。タイマーが起動するUCは、自分が束縛する行をガードで読みます。v1.1.0までは、期間ごとにタイマーとUCを用意し、理由の条件で各UCをガードする書き方しかありませんでした。この書き方も引き続き使えますが、期間の終わりを規則で書けません。
+
+`now` は日数ではなく時計の目盛りを数えます。既定の値域は `0..5` なので、期間の順序を保つ目盛りを選びます（上の例では60日を2、90日を3）。
 
 ### ルール
 

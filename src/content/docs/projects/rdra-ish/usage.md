@@ -10,7 +10,7 @@ sidebar:
 
 ## インストール
 
-rdra-ishはRust製CLIです。PyPI/uv経由のバイナリ配布が主なインストール方法です。GitHub Releaseにもプラットフォーム別のアーカイブがあります。どちらもv1.1.0を配布しています。
+rdra-ishはRust製CLIです。PyPI/uv経由のバイナリ配布が主なインストール方法です。GitHub Releaseにもプラットフォーム別のアーカイブがあります。どちらもv1.2.0を配布しています。
 
 ```bash
 uv tool install rdra-ish
@@ -123,9 +123,15 @@ python3 scripts/migrate-syntax-v2.py src/   # v0.4.0: transitions(UC, Entity.col
 python3 scripts/migrate-syntax-v3.py src/   # v1.0.0: sets(UC, Entity.col == v) など
 ```
 
-スクリプトが扱わない箇所は、エラーメッセージに従って手で直します。たとえば `state` 宣言と `location` の削除、`belongs(...)` の `.where(...)` の削除、タイマーをどのUCにつなぐかです。変更の一覧はupstreamの [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.1.0/CHANGELOG.md) にあります。
+スクリプトが扱わない箇所は、エラーメッセージに従って手で直します。たとえば `state` 宣言と `location` の削除、`belongs(...)` の `.where(...)` の削除、タイマーをどのUCにつなぐかです。変更の一覧はupstreamの [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.2.0/CHANGELOG.md) にあります。
 
 v1.0.0からv1.1.0への更新では、モデルを書き換える必要はありません。v1.0.0で読み込めたモデルは、同じ判定、error、状態数、規則名のまま読み込めます。変わった終了コードは1つだけです。`csv` と `list` は、ライフサイクルのerrorがあってもnoteを出して書き、終了コード0で終わります（以前は1）。この失敗に頼っていたスクリプトは `check` を使います。
+
+v1.1.0からv1.2.0への更新でも、モデルを書き換える必要はありません。v1.1.0で読み込めたモデルは、同じ判定、error、`// expect` の結果のまま読み込めます。`check` と `states` が印字する状態数も変わりません。変わるのは次の3点です。
+
+- `verify` は簡約したconeを探索するので、印字する状態数が小さくなります。反例トレースには、部分ライフサイクル側のUCも出ることがあります（[形式検証](/projects/rdra-ish/formal-verification/#独立した部分ライフサイクルによる簡約)）
+- 生成するアクション名や規則名が、モデルのIDと衝突していた場合だけ `_2` などの接尾辞が付きます。v1.1.0ではこの衝突で2つの名前が混ざっていました。衝突のないモデルの名前は変わりません
+- `export --kind tla` が `StateModel_<E>` specを追加で書きます。`sets(..).when(Cond)` も新しく書けます。どちらも追加です
 
 ## 次に読む
 
