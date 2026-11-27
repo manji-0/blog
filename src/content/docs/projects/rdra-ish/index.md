@@ -1,80 +1,132 @@
 ---
 title: "はじめに"
-description: "要件モデルをコードで書きレビューする rdra-ish DSL の概要"
+description: "要件モデルをコードで書いてレビューし検証する rdra-ish DSL（v3.0.0）の概要"
 sidebar:
   order: 0
   label: "はじめに"
 ---
 
-> ソースリポジトリ: [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl) · 対象バージョン: **v1.2.0**
+> ソースリポジトリ: [rdra-ish-dsl](https://github.com/manji-0/rdra-ish-dsl) · 対象バージョン: **v3.0.0**
 
-**rdra-ish** は、要件モデルを `.rdra` で書いて、型チェック・図表・状態導出・形式検証まで同じモデルから回すCLIとコンパイラ群です。
+**rdra-ish** は、要件から設計までを1つの型付きモデルに保つDSLとCLIです。システムが提供する業務価値から、API・データ・状態遷移までを `.rdra` で書きます。CLIはモデルを型検査し、層の間の抜けを見つけ、ライフサイクルを検証します。さらに図・レビュー表・エクスポート・ドメインコードへ投影します。
 
 ## 目的
 
-Wordや表に散らばりがちな「誰が・何を・どのデータに触るか」を、関係（predicate）で結んだグラフとしてコードに残し、レビューしやすくします。
+Wordや表に散らばりがちな「誰が・何を・どのデータに触るか」を、関係（predicate）で結んだグラフとしてコードに残します。同じモデルからレビュー用の図と表を出し、状態遷移の性質を機械で確かめ、実装のドメイン型まで生成します。
 
 ## 背景
 
-ベースにあるのは **RDRA**（Relationship-Driven Requirements Analysis）です。アクターやBUC、ユースケース、画面、エンティティなどを宣言し、`performs` や `contains`、`creates` といった関係で明示的につなぐ書き方です。rdra-ishは **RDRA-ISH** 寄りに読み替え、システム境界やAPI、アクセス制約、エンティティのライフサイクルなど、実装レビューに効く語彙を足しています。
+rdra-ishは3つの源流を1つのモデルにまとめています。各部分は源流の名前をそのまま使います。
 
-## 関連文書
+| モデルの部分 | 源流 | 要素 |
+| --- | --- | --- |
+| システムより上の要求と業務 | RDRA（神崎善司） | `requirement`、`goal`、`business`、`buc`、`flow`、`step`、`variation`、`condition`、`event`、`actor`、`extsystem` |
+| システム境界より下、ユースケースから設計まで | ICONIXのロバストネス分析 | `usecase`、`screen`、`api`、`entity`、`field` |
+| ライフサイクルと検証 | rdra-ish独自 | ライフサイクル、状態ルール、時相プロパティ |
 
-| 文書 | 内容 |
-| --- | --- |
-| [使い方](/projects/rdra-ish/usage/) | インストールと初回の一周 |
-| [段階的モデリング](/projects/rdra-ish/incremental-modeling/) | Stage 0–7 の精緻化フロー |
-| [形式検証](/projects/rdra-ish/formal-verification/) | `export --kind tla` と `verify --backend tlc` |
-| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v1.2.0/CHANGELOG.md) | 破壊的変更の一覧 |
+RDRAからは中心の考え方を受け継ぎます。型付き要素の1つのグラフで、各層が次の層の理由になるという考え方です。システム境界の下では、ICONIXに従って各ユースケースをバウンダリ（`screen`、`extsystem`、`timer`）とコントロール（`api`）とエンティティ（`entity`）に分けて読みます。ここからロバストネス図、シーケンス図、ER図が出ます。
+
+rdra-ishはオブジェクト指向設計の手前で止まり、API・データ・状態で終わります。名前は「RDRA-inspired Implementation and System Heuristics」の略です。BUC・業務フロー・ユースケースの読み方は [RDRA-ish Interpretation](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/rdra-ish-interpretation.md) に、設計判断は [Vision](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/vision.md) にあります。
 
 ## 目標
 
-- 同じ `.rdra` から `check`、diagram、CSV、`states`、各種 `export` を出せる
-- BUC単位でCRUDマトリクスやシーケンス、状態到達性をモデルから生成する
-- ライフサイクルを厳密に見たいときはTLA+/TLCへ渡せる。v1.2.0からは、デッドロックとwitnessの欠如もTLC単体で検査できるspecを書き出す
+- 同じ `.rdra` から `check`、`lint`、`next`、図、表、エクスポート、`states`、`verify`、`codegen` を回せる
+- RDRA 3.0の図をMermaidテキストで出し、BUC・ユースケース・アクター・エンティティで絞れる
+- `export` でOpenAPI、AsyncAPI、DBML、SQL DDL、JSON Schema、TLA+のたたき台を出せる
+- `verify` がすべての不変条件、`after` アサーション、時相プロパティを組み込みのチェッカーで判定する。JVMは要らない
+- `--with-tlc` でTLCと突き合わせ、`--prove`（実験的）でz3による任意行数の証明を試せる
+- `codegen` でTypeScript、Rust、GoのドメインコードをKamaeスタイルで出し、`check --code`（実験的）でサービスコードがモデルに従っているかを確かめられる
 
 ## 対象外
 
-関係を明示したモデルをレビューしやすくするためのツールです。議事録やユーザーストーリーだけの初期探索、本番マイグレーションの代替には向きません。
+関係を明示したモデルをレビューし検証するためのツールです。議事録やユーザーストーリーだけの初期探索には向きません。オブジェクト指向設計やサービスの実装そのものも扱いません。`codegen` の出力はエージェントや開発者が仕上げる土台です。
 
 ## シナリオ
 
-1. Stage 0から段階的に `.rdra` を足し、各段階のあと `check` と `--buc` 付きdiagramでレビューし、`next` で次の段階を確かめる
-2. CRUDマトリクスとシーケンス図でBUCのギャップを洗い、`states` でライフサイクルを確認する
-3. `export --kind openapi` や `dbml` でたたき台を出し、差分を実装と揃える
+1. Stage 0から段階的に `.rdra` を足します。各段階のあと `check` と `--buc` 付きの図でレビューし、`next` で次の段階を確かめます
+2. CRUDマトリクスやシーケンス図でBUCの抜けを洗い、`states` でライフサイクルを確認します
+3. ルールと時相プロパティを書き、`verify` で反例を探します。必要なら `--with-tlc` と `--prove` で裏を取ります
+4. `export --kind openapi` や `sql` でたたき台を出し、`codegen` でドメイン型を生成して、`check --code` で実装との差を見ます
 
 ## 構成
 
 ```diagram-design rdra-ish-pipeline
 ```
 
-BUCはビジネス価値のスライス、ビジネスフローは時間順の展開、ユースケースは効果を持つ相互作用の境界です。実務ではBUCで切り、フローで順番を追い、UCで1操作とそのデータ・画面・API効果に名前を付けます。
+BUCはビジネス価値のスライス、業務フローは時間順の展開、ユースケースは効果を持つ相互作用の境界です。実務ではBUCで切り、フローで順番を追い、ユースケースで1操作とそのデータ・画面・API効果に名前を付けます。
+
+| 機能 | 得られるもの |
+| --- | --- |
+| `check`、`lint`、`next` | 型エラー、未解決の参照、層の間の抜け、各BUCの精緻化Stageと未解決の問い |
+| `diagram`、`list`、`csv` | RDRA 3.0の図（Mermaid）、CRUDマトリクス、権限監査、ルール表 |
+| `export` | `openapi`、`asyncapi`、`dbml`、`sql`、`json-schema`、`mermaid-er`、`tla` |
+| `states` | 各エンティティの到達可能な状態と、それが破る状態ルール |
+| `verify` | 不変条件・`after` アサーション・時相プロパティの判定。`--with-tlc` と `--prove` は外からの確認 |
+| `codegen` | TypeScript、Rust、Goのドメインコード（状態型、行型、遷移関数、契約、適合性ハーネス） |
+| `check --code` | サービスコードが生成物と一致し、契約に対してコンパイルでき、適合性テストを通るか（実験的） |
+| `rdra-ish-lsp` | 診断、補完、ホバー、定義・参照、リネーム、整形などを提供する言語サーバー |
+| エージェントスキル | モデルの記述、レビュー、図、検証、生成契約に沿った実装のためのスキル |
 
 ## 制約
 
-- 生成系サブコマンドはparse/resolve errorがあると成果物を出しません。ライフサイクルのerrorで止まる（**fail-closed**）のは、到達性の結果を印字する出力だけです。`export --kind typescript-states` は止まります。`diagram --kind state` も止まりますが、errorがデッドロックだけなら図を書きます。`list` と `csv` の全kind、`state` 以外の `diagram`、データ層の `export` は成果物を書き、error件数を示すnoteを出して終了コード0で終わります。`states` は `[error]` 行を含めて表を出し、非ゼロで終了します。`export --kind tla` と `verify` は、遷移系の構築時のerror（`DerivedColumnRead` など）では止まります。探索で見つかるerror（制約違反、witnessの欠如、デッドロック）では止まりません。`verify` は制約違反をTLCの反例で、witnessの欠如とデッドロックをBFSで報告して非ゼロで終了します。`export --kind tla` は書き出したうえでnoteを出します。noteは、モデル全体の `.cfg` が規則だけを検査すること、隣に書いた `StateModel_*` specでTLC単体でもデッドロックとwitnessの欠如を検査できること、ただしデッドロックの判定は `verify` が下すことを伝えます
-- v1.0.0から互換性の約束があります。読み込めるモデルは次のメジャーリリースまで読み込め、`check` と `verify` はそれぞれ、同じモデル・同じ範囲ならリリースをまたいで同じ判定を返します
-- `warning` はレビュー信号（探索中は意図的に残してよい）
-- `error` はモデル信頼性を損なうためブロッカーです
-- `--buc` フィルタで1スライスだけ検証できます
+- 生成系サブコマンドは、parseエラーやresolveエラーがあると成果物を書きません
+- ライフサイクルを探索するのは状態図とTLA+エクスポートだけです。ほかの図・表・エクスポートはライフサイクルのerrorを待ちません。errorは `check` で見ます
+- 検証は有界です。結果は必ず `bounds:` 行で始まり、上限で止まった検査は `not decided` になります
+- `verify` の判定は最後の `result:` 行（`ok`、`not decided`、`counterexample`、`tool_error`）に出ます
+- `warning` はレビュー信号です。探索中は意図的に残してかまいません。`error` はモデルの信頼性を損なうのでブロッカーです
+- `--buc` や `--entity` で、モデルの一部だけを検査できます
+
+### 互換性の約束
+
+rdra-ishはセマンティックバージョニングに従います。約束の範囲は [Compatibility](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/compatibility.md) にあります。
+
+| 守るもの | 内容 |
+| --- | --- |
+| 構文 | 読み込めるモデルは次のメジャーリリースまで読み込める |
+| 意味 | 同じモデルに対し、`check` と `verify` は同じ範囲内で同じ判定（終了コードとerror名の集合）を返す |
+| 診断名と `// expect` ヘッダ | 名前と文法は変わらない |
+| CLI | サブコマンド、フラグ、`--kind`・`--format` の値、終了コード、JSONキーとCSV列 |
+| 出力行 | `bounds:`、`result:`、`tlc_result:` 行の形 |
+| Mermaid図 | `%%` ヘッダ、ノードID、`:::<kind>` などのエンコーディング |
+| `codegen` | `--lang ts` が出すTypeScriptの型だけ |
+
+`codegen` のそれ以外、`check --code`、`verify --prove`、`verify --symmetry` は実験的で、約束の外です。
 
 ## インタフェース
 
-- CLI: `rdra-ish <subcommand> <inputs...>`
-- エディタ： VS Code拡張と `rdra-ish-lsp`（[CLI リファレンス](/projects/rdra-ish/cli-reference/)）
-- 形式検証： `export --kind tla` → `verify --backend tlc`（TLCは別途PATH）
+- CLI: `rdra-ish <subcommand> <inputs...>`。`rdra-ish --version` で版を表示します
+- エディタ： `rdra-ish-lsp` とVS Code拡張（[CLI リファレンス](/projects/rdra-ish/cli-reference/)）
+- 形式検証： `verify` 単体で完結します。TLCとz3は `--with-tlc` と `--prove` のときだけ使います（[形式検証](/projects/rdra-ish/formal-verification/)）
+- コード生成： `codegen --lang ts|rust|go` と `check --code`（[コード生成](/projects/rdra-ish/codegen/)）
+- エージェントスキル： `rdra-ish-write`、`rdra-ish-review`、`rdra-ish-diagram`、`rdra-ish-verify`、`rdra-ish-implement` など（[skills/README.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/skills/README.md)）
 
 ## 依存
 
-- Rust製CLI。PyPI/uv経由の `rdra-ish` バイナリが主な配布経路です
-- diagramの出力はMermaidテキストだけで、追加依存はありません（PlantUML出力はv0.3.0で削除）
-- TLA+/TLCは [形式検証](/projects/rdra-ish/formal-verification/) の手順で別途入れます
+- Rust製のCLIです。PyPI/uv、Nix flake、cargo、GitHub Releaseのバイナリで配布します（[使い方](/projects/rdra-ish/usage/#インストール)）
+- 図の出力はMermaidテキストだけで、追加依存はありません。画像が要るときは `mmdc` などで描画します
+- `verify` は追加依存なしで動きます。`--with-tlc` にはTLC、`--prove` にはz3が要ります。Nixで入れると両方そろいます
 
 ## 検討して捨てた案
 
-1. **RDRA原典の完全互換** — 実装レビュー向けの語彙を足したRDRA-ISHとして切りました
-2. **単一の巨大 `.rdra`** — Stage 0–7と `shared/` / `buc/` 配置で段階的精緻化を採用しました
-3. **生成物を正とする運用** — exportはレビュー起点のたたき台とし、モデル更新後の再生成を前提にしました
+1. **RDRA原典の完全互換**：実装レビューと検証の語彙を足すため、RDRA-ishとして切り分けました
+2. **単一の巨大な `.rdra`**：Stage 0–7と `shared/`・`buc/` 配置による段階的精緻化を採りました
+3. **生成物を正とする運用**：正はモデルです。エクスポートはたたき台で、`codegen --check` と `check --code` は生成物とモデルのずれを検出します
+4. **TLCを `verify` の既定エンジンにする**：v3.0.0で組み込みチェッカーを既定にしました。TLCは `--with-tlc` で突き合わせる第二の意見です
+5. **到達パターンから型を作る `typescript-states`**：v3.0.0で削除し、`codegen --lang ts` に一本化しました
+
+## 関連文書
+
+| 文書 | 内容 |
+| --- | --- |
+| [使い方](/projects/rdra-ish/usage/) | インストール、初回の一周、アップグレード |
+| [段階的モデリング](/projects/rdra-ish/incremental-modeling/) | Stage 0–7の精緻化フロー |
+| [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) | 要求からルールまでの実践例 |
+| [言語リファレンス](/projects/rdra-ish/language-reference/) | DSLの構文と意味 |
+| [CLI リファレンス](/projects/rdra-ish/cli-reference/) | サブコマンドとフラグ |
+| [形式検証](/projects/rdra-ish/formal-verification/) | `verify`、`--with-tlc`、`--prove` |
+| [コード生成](/projects/rdra-ish/codegen/) | `codegen` と `check --code` |
+| [設計の評価](/projects/rdra-ish/design-review/) | 設計としての評価 |
+| upstream [CHANGELOG](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/CHANGELOG.md) | 各リリースの変更と破壊的変更 |
 
 ## 次に読む
 
@@ -84,5 +136,19 @@ BUCはビジネス価値のスライス、ビジネスフローは時間順の�
 | 書き方を段階的に学ぶ | [段階的モデリング](/projects/rdra-ish/incremental-modeling/) |
 | 要求からルールまで追う | [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) |
 | 構文を引く | [言語リファレンス](/projects/rdra-ish/language-reference/) |
+| ライフサイクルを検証する | [形式検証](/projects/rdra-ish/formal-verification/) |
+| 実装につなぐ | [コード生成](/projects/rdra-ish/codegen/) |
 
-上流の要件モデルがrdra-ish、横断トレースが [dagayn](/projects/dagayn/)、実装のドメイン設計がkamae系、という並びで使うことが多いです。サンプルはリポジトリの `samples/` にあります（`incremental-order`、`ec-site`、`clinic-ops`、`personal-info`、`formal-verification/`）。
+上流の要件モデルがrdra-ish、横断トレースが [dagayn](/projects/dagayn/)、実装のドメイン設計がkamae系、という並びで使うことが多いです。
+
+サンプルはリポジトリの [`samples/`](https://github.com/manji-0/rdra-ish-dsl/tree/v3.0.0/samples) にあります。
+
+| サンプル | 内容 |
+| --- | --- |
+| `incremental-order` | 7段階の精緻化ウォークスルー |
+| `ec-site` | 小さな端から端までのモデル |
+| `clinic-ops` | API、イベント、アクセス制約。生成したPRDと設計書付き |
+| `patent-ops`、`food-permit-ops`、`insurance-claim-ops` | 一次資料からモデル化した日本の業務領域 |
+| `oidc-auth` | OpenID Connectの認証シナリオをすべて含むOpenID Provider |
+| `personal-info`、`api-contract` | 個人データの扱い、APIコントラクトのメタデータとOpenAPIエクスポート |
+| `formal-verification`、`formal-verification-fail` | 1ファイルずつの小さな `verify` の例 |
