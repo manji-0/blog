@@ -1,15 +1,16 @@
 <!-- diagram-design: architecture · fit · simplified · mixed · manj-io -->
 <svg viewBox="0 0 960 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="rdra-ish-pipeline-title rdra-ish-pipeline-desc">
   <title id="rdra-ish-pipeline-title">rdra-ish は一つのモデルから検査と成果物を出す</title>
-  <desc id="rdra-ish-pipeline-desc">.rdra を検査してから、図表や CSV、TLA+ による形式検証を同じモデルから生成する。</desc>
+  <desc id="rdra-ish-pipeline-desc">.rdra を検査してから、図表と表、形式検証、ドメインコードを同じモデルから生成する。</desc>
   <defs>
     <marker id="rdra-ish-pipeline-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-muted)"/></marker>
     <marker id="rdra-ish-pipeline-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--dd-accent)"/></marker>
   </defs>
 
   <line x1="268" y1="152" x2="332" y2="152" class="dd-conn-accent" marker-end="url(#rdra-ish-pipeline-arrow-accent)"/>
-  <path d="M 540,128 H 572 Q 580,128 580,120 V 80 Q 580,72 588,72 H 636" class="dd-conn" marker-end="url(#rdra-ish-pipeline-arrow)"/>
-  <path d="M 540,176 H 572 Q 580,176 580,184 V 224 Q 580,232 588,232 H 636" class="dd-conn" marker-end="url(#rdra-ish-pipeline-arrow)"/>
+  <path d="M 540,128 H 572 Q 580,128 580,120 V 64 Q 580,56 588,56 H 636" class="dd-conn" marker-end="url(#rdra-ish-pipeline-arrow)"/>
+  <line x1="540" y1="152" x2="636" y2="152" class="dd-conn" marker-end="url(#rdra-ish-pipeline-arrow)"/>
+  <path d="M 540,176 H 572 Q 580,176 580,184 V 240 Q 580,248 588,248 H 636" class="dd-conn" marker-end="url(#rdra-ish-pipeline-arrow)"/>
 
   <rect x="284" y="128" width="40" height="12" rx="2" class="n-mask"/>
   <text x="304" y="137" class="dd-alabel-accent" text-anchor="middle">CHECK</text>
@@ -24,17 +25,22 @@
   <text x="436" y="148" class="dd-name" text-anchor="middle">検査</text>
   <text x="436" y="168" class="dd-sub" text-anchor="middle">error を報告する</text>
 
-  <rect x="636" y="40" width="240" height="72" rx="6" class="n-mask"/>
-  <rect x="636" y="40" width="240" height="72" rx="6" class="n-backend"/>
-  <text x="756" y="72" class="dd-name" text-anchor="middle">図表と CSV</text>
-  <text x="756" y="92" class="dd-sub" text-anchor="middle">diagram · matrix</text>
+  <rect x="636" y="24" width="240" height="64" rx="6" class="n-mask"/>
+  <rect x="636" y="24" width="240" height="64" rx="6" class="n-backend"/>
+  <text x="756" y="52" class="dd-name" text-anchor="middle">図表と表</text>
+  <text x="756" y="72" class="dd-sub" text-anchor="middle">diagram · csv · export</text>
 
-  <rect x="636" y="196" width="240" height="72" rx="6" class="n-mask"/>
-  <rect x="636" y="196" width="240" height="72" rx="6" class="n-external"/>
-  <text x="756" y="228" class="dd-name" text-anchor="middle">形式検証</text>
-  <text x="756" y="248" class="dd-sub" text-anchor="middle">TLA+ · TLC</text>
+  <rect x="636" y="120" width="240" height="64" rx="6" class="n-mask"/>
+  <rect x="636" y="120" width="240" height="64" rx="6" class="n-external"/>
+  <text x="756" y="148" class="dd-name" text-anchor="middle">形式検証</text>
+  <text x="756" y="168" class="dd-sub" text-anchor="middle">native · TLC · z3</text>
 
-  <line x1="64" y1="292" x2="896" y2="292" class="dd-hairline"/>
-  <text x="64" y="312" class="dd-legend">ONE MODEL</text>
-  <text x="176" y="312" class="dd-legend-item">状態遷移の誤りは出力の種類ごとに止めるか注記する。Word や表を正にしない。</text>
+  <rect x="636" y="216" width="240" height="64" rx="6" class="n-mask"/>
+  <rect x="636" y="216" width="240" height="64" rx="6" class="n-backend"/>
+  <text x="756" y="244" class="dd-name" text-anchor="middle">ドメインコード</text>
+  <text x="756" y="264" class="dd-sub" text-anchor="middle">codegen · TS · Rust · Go</text>
+
+  <line x1="64" y1="296" x2="896" y2="296" class="dd-hairline"/>
+  <text x="64" y="314" class="dd-legend">ONE MODEL</text>
+  <text x="176" y="314" class="dd-legend-item">すべての出力が同じ遷移系を読む。Word や表を正にしない。</text>
 </svg>
