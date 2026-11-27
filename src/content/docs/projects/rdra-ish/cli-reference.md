@@ -103,7 +103,7 @@ rdra-ish check <INPUTS...> [--strict] [--deny-deprecated] [--guards] [--code[=fr
 | `--strict` | off | 権限とアクセスのギャップ（`ActorPermissionMissing` など）をerrorにする |
 | `--deny-deprecated` | off | 非推奨構文の `DeprecatedSyntax` warningをerrorにする |
 | `--guards` | off | errorがなければ、各ガードがどの規則を守っているかを出す（[ガードの依存](#ガードの依存)） |
-| `--code[=<LEVEL>]` | off（値なしなら `fresh`） | errorがなければ、`[code]` 表が指すサービスのコードを検査する。値は `=` で書く（[check --code](#check---code)） |
+| `--code[=<LEVEL>]` | off（値なしなら `fresh`） | errorがなければ、`[code]` 表が指すサービスのコードを検査する。値は `=` で書く（[check --code](#check-code)） |
 | `--max-patterns <N>` | n = `--instance-count` のとき 2^(10 + 8·(n − 1))（`1024`、`262144` …） | coneごとの、エンティティの異なるパターン数の上限。超えるとerror `PatternCapReached` |
 | `--max-states <N>` | なし | 1つのconeの結合状態数の上限。超えるとerror `StateCapReached` |
 | `--memory <SIZE>` | `[check]` の `memory`、なければ `4GiB` | 実行が保持してよい量。超えたconeはerror `MemoryCapReached` で止まる |
