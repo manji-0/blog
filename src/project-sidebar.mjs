@@ -42,6 +42,20 @@ export function getRdraIshSidebarItems() {
 			false,
 		),
 		group('rdra-ish', 'リファレンス', ['usage', 'language-reference', 'cli-reference'], false),
+		group(
+			'rdra-ish',
+			'理論',
+			[
+				'theory',
+				'theory/semantics',
+				'theory/claims',
+				'theory/native',
+				'theory/cones',
+				'theory/z3',
+				'theory/tlc-agreement',
+			],
+			false,
+		),
 		group('rdra-ish', '評価', ['design-review'], false),
 	];
 }
