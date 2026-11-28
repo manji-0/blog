@@ -1,12 +1,14 @@
 ---
 title: "店舗補充管理の例"
-description: "rdra-ish v3.0.0 の samples/incremental-order を使い、要求分析からライフサイクル・業務ルールまでを Stage 0–7 で追う実践例"
+description: "rdra-ish（main 169cdf3）の samples/incremental-order を使い、要求分析からライフサイクル・業務ルールまでを Stage 0–7 で追う実践例"
 sidebar:
   order: 20
   label: "店舗補充管理の例"
 ---
 
-このページは、店舗運営部の「補充予定と担当組織の維持」を題材にした実践ウォークスルーです。要求分析からエンティティ構造、ライフサイクル、業務ルールまでをStage 0〜7で追います。Stageの定義は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) にあり、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v3.0.0/samples/incremental-order) です。
+このページは、店舗運営部の「補充予定と担当組織の維持」を題材にした実践ウォークスルーです。要求分析からエンティティ構造、ライフサイクル、業務ルールまでをStage 0〜7で追います。Stageの定義は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) にあり、ソースはupstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/samples/incremental-order) です。
+
+対象：main `169cdf3`（v3.0.0以降の未リリース版）。
 
 ## 前提
 
@@ -38,11 +40,13 @@ samples/incremental-order/
   step-7-business-rules/
 ```
 
-クローン後は次のルートで試せます。
+クローンして対象のコミットに切り替え、次のルートで試せます。
 
 ```bash
-git clone --branch v3.0.0 https://github.com/manji-0/rdra-ish-dsl.git
-cd rdra-ish-dsl/samples/incremental-order
+git clone https://github.com/manji-0/rdra-ish-dsl.git
+cd rdra-ish-dsl
+git checkout 169cdf3fb49bbcaf0c7d452c32a57da18720fdd0
+cd samples/incremental-order
 ```
 
 以下、パスは `samples/incremental-order/` からの相対です。どのstepでも `rdra-ish next <step>/src` を実行すると、そのstepが到達したStageと次に足すものが表示されます。
@@ -374,7 +378,7 @@ rdra-ish states step-7-business-rules/src --entity Store
 
 `forbidden` は任意のStage 7A、`invariant` はStage 7Bに当たります。このstepで `next` は7Aと7Bをmetとし、7Cを提示します。`states` の到達表はStage 6と同じ3状態で、どちらのルールにも違反しません。
 
-`normal` と予定日 `present` の組み合わせは禁止しません。将来、予定日を事前に入力する要求を妨げないためです。比較や時間の性質まで厳密に見る場合は [形式検証](/projects/rdra-ish/formal-verification/) へ進みます。
+`normal` と予定日 `present` の組み合わせは禁止しません。将来、予定日を事前に入力する要求を妨げないためです。比較や時間の性質まで厳密に見る場合は [形式検証](/projects/rdra-ish/formal-verification/) へ進みます。`rdra-ish verify step-7-business-rules/src` は既定で、2つのルールが任意の行数で成り立つことをz3で証明しようとします（[z3による証明](/projects/rdra-ish/theory/z3/)）。
 
 ## 最終形の骨格
 
@@ -444,4 +448,4 @@ requires_medium(BlockScheduledRestock, OpsConsole)
 
 ## 次に読む
 
-Stageの定義とディレクトリ規約は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) にあります。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密な検証は [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。各stepの全文は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v3.0.0/samples/incremental-order) の `requirements-analysis.md` と `design.md` にあります。
+Stageの定義とディレクトリ規約は [段階的モデリング](/projects/rdra-ish/incremental-modeling/) にあります。構文は [言語リファレンス](/projects/rdra-ish/language-reference/)、状態の厳密な検証は [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。各stepの全文は [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/samples/incremental-order) の `requirements-analysis.md` と `design.md` にあります。

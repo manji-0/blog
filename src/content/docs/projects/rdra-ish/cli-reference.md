@@ -1,11 +1,13 @@
 ---
 title: "CLI リファレンス"
-description: "rdra-ish CLI のサブコマンドとフラグ、終了コード、エディタ連携（v3.0.0）"
+description: "rdra-ish CLI のサブコマンドとフラグ、終了コード、エディタ連携（main 169cdf3）"
 sidebar:
   order: 5
 ---
 
-このページは `rdra-ish` の各サブコマンドが何をするかをまとめます。DSLの意味は [言語リファレンス](/projects/rdra-ish/language-reference/) へ。`verify` の判定の意味は [形式検証](/projects/rdra-ish/formal-verification/) へ。原文はupstreamの [docs/cli-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/cli-reference.md) です。
+対象：main `169cdf3`（v3.0.0以降の未リリース版）
+
+このページは `rdra-ish` の各サブコマンドが何をするかをまとめます。DSLの意味は [言語リファレンス](/projects/rdra-ish/language-reference/) へ。`verify` の判定の意味は [形式検証](/projects/rdra-ish/formal-verification/) へ。原文はupstreamの [docs/cli-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/cli-reference.md) です。
 
 ```
 rdra-ish <COMMAND> <INPUTS...> [OPTIONS]
@@ -27,6 +29,7 @@ rdra-ish <COMMAND> --help # or -h
 | [`export`](#export) | OpenAPI、AsyncAPI、DBML、SQL、JSON Schema、Mermaid ER、TLA+を書く |
 | [`verify`](#verify) | すべての規則と時相性質を、それぞれのconeで検証する |
 | [`codegen`](#codegen) | ドメインの型と関数をTypeScript・Rust・Goで出す |
+| [`lsp`](#lsp) | 言語サーバーをstdinとstdoutで動かす |
 
 ## 共通の約束
 
@@ -36,7 +39,7 @@ rdra-ish <COMMAND> --help # or -h
 
 ### 診断
 
-診断はstderrに出ます。読み込みと整合性の診断は `error: ...` か `warning: ...` です。ライフサイクルの所見は安定した名前を持ち、`error[<Name>]: ...`、`warning[<Name>]: ...`、`info[<Name>]: ...` の形で出ます。名前の一覧はupstreamの [state-derivation.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/state-derivation.md#diagnostics) にあります。ソース位置は解決済みの絶対パスで `file:line:col` と出ます。
+診断はstderrに出ます。読み込みと整合性の診断は `error: ...` か `warning: ...` です。ライフサイクルの所見は安定した名前を持ち、`error[<Name>]: ...`、`warning[<Name>]: ...`、`info[<Name>]: ...` の形で出ます。名前の一覧はupstreamの [state-derivation.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/state-derivation.md#diagnostics) にあります。ソース位置は解決済みの絶対パスで `file:line:col` と出ます。
 
 `check`、`states`、`verify` は検査の境界を示す `bounds:` 行を出します。`check` と `states` ではstderrの先頭、`verify` ではstdoutです。`check` のstdoutの最終行は判定です。
 
@@ -79,6 +82,7 @@ rdra-ish <COMMAND> --help # or -h
 
 ```
 rdra-ish check <INPUTS...> [--strict] [--deny-deprecated] [--guards] [--code[=fresh|build|run]]
+               [--deny-incomplete] [--mutants <N>] [--mutant-seed <SEED>]
                [--max-patterns <N>] [--max-states <N>] [--memory <SIZE>]
                [--instance-count <N>] [--instances <ENTITY=N>]... [--int-range-max <N>]
                [--buc <ID>]... [--entity <ID>]... [--without-usecase <ID>]...
@@ -104,13 +108,18 @@ rdra-ish check <INPUTS...> [--strict] [--deny-deprecated] [--guards] [--code[=fr
 | `--deny-deprecated` | off | 非推奨構文の `DeprecatedSyntax` warningをerrorにする |
 | `--guards` | off | errorがなければ、各ガードがどの規則を守っているかを出す（[ガードの依存](#ガードの依存)） |
 | `--code[=<LEVEL>]` | off（値なしなら `fresh`） | errorがなければ、`[code]` 表が指すサービスのコードを検査する。値は `=` で書く（[check --code](#check-code)） |
+| `--deny-incomplete` | off | `--code=run` と併用。トレースが完全でないとき（BFSが `conformance_states` で止まった、モデルの拒否を試していない、ポートのUCを実行しない）と、未実装ポートに呼び出しが届いたときに失敗する |
+| `--mutants <N>` | `1` | `--code=run` と併用。セルフチェックで種類ごとに `N` 個のミュータントのトレースを走らせる。`0` で走らせない |
+| `--mutant-seed <SEED>` | `0` | `--code=run` と併用。ミュータントを選ぶseed。同じモデルとseedなら同じものを選ぶ |
 | `--max-patterns <N>` | n = `--instance-count` のとき 2^(10 + 8·(n − 1))（`1024`、`262144` …） | coneごとの、エンティティの異なるパターン数の上限。超えるとerror `PatternCapReached` |
 | `--max-states <N>` | なし | 1つのconeの結合状態数の上限。超えるとerror `StateCapReached` |
 | `--memory <SIZE>` | `[check]` の `memory`、なければ `4GiB` | 実行が保持してよい量。超えたconeはerror `MemoryCapReached` で止まる |
 | `--instance-count <N>` | `1` | エンティティごとのスロット数、`1..=255`。2行で初めて破れる規則は `2` から見える |
 | `--instances <ENTITY=N>` | `[check]` の `instances` | 1つのエンティティのスロット数、`1..=255`。繰り返し可 |
-| `--int-range-max <N>` | `5` | Intの値域を `0..=N` にする、`1..=255` |
+| `--int-range-max <N>` | `5` | Intの値域を `0..=N` にする、`1..=255`。null許容のInt列があれば `254` まで（超えるとerror `DomainTooLarge`） |
 | `--buc`、`--entity`、`--without-usecase`、`--without-buc`、`--actor` | モデル全体 | モデルの一部を検査する。どれも繰り返し可（[部分実行](#部分実行)） |
+
+`--deny-incomplete`、`--mutants`、`--mutant-seed` を `--code=run` なしで渡すと終了コード1です（`--deny-incomplete` を `--code` なしで渡すと2）。
 
 `--memory` のサイズは整数と2進単位で書きます（`4GiB`、`512MiB`、`64KiB`、`1TiB`）。`G` と `GB` は `GiB` と同じ意味です。単位なしの数、`0`、小数は受け付けません。
 
@@ -145,7 +154,21 @@ error[MultiForbidden_Order_0]: invariant MultiForbidden_Order_0 is violated: ...
 
 ### check --code
 
-`check --code` は、サービスのコードがモデルの求めるものを持っているかを確かめる実験的な機能です。レベルは `fresh`（生成ファイルが最新か）、`build`（加えてコンパイル）、`run`（加えて適合性テスト）の3つです。モデルが `check` に通らなければ何も検査しません。詳細は [コード生成](/projects/rdra-ish/codegen/) を参照してください。
+`check --code` は、サービスのコードがモデルの求めるものを持っているかを確かめる実験的な機能です。レベルは `fresh`（生成ファイルが最新か）、`build`（加えてコンパイル）、`run`（加えて適合性テスト）の3つです。モデルが `check` に通らなければ何も検査しません。
+
+`--code=run` は、最後の `OK: code` / `FAIL: code` 行の前に、表ごとにトレースが何を覆うかをstdoutに出します。この記述は `coverage of [code.rust]: bounded conformance to the model, not equivalence` のように始まり、上限、BFSが完了したか、実行した遷移と試した拒否の数、前提H1〜H5、示せないものを並べます。合格は上限つきの適合で、モデルと等価という意味ではありません。
+
+| 所見 | 重大度 | 内容 |
+|---|---|---|
+| `CodeCoverageIncomplete` | warning。`--deny-incomplete` でerror | トレースのBFSが `conformance_states` で止まった。または試していない拒否か、実行されないUCがある |
+| `CodeUnimplemented` | warning。`--deny-incomplete` でerror | 実行は通ったが、呼び出しが未実装ポート（未完成のサービスが使う代役）に届いた。または届いたかどうかを出力が示さなかった |
+| `CodeMutantSurvived` | error | セルフチェックのミュータントが通った |
+
+実行が通ると、`--code=run` はセルフチェックをします。本物のトレースを1行で切り、その行をモデルが決してしない動きに変えたミュータントで、runコマンドをもう一度走らせます。種類は `refused-call-runs`、`call-refused`、`wrong-state`、`absent-row`、`guard-removed` です。ミュータントが通るのは、runコマンドが渡されたトレースでハーネスを動かしていないか、サービスがidで行を引かずに呼び出しを処理するときです。記述の最後に `self-check: 5 of 5 mutant traces failed at their changed row (seed 0)` のような行が付きます。
+
+probeの適合性テストは、環境変数 `RDRA_ISH_TRACES` が設定されていて空でなければ、それが指すファイルからトレースを読みます。セルフチェックはこの変数でミュータントを渡します。`[code.<lang>]` の `run` で既定のコマンドを置き換えた表は、probeのテストを走らせ、この変数をそこまで通す必要があります。そうでなければミュータントが通り、`CodeMutantSurvived` で失敗します。`--mutants 0` でセルフチェックを止められます。
+
+詳細は [コード生成](/projects/rdra-ish/codegen/) を参照してください。
 
 ### 部分実行
 
@@ -158,6 +181,8 @@ error[MultiForbidden_Order_0]: invariant MultiForbidden_Order_0 is violated: ...
 | `--without-usecase <ID>` | そのUC以外。そのUCは実行されないとみなす | その前提で判定する |
 | `--without-buc <ID>` | そのBUCだけが届くUC以外 | その前提で判定する |
 | `--actor <ID>` | そのアクターが実行するUCと、アクターのいないUC | その前提で判定する |
+
+スコープを絞った `verify` の証明は、外したUCを持たない小さい系の規則を証明します。そこで `proved` でもモデル全体では破れることがあります。そのため、証明済みを示す行（`proof (...)` の見出し、`proved:` と `lemma:` の行、`OK:` 行の末尾）は、全体の実行の `in the whole model` の代わりに `in the selected scope: <flags>` で終わります。`unproved:` と `refuted:` には付きません。小さい系で規則を破るものは、モデル全体でも破るからです。
 
 `--actor` では、ほかのアクターのUCでしか抜けられない状態がデッドロックになります。たとえば `check --actor Staff` は、スタッフ自身のUCでは抜けられない状態を見つけます。
 
@@ -187,7 +212,7 @@ rdra-ish lint <INPUTS...> [--format table|json|csv|markdown]
 
 `--format` の既定は `table` です。`markdown` はCSVと同じ列のMarkdown表です。各行は重大度、ルール、対象のkindとid、メッセージ、ヒントを持ちます。読み込みとモデルのerrorは `semantic-error` 行になります。`semantic-error` 行があれば終了コード1、なければ0で、warningでは失敗しません。
 
-主なルールを挙げます。全ルールはupstreamの [docs/cli-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/cli-reference.md#lint) にあります。
+主なルールを挙げます。全ルールはupstreamの [docs/cli-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/cli-reference.md#lint) にあります。
 
 | ルール | 重大度 | 内容 |
 |---|---|---|
@@ -201,6 +226,7 @@ rdra-ish lint <INPUTS...> [--format table|json|csv|markdown]
 | `enum-attribute` | warning | どの `transitions` も `sets` も動かさないインラインの `Enum` 列。`variation` で型付けする |
 | `field-column-unwritten` | warning | どの `sets` も `chooses` も埋めない `@null` 列に対応付けたfield |
 | `multi-rule-unscoped` | warning | キーで関連するエンティティをまたぐ `forbidden` / `invariant` / `property` に、`.along(...)` も `.global()` もない。メッセージは最短のキー経路の `.along(...)` を示す |
+| `negated-order-admits-null` | warning | `@check` か `property` の中で、`@null` 列への `<`、`<=`、`>`、`>=` を `not` で否定し、列のnullを名指していない。列がnullの間は成り立つので、見た目の順序比較とは違う |
 | `orphan-node` | warning | どの述語ともつながらない要素 |
 | `query-index-missing` | warning | どのインデックスも支えない検索。`rows` が10000未満なら出さない |
 | `rdra-*` | warning | RDRAシートの不整合列。どのBUCからも届かない要素などを示す |
@@ -267,7 +293,7 @@ rdra-ish diagram <INPUTS...> [--kind <KIND>] [--buc <ID>]... [--usecase <ID>]...
 rdra-ish diagram <INPUTS...> --all [--title] [--legend] -o <DIR>
 ```
 
-出力は、人間やツールが読み戻せる形です。`%%` のヘッダー、どの図でも同じ `<kind>__<DSL id>` のノードid、kindごとの `:::<kind>` タグと形、RDRAのレイヤー名を持ちます。この符号化はupstreamの [Encoding contract](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/cli-reference.md#encoding-contract) が定めます。
+出力は、人間やツールが読み戻せる形です。`%%` のヘッダー、どの図でも同じ `<kind>__<DSL id>` のノードid、kindごとの `:::<kind>` タグと形、RDRAのレイヤー名を持ちます。この符号化はupstreamの [Encoding contract](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/cli-reference.md#encoding-contract) が定めます。
 
 ### フラグ
 
@@ -396,7 +422,7 @@ rdra-ish states <INPUTS...> [--format table|csv|json]
 
 表では各エンティティが `axes:` 行で始まり、軸ごとの値域を示します。`--format json` では各パターンが `witness`（最初の状態への最短経路）を持ちます。stderrには `bounds:` 行、エンティティを名指さない診断、`not checked:` のブロックが出ます。
 
-終了コードはどの形式でも、error所見があれば1（表は出る）、なければ0です。v3.0.0で `--format typescript` は削除されました。指定すると終了コード2で、[`codegen --lang ts`](#codegen) を案内します。
+終了コードはどの形式でも、error所見があれば1（表は出る）、なければ0です。`--format typescript` はv3.0.0で削除されました。指定すると終了コード2で、[`codegen --lang ts`](#codegen) を案内します。
 
 ## export
 
@@ -414,7 +440,7 @@ rdra-ish export <INPUTS...> [--kind <KIND>] [-o <OUT>] [--dialect postgres|sqlit
 | `--dialect` | `postgres` | `sql` だけ。`postgres` か `sqlite` |
 | `--instance-count <N>` | `2` | `tla` だけ。エンティティごとのスロット数、`1..=255`。`1` はwarning |
 | `--instances <ENTITY=N>` | `[verify]` の `instances` | `tla` だけ。1つのエンティティのスロット数。繰り返し可 |
-| `--int-range-max <N>` | `5` | `tla` だけ。`IntRange == 0..N`、`1..=255` |
+| `--int-range-max <N>` | `5` | `tla` だけ。`IntRange == 0..N`、`1..=255`。null許容のInt列があれば `254` まで |
 
 | kind | 書くもの |
 |---|---|
@@ -459,14 +485,15 @@ rdra-ish export src/ --kind tla -o /tmp/rdra-tla
 
 ## verify
 
-各invariant、`after` アサーション、時相性質を、それぞれのconeでネイティブの検査器により検査します。`--with-tlc` を渡さない限りJVMは起動しません。何をどう判定するかは [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
+各invariant、`after` アサーション、時相性質を、それぞれのconeでネイティブの検査器により検査します。あわせて、各状態規則が任意の行数で成り立つことをz3で証明します。`--with-tlc` を渡さない限りJVMは起動せず、`--no-prove` を渡すとz3も起動しません。何をどう判定するかは [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
 
 ```
-rdra-ish verify <INPUTS...> [--with-tlc [--tlc-jar <PATH>]] [-o <DIR>]
+rdra-ish verify <INPUTS...> [--with-tlc [--tlc-jar <PATH>] [--tlc-jobs <N>] [--tlc-workers <N>]
+                [--plan <FILE>]] [-o <DIR>]
                 [--instance-count <N>] [--instances <ENTITY=N>]... [--int-range-max <N>]
                 [--max-states <N>] [--max-patterns <N>] [--memory <SIZE>] [--symmetry never|always]
                 [--temporal-budget <SECS>] [--deny-undecided]
-                [--prove [--deny-unproved] [--z3 <PATH>]]
+                [--no-prove | [--prove] [--deny-unproved] [--z3 <PATH>]]
                 [--buc <ID>]... [--entity <ID>]... [--without-usecase <ID>]...
                 [--without-buc <ID>]... [--actor <ID>]...
 ```
@@ -480,22 +507,34 @@ rdra-ish verify <INPUTS...> [--with-tlc [--tlc-jar <PATH>]] [-o <DIR>]
 | `-o`, `--out <DIR>` | なし（`--with-tlc` では一時ディレクトリ） | TLCを手で動かすためのspecを書く。ネイティブの検査器はこれを読まない |
 | `--instance-count <N>` | `2` | エンティティごとのスロット数、`1..=255`。`1` はwarning |
 | `--instances <ENTITY=N>` | `[verify]` の `instances` | 1つのエンティティのスロット数。繰り返し可 |
-| `--int-range-max <N>` | `5` | `IntRange == 0..N`、`1..=255` |
+| `--int-range-max <N>` | `5` | `IntRange == 0..N`、`1..=255`。null許容のInt列があれば `254` まで |
 | `--max-states <N>` | なし | すべてのBFS実行の状態数の上限。超えた実行は `not decided` |
 | `--max-patterns <N>` | `256` | スクリプト互換のために受け付ける。`verify` では何も止めない |
-| `--memory <SIZE>` | `[verify]` の `memory`、なければ `16GiB` | BFSが使える量。`--with-tlc` ではその半分をBFS、残りをTLCが使う |
+| `--memory <SIZE>` | `[verify]` の `memory`、なければ `16GiB` | BFSが使える量。`--with-tlc` では半分をBFS、残り（最低 `64MiB`）をTLCが使う |
 | `--symmetry` | `[verify]` の `symmetry`、なければ `never` | 実験的。`always` はインスタンスの対称性でまとめて探索する |
 | `--temporal-budget <SECS>` | `300` | coneで決まらない性質に、モデル全体の実行が使える秒数 |
 | `--deny-undecided` | off | 決まらなかった所見があれば終了コード1。`--buc` / `--entity` で外したものは数えない |
-| `--prove` | off | 実験的。各状態規則が任意の行数と任意の非負Intで成り立つことをz3で証明する。z3が必要 |
-| `--deny-unproved` | off | `--prove` と併用。証明できない規則があれば終了コード1 |
-| `--z3 <PATH>` | `RDRA_Z3`、なければ `PATH` の `z3` | `--prove` が使うz3 |
+| `--no-prove` | off（証明は走る） | 証明をしない。z3も探さない。`--prove`、`--deny-unproved`、`--z3` との併用は使い方の誤り（終了コード2） |
+| `--prove` | off | スクリプト互換のために受け付ける。渡さなくても証明は走る。渡すと、z3がないことがerror（終了コード1）になる |
+| `--deny-unproved` | off | 証明できない規則があれば終了コード1。範囲外の規則と、BFSが反例を見つけた規則は数えない。z3がなければerror |
+| `--z3 <PATH>` | `RDRA_Z3`、なければ `PATH` の `z3` | 証明が使うz3。ファイルを指さなければ、z3がないのと同じ |
 | `--tlc-jar <PATH>` | `RDRA_TLC_JAR` | `--with-tlc` と併用。`tla2tools.jar` を `java -cp` で動かす |
+| `--tlc-jobs <N>` | `RDRA_TLC_JOBS`、なければコアとメモリが許すだけ | `--with-tlc` と併用。同時に走るTLC実行の上限。判定は変わらない |
+| `--tlc-workers <N>` | `RDRA_TLC_WORKERS`、なければBFSが数えた状態数から決める | `--with-tlc` と併用。すべてのTLC実行に `-workers N` を渡す |
+| `--plan <FILE>` | なし | 実験的。`--with-tlc` と `-o` と併用。specを書き、`--with-tlc` が最初に起動するTLC実行をJSONで `FILE` に書く。TLCは起動しない |
 | `--buc`、`--entity`、`--without-usecase`、`--without-buc`、`--actor` | モデル全体 | [部分実行](#部分実行) と同じ。スコープを絞った実行は性質を検査しない |
+
+`--tlc-jobs` と `--tlc-workers` は、`--with-tlc` なしで渡すとwarningになります。
+
+証明はz3を `--z3`、`RDRA_Z3`、`PATH` の `z3` の順に探します。見つからなければ、stderrに `note: z3 not found on PATH: the proof was skipped (install z3, or pass --no-prove to run without it)` を出し、`--no-prove` と同じように動きます。ほかの出力と終了コードは変わりません。`--prove` か `--deny-unproved` を渡したときだけ、z3がないことはerror（終了コード1）です。見つかったz3が失敗したときはerrorです。
 
 `--with-tlc` ではTLCを `--tlc-jar`、`RDRA_TLC_JAR`、`PATH` の `tlc` / `tlc2` の順に探します。見つからなければ終了コード1です。Nixでインストールすると `tlc` と `z3` も入ります（[使い方](/projects/rdra-ish/usage/)）。
 
-`--memory` の上限は、v3.0.0ではプロセス全体の使用量をまだ縛りません。数えるのは状態ストアの保持量で、プロセスはそれを超えることがあります。coneが上限で止まるときは、使えるメモリの半分ほどを指定してください。
+`--with-tlc` はTLC実行を、メモリに加えてコアでも割り振ります。各実行は、そのモジュールでBFSが数えた5万状態ごとに1つ、1から8のworkerを持ちます。大きい実行から先に始まり、BFSが終わった後のcone実行は `--memory` を全部使えます。ヒープは半分の取り分から決めるので、実行が始まる時刻で判定は変わりません。詳細はupstreamの [tlc-scheduling.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/design/tlc-scheduling.md) にあります。
+
+`--memory` の上限は、main `169cdf3` でもプロセス全体の使用量をまだ縛りません。数えるのは状態ストアの保持量で、プロセスはそれを超えることがあります。coneが上限で止まるときは、使えるメモリの半分ほどを指定してください。z3のメモリも数えません。サンプルでは、z3のプロセス1つあたり29〜63 MBでした（z3 5.1.0、`RDRA_JOBS=1`）。z3のプロセス数は `RDRA_JOBS` で決まります。
+
+証明が既定になったので、`verify` は前より時間がかかります。CHANGELOGのUnreleasedの計測では、`scripts/verify-samples.sh` の43回の実行の合計が約40秒から85秒に延びました（`RDRA_JOBS=1`、キャッシュが空のとき。温まったキャッシュでは59秒）。証明が要らない実行には `--no-prove` を渡します。`check` とエディタのライフサイクル検査は証明をしません。
 
 ### 出力
 
@@ -508,7 +547,20 @@ result: counterexample
 Error: verification failed: 1 invariant or after-assert violation(s)
 ```
 
-エンティティのconeの集計は `state models (BFS on 2 entity cones): 2 state models, 5 states witnessed, 0 deadlocks, 0 use cases that never run` のように出ます。`--prove` では規則ごとに `proved:`、`unproved:`、`out of scope:` のどれかの行が出ます。`--with-tlc` では各TLC実行の `tlc:` 行が加わり、`result:` の後に `tlc_result: ok|counterexample|tool_error` が続きます。
+エンティティのconeの集計は `state models (BFS on 2 entity cones): 2 state models, 5 states witnessed, 0 deadlocks, 0 use cases that never run` のように出ます。証明の行は [証明](#証明) を参照してください。
+
+`--with-tlc` では各TLC実行の `tlc:` 行が加わり、`result:` の後に `tlc_result: ok|counterexample|tool_error` が続きます。cone、性質、モデル全体の実行の `tlc:` 行は、TLCの起動にかかったものを末尾に付けます（`(31 states, 1.6 s, -Xmx1g, 8 workers)`）。`tlc:` 行は互換性の対象外で、`tlc_result:` は対象です。TLCの反例は、ネイティブの判定によらず、すべてBFSのステップ関係で再生します。再生できない反例は `error[EngineDisagreement]` になり、判定の食い違いと同じく1件と数えます。2つのエンジンが一致する根拠は [TLCとの一致](/projects/rdra-ish/theory/tlc-agreement/) で解説しています。
+
+### 証明
+
+証明は、選んだ規則ごとに `proved:`、`unproved:`、`out of scope:`、`refuted:` のどれかの行を出します。同じ実行でBFSが反例を見つけた規則は試さず、`refuted: <rule> (BFS counterexample at <n> instances)` になります。`OK:` 行は末尾に `; <n> of <m> rules proved for any number of rows and every --int-range-max from <least> to <greatest>, in the whole model` を足します。`proved:` 行も同じ主張で終わります。スコープを絞った実行では、末尾が `in the selected scope: <flags>` になります（[部分実行](#部分実行)）。
+
+- 証明できず、BFSが通した規則は、そのcone上でインスタンスを1つと2つ増やして検査し直します。結果は `escalated: <rule>: ok at 3 instances, counterexample at 4 instances (BFS on its cone; ok at 2)` のような行です。そこで反例が出ればトレース付きのerrorで、実行は失敗します。
+- メモリ上限で止まったinvariantのconeは、z3がその中のすべての規則を証明すれば `ok` になり、決まったと数えます。行は `decided by proof: z3 proved every check for any number of rows` で終わります。
+- 証明が残した規則と補題の組は、証明書としてユーザーのキャッシュディレクトリ（`XDG_CACHE_HOME`）に置きます。プロジェクトには書きません。次の実行は同じ符号化ならそれを1回で確かめ直し、通れば使います。出力は証明書の有無で変わりません。`RDRA_ISH_NO_PROOF_CACHE=1` で使わなくなります。
+- z3の各検査の予算は、時間ではなくz3のリソース単位です。予算はz3 5.1.0で測りました。ほかの版では `note: z3 <version> is not a version the proof's resource limits were measured on (5.1.0); ...` をstderrに出し、ほかは変わりません。
+
+証明が何を主張し、どう組み立てられているかは [z3による証明](/projects/rdra-ish/theory/z3/) で解説しています。
 
 ### result 行
 
@@ -526,13 +578,16 @@ Error: verification failed: 1 invariant or after-assert violation(s)
 ```bash
 rdra-ish verify src/
 rdra-ish verify src/ --instance-count 3 --memory 8GiB --deny-undecided
+rdra-ish verify src/ --no-prove
 rdra-ish verify src/ --with-tlc -o /tmp/rdra-tla
-rdra-ish verify src/ --prove --entity Order
+rdra-ish verify src/ --deny-unproved --entity Order
 ```
 
 ## codegen
 
-モデルのドメインの型と関数を、TypeScript・Rust・Goで出します。エージェントがその先を書き上げる前提の出力です（`rdra-ish codegen <INPUTS...> --lang ts|rust|go [-o <FILE>]`）。`codegen` はまず `check` を走らせ、errorがあれば止まります。`--format json` は契約をデータで出します。`--code` は `rdra.toml` の `[code]` 表が指すファイルを書きます。互換性の対象は `--lang ts` が出すTypeScriptの型だけで、ほかは実験的です。フラグと出力の詳細は [コード生成](/projects/rdra-ish/codegen/) を参照してください。
+モデルのドメインの型と関数を、TypeScript・Rust・Goで出します。エージェントがその先を書き上げる前提の出力です（`rdra-ish codegen <INPUTS...> --lang ts|rust|go [-o <FILE>]`）。`codegen` はまず `check` を走らせ、errorがあれば止まります。`--format json` は契約をデータで出します。format 1のまま、`events`、UCごとの `actors`、fieldの `primary_key` と `unique`、義務の `kind` などのキーが加わりました。`--code` は `rdra.toml` の `[code]` 表が指すファイルを書きます。互換性の対象は `--lang ts` が出すTypeScriptの型だけで、ほかは実験的です。
+
+実験的なフラグが2つ加わりました。`--adapter` は `--conformance` と併用し、ドメインコードの代わりにモデルアダプタを出します。モデルの状態と呼び出しを素のデータで表し、`ModelAdapter` のインターフェースとハーネスを持ちます。生成コードを改名や再構成したプロジェクトでも、サービスをトレースにつなげます。`--verus <DIR>` は `--lang rust` と併用し、Verusのクレートを `DIR` に書きます。手を入れたコアを、検証済みのモデルに照らして任意の行数で検査するためのものです。対応しないモデルでは理由を1行ずつ出し、終了コード1です。フラグと出力の詳細は [コード生成](/projects/rdra-ish/codegen/) を参照してください。
 
 ## プロジェクトマニフェスト
 
@@ -562,11 +617,11 @@ symmetry = "always"
 | `[check]`、`[verify]` | `memory` | そのコマンドのメモリ上限 |
 | `[check]`、`[verify]` | `instances` | エンティティごとのスロット数、`1..=255` |
 | `[verify]` | `symmetry` | `never` か `always` |
-| `[code]` | `obligations`、`rust`、`go`、`ts` | `codegen --code` と `check --code` が使う（[コード生成](/projects/rdra-ish/codegen/)） |
+| `[code]` | `obligations`、`rust`、`go`、`ts`（`typescript` とも書ける。どちらか一方） | `codegen --code` と `check --code` が使う。言語の表は `domain` か `adapter` のどちらか一方を持つ。`[code.rust]` の `serde = true` は、生成するデータ型にserdeのderiveを付ける（[コード生成](/projects/rdra-ish/codegen/)） |
 
 フラグは対応するキーより優先します。`--instances` は表の同じエンティティの値だけを置き換えます。
 
-v3.0.0から、未知の表やキーはerrorです。たとえば `[verfiy]` の綴り誤りで読み込み系コマンドは終了コード1になり、`rdra.toml` と行番号を示します。自由形式なのは `[dependencies]` だけです。`[model] name` の欠落、サイズとして読めない `memory`、`1..=255` 外の `instances` も同じく終了コード1です。
+未知の表やキーはerrorです。たとえば `[verfiy]` の綴り誤りで読み込み系コマンドは終了コード1になり、`rdra.toml` と行番号を示します。自由形式なのは `[dependencies]` だけです。`[model] name` の欠落、サイズとして読めない `memory`、`1..=255` 外の `instances` も同じく終了コード1です。
 
 ```
 Error: /work/shop/rdra.toml:3: unknown field `verfiy`, expected one of `model`, `dependencies`, `check`, `verify`, `code`
@@ -578,10 +633,16 @@ Error: /work/shop/rdra.toml:3: unknown field `verfiy`, expected one of `model`, 
 
 | 変数 | 読むコマンド | 効果 |
 |---|---|---|
-| `RDRA_JOBS` | `check`、`states`、`verify`、生成系 | 同時に探索するconeの数など。`1` ですべて1スレッドで順に動く。出力は変わらない |
+| `RDRA_JOBS` | `check`、`states`、`verify`、生成系 | 同時に探索するconeの数、証明のz3プロセスの数など。`1` ですべて1スレッドで順に動く。出力は変わらない |
 | `RDRA_TLC_JAR` | `verify --with-tlc` | `--tlc-jar` を省いたときの `tla2tools.jar` |
-| `RDRA_TLC_HEAP` | `verify --with-tlc` | 各TLCのJVMのヒープ（`4g` など） |
-| `RDRA_Z3` | `verify --prove` | `--z3` を省いたときのz3 |
+| `RDRA_TLC_JOBS` | `verify --with-tlc` | `--tlc-jobs` を省いたときの値 |
+| `RDRA_TLC_WORKERS` | `verify --with-tlc` | `--tlc-workers` を省いたときの値 |
+| `RDRA_TLC_HEAP` | `verify --with-tlc` | 各TLCのJVMのヒープ（`4g` など）。`RDRA_TLC_HEAP=states` は、BFSが数えた状態数からcone実行のヒープを引き上げる（実験的） |
+| `RDRA_Z3` | `verify` | `--z3` を省いたときのz3 |
+| `XDG_CACHE_HOME` | `verify`（証明） | 証明書の置き場所。`$XDG_CACHE_HOME/rdra-ish/proofs`、なければmacOSでは `~/Library/Caches/rdra-ish/proofs`、ほかでは `~/.cache/rdra-ish/proofs` |
+| `RDRA_ISH_NO_PROOF_CACHE` | `verify`（証明） | 設定すると証明書を読み書きしない。出力は変わらない |
+
+開発者向けの変数もあります。どれも診断を変えるか最適化を止めるだけで、判定は変わりません。測定用の `RDRA_ISH_G_T_STATS`、`RDRA_ISH_S_UP_TO_H_STATS`、`RDRA_ISH_QUOTIENT_STATS`、`RDRA_ISH_DIVERGENCE_STATS` は、リリースビルドではもう読まず、`perf` ビルドだけが読みます。
 
 ## 終了コード
 
@@ -590,23 +651,42 @@ Error: /work/shop/rdra.toml:3: unknown field `verfiy`, expected one of `model`, 
 | `0` | 成功。warningとinfoの所見では変わらない |
 | `1` | 失敗。読み込みerror、error所見、止まった出力、`--check` の差分、不正な `rdra.toml`、必要なツールが動かない |
 | `2` | 使い方の誤り。未知のフラグ、不正な値、削除された値（メッセージが置き換え先を示す）、併用できないフラグ |
+| `101` | ツールのバグ。整数のオーバーフローか内部検査の失敗で、実行がpanicした |
+
+panicした実行は、stderrに次の行を出し、その後にRustのpanicの文面を続けます。1回の実行で出るのは最初のpanicだけです。`RUST_BACKTRACE=1` でバックトレースも出ます。
+
+```
+tool error: rdra-ish <version> panicked at <file>:<line>:<col> (a tool bug, not a finding about the model); please report it at https://github.com/manji-0/rdra-ish-dsl/issues with the command and the model
+```
+
+リリースビルドは整数のオーバーフローを検査します。オーバーフローは誤った判定に化けず、panicで止まります。実行を止めない異常（自己検査に失敗した反例など）は、`tool error: ...` の診断か `tool_error` の結果で、終了コード1です。`rdra-ish lsp` は、ハンドラーがpanicした要求に内部errorで答えて動き続けます。
 
 ## 互換性
 
-rdra-ishはセマンティックバージョニングに従います。次のものはメジャーリリースでしか壊れません。詳細はupstreamの [compatibility.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/compatibility.md) にあります。
+rdra-ishはセマンティックバージョニングに従います。次のものはメジャーリリースでしか壊れません。詳細はupstreamの [compatibility.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/compatibility.md) にあります。
 
-- サブコマンドとフラグの名前、意味、受け付ける値（各 `--kind` と `--format`）
-- 終了コード
+- サブコマンドとフラグの名前、意味、受け付ける値（各 `--kind` と `--format`）。`verify` の `--tlc-jobs`、`--tlc-workers` と、その代わりになる `RDRA_TLC_JOBS`、`RDRA_TLC_WORKERS` も含む
+- 終了コード。`101` も含むが、`tool error:` 行の文言は対象外
 - `lint`、`next`、`list`、`states` の `--format json` のキーと、`lint`、`list`、`states`、`csv` の `--format csv` の列。リリースで追加はあるが、改名・削除・並べ替えはしない
 - `bounds:`、`result:`、`tlc_result:` 行の形
 - 診断名とlintのルールid
 - Mermaid図の符号化
 
-対象外なのは、メッセージの文言、状態数と実行時間、どの反例が出るか、図のレイアウトです。`codegen` のTypeScriptの型以外、`check --code`、`verify --prove`、`verify --symmetry` も対象外の実験的な機能です。リリースをまたいで結果を再現したいときは、既定値に頼らず `--instance-count`、`--int-range-max`、`--max-patterns`、`--max-states` をフラグで渡してください。
+対象外なのは、メッセージの文言、状態数と実行時間、どの反例が出るか、図のレイアウトです。`verify --with-tlc` の `tlc:` 行の形と末尾のコストも対象外です。`codegen` のTypeScriptの型以外、`check --code`、`verify --symmetry`、`verify --plan`、`RDRA_TLC_HEAP=states` も対象外の実験的な機能です。`verify` の証明は既定で走り、`--no-prove`、`--prove`、`--deny-unproved`、`--z3` は意味を保ちます。ただし証明が出すもの（`proved:` などの行、どの規則が証明されるか、`OK:` 行に付く句）は実験的です。リリースをまたいで結果を再現したいときは、既定値に頼らず `--instance-count`、`--int-range-max`、`--max-patterns`、`--max-states` をフラグで渡してください。
+
+## lsp
+
+言語サーバーをstdinとstdoutで動かします。
+
+```
+rdra-ish lsp
+```
+
+`rdra-ish-lsp` と同じサーバーをCLIに組み込んだものです。そのため、PyPIでインストールした `rdra-ish` でも使えます。引数を取らず、クライアントがワークスペースを開くまでファイルを読みません。stdoutにはプロトコルのメッセージだけを書き、クライアントの `exit` 通知で終わります。upstreamのClaude Codeプラグインは、`.rdra` ファイルに対してこのコマンドを起動します。サーバーが何をするかは次の節にあります。
 
 ## VS CodeとLSP
 
-`rdra-ish-lsp` は言語サーバーです。upstreamの [`editors/vscode`](https://github.com/manji-0/rdra-ish-dsl/tree/v3.0.0/editors/vscode) にVS Code拡張があります。
+`rdra-ish-lsp` は言語サーバーです。upstreamの [`editors/vscode`](https://github.com/manji-0/rdra-ish-dsl/tree/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/editors/vscode) にVS Code拡張があります。
 
 | 機能 | 内容 |
 |---|---|
@@ -618,14 +698,18 @@ rdra-ishはセマンティックバージョニングに従います。次のも
 | セマンティックトークン | kind別の色分け |
 | コードアクション、コードレンズ、インレイヒント | 修正の提案と関係の表示 |
 | リンク編集、折りたたみ | 対応する箇所の同時編集と折りたたみ |
+| ライフサイクル検査 | 解析のたびに、背景で `check` の探索を1インスタンスで走らせ、所見を診断とコードレンズで示す |
 
 - ワークスペースはCLIと同じように読みます。ワークスペースのルート以下のすべての `.rdra` と開いているバッファが対象です。
 - `rdra.toml` が不正なら診断を消し、メッセージでerrorを示します。サーバーは動き続けます。
 - `codegen` とビルドは実行しません。`[code]` のファイルが古いときは、`rdra.toml` の表の行にinformationの診断を出します。
+- 読み込めたモデルを解析するたびに、背景で `check` のライフサイクル探索を走らせます。エンティティごとに1インスタンスで、1スレッドでconeを1つずつ、時間とメモリの上限の中で探索します。所見は、それが指す宣言の位置に診断として出ます。sourceは `rdra-ish check (1 instance)` で、codeは `check` が出す名前です。上限で止まったconeと、決まらなかった所見はinformationです。
+- 各invariant、`forbidden`、`after(..).assert` には、`check: ok (1 instance)`、`check: violated (1 instance)`、`check: not decided (1 instance)` のコードレンズが付きます。`verify` は2インスタンスで探索するため、別の判定になることがあります。
+- この検査は、初期化オプションか `rdra-ish` 設定の `lifecycleCheck` で設定します。キーは `enabled`（既定 `true`）、`timeBudgetMs`（`2000`）、`memory`（`"512MiB"`）、`quietMs`（`200`。解析の後に始めるまでの時間）です。VS Code拡張は `rdra-ish.lifecycleCheck.*` の設定を渡します。
 
 ### セットアップ
 
-1. `rdra-ish-lsp` をインストールします。NixかCargoで入ります（[使い方](/projects/rdra-ish/usage/)）。PyPIのパッケージとGitHub Releaseのバイナリには含まれません。
+1. `rdra-ish-lsp` をインストールします。NixかCargoで入ります（[使い方](/projects/rdra-ish/usage/)）。PyPIのパッケージとGitHub Releaseのバイナリには含まれません。`rdra-ish` 本体（PyPIを含む）は、同じサーバーを [`rdra-ish lsp`](#lsp) で動かせます。
 2. `editors/vscode` で `npm run package` を実行してVSIXを作り、VS Codeにインストールします。
 3. 拡張は `PATH` の `rdra-ish-lsp` を使います。別の場所に置いたときは `rdra-ish.languageServerPath` で指定します。
 

@@ -1,11 +1,13 @@
 ---
 title: "段階的モデリング"
-description: "rdra-ish v3.0.0 の Stage 0–7 モデリングフローと rdra-ish next"
+description: "rdra-ish の Stage 0–7 モデリングフローと rdra-ish next（main 169cdf3）"
 sidebar:
   order: 3
 ---
 
-このページは、要件モデルを業務の意図から技術設計へ段階的に精緻化する手順です。ファイル配置、Stageの一覧、各Stageで足すものと問うこと、`rdra-ish next` が現在のStageを判定する仕組みを説明します。実践例は [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) を参照してください。upstreamの正本は [docs/incremental-modeling.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/incremental-modeling.md) です。
+このページは、要件モデルを業務の意図から技術設計へ段階的に精緻化する手順です。ファイル配置、Stageの一覧、各Stageで足すものと問うこと、`rdra-ish next` が現在のStageを判定する仕組みを説明します。実践例は [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) を参照してください。upstreamの正本は [docs/incremental-modeling.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/incremental-modeling.md) です。
+
+対象：main `169cdf3`（v3.0.0以降の未リリース版）。
 
 ## 原則
 
@@ -175,6 +177,8 @@ Next: stage 2 Screens
 JSONはStageを `"2"` や `"7A"` で返し、`slug`（`data-touchpoints` など）を安定したIDとして持ちます。終了コードは、どのStageと判定でも `0` です。ロードエラーやモデルエラーがあれば `1` を返すので、先に `check` を実行します。`next` は `check` と同じくライフサイクルを探索するので、同じくらい時間がかかります。`lint` の `stage-readiness` も同じゲートで各BUCのStageを報告します。
 
 BUCごとに進み具合が違ってかまいません。1つのBUCを1段階進めるたびに `next` を実行します。
+
+エージェントスキル `rdra-ish-write` も同じ手順を取ります。まず `rdra-ish next src/` でStageを調べ、そのStageの問いだけを聞きます。Claude Codeでは、upstreamの `rdra-ish` プラグインがスキル一式を入れます。`rdra-ish` 本体は入れないので、別にインストールします（[skills/README.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/skills/README.md#claude-code-plugin)）。
 
 ## Stageごとの進め方
 
@@ -357,7 +361,7 @@ invariant(Order, Payment).when(Order.status == paid).then(Payment.status == capt
 - 聞くこと：どの比較が重要で、どのユースケースがその数値や日付を動かすか。本当に複数のエンティティに言及するルールはどれか。横断ルールは全組み合わせに対するものか、宣言した関連の経路に沿うものだけか。
 - 次へ進む目安：診断が消えたか、既知の穴として受け入れた。
 
-`check` と `states` は既定でエンティティごとに1インスタンスで実行します。同じエンティティの2行でしか破れないルール（同じエンティティの行に対する `.none`、`@unique` の組 `Unique_<Entity>_<columns>`）は、そこでは失敗しません。`.along` のない複数エンティティのルールも1組の行しか見ません。こうしたルールを使う前に、`rdra-ish check src/ --instance-count 2` か `rdra-ish verify src/` を実行します。時相の `property` は `verify` だけが検査します。詳しくは [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
+`check` と `states` は既定でエンティティごとに1インスタンスで実行します。同じエンティティの2行でしか破れないルール（同じエンティティの行に対する `.none`、`@unique` の組 `Unique_<Entity>_<columns>`）は、そこでは失敗しません。`.along` のない複数エンティティのルールも1組の行しか見ません。こうしたルールを使う前に、`rdra-ish check src/ --instance-count 2` か `rdra-ish verify src/` を実行します。`verify` は既定で、ルールが任意の行数で成り立つことのz3による証明も試みます。z3が見つからなければ証明を飛ばし、`note: z3 not found ...` を表示します（[z3による証明](/projects/rdra-ish/theory/z3/)）。時相の `property` は `verify` だけが検査し、`check` は検査しなかった数を知らせます。詳しくは [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
 
 ## APIとアクセス境界の判断
 
@@ -425,7 +429,7 @@ creates(StoreParentOrgApi, StoreOrgAssignmentHistory)
 
 ## サンプル
 
-upstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/v3.0.0/samples/incremental-order) に、同じBUCを8段階（step-0〜step-7）で育てた成果物があります。各stepは独立した `src/` を持つので、diffで各Stageの追加量を確認できます。読み物としてのウォークスルーは [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) です。
+upstreamの [`samples/incremental-order`](https://github.com/manji-0/rdra-ish-dsl/tree/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/samples/incremental-order) に、同じBUCを8段階（step-0〜step-7）で育てた成果物があります。各stepは独立した `src/` を持つので、diffで各Stageの追加量を確認できます。読み物としてのウォークスルーは [店舗補充管理の例](/projects/rdra-ish/examples/store-restock/) です。
 
 ## 次に読む
 

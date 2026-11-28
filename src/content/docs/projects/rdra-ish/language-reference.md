@@ -1,11 +1,13 @@
 ---
 title: "言語リファレンス"
-description: "rdra-ish DSL（.rdra）の構文概要（v3.0.0）"
+description: "rdra-ish DSL（.rdra）の構文概要（main 169cdf3）"
 sidebar:
   order: 6
 ---
 
-このページはv3.0.0の `.rdra` の構文と、同じモデルから出せる図・表・エクスポートの概要です。各構文の診断名や細かな規則は省いています。完全な仕様はupstreamの [docs/language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/language-reference.md) を参照してください。
+対象：main `169cdf3`（v3.0.0以降の未リリース版）。
+
+このページは `.rdra` の構文と、同じモデルから出せる図・表・エクスポートの概要です。各構文の診断名や細かな規則は省いています。完全な仕様はupstreamの [docs/language-reference.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/language-reference.md) を参照してください。
 
 モデルは層ごとに1つのレビューの問いに答えます。
 
@@ -177,7 +179,7 @@ relate(OrderLine, Order, 1..*:1)                  // every Order has an OrderLin
 
 ## 関係述語
 
-述語は宣言済みのインスタンスをIDでつなぎます。主なものを用途ごとにまとめます。全体の一覧はupstreamの [Relationship predicates](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/language-reference.md#relationship-predicates) にあります。
+述語は宣言済みのインスタンスをIDでつなぎます。主なものを用途ごとにまとめます。全体の一覧はupstreamの [Relationship predicates](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/language-reference.md#relationship-predicates) にあります。
 
 ### スコープと所有
 
@@ -289,9 +291,18 @@ unlinks(Release, Case, Handler)
 | `.on_delete` | ライフサイクルでの意味 |
 |---|---|
 | なし、`restrict`、`no_action` | 存在する子が行を指す間は削除できない。`DanglingKey_<Child>_<role>` を検査する |
-| `cascade`、`set_null`、`set_default` | 動作はまだ実行しない。削除はでき、子は消えた行を指したまま残る |
+| `cascade`、`set_null`、`set_default` | 検証はこの動作を実行しない。削除はでき、子は消えた行を指したまま残る。`DanglingKey_*` は検査しない |
 
-`cascade` の親を消して子を消さないUCには、info `DeleteLeavesChildren` が出ます。1回の実行で子を1行消すには `deletes(UC, Child)` を加えます。`@soft_delete` 列を持つ親は削除せず、印を付けるだけです。v3.0.0から、子が残る間は削除を待つようになりました。
+検証が参照動作を実行しないことを、2つのwarningが知らせます。
+
+- `DeleteLeavesChildren`: `cascade` の親を消し、子を消さないUCに出ます。1回の実行で子を1行消すには `deletes(UC, Child)` を加えます
+- `DeleteLeavesChildKeys`: `set_null` か `set_default` の親を消し、子を消さずキーも動かさないUCに出ます。1回の実行で子1行のキーを外すには `unlinks(UC, Child, Parent)` を加えます。キーに既定値を書く操作はないので、`set_default` にぴったり対応する書き方はありません
+
+1回の実行で消せる子は1行です。そのため2インスタンスの範囲では、明細が2行ある注文は、`restrict` のキーでは削除できないままです。
+
+`export --kind sql` は `ON DELETE CASCADE` などの動作を書きます。そのDBでは子が消えるか、キーが外れるか既定値に戻ります。上の2つのwarningは、検証したモデルとそのDBが食い違うUCを示します。生成するGo・Rust・TypeScriptのコードも参照動作を実装しません。モデルの削除と同じく1行だけを消し、動作は未検査の義務 `OnDelete_<Child>_<columns>` として残します。
+
+`@soft_delete` 列を持つ親は削除せず、印を付けるだけです。ガードと `DanglingKey_*` はなく、どちらのwarningも出ません。削除の読み方の定義は [意味論 D9](/projects/rdra-ish/theory/semantics/#d9) にあります。
 
 ## 規則
 
@@ -326,8 +337,9 @@ after(Pay).assert(Order.status == paid, Payment.status == captured).label("A pai
 - `lint` の `multi-rule-unscoped` は、キーで関連するのに `.along` がない規則を指摘します。すべての組を意図するなら `.global()` を書きます
 - `.at_most(n, ...)` / `.at_least(n, ...)` / `.exactly(n, ...)` は関連する行を数えます
 - `.label("...")` は規則に業務の言葉の名前を付けます。違反は `「label」: ` で始まります
-- `.lemma()` は `verify --prove` を助ける補題の印です
+- `.lemma()` は `verify --prove` を助ける補題の印です。`check` は補題も検査します。`verify` は補題だけのconeを作りませんが、同じものを読む別の規則のconeで検査し、違反すれば失敗します
 - 何も主張せずに成り立つ規則には、warning `Vacuous_<name>` を出します
+- `after(UC).assert(...)` は、何も変えない最後のステップでは評価しません。TLA+ の `[][…]_vars` が足踏みを許すのと同じです。最後のステップが常にそうなら、warning `Vacuous_AfterAssert_*` が出ます
 
 `.when(Cond)` には `condition` を渡せます。規則は、その条件の `holds` 本体を書いたものとして読みます。業務ルールを条件として1回書けば、UCのガードと規則の両方に使えます。
 
@@ -339,6 +351,24 @@ applies_to(PastDeadline, Expire)
 invariant(Coupon).when(PastDeadline).then(status == expired)
 forbidden(Coupon, status == active).when(PastDeadline)
 ```
+
+### 補題が読む印
+
+`.lemma()` を付けた規則だけは、行の印（実行中の分割UCや発行済みのイベント）を読めます。証明に要る、途中の実行や発行についての事実を書くためです。
+
+| 条件 | 成り立つとき |
+|---|---|
+| `E.in_run(UC)` | 分割したUC `UC` のステップが、その行で実行中である |
+| `E.in_run(UC, k)` | その行のUCの実行が、ステップ `k` を終えて次をまだ行っていない |
+| `E.raised(Ev)` | その行の `Ev` のラッチが立っている |
+
+```rdra
+forbidden(Light, Door, Light.state == off, Door.in_run(Open)).global().lemma()
+invariant(Sign).when(Sign.raised(EvShut)).then(Sign.state == dark).lemma()
+```
+
+- 印は `forbidden` の条件か、`invariant` の `.when(...)` と `.then(...)` に書きます。ほかの場所や `.lemma()` のない規則では `MarkOutsideLemma` です。ほかの規則の意味は変わりません
+- ライフサイクルに変数のない印はerror `NoSuchMark` です。1トランザクションのUC、範囲外の `k`、ラッチを持たないイベント（ラッチを読むのは `.counted` のない `triggers` だけ）が当たります。`k` が0なら `MarkStepOutOfRange` です
 
 ### 条件とガード
 
@@ -401,18 +431,35 @@ property OrderCanFinish "every order can still be delivered or cancelled"
 
 | 形 | 意味 |
 |---|---|
-| `always(p)` | 常に `p` が成り立つ |
-| `eventually(p)` | いつか `p` が成り立つ |
-| `leads_to(p, q)` | `p` が成り立てば、いつか `q` が成り立つ |
+| `always(p)` | 存在する行で常に `p` が成り立つ |
+| `eventually(p)` | 存在する行ごとに、いつか `p` が成り立つ |
+| `leads_to(p, q)` | 存在する行で `p` が成り立てば、いつか `q` が成り立つ |
 | `stable(p)` | 一度成り立った `p` は、行が存在する限り保たれる |
 | `unchanged(E.col, ..).when(p)` | `p` が成り立つ間、列の値が変わらない |
 | `precedes(p, q)` | `q` が成り立つとき、`p` は今かそれ以前に成り立った |
-| `can_reach(p)` | どの到達状態からも `p` に至る経路が残っている（CTLの `AG EF`） |
+| `can_reach(p)` | どの到達状態からも、行が存在したまま `p` に至る経路が残っている。CTLの `AG (present => E[present U (present /\ expr)])` |
 
 - 結合子は `and` / `or` / `not` です（`/\` `\/` `~` は別名）
-- `.fair(UseCase, ...)` は `eventually` / `leads_to` が前提とする、インスタンスごとの弱公平なUCを書きます。安全性の性質や `can_reach` には付けられません
+- `.fair(UseCase, ...)` は `eventually` / `leads_to` が前提とする、インスタンスごとの弱公平なUCを書きます。安全性の性質や `can_reach` には付けられません。公平性の定義は [意味論 D20](/projects/rdra-ish/theory/semantics/#d20) にあります
 - 複数エンティティを読む性質は `.along(...)` で行の組を絞ります
 - `can_reach` はTLA+で書けないので、`verify` が自前の探索で判定します
+
+### 削除とゴール: `.present()`
+
+`present` を読むのは、性質が行について語り始める箇所です。`always` の全体と、`eventually` / `leads_to` のトリガーが当たります。ゴールは、行が存在するかどうかにかかわらず読みます。削除した行の列は基底値に戻るので、削除は基底値が満たすゴールを満たします。`pending` が `@default` なら、`leads_to(Order.status == paid, Order.status == pending)` は支払済みの注文がいずれ削除されるモデルで成り立ちます。
+
+```rdra
+property HeldReleased "a held order is released"
+  leads_to(Order.held == true, Order.held == false).fair(Release).present()
+```
+
+- `.present()` を付けると、`eventually` か `leads_to` のゴールに、束縛したすべての行の存在を求めます。ゴールの前に行が削除されると、ゴールは満たされず、性質が破れます
+- 引数はとりません。1回だけ書き、`.fair` `.along` `.role` `.global()` の前後どちらにも置けます
+- `always` `stable` `unchanged` `precedes` `can_reach` に付けると `PresentOnNonGoalProperty` です。引数付きや2回書くと `PresentRequiresNoArguments` です
+- 行を削除するUCがあり、ゴールがその行の基底値で成り立つなら、`check` と `verify` はhint `info[GoalMetByDelete_*]` を出します。warningではありません。削除でゴールを満たしたくないなら `.present()` を付けます
+- cone、縮約、インスタンスの対称性は `.present()` がなくても同じです。TLCも同じ式を検査します
+
+付けないときの読み方は既定のままです。定義は [意味論 D21](/projects/rdra-ish/theory/semantics/#d21) にあります。
 
 検査の仕組みは [形式検証](/projects/rdra-ish/formal-verification/) を参照してください。
 
@@ -446,15 +493,31 @@ UCが発行するイベントで起動されるUCは、そのイベントを発�
 
 `@null` 列は、型にかかわらず `null` を値の1つとして持ちます。比較は常に真か偽で、不明にはなりません。
 
-- 値を与えず `@default` もない `@null` 列は、作成時に `null` から始まります。v3.0.0から、`Enum` と `Bool` も同じです（`color: Enum(red, blue) @null` は `red` ではなく `null` から始まる）
+- 値を与えず `@default` もない `@null` 列は、作成時に `null` から始まります。`Enum` と `Bool` も同じです（`color: Enum(red, blue) @null` は `red` ではなく `null` から始まる）
 - nullの列は、値・列・`now` とのどの比較も満たしません。`!=` は常に満たします
-- 2つのnullの列は等しくありません。`qty == lim` は偽、`qty != lim` は真です（v3.0.0から）
+- 2つのnullの列は等しくありません。`qty == lim` は偽、`qty != lim` は真です
 - `col == null` と `col == present` はnullそのものを問います。`color in (red, null)` はnullで成り立ちます
-- 論理的な `@derived` 列は値です。`qty` がnullの間、`@derived(qty in (1, 2))` もnullになります（v3.0.0から）
+- `not` は二値の結果を反転します。`x` がnullの間、`not (x < 3)` は成り立ち、`x >= 3` は成り立ちません。順序比較とその否定の書き換えは、nullでだけ食い違います
+- 論理的な `@derived` 列だけは例外で、SQLと同じく比較を読みます。`qty` がnullの間、`@derived(qty in (1, 2))` もnullになり、`not` を付けてもnullです
 - 一意制約もnullを同じように読みます。2つのnullの行は衝突しません
 - `@default(null)` は `Enum` や `Bool` の値ではありません
 
+`x` と `y` を両方nullの `Int @null`、`k` を3を持つ `Int` とすると、比較は次のとおりです。各セルは「`l op r` が成り立つか / `not (l op r)` が成り立つか」です。upstreamはこの表をテストで計算しています。
+
+| 左, 右 | `==` | `!=` | `<` `<=` `>` `>=` |
+|---|---|---|---|
+| `x`, `3` / `x`, `k` / `k`, `x` / `x`, `y` | false / true | true / false | false / true |
+
+| 比較 | 成り立つか / `not` で成り立つか |
+|---|---|
+| `x == null` | true / false |
+| `x != null` | false / true |
+| `x in (1, 3)` | false / true |
+| `x not in (1, 3)` | true / false |
+
 つまり `required(Item, qty >= 0)` はnullの `qty` で失敗し、`qty: Int @null @check(qty >= 1)` はnullの間ずっと失敗します。nullを許す規則は `@check(qty == null or qty >= 1)` のように明示します。
+
+lintのwarning `negated-order-admits-null` は、nullable列の `<` `<=` `>` `>=` に `not` をかけた箇所を指摘します。対象は `@check` と `property` で、`check`、`lint`、エディタが表示します。同じ式が列のnullを名指していれば（`qty == null or ...`）指摘しません。nullを除くなら `qty >= 1` と順序比較そのものを書き、nullを許すなら `qty == null or qty >= 1` と書きます。`!=` と `not in` はどの規則でもnullで成り立つので指摘しません。比較の定義は [意味論 D5](/projects/rdra-ish/theory/semantics/#d5) にあります。
 
 ## 図
 
@@ -511,7 +574,7 @@ rdra-ish list <INPUTS...> --kind <KIND> [--format table|json|csv|markdown]
 
 ## 状態導出とエクスポート
 
-`states` は、BUCをまたいで各エンティティの到達できる状態パターンを導出します。到達できない値、作成経路の欠落、規則の違反を報告し、`--format` は `table` `csv` `json` です。仕組みはupstreamの [state-derivation.md](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/state-derivation.md) にあります。
+`states` は、BUCをまたいで各エンティティの到達できる状態パターンを導出します。到達できない値、作成経路の欠落、規則の違反を報告し、`--format` は `table` `csv` `json` です。仕組みはupstreamの [state-derivation.md](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/state-derivation.md) にあります。
 
 `export --kind` は `openapi` `asyncapi` `dbml` `sql` `json-schema` `mermaid-er` `tla` を書きます。エクスポートはレビューの起点となるたたき台です。v3.0.0で `export --kind typescript-states` と `states --format typescript` は削除され、`codegen --lang ts` に置き換わりました。
 
@@ -522,4 +585,4 @@ rdra-ish list <INPUTS...> --kind <KIND> [--format table|json|csv|markdown]
 - [段階的モデリング](/projects/rdra-ish/incremental-modeling/)
 - [CLI リファレンス](/projects/rdra-ish/cli-reference/)
 - [形式検証](/projects/rdra-ish/formal-verification/)
-- [upstreamの言語リファレンス](https://github.com/manji-0/rdra-ish-dsl/blob/v3.0.0/docs/language-reference.md)
+- [upstreamの言語リファレンス](https://github.com/manji-0/rdra-ish-dsl/blob/169cdf3fb49bbcaf0c7d452c32a57da18720fdd0/docs/language-reference.md)

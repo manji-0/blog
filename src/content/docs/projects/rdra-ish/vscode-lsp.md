@@ -1,8 +1,8 @@
 ---
 title: "（移動しました）"
-redirect: /projects/rdra-ish/cli-reference/
+redirect: /projects/rdra-ish/usage/#エディタとclaude-codeプラグイン
 sidebar:
   hidden: true
 ---
 
-このページは [CLI リファレンス](/projects/rdra-ish/cli-reference/) へ移動しました。
+このページは [使い方の「エディタとClaude Codeプラグイン」](/projects/rdra-ish/usage/#エディタとclaude-codeプラグイン) へ移動しました。
